@@ -1,0 +1,289 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import Ye from "/public/images/Ye.png";
+// import Polymarket from "/public/images/polymarket.png";
+import Image from "next/image";
+import { Button } from "@/app/components/ui/button";
+import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { ArrowRightLeft, Clock } from "lucide-react";
+import { ChartContainer, ChartConfig } from "@/app/components/ui/chart";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/app/components/ui/card";
+import { processSingleChartData, ChartDataPoint } from "@/utils/processChartData";
+import { toTwoDecimal } from "@/utils/helpers";
+
+interface MarketData {
+  clobTokenIds: string;
+  [key: string]: any;
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    value: number;
+    name: string;
+    color: string;
+    [key: string]: any;
+  }>;
+  label?: string;
+}
+
+interface SingleLineChartProps {
+  title?: string;
+  volume?: number;
+  endDate?: string;
+  image: any;
+  market: MarketData[];
+  interval: string;
+  chance?: number;
+}
+
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
+        <p className="text-sm font-semibold">{label}</p>
+        {payload.map(
+          (entry, index) =>
+            entry.value !== null && (
+              <p key={index} style={{ color: entry.color }} className="text-sm">
+                {entry.name} {entry.value?.toFixed(1)}¢
+              </p>
+            )
+        )}
+      </div>
+    );
+  }
+  return null;
+};
+
+const SingleLineChart: React.FC<SingleLineChartProps> = ({
+  title,
+  volume,
+  endDate,
+  image,
+  market,
+  interval,
+  chance,
+}) => {
+  const [chartDataYes, setChartDataYes] = useState<ChartDataPoint[]>([]);
+  const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
+  const [selectedYes, setSelectedYes] = useState<boolean>(true);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [chartConfig, setChartConfig] = useState<ChartConfig>({
+    asset1: {
+      label: "Yes",
+      color: "#7DFDFE",
+    },
+  });
+
+  // State to track screen width
+  const [screenWidth, setScreenWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  // Update screen width on resize
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const handleResize = () => setScreenWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    }
+  }, []);
+
+  // Determine X-axis interval based on screen width
+  const xAxisInterval = screenWidth < 640 ? Math.floor(chartData.length / 6) : Math.floor(chartData.length / 12);
+
+  useEffect(() => {
+    if (selectedYes) {
+      setChartData(chartDataYes);
+      setChartConfig({
+        asset1: { label: "Yes", color: "#7DFDFE" },
+      });
+    } else {
+      setChartData(chartDataNo);
+      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
+    }
+  }, [selectedYes, chartDataYes, chartDataNo]);
+
+  useEffect(() => {
+    const fetchAllPriceHistories = async () => {
+      if (market && market.length > 0) {
+        const yes = JSON.parse(market?.[0]?.clobTokenIds)[0];
+        const no = JSON.parse(market?.[0]?.clobTokenIds)[1];
+        try {
+          const response = await fetch(
+            `/api/event-data/price-history?interval=${interval}&market=${yes}&fidelity=${30}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
+          );
+          const data = await response.json();
+          setChartDataYes(processSingleChartData(data.history, interval));
+        } catch (error) {
+          console.error("Error fetching PriceHistory:", error);
+        }
+        try {
+          const response = await fetch(
+            `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            }
+          );
+          const data = await response.json();
+          setChartDataNo(processSingleChartData(data.history, interval));
+        } catch (error) {
+          console.error("Error fetching PriceHistory:", error);
+        }
+      }
+    };
+    fetchAllPriceHistories();
+  }, [market, interval]);
+
+  // Calculate the current displayed chance value and color
+  const displayChance = selectedYes ? chance : chance !== undefined ? 1 - chance : undefined;
+  const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
+
+  return (
+    <Card
+      className="w-[115vw] lg:w-[55vw] sm:w-[90vw] h-auto" // Wider on mobile
+      style={{ backgroundColor: "transparent", borderColor: "transparent" }}
+    >
+      <div>
+        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
+          {/* 先显示标题 */}
+          <CardTitle style={{ lineHeight: "1.5" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                style={{
+                  width: screenWidth < 640 ? "50px" : "75px",
+                  height: screenWidth < 640 ? "50px" : "75px",
+                  overflow: "hidden",
+                  borderRadius: "10px",
+                  flexShrink: 0,
+                }}
+              >
+                <Image
+                  src={image}
+                  alt="Event"
+                  width={screenWidth < 640 ? 50 : 75}
+                  height={screenWidth < 640 ? 50 : 75}
+                  style={{ 
+                    width: "100%", 
+                    height: "100%", 
+                    objectFit: "cover",
+                    transition: "all 0.3s ease" 
+                  }}
+                />
+              </div>
+              <div
+                className="text-[22px] lg:text-[26px] sm:text-[20px]"
+                style={{ paddingLeft: "15px", marginRight: "10px" }}
+              >
+                {title || ""}
+              </div>
+            </div>
+          </CardTitle>
+          
+          {/* 显示 Vol 和时间等信息 */}
+          <CardDescription className="py-2 flex flex-col sm:flex-row sm:gap-3 gap-1 justify-start items-start sm:items-center">
+            {/* First line - Volume and Date */}
+            <div className="flex flex-wrap gap-3 items-center">
+              <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
+              {endDate && (
+                <p className="flex items-center gap-1">
+                  <Clock size={14} />{" "}
+                  {new Date(endDate)?.toLocaleString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+
+            {/* Second line (mobile) - Polymarket and Swap Button */}
+            <div className="flex gap-1 items-center">
+              <Button variant="ghost" onClick={() => setSelectedYes(!selectedYes)}>
+                <ArrowRightLeft />
+              </Button>
+            </div>
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="gap-0 sm:gap-2 p-0 pl-2">
+            <div className="w-full test">
+              <CardHeader className="p-0 sm:pb-4">
+                {displayChance !== undefined && (
+                  <div className="flex justify-start mb-4"> {/* Changed from justify-center to justify-start */}
+                    <CardTitle className="text-4xl" style={{ color: chanceColor }}>
+                      <span>{(displayChance * 100).toFixed(1)}%</span>
+                      <span className="text-2xl font-light"> chance</span>
+                    </CardTitle>
+                  </div>
+                )}
+              </CardHeader>
+            <CardContent className="p-0 sm:pl-0 pl-10 pr-8 sm:pr-0 pr-0">
+              <ChartContainer
+                className="h-[350px] p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full" // Shorter on mobile
+                config={chartConfig}
+              >
+                <LineChart data={chartData}>
+                  <XAxis
+                    dataKey="timestamp"
+                    interval={xAxisInterval} // Dynamic interval based on screen width
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    width={100}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    tickFormatter={(tick) => `${tick}%`}
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    orientation="right"
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Legend
+                    height={36}
+                    iconType="circle"
+                    wrapperStyle={{ top: "-10px" }}
+                  />
+                  {["asset1"].map((asset, _) => (
+                    <Line
+                      key={asset}
+                      type="natural"
+                      dataKey={asset}
+                      name={chartConfig[asset].label}
+                      stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
+                      strokeWidth={2}
+                      dot={false}
+                      label={false}
+                      connectNulls
+                    />
+                  ))}
+                </LineChart>
+              </ChartContainer>
+            </CardContent>
+          </div>
+        </CardContent>
+      </div>
+    </Card>
+  );
+};
+
+export default SingleLineChart;
