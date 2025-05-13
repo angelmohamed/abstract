@@ -35,8 +35,11 @@ import {
 import EventLinting from "@/app/components/customComponents/EventLinting";
 import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting";
 
-import { chartPerformance, navigationItems, infoCards } from "@/app/components/constants";
-
+import {
+  chartPerformance,
+  navigationItems,
+  infoCards,
+} from "@/app/components/constants";
 
 const ListItem = ({ title, children }) => {
   return (
@@ -55,7 +58,6 @@ const ListItem = ({ title, children }) => {
 
 const InfoCards = () => {
   const cards = infoCards;
-
 
   const renderInfoCard = (emoji, title, footer) => {
     return (
@@ -124,7 +126,9 @@ export default function Home() {
           <div className="flex justify-center pb-5 sm:pt-4 pt-0 items-center">
             <div className="w-full max-w-7xl">
               {/* Category selection buttons */}
-              <div className="flex justify-center gap-2 sm:gap-4"> {/* Reduce gap on mobile */}
+              <div className="flex justify-center gap-2 sm:gap-4">
+                {" "}
+                {/* Reduce gap on mobile */}
                 <Button
                   className={cn(
                     selectCategory === "music"
@@ -163,7 +167,8 @@ export default function Home() {
                   )}
                   onClick={() => setShowClosed(!showClosed)}
                 >
-                  {showClosed ? "Closed" : "Open"} {/* Shorten text on mobile */}
+                  {showClosed ? "Closed" : "Open"}{" "}
+                  {/* Shorten text on mobile */}
                 </Button>
               </div>
             </div>
@@ -173,11 +178,12 @@ export default function Home() {
         {/* Event Cards Section */}
         <div className="flex pb-6 justify-center w-full">
           <div className="w-full max-w-7xl px-4">
-            <EventLinting selectCategory={selectCategory} showClosed={showClosed} />
+            <EventLinting
+              selectCategory={selectCategory}
+              showClosed={showClosed}
+            />
           </div>
         </div>
-
-
       </div>
     </div>
   );

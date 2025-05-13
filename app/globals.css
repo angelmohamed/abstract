@@ -29,6 +29,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -185,3 +186,9 @@ html, body {
 .flex {
   min-width: 0;
 }
+
+/* New Css */
+/* .event_title_div {
+ position: sticky; 
+ top: 100px;
+} */

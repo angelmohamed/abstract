@@ -15,7 +15,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { processSingleChartData, ChartDataPoint } from "@/utils/processChartData";
+import {
+  processSingleChartData,
+  ChartDataPoint,
+} from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
 
 interface MarketData {
@@ -44,7 +47,11 @@ interface SingleLineChartProps {
   chance?: number;
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+const CustomTooltip: React.FC<CustomTooltipProps> = ({
+  active,
+  payload,
+  label,
+}) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
@@ -83,12 +90,18 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
     },
   });
 
+  const [hoveredChance, setHoveredChance] = useState<number | undefined>(
+    undefined
+  );
+
   // State to track screen width
-  const [screenWidth, setScreenWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [screenWidth, setScreenWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
 
   // Update screen width on resize
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const handleResize = () => setScreenWidth(window.innerWidth);
       window.addEventListener("resize", handleResize);
       return () => window.removeEventListener("resize", handleResize);
@@ -96,7 +109,10 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
   }, []);
 
   // Determine X-axis interval based on screen width
-  const xAxisInterval = screenWidth < 640 ? Math.floor(chartData.length / 6) : Math.floor(chartData.length / 12);
+  const xAxisInterval =
+    screenWidth < 640
+      ? Math.floor(chartData.length / 6)
+      : Math.floor(chartData.length / 12);
 
   useEffect(() => {
     if (selectedYes) {
@@ -151,7 +167,14 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
   }, [market, interval]);
 
   // Calculate the current displayed chance value and color
-  const displayChance = selectedYes ? chance : chance !== undefined ? 1 - chance : undefined;
+  const displayChance =
+    hoveredChance !== undefined
+      ? hoveredChance
+      : selectedYes
+      ? chance
+      : chance !== undefined
+      ? 1 - chance
+      : undefined;
   const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
 
   return (
@@ -160,7 +183,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
       style={{ backgroundColor: "transparent", borderColor: "transparent" }}
     >
       <div>
-        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
+        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0 postion-relative">
           {/* 先显示标题 */}
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -178,11 +201,11 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                   alt="Event"
                   width={screenWidth < 640 ? 50 : 75}
                   height={screenWidth < 640 ? 50 : 75}
-                  style={{ 
-                    width: "100%", 
-                    height: "100%", 
+                  style={{
+                    width: "100%",
+                    height: "100%",
                     objectFit: "cover",
-                    transition: "all 0.3s ease" 
+                    transition: "all 0.3s ease",
                   }}
                 />
               </div>
@@ -194,7 +217,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
               </div>
             </div>
           </CardTitle>
-          
+
           {/* 显示 Vol 和时间等信息 */}
           <CardDescription className="py-2 flex flex-col sm:flex-row sm:gap-3 gap-1 justify-start items-start sm:items-center">
             {/* First line - Volume and Date */}
@@ -216,7 +239,10 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
 
             {/* Second line (mobile) - Polymarket and Swap Button */}
             <div className="flex gap-1 items-center">
-              <Button variant="ghost" onClick={() => setSelectedYes(!selectedYes)}>
+              <Button
+                variant="ghost"
+                onClick={() => setSelectedYes(!selectedYes)}
+              >
                 <ArrowRightLeft />
               </Button>
             </div>
@@ -224,23 +250,37 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
         </CardHeader>
 
         <CardContent className="gap-0 sm:gap-2 p-0 pl-2">
-            <div className="w-full test">
-              <CardHeader className="p-0 sm:pb-4">
-                {displayChance !== undefined && (
-                  <div className="flex justify-start mb-4"> {/* Changed from justify-center to justify-start */}
-                    <CardTitle className="text-4xl" style={{ color: chanceColor }}>
-                      <span>{(displayChance * 100).toFixed(1)}%</span>
-                      <span className="text-2xl font-light"> chance</span>
-                    </CardTitle>
-                  </div>
-                )}
-              </CardHeader>
+          <div className="w-full test">
+            <CardHeader className="p-0 sm:pb-4">
+              {displayChance !== undefined && (
+                <div className="flex justify-start mb-4">
+                  {" "}
+                  {/* Changed from justify-center to justify-start */}
+                  <CardTitle
+                    className="text-4xl"
+                    style={{ color: chanceColor }}
+                  >
+                    <span>{(displayChance * 100).toFixed(1)}%</span>
+                    <span className="text-2xl font-light"> chance</span>
+                  </CardTitle>
+                </div>
+              )}
+            </CardHeader>
             <CardContent className="p-0 sm:pl-0 pl-10 pr-8 sm:pr-0 pr-0">
               <ChartContainer
                 className="h-[350px] p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full" // Shorter on mobile
                 config={chartConfig}
               >
-                <LineChart data={chartData}>
+                <LineChart
+                  data={chartData}
+                  onMouseMove={(e) => {
+                    if (e && e.activePayload && e.activePayload.length > 0) {
+                      const hoveredValue = e.activePayload[0].value;
+                      setHoveredChance(hoveredValue / 100); // Convert to percentage
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredChance(undefined)}
+                >
                   <XAxis
                     dataKey="timestamp"
                     interval={xAxisInterval} // Dynamic interval based on screen width

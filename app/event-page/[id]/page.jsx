@@ -124,7 +124,8 @@ export default function Home() {
   }, [id, markets, interval]);
 
   return (
-    <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
+    // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
+    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
@@ -162,11 +163,11 @@ export default function Home() {
                       interval={interval}
                     />
                   )}
-                  <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 justify-center items-center"> 
-                  <ChartIntervals
-                    interval={interval}
-                    setInterval={setInterval}
-                  />
+                  <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 justify-center items-center">
+                    <ChartIntervals
+                      interval={interval}
+                      setInterval={setInterval}
+                    />
                   </div>
 
                   <div className="pr-10 pl-10 sm:pr-5 sm:pl-0">
@@ -272,12 +273,14 @@ export default function Home() {
                     )}
 
                     <ExpandableTextView>
-                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">Rules</h3>
+                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                        Rules
+                      </h3>
                       <SelectSeparator className="my-4" />
                       <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
                         {markets?.[selectedIndex]?.description}
                       </p>
-                      <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base"> 
+                      <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
                         Resolver:{" "}
                         <Link
                           href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
@@ -342,7 +345,7 @@ export default function Home() {
                     {/* Spotify Embed */}
                     <div className="mt-6">
                       <iframe
-                        style={{ borderRadius: '12px' }}
+                        style={{ borderRadius: "12px" }}
                         src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
                         width="100%"
                         height="146"
@@ -353,22 +356,19 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
 
             {/* Trading Card Drawer for Mobile */}
             <div className="lg:hidden w-[100%] justify-center pr-20 pl-20 pt-5 pb-10 items-center mt-0">
               {isDrawerOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsDrawerOpen(false)}></div>
+                <div
+                  className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                  onClick={() => setIsDrawerOpen(false)}
+                ></div>
               )}
-              <Drawer
-                open={isDrawerOpen}
-                onOpenChange={setIsDrawerOpen}
-              >
-                <DrawerTrigger 
-                  className="w-full py-2 font-semibold bg-white text-black rounded-lg"
-                >
+              <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
                   Trade
                 </DrawerTrigger>
                 <DrawerContent className="h-[80vh] z-50">
