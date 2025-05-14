@@ -238,13 +238,13 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="overflow-hidden text-white bg-black min-h-screen">
+    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
 
-      <div className="container mx-auto py-10 px-4 max-w-2xl">
+      <div className="container mx-auto py-10 px-4">
         <h1 className="text-3xl font-bold mb-8 text-center">Profile Settings</h1>
 
         {!account ? (

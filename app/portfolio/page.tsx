@@ -18,6 +18,12 @@ import {
 } from "@/app/components/ui/tabs";
 import { Badge } from "@/app/components/ui/badge";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
+import SearchBar from "../components/ui/SearchBar";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import Image from "next/image";
+import Link from "next/link";
+import { IconWindowMaximize } from "@tabler/icons-react";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -85,9 +91,14 @@ export default function PortfolioPage() {
   }, [wallet]);
 
   const [interval, setInterval] = useState("all");
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
+    null,
+    null,
+  ]);
+  const [startDate, endDate] = dateRange;
 
   return (
-    <div className="overflow-hidden text-white bg-black min-h-screen">
+    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
@@ -174,17 +185,32 @@ export default function PortfolioPage() {
               <TabsTrigger value="positions">Positions</TabsTrigger>
               <TabsTrigger value="openorders">Open Orders</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>            
+            </TabsList>
           </div>
           <TabsContent value="positions">
+            <div className="flex space-x-4 mb-3">
+              <SearchBar placeholder="Search" />
+              <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
+                <option>Current value</option>
+                <option>Initial value</option>
+                <option>Return ($)</option>
+                <option>Return %</option>
+              </select>
+              <select className="border border-[#262626] bg-black rounded p-1 text-sm">
+                <option>All</option>
+                <option>Live</option>
+                <option>Ended</option>
+              </select>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left custom_table">
                 <thead>
                   <tr>
                     <th>Market</th>
-                    <th>Avg</th>
-                    <th className="text-right">Current</th>
-                    <th className="text-right">Value</th>
+                    <th>Latest</th>
+                    <th>Bet</th>
+                    <th>Current</th>
+                    <th>To Win</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -198,62 +224,146 @@ export default function PortfolioPage() {
             </div>
           </TabsContent>
           <TabsContent value="openorders">
-            {loadingTx ? (
-              <p>Loading transactions...</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left custom_table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Market</th>
-                      <th className="text-right">Amount</th>
-                      <th className="text-right">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((tx) => {
-                      const time = new Date(parseInt(tx.timeStamp) * 1000);
-                      const diffMinutes = Math.floor(
-                        (Date.now() - time.getTime()) / 60000
-                      );
-                      const relTime =
-                        diffMinutes < 60
-                          ? `${diffMinutes}m ago`
-                          : `${Math.floor(diffMinutes / 60)}h ago`;
-                      const isBuy =
-                        tx.to.toLowerCase() === wallet?.toLowerCase();
-                      return (
-                        <tr key={tx.hash} className="border-t border-gray-700">
-                          <td>{isBuy ? "Buy" : "Redeem"}</td>
-                          <td>{tx.to}</td>
-                          <td className="text-right">
-                            {(Number(tx.value) / 1e6).toFixed(4)} USDC
-                          </td>
-                          <td className="text-right">{relTime}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </TabsContent>
-          <TabsContent value="history">
+            <div className="flex space-x-4 mb-3">
+              <SearchBar placeholder="Search" />
+              <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
+                <option>Market</option>
+                <option>Filled Quantity</option>
+                <option>Total Quantity</option>
+                <option>Order Date</option>
+              </select>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left custom_table">
                 <thead>
                   <tr>
                     <th>Market</th>
-                    <th>Avg</th>
-                    <th className="text-right">Current</th>
-                    <th className="text-right">Value</th>
+                    <th>Side</th>
+                    <th>Outcome</th>
+                    <th>Price</th>
+                    <th>Filled</th>
+                    <th>Total</th>
+                    <th>Expiration</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td colSpan={4}>
-                      <p className="text-center">No positions found</p>
+                    <td colSpan={7}>
+                      <p className="text-center">No open orders found.</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+          <TabsContent value="history">
+            <div className="flex space-x-4 mb-3">
+              <SearchBar placeholder="Search" />
+              <DatePicker
+                placeholderText="Select date"
+                selectsRange={true}
+                startDate={startDate}
+                endDate={endDate}
+                onChange={(update) => {
+                  setDateRange(update);
+                }}
+                className="custom_datepicker"
+              />
+              <select className="border border-[#262626] bg-black rounded p-1 text-sm">
+                <option>All</option>
+                <option>All Trades</option>
+                <option>Buy</option>
+                <option>Sell</option>
+                <option>Reward</option>
+              </select>
+              <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
+                <option>Newest</option>
+                <option>Oldest</option>
+                <option>Value</option>
+                <option>Shares</option>
+              </select>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left custom_table">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Market</th>
+                    <th>Outcome</th>
+                    <th>Price</th>
+                    <th>Shares</th>
+                    <th>Values</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Sell</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">
+                          <Image
+                            src="/images/album.png"
+                            alt="Icon"
+                            width={42}
+                            height={42}
+                          />
+                        </span>
+                        <Link className="text-sm font-normal" href="/">
+                          Stars vs Jets
+                        </Link>
+                      </div>
+                    </td>
+                    <td>
+                      <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                        Stars
+                      </Badge>
+                    </td>
+                    <td>$57</td>
+                    <td>2</td>
+                    <td>$0.98</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-normal">1 day ago</span>
+                        <a href="#" target="_blank">
+                          <IconWindowMaximize className="h-[32px] w-[32px]" />
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>Buy</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">
+                          <Image
+                            src="/images/album.png"
+                            alt="Icon"
+                            width={42}
+                            height={42}
+                          />
+                        </span>
+                        <Link className="text-sm font-normal" href="/">
+                          Stars vs Jets
+                        </Link>
+                      </div>
+                    </td>
+                    <td>
+                      <Badge className="z-10 text-xs text-[#e64800] bg-[#fdeeee] font-normal">
+                        Stars
+                      </Badge>
+                    </td>
+                    <td>$57</td>
+                    <td>2</td>
+                    <td>$0.98</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm font-normal">5 days ago</span>
+                        <a href="#" target="_blank">
+                          <IconWindowMaximize className="h-[32px] w-[32px]" />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 </tbody>

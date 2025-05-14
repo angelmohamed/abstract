@@ -92,7 +92,7 @@ export default function PortfolioPage() {
   };
 
   return (
-    <div className="overflow-hidden text-white bg-black min-h-screen">
+    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
