@@ -2,9 +2,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 import { polygon } from "thirdweb/chains";
-import { client } from "@/app/client"; 
+import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
-
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,11 +28,14 @@ export default function RootLayout({ children }) {
         {/* Default Metadata */}
         <title>Sonotrade</title>
         <meta name="description" content="The Music Stock Market" />
-        
+
         {/* Google Structured Data */}
         <meta itemProp="name" content="Sonotrade" />
         <meta itemProp="description" content="The Music Stock Market" />
-        <meta itemProp="image" content="https://www.sonotrade.co/images/SONOTRADE.png" />
+        <meta
+          itemProp="image"
+          content="https://www.sonotrade.co/images/SONOTRADE.png"
+        />
 
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
@@ -41,8 +43,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
- <ThirdwebProvider>{children}</ThirdwebProvider>
-      <Footer />
+        <ThirdwebProvider>{children}</ThirdwebProvider>
+        <Footer />
       </body>
     </html>
   );
