@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const limit = searchParams.get("limit") || "10"; // Default to 10

@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const fidelity = searchParams.get("fidelity") || "10"; // Default to 10
