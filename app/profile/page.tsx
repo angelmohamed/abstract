@@ -97,10 +97,10 @@ export default function PortfolioPage() {
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
-      <div className="container mx-auto py-10 px-4">
+      <div className="container mx-auto py-10 px-4 container-sm">
         {/* 1. 用户信息区 */}
         {/* 1. User information area */}
-        <div className="flex items-center justify-between space-x-4 mb-6">
+        <div className="flex items-center justify-between space-x-4 mb-6 profile_top">
           <div className="flex items-center space-x-4">
             <Avatar className="w-16 h-16">
               {profileData?.avatar_url ? (
@@ -123,7 +123,7 @@ export default function PortfolioPage() {
                 {profileData?.username ||
                   (wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : "")}
               </h2>
-              <p className="text-sm text-gray-400">{wallet}</p>
+              <p className="text-sm text-gray-400 whitespace-normal break-all">{wallet}</p>
             </div>
           </div>
           <Button
@@ -137,7 +137,7 @@ export default function PortfolioPage() {
 
         {/* 2. 关键指标卡片区 */}
         {/* 2. Key metrics card area */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-6">
           <div className="bg-[#131212] p-4 rounded-lg flex flex-col items-center">
             <span className="text-2xl">
               <Image

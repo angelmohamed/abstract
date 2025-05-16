@@ -103,9 +103,9 @@ export default function PortfolioPage() {
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
-      <div className="container mx-auto py-10 px-4">
+      <div className="container mx-auto py-10 px-4 container-sm">
         {/* 2. Key metrics card area */}
-        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="bg-[#131212] p-4 rounded-lg">
             <div className="flex items-start justify-between">
               <div className="flex flex-col items-left">
@@ -157,7 +157,7 @@ export default function PortfolioPage() {
             </div>
           </div>
           <div className="bg-[#131212] p-4 rounded-lg">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between flex-wrap">
               <div className="flex flex-col items-left">
                 <span className="text-sm text-gray-500 mt-1">PROFIT/LOSS</span>
                 <span className="mt-2 text-3xl font-semibold">-$0.05</span>
@@ -165,7 +165,7 @@ export default function PortfolioPage() {
                   <span className="text-red-500">$0.00 (0.00%)</span> Today
                 </span>
               </div>
-              <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 justify-center items-center">
+              <div className="justify-center items-center">
                 <ChartIntervals interval={interval} setInterval={setInterval} />
               </div>
             </div>
@@ -215,7 +215,7 @@ export default function PortfolioPage() {
                 </thead>
                 <tbody>
                   <tr>
-                    <td colSpan={4}>
+                    <td colSpan={5}>
                       <p className="text-center">No positions found</p>
                     </td>
                   </tr>

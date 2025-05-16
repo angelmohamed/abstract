@@ -151,7 +151,7 @@ const ListItem: React.FC<ListItemProps> = ({ title, children }) => {
 export const NavigationBar: React.FC<NavigationBarProps> = ({ menuItems, showLiveTag = true }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState<boolean>(false);
   return (
-    <div className="w-full flex justify-center mt-0 pb-3">
+    <div className="w-full flex justify-start sm:justify-center mt-0 pb-3">
       {/* "LIVE" Tag - Only shown if showLiveTag is true */}
       {showLiveTag && (
         <div className="sm:pl-0 pl-3 flex items-center flex-shrink-0">
