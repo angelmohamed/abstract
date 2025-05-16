@@ -1,3 +1,5 @@
+export const runtime = 'edge';
+
 // app/api/profile/check/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/utils/supabaseClient';

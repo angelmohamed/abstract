@@ -36,7 +36,7 @@ import {
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
 
-export default function Home() {
+export default function EventPage() {
   const param = useParams();
   const id = param.id;
 
