@@ -8,8 +8,13 @@ import SONOTRADE from "@/public/images/logo.png";
 import React, { useState, useEffect, useRef } from "react";
 import { client } from "@/app/client";
 import { useRouter } from "next/navigation";
-import { DropdownMenu, Tooltip } from "radix-ui";
-import { ChevronDownIcon, OpenInNewWindowIcon } from "@radix-ui/react-icons";
+import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
+import {
+  ChevronDownIcon,
+  OpenInNewWindowIcon,
+  Cross2Icon,
+} from "@radix-ui/react-icons";
+import { Button } from "./components/ui/button";
 
 export default function Header() {
   const router = useRouter();
@@ -99,13 +104,13 @@ export default function Header() {
             chain={polygon}
             connectButton={{
               label: "Connect",
-               style: {
-              fontSize: "14px",
-              fontWeight: 500, // subtle bold
-              padding: "8px 10px",
-              height: "38px",
-              minWidth: "80px",
-            },
+              style: {
+                fontSize: "14px",
+                fontWeight: 500, // subtle bold
+                padding: "8px 10px",
+                height: "38px",
+                minWidth: "80px",
+              },
             }}
             detailsButton={{
               displayBalanceToken: {
@@ -142,7 +147,7 @@ export default function Header() {
             <div className="text-xs text-grey">Profile</div>
           </button>
         )} */}
-        <ConnectButton
+        {/* <ConnectButton
           client={client}
           chain={polygon}
           connectButton={{
@@ -160,7 +165,97 @@ export default function Header() {
               [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
             },
           }}
-        />
+        /> */}
+        
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <Button variant="outline" size="sm">
+              Log In
+            </Button>
+          </Dialog.Trigger>
+          <Dialog.Trigger asChild>
+            <Button variant="outline" size="sm" className="bg-blue-500">
+              Sign Up
+            </Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <Dialog.Content className="DialogContent">
+              <Dialog.Title className="DialogTitle">
+                Welcome to Sonotrade
+              </Dialog.Title>
+              <Button className="mt-4 w-full google_btn">
+                <Image
+                  src="/images/google_icon.png"
+                  alt="Profile Icon"
+                  width={24}
+                  height={27}
+                  className="rounded-full"
+                />
+                <span>Continue with Google</span>
+              </Button>
+              <div className="custom_seperator">
+                <Separator.Root
+                  className="SeparatorRoot"
+                  style={{ margin: "15px 0" }}
+                />
+                or
+                <Separator.Root
+                  className="SeparatorRoot"
+                  style={{ margin: "15px 0" }}
+                />
+              </div>
+              <div className="custom_grpinp">
+                <input
+                  className="Input"
+                  type="email"
+                  placeholder="Enter Email"
+                />
+                <Button>Continue</Button>
+              </div>
+              <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_01.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_02.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_03.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_04.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+              </div>
+              <Dialog.Close asChild>
+                <button className="modal_close_brn" aria-label="Close">
+                  <Cross2Icon />
+                </button>
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+        
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
             <button className="profile_button" aria-label="Customise options">
