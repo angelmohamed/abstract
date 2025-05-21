@@ -49,6 +49,7 @@
     "node-fetch": "^3.3.2",
     "radix-ui": "^1.4.1",
     "react": "^19.1.0",
+    "react-countdown-circle-timer": "^3.2.1",
     "react-datepicker": "^8.3.0",
     "react-dom": "^19.1.0",
     "react-easy-crop": "^5.4.1",

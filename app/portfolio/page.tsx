@@ -24,6 +24,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
+import { Dialog } from "radix-ui";
+import { Cross2Icon } from "@radix-ui/react-icons";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -136,9 +138,150 @@ export default function PortfolioPage() {
                   width: "48%",
                 }}
               >
-                <Button className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
-                  Deposit
-                </Button>
+                <Dialog.Root>
+                  <Dialog.Trigger asChild>
+                    <Button className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                      Deposit
+                    </Button>
+                  </Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Overlay className="DialogOverlay" />
+                    <Dialog.Content className="DialogContent">
+                      <Dialog.Title className="DialogTitle">
+                        Deposit
+                      </Dialog.Title>
+                      <p className="text-center text-[12px] text-gray-400 mb-0">
+                        Available Balance: $10.96
+                      </p>
+
+                      {/* Deposit Form Step 1 */}
+                      <div className="deposit_step1">
+                        <Button className="mt-4 w-full google_btn flex-col items-start:[!important]">
+                          <p className="text-[12px] text-gray-400 mb-0">
+                            Deposit from
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src="/images/wallet_icon_01.png"
+                              alt="Profile Icon"
+                              width={16}
+                              height={16}
+                              className="rounded-full"
+                            />
+                            <span className="text-[14px] text-gray-200">
+                              Wallet (0x1DED...d96b)
+                            </span>
+                            <span className="text-[13px] text-gray-400">
+                              $ 10.20
+                            </span>
+                          </div>
+                        </Button>
+
+                        <div className="wallet_coin_list">
+                          <div className="flex items-center justify-between my-3 border border-[#3d3d3d] px-3 py-1 rounded">
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/images/usdt.svg"
+                                alt="Profile Icon"
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-[14px]">USDT</span>
+                                <span className="text-[12px] text-gray-400">
+                                  9.86121 USDT
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-[14px]">$9.88</span>
+                          </div>
+                        </div>
+                        <Button className="mt-4 w-full">Continue</Button>
+                      </div>
+
+                      {/* Deposit Form Step 2 */}
+                      <div className="deposit_step2">
+                        <input
+                          className="wallet_inp"
+                          type="number"
+                          placeholder="$ 0.00"
+                        />
+                        <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            25%
+                          </Button>
+                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            50%
+                          </Button>
+                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            75%
+                          </Button>
+                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            Max
+                          </Button>
+                        </div>
+                        <p className="text-[12px] text-gray-400 text-center mt-8">
+                          $1.00 minimum order
+                        </p>
+                        <div
+                          className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
+                        "
+                        >
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src="/images/usdt.svg"
+                              alt="Icon"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-[12px] text-gray-400">
+                                You Sent
+                              </span>
+                              <span className="text-[14px]">USDT</span>
+                            </div>
+                          </div>
+                          <Image
+                            src="/images/arrow_icon.png"
+                            alt="Icon"
+                            width={16}
+                            height={16}
+                          />
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src="/images/usdc.svg"
+                              alt="Icon"
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                            <div className="flex flex-col">
+                              <span className="text-[12px] text-gray-400">
+                                You Receive
+                              </span>
+                              <span className="text-[14px]">USDC</span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button className="mt-4 w-full">Continue</Button>
+                      </div>
+
+                      {/* Deposit Form Step 3 */}
+                      <div className="deposit_step3">
+
+                      </div>
+                      
+
+                      <Dialog.Close asChild>
+                        <button className="modal_close_brn" aria-label="Close">
+                          <Cross2Icon />
+                        </button>
+                      </Dialog.Close>
+                    </Dialog.Content>
+                  </Dialog.Portal>
+                </Dialog.Root>
               </div>
 
               <div
@@ -211,12 +354,49 @@ export default function PortfolioPage() {
                     <th>Bet</th>
                     <th>Current</th>
                     <th>To Win</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td colSpan={5}>
-                      <p className="text-center">No positions found</p>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">
+                          <Image
+                            src="/images/album.png"
+                            alt="Icon"
+                            width={42}
+                            height={42}
+                          />
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <Link className="text-sm font-normal" href="/">
+                            Stars vs Jets
+                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                              Stars
+                            </Badge>
+                            <span className="text-xs font-normal">
+                              4 Shares
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>51¢</td>
+                    <td>$2.00</td>
+                    <td>
+                      $1.93 <span className="text-red-500">(-3.22%)</span>
+                    </td>
+                    <td>$3.83</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000]">
+                          Sell
+                        </Button>
+                        <Button>Share</Button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>

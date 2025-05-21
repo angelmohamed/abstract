@@ -147,7 +147,7 @@ export default function Header() {
             <div className="text-xs text-grey">Profile</div>
           </button>
         )} */}
-        {/* <ConnectButton
+        <ConnectButton
           client={client}
           chain={polygon}
           connectButton={{
@@ -165,7 +165,7 @@ export default function Header() {
               [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
             },
           }}
-        /> */}
+        />
         
         <Dialog.Root>
           <Dialog.Trigger asChild>

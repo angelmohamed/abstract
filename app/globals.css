@@ -423,6 +423,7 @@ body {
   max-height: 85vh;
   padding: 25px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
 }
 .DialogContent:focus {
   outline: none;
@@ -519,7 +520,25 @@ body {
     transform: translate(-50%, -50%) scale(1);
   }
 }
-
+.items-start {
+  align-items: flex-start !important;
+}
+.wallet_inp {
+  background: transparent;
+  font-size: 56px;
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  color: #fff;
+  margin: 12px 0;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
 /* Media queries */
 @media screen and (max-width: 1023px) {
   .custom_tab button {
