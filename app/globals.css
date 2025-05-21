@@ -407,6 +407,7 @@ body {
   position: fixed;
   inset: 0;
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 99;
 }
 
 .DialogContent {
@@ -539,6 +540,21 @@ input[type="number"]::-webkit-outer-spin-button {
   appearance: none;
   margin: 0;
 }
+.wallet_countdown_panel {
+  position: absolute;
+  right: 0;
+  top: -46px;
+}
+.deposit_step {
+  position: relative;
+}
+.deposit_step1 {
+  display: none;
+}
+.deposit_step2 {
+  display: none;
+}
+
 /* Media queries */
 @media screen and (max-width: 1023px) {
   .custom_tab button {
