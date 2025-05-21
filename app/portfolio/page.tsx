@@ -24,8 +24,16 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
-import { Dialog } from "radix-ui";
-import { Cross2Icon } from "@radix-ui/react-icons";
+import { Dialog, Accordion, Checkbox } from "radix-ui";
+import {
+  Cross2Icon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  InfoCircledIcon,
+  CheckIcon,
+} from "@radix-ui/react-icons";
+import { CountdownCircleTimer } from "react-countdown-circle-timer";
+import { Input } from "../components/ui/input";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -155,7 +163,7 @@ export default function PortfolioPage() {
                       </p>
 
                       {/* Deposit Form Step 1 */}
-                      <div className="deposit_step1">
+                      <div className="deposit_step deposit_step1">
                         <Button className="mt-4 w-full google_btn flex-col items-start:[!important]">
                           <p className="text-[12px] text-gray-400 mb-0">
                             Deposit from
@@ -201,7 +209,10 @@ export default function PortfolioPage() {
                       </div>
 
                       {/* Deposit Form Step 2 */}
-                      <div className="deposit_step2">
+                      <div className="deposit_step deposit_step2">
+                        <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
+                          <ChevronLeftIcon />
+                        </Button>
                         <input
                           className="wallet_inp"
                           type="number"
@@ -269,10 +280,156 @@ export default function PortfolioPage() {
                       </div>
 
                       {/* Deposit Form Step 3 */}
-                      <div className="deposit_step3">
+                      <div className="deposit_step deposit_step3">
+                        <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
+                          <ChevronLeftIcon />
+                        </Button>
+                        <div className="wallet_countdown_panel">
+                          <CountdownCircleTimer
+                            isPlaying
+                            duration={60}
+                            colors={[
+                              "#3b82f6",
+                              "#F7B801",
+                              "#A30000",
+                              "#A30000",
+                            ]}
+                            colorsTime={[30, 15, 10, 0]}
+                            size={30}
+                            strokeWidth={1.5}
+                            trailStrokeWidth={1.5}
+                          >
+                            {({ remainingTime }) => (
+                              <span className="text-[12px]">
+                                {remainingTime}
+                              </span>
+                            )}
+                          </CountdownCircleTimer>
+                        </div>
+                        <p className="text-4xl text-[#efefef] text-center font-semibold pt-5 pb-2">
+                          $1.00
+                        </p>
+                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] mt-4">
+                          <span className="text-[14px] text-gray-400">
+                            Source
+                          </span>
+                          <div className="flex gap-2 items-center">
+                            <Image
+                              src="/images/wallet_icon_01.png"
+                              alt="Icon"
+                              width={18}
+                              height={18}
+                            />
+                            <span className="text-[14px] text-gray-200">
+                              Wallet (…d96b)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                          <span className="text-[14px] text-gray-400">
+                            Destination
+                          </span>
+                          <span className="text-[14px] text-gray-200">
+                            Sonotrade Wallet
+                          </span>
+                        </div>
+                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                          <span className="text-[14px] text-gray-400">
+                            Estimated time
+                          </span>
+                          <span className="text-[14px] text-gray-200">
+                            Less than 1 min
+                          </span>
+                        </div>
+                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                          <span className="text-[14px] text-gray-400">
+                            You send
+                          </span>
+                          <div className="flex gap-2 items-center">
+                            <Image
+                              src="/images/usdt.svg"
+                              alt="Icon"
+                              width={18}
+                              height={18}
+                            />
+                            <span className="text-[14px] text-gray-200">
+                              1.02021 USDT
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                          <span className="text-[14px] text-gray-400">
+                            You receive
+                          </span>
+                          <div className="flex gap-2 items-center">
+                            <Image
+                              src="/images/usdc.svg"
+                              alt="Icon"
+                              width={18}
+                              height={18}
+                            />
+                            <span className="text-[14px] text-gray-200">
+                              0.99750 USDC
+                            </span>
+                          </div>
+                        </div>
 
+                        <Accordion.Root type="multiple">
+                          <Accordion.Item value="item-1">
+                            <Accordion.Header>
+                              <Accordion.Trigger className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] w-full">
+                                <span className="text-[14px] text-gray-400">
+                                  Transaction breakdown
+                                </span>
+                                <div className="flex gap-2 items-center">
+                                  <Image
+                                    src="/images/gas_icon.png"
+                                    alt="Icon"
+                                    width={18}
+                                    height={18}
+                                  />
+                                  <span className="text-[14px] text-gray-200">
+                                    $0.01
+                                  </span>
+                                  <ChevronDownIcon
+                                    className="AccordionChevron"
+                                    aria-hidden
+                                  />
+                                </div>
+                              </Accordion.Trigger>
+                            </Accordion.Header>
+                            <Accordion.Content>
+                              <div className="flex gap-2 items-center justify-between py-1">
+                                <span className="text-[13px] text-gray-400">
+                                  Your gas costs
+                                </span>
+                                <span className="text-[13px] text-gray-200">
+                                  $0.01
+                                </span>
+                              </div>
+
+                              <div className="flex gap-2 items-center justify-between py-1">
+                                <span className="text-[13px] text-gray-400">
+                                  Market maker gas costs
+                                </span>
+                                <span className="text-[13px] text-gray-200">
+                                  $0.01
+                                </span>
+                              </div>
+
+                              <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
+                                <span className="text-[13px] text-gray-400">
+                                  LP cost
+                                </span>
+                                <span className="text-[13px] text-gray-200">
+                                  $0.01
+                                </span>
+                              </div>
+                            </Accordion.Content>
+                          </Accordion.Item>
+                        </Accordion.Root>
+                        <Button className="mt-4 w-full">Confirm Order</Button>
                       </div>
-                      
 
                       <Dialog.Close asChild>
                         <button className="modal_close_brn" aria-label="Close">
@@ -293,9 +450,92 @@ export default function PortfolioPage() {
                   width: "48%",
                 }}
               >
-                <Button className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#000000] transition-colors duration-300 rounded-full">
-                  Withdraw
-                </Button>
+                <Dialog.Root>
+                  <Dialog.Trigger asChild>
+                    <Button className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                      Withdraw
+                    </Button>
+                  </Dialog.Trigger>
+                  <Dialog.Portal>
+                    <Dialog.Overlay className="DialogOverlay" />
+                    <Dialog.Content className="DialogContent">
+                      <Dialog.Title className="DialogTitle">
+                        Withdraw
+                      </Dialog.Title>
+                      <div className="flex gap-2 items-center bg-[#eff4fe] p-3 rounded-lg mt-4">
+                        <InfoCircledIcon className="text-[#1652f0]" />
+                        <span className="text-[14px] text-gray-700">
+                          Only send to a USDC address on the Polygon network.
+                        </span>
+                      </div>
+                      <form className="mt-4">
+                        <fieldset className="Fieldset mb-4">
+                          <div className="flex gap-2 items-center justify-between mb-1">
+                            <label className="Label" htmlFor="Address">
+                              Address
+                            </label>
+                            <span className="text-[14px] text-gray-400 cursor-pointer underline underline-offset-4">
+                              Use connected
+                            </span>
+                          </div>
+                          <Input
+                            type="text"
+                            placeholder="0x..."
+                            className="Input h-12"
+                            id="Address"
+                          />
+                        </fieldset>
+
+                        <fieldset className="Fieldset mt-4">
+                          <div className="flex gap-2 items-center justify-between mb-1">
+                            <label className="Label" htmlFor="Amount">
+                              Amount{" "}
+                              <span className="text-[14px] text-gray-400">
+                                ($0.01 min)
+                              </span>
+                            </label>
+                            <div className="flex gap-2">
+                              <span className="text-[14px] text-gray-400 cursor-pointer">
+                                $8.96 available
+                              </span>
+                              <span className="text-[14px] text-gray-400 cursor-pointer underline underline-offset-4">
+                                Max
+                              </span>
+                            </div>
+                          </div>
+                          <Input
+                            type="text"
+                            placeholder="$0.00"
+                            className="Input h-12"
+                            id="Amount"
+                          />
+                        </fieldset>
+
+                        <div className="flex items-center space-x-2 mt-4">
+                          <Checkbox.Root
+                            className="CheckboxRoot"
+                            defaultChecked
+                            id="c1"
+                          >
+                            <Checkbox.Indicator className="CheckboxIndicator">
+                              <CheckIcon className="h-[20px] w-[20px]" />
+                            </Checkbox.Indicator>
+                          </Checkbox.Root>
+                          <label className="Label" htmlFor="c1">
+                            Send USDC.e (don’t swap to native USDC)
+                          </label>
+                        </div>
+
+                        <Button className="mt-4 w-full">Withdraw</Button>
+                      </form>
+                      <Dialog.Close asChild>
+                        <button className="modal_close_brn" aria-label="Close">
+                          <Cross2Icon />
+                        </button>
+                      </Dialog.Close>
+                    </Dialog.Content>
+                  </Dialog.Portal>
+                </Dialog.Root>
               </div>
             </div>
           </div>
