@@ -1,0 +1,481 @@
+"use client"; // Add this at the top of the file to enable client-side hooks
+import Link from "next/link";
+import Image from "next/image";
+import { baseSepolia, polygon } from "thirdweb/chains";
+import SearchBar from "@/app/components/ui/SearchBar";
+import { ConnectButton, lightTheme, useActiveAccount } from "thirdweb/react";
+import SONOTRADE from "@/public/images/logo.png";
+import React, { useState, useEffect, useRef } from "react";
+import { client } from "@/app/client";
+import { useRouter } from "next/navigation";
+import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
+import { WalletClient, useWalletClient } from 'wagmi'
+import { useWallet } from "@/app/walletconnect/walletContext.js";
+import { walletClientToSigner } from "./helper/ethersconnect.js";
+import Web3 from "web3";
+import {
+  ChevronDownIcon,
+  OpenInNewWindowIcon,
+  Cross2Icon,
+} from "@radix-ui/react-icons";
+import config from "../pages/config/config"
+import { Button } from "./components/ui/button";
+
+
+export default function Header() {
+  console.log("900990090909090909")
+  const router = useRouter();
+  const account = useActiveAccount();
+  const [connval, setconnval] = useState(null)
+  const [currentPosition, setCurrentPosition] = useState("$0.00");
+  const wallet = useWallet();
+// if (!wallet) {
+//   // Handle the null case, e.g., return null or a fallback UI
+//   return null;
+// }
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } = wallet;
+
+  // navigation handlers
+  const navigateToProfilePage = () => {
+    router.push("/profile");
+  };
+  const navigateToPortfolioPage = () => {
+    router.push("/portfolio");
+  };
+
+  var chainId = config.chainId;
+  const { data: walletClient } = useWalletClient({ chainId });
+
+  useEffect(() => {
+    try {
+      var { transport } = walletClientToSigner(walletClient);
+      setconnval(transport);
+    } catch (err) { }
+  }, [address, walletClient]);
+
+  // 检查并创建用户资料（如果需要）
+  useEffect(() => {
+    async function checkAndCreateProfile() {
+      if (account && account.address) {
+        try {
+          // 调用我们创建的 API 路由，检查并创建用户资料
+          const response = await fetch(
+            `/api/profile/check?wallet=${account.address}`
+          );
+
+          if (response.ok) {
+            const profileData = await response.json();
+
+            // 如果是新创建的资料，可以提示用户完善信息
+            if (profileData.is_new) {
+              console.log(
+                "New profile created, you can complete your profile in the Profile page"
+              );
+              // 可以选择添加通知或直接导航到个人资料页面
+              // router.push("/profilePage");
+            }
+          } else {
+            console.error("Failed to check/create profile");
+          }
+        } catch (error) {
+          console.error("Error checking profile:", error);
+        }
+      }
+    }
+
+    checkAndCreateProfile();
+  }, [account, router]); // 当账号变化时重新检查
+
+  const connectMetamaskMobile = () => {
+
+    const currentUrl = window.location.href;
+
+    // Split the URL to get the dapp URL
+    const urlParts = currentUrl.split("//");
+    if (urlParts.length > 1) {
+      const dappUrl = urlParts[1].split("/")[0];
+      const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + dappUrl;
+      window.open(metamaskAppDeepLink, "_self");
+
+    } else {
+      console.error("Invalid URL format");
+    }
+
+  };
+
+  function isMobile() {
+    let check = false;
+    (function (a) {
+      if (
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
+          a
+        ) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+          a.substr(0, 4)
+        )
+      )
+        check = true;
+    })(navigator.userAgent || navigator.vendor || window.opera);
+    return check;
+  }
+
+
+  async function handleConnect(connector) {
+    disconnectWallet();
+
+    try {
+      var network = config.chainId;
+
+      let check = isMobile();
+      var isType =
+        connector && connector.id
+          ? connector.id
+          : "";
+
+      if (check && !window.ethereum && isType == "metaMaskSDK") {
+        connectMetamaskMobile();
+        return;
+      } else {
+
+        var web3 = null;
+        if (isType == "injected") {
+          web3 = new Web3(window.BinanceChain);
+        } else if (isType !== "walletConnect") {
+          web3 = new Web3(window.ethereum);
+        } else {
+          var rpcUrl = config.rpc[network];
+          web3 = new Web3(rpcUrl);
+          var signature = await web3.eth.personal.sign("sonotrades", account, 'sonotrade');
+        }
+        var currnetwork = await web3.eth.net.getId();
+
+        if (
+          parseInt(currnetwork) !== parseInt(network) &&
+          isType !== "walletConnect"
+        ) {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: Web3.utils.toHex(network) }],
+          });
+          currnetwork = network;
+        }
+        await connectWallet(connector);
+        window.$("#exampleModal").modal("hide");
+      }
+    } catch (err) {
+      var error = err && err.message ? err.message.toString() : err.toString();
+      var pos = error.search("Provider not set or invalid");
+      var pos1 = error.search("User rejected");
+      if (pos >= 0) {
+        toastAlert("error", "Please login into metamask", "errormetamask");
+      } else if (pos1 >= 0) {
+        toastAlert("error", "Confirmation is rejected", "errormetamask");
+      } else {
+        toastAlert("error", "Please try again later", "errormetamask");
+      }
+    }
+  }
+
+
+  return (
+    <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
+     {console.log("88888888888888888888")}
+      <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
+        {/* Logo and Title */}
+        <div className="flex items-center">
+          <Link href="/">
+            <Image
+              src={SONOTRADE}
+              alt="SONOTRADE Logo"
+              width={265}
+              className="w-48 pl-3 md:pl-0 sm:w-48 md:w-64"
+              priority
+            />
+          </Link>
+        </div>
+
+        {/* Auth Buttons - Only on mobile/sm they appear next to logo */}
+        <div className="flex md:hidden items-center gap-2 flex-shrink-0 pr-3">
+          {account && (
+            <button
+              className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+              onClick={navigateToPortfolioPage}
+            >
+              <div className="text-l" style={{ color: "#33ff4c" }}>
+                {currentPosition}
+              </div>
+              <div className="text-xs text-grey">Portfolio</div>
+            </button>
+          )}
+          {/* {account && (
+            <button
+              className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+              onClick={navigateToProfilePage}
+            >
+              <div className="text-xs text-grey">Profile</div>
+            </button>
+          )} */}
+          <ConnectButton
+            client={client}
+            chain={polygon}
+            connectButton={{
+              label: "Connect",
+              style: {
+                fontSize: "14px",
+                fontWeight: 500, // subtle bold
+                padding: "8px 10px",
+                height: "38px",
+                minWidth: "80px",
+              },
+            }}
+            detailsButton={{
+              displayBalanceToken: {
+                [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
+              },
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Search Bar - Now visible on all screen sizes as second row on mobile/sm */}
+      <div className="w-full px-4 pb-2 md:pb-0 md:pl-[2%] md:pr-[2%] mt-1 md:mt-0">
+        <SearchBar placeholder="Search markets or artists" />
+      </div>
+
+      {/* Auth Buttons - For md+ screens, keep their original position */}
+      <div className="hidden md:flex items-center gap-2 flex-shrink-0 ml-auto">
+        {account && (
+          <button
+            className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+            onClick={navigateToPortfolioPage}
+          >
+            <div className="text-l" style={{ color: "#33ff4c" }}>
+              {currentPosition}
+            </div>
+            <div className="text-xs text-grey">Portfolio</div>
+          </button>
+        )}
+        {/* {account && (
+          <button
+            className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+            onClick={navigateToProfilePage}
+          >
+            <div className="text-xs text-grey">Profile</div>
+          </button>
+        )} */}
+        <ConnectButton
+          client={client}
+          chain={polygon}
+          connectButton={{
+            label: "Connect Wallet",
+            style: {
+              fontSize: "14px",
+              fontWeight: 500, // subtle bold
+              padding: "10px 16px",
+              height: "40px",
+              minWidth: "110px",
+            },
+          }}
+          detailsButton={{
+            displayBalanceToken: {
+              [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
+            },
+          }}
+        />
+
+        <Dialog.Root>
+          <Dialog.Trigger asChild>
+            <Button variant="outline" size="sm">
+              Log In
+            </Button>
+          </Dialog.Trigger>
+          <Dialog.Trigger asChild>
+            <Button variant="outline" size="sm" className="bg-blue-500">
+              Sign Up
+            </Button>
+          </Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <Dialog.Content className="DialogContent">
+              <Dialog.Title className="DialogTitle">
+                Welcome to Sonotrade
+              </Dialog.Title>
+              <Button className="mt-4 w-full google_btn">
+                <Image
+                  src="/images/google_icon.png"
+                  alt="Profile Icon"
+                  width={24}
+                  height={27}
+                  className="rounded-full"
+                />
+                <span>Continue with Google</span>
+              </Button>
+              <div className="custom_seperator">
+                <Separator.Root
+                  className="SeparatorRoot"
+                  style={{ margin: "15px 0" }}
+                />
+                or
+                <Separator.Root
+                  className="SeparatorRoot"
+                  style={{ margin: "15px 0" }}
+                />
+              </div>
+              <div className="custom_grpinp">
+                <input
+                  className="Input"
+                  type="email"
+                  placeholder="Enter Email"
+                />
+                <Button>Continue</Button>
+              </div>
+              <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+              {connectors.map((connector, i) => {
+                  if (
+                    connector.name == "MetaMask" || connector.name == "WalletConnect"
+                  ) {
+                    return (
+                 <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                   <Image
+                   src={
+                    connector.name == "MetaMask"
+                      ? "/images/wallet_icon_01.png"
+                      : "/images/wallet_icon_05.png"
+                  }
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                    onClick={() => handleConnect(connector)}
+                  />
+                </Button>
+                 );
+                }
+              })}
+                {/* <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_02.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_03.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_04.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+
+                </Button> */}
+              </div>
+              <Dialog.Close asChild>
+                <button className="modal_close_brn" aria-label="Close">
+                  <Cross2Icon />
+                </button>
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <button className="profile_button" aria-label="Customise options">
+              <Image
+                src="/images/Ye.png"
+                alt="Profile Icon"
+                width={32}
+                height={32}
+                className="rounded-full"
+              />
+              <ChevronDownIcon className="w-4 h-4" />
+            </button>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <div className="custom_dropdown_portal">
+              <DropdownMenu.Content
+                className="DropdownMenuContent"
+                sideOffset={5}
+              >
+                <div className="flex items-center space-x-3">
+                  <Image
+                    src="/images/Ye.png"
+                    alt="Profile Icon"
+                    width={40}
+                    height={40}
+                    className="rounded-full"
+                  />
+                  <div>
+                    <span className="text-sm text-gray-100">Alex</span>
+                    <div className="text-sm text-gray-100 flex items-center space-x-2">
+                      <Tooltip.Provider>
+                        <Tooltip.Root>
+                          <Tooltip.Trigger asChild>
+                            <button className="IconButton bg-[#131212] px-2 py-1 rounded">
+                              <span className="text-[12px]">{`${account?.address.slice(
+                                0,
+                                6
+                              )}...${account?.address.slice(-4)}`}</span>
+                            </button>
+                          </Tooltip.Trigger>
+                          <Tooltip.Portal>
+                            <div className="custom_tooltip_content">
+                              <Tooltip.Content
+                                className="TooltipContent"
+                                sideOffset={5}
+                              >
+                                Copy Address
+                                <Tooltip.Arrow className="TooltipArrow" />
+                              </Tooltip.Content>
+                            </div>
+                          </Tooltip.Portal>
+                        </Tooltip.Root>
+                      </Tooltip.Provider>
+                      <Link href="#" target="_blank">
+                        <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                <DropdownMenu.Item className="DropdownMenuItem">
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem">
+                  <Link href="/settings">Settings</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                  <Link href="/">Watchlist</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                  <Link href="/">Rewards</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                  <Link href="/">Learn</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                  <Link href="/">Documentation</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                  <Link href="/">Terms of Use</Link>
+                </DropdownMenu.Item>
+                <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                <DropdownMenu.Item className="DropdownMenuItem">
+                  <Link href="/">Logout</Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </div>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+      </div>
+    </header>
+  );
+}

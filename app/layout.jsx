@@ -4,6 +4,8 @@ import { ThirdwebProvider } from "thirdweb/react";
 import { polygon } from "thirdweb/chains";
 import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
+import { WalletProvider } from '@/app/walletconnect/walletContext';
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -43,7 +45,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThirdwebProvider>{children}</ThirdwebProvider>
+        <ThirdwebProvider>
+          <WalletProvider>
+              {children}
+          </WalletProvider>
+        </ThirdwebProvider>
         <Footer />
       </body>
     </html>

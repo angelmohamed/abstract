@@ -2,12 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "@radix-ui/colors/black-alpha.css";
+@import "@radix-ui/colors/mauve.css";
+
 @media (prefers-color-scheme: dark) {
   :root {
     /* --background: #0a0a0a; */
   }
 }
-
+html ::-webkit-scrollbar {
+  display: none;
+  height: 0;
+  width: 0;
+}
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -33,7 +40,6 @@ body {
   padding: 0;
   overflow-x: hidden;
 }
-
 @supports (-webkit-touch-callout: none) {
   .safari-fix {
     display: flex;
@@ -190,6 +196,12 @@ body {
 }
 
 /* New Css */
+.container {
+  max-width: 1350px !important;
+}
+.container.container-sm {
+  max-width: 1100px !important;
+}
 .custom_table thead th {
   padding: 12px;
   background: #131212;
@@ -209,10 +221,350 @@ body {
   color: #fff;
   height: 40px;
 }
+.custom_dropdown_portal > div {
+  z-index: 100 !important;
+  left: -50px !important;
+}
+.DropdownMenuContent {
+  min-width: 250px;
+  background-color: #262626;
+  border-radius: 6px;
+  padding: 5px;
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation: fadeIn 150ms ease-in-out;
+}
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-@media screen and (min-width: 1536px) {
-  .container {
-      max-width: 1200px;
+.profile_button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border-radius: 100px;
+  padding: 5px 8px;
+  transition: background-color 0.3s ease;
+}
+.profile_button:hover {
+  background-color: #333333;
+}
+.profile_button:focus {
+  box-shadow: 0 0 0 2px #000;
+}
+.DropdownMenuItem a {
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1;
+  color: #ededed;
+  border-radius: 5px !important;
+  display: block;
+  outline: none;
+  transition: 0.2s all;
+}
+.DropdownMenuItem a:hover {
+  background-color: rgb(0 0 0 / 80%);
+  color: #fff;
+}
+.DropdownMenuItem[data-highlighted] {
+  background-color: rgb(0 0 0 / 80%);
+  color: #fff;
+}
+.DropdownMenuSeparator {
+  height: 1px;
+  background-color: #333333;
+  margin: 5px;
+}
+.custom_tooltip_content > div {
+  z-index: 101 !important;
+  font-size: 12px;
+  background: #131418;
+  border-radius: 6px;
+  padding: 5px;
+}
+.custom_tab button {
+  height: 48px;
+  width: 100%;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid transparent;
+}
+.custom_tab button[data-state="active"] {
+  background: #131212;
+  border: 1px solid #262626;
+}
+.SwitchRoot {
+  width: 44px;
+  height: 24px;
+  background-color: #595959;
+  border-radius: 9999px;
+  position: relative;
+  box-shadow: 0 2px 10px var(--black-a7);
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  &:focus {
+    box-shadow: 0 0 0 2px black;
+  }
+  &[data-state="checked"] {
+    background-color: #3b82f6;
+  }
+}
+.SwitchThumb {
+  display: block;
+  width: 14px;
+  height: 14px;
+  background-color: #acacac;
+  border-radius: 9999px;
+  box-shadow: 0 2px 2px var(--black-a7);
+  transition: transform 100ms;
+  transform: translateX(6px);
+  will-change: transform;
+  &[data-state="checked"] {
+    transform: translateX(24px);
+    background-color: #fff;
+  }
+}
+.SeparatorRoot {
+  background-color: #2e3032;
+}
+.SeparatorRoot[data-orientation="horizontal"] {
+  height: 1px;
+  width: 100%;
+}
+.SeparatorRoot[data-orientation="vertical"] {
+  height: 100%;
+  width: 1px;
+}
+.CheckboxRoot {
+  background-color: #595959;
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 10px #000;
+}
+.CheckboxRoot:hover {
+  background-color: #595959;
+}
+.CheckboxRoot:focus {
+  box-shadow: 0 0 0 2px black;
+}
+.CheckboxIndicator {
+  color: var(--violet-11);
+}
+.RadioGroupRoot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.RadioGroupItem {
+  background-color: #595959;
+  width: 25px;
+  height: 25px;
+  border-radius: 100%;
+  box-shadow: 0 2px 10px #000;
+}
+.RadioGroupItem[data-state="checked"] {
+  background-color: #3b82f6;
+}
+.RadioGroupItem:hover {
+  background-color: #595959;
+}
+.RadioGroupItem:focus {
+  box-shadow: 0 0 0 2px black;
+}
+.RadioGroupIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.RadioGroupIndicator::after {
+  content: "";
+  display: block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background-color: #fff;
+}
+.DialogOverlay {
+  background-color: var(--black-a9);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 99;
+}
+
+.DialogContent {
+  background-color: #111;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px color-mix(in oklab, #ffffff2c, #3a3a3a 25%),
+    0 12px 60px #0003, 0 16px 64px #0006, 0 16px 36px -20px #000000e6;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 500px;
+  max-height: 85vh;
+  padding: 25px;
+  animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+}
+.DialogContent:focus {
+  outline: none;
+}
+
+.DialogTitle {
+  margin: 0;
+  font-weight: 600;
+  color: #fff;
+  font-size: 24px;
+  text-align: center;
+}
+.google_btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 4px;
+  padding: 0 15px;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 500;
+  height: 52px;
+  user-select: none;
+  background: #212121;
+  border: 1px solid #3d3d3d;
+  color: #fff;
+}
+.google_btn:hover {
+  background: #121212 !important;
+}
+.custom_seperator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+.custom_inpgrp {
+  position: relative;
+}
+.modal_close_brn {
+  all: unset;
+  font-family: inherit;
+  border-radius: 100%;
+  height: 25px;
+  width: 25px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--violet-11);
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background-color: #2e2e2e;
+}
+.modal_close_brn:hover {
+  background-color: #535353;
+}
+.custom_grpinp {
+  position: relative;
+}
+.custom_grpinp button {
+  position: absolute;
+  right: 5px;
+  height: 36px;
+  top: 5px;
+  border-radius: 3px;
+}
+.custom_grpinp input {
+  width: 100%;
+  border-radius: 5px;
+  height: 46px;
+  padding: 12px;
+  background: #000000;
+  border: 1px solid #323232;
+  color: #fff;
+  font-size: 16px;
+}
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+.items-start {
+  align-items: flex-start !important;
+}
+.wallet_inp {
+  background: transparent;
+  font-size: 56px;
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  color: #fff;
+  margin: 12px 0;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+.wallet_countdown_panel {
+  position: absolute;
+  right: 0;
+  top: -46px;
+}
+.deposit_step {
+  position: relative;
+}
+.deposit_step1 {
+  display: none;
+}
+.deposit_step2 {
+  display: none;
+}
+
+/* Media queries */
+@media screen and (max-width: 1023px) {
+  .custom_tab button {
+    width: auto;
+  }
+}
+@media screen and (max-width: 575px) {
+  .profile_top {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
   }
 }

@@ -4,7 +4,11 @@ import { useActiveAccount } from "thirdweb/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
-import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/components/ui/avatar";
 import { Label } from "@/app/components/ui/label";
 import Header from "@/app/Header";
 import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
@@ -12,12 +16,15 @@ import { navigationItems } from "@/app/components/constants";
 import Cropper from "react-easy-crop";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/utils/supabaseClient";
-import { Plus, Check } from 'lucide-react';
+import { Plus, Check } from "lucide-react";
+import { Tabs, Switch, Separator, Checkbox, RadioGroup } from "radix-ui";
+import Image from "next/image";
+import { CheckIcon } from "@radix-ui/react-icons";
 
 // helper to load image for cropping
 async function createImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
+    const img = document.createElement("img");
     img.src = src;
     img.onload = () => resolve(img);
     img.onerror = (err) => reject(err);
@@ -55,7 +62,7 @@ export default function ProfilePage() {
         const response = await fetch(`/api/profile?wallet=${account.address}`);
         if (response.ok) {
           const data = await response.json();
-          console.log('Fetched profile data:', data);
+          console.log("Fetched profile data:", data);
           setUsername(data.username || "");
           setName(data.name || "");
           setAvatarUrl(data.avatar_url || "");
@@ -84,7 +91,9 @@ export default function ProfilePage() {
 
     const alphanumericRegex = /^[a-zA-Z0-9_]+$/;
     if (!alphanumericRegex.test(value)) {
-      setUsernameError("Username can only contain letters, numbers, and underscores");
+      setUsernameError(
+        "Username can only contain letters, numbers, and underscores"
+      );
       return false;
     }
 
@@ -132,12 +141,15 @@ export default function ProfilePage() {
       return;
     }
     setSelectedFile(file);
-    console.log('Selected file for avatar:', { file });
+    console.log("Selected file for avatar:", { file });
     setShowCrop(true);
   };
 
   const uploadCroppedImage = async () => {
-    console.log('uploadCroppedImage called', { selectedFile, croppedAreaPixels });
+    console.log("uploadCroppedImage called", {
+      selectedFile,
+      croppedAreaPixels,
+    });
     if (!selectedFile) return;
     if (!account) {
       setUploading(false);
@@ -147,43 +159,48 @@ export default function ProfilePage() {
     const prevUrl = avatarUrl;
     setUploading(true);
     const blob = await getCroppedImageBlob();
-    console.log('Cropped blob size:', blob ? blob.size : null);
+    console.log("Cropped blob size:", blob ? blob.size : null);
     if (!blob) return;
     let finalBlob = blob;
     // Only compress if above size limit
     if (blob.size > 500 * 1024) {
-      console.log('Blob exceeds 500KB, compressing...');
-      finalBlob = await imageCompression(blob, { maxSizeMB: 0.5, useWebWorker: true });
-      console.log('Compressed blob size:', finalBlob.size);
+      console.log("Blob exceeds 500KB, compressing...");
+      finalBlob = await imageCompression(blob, {
+        maxSizeMB: 0.5,
+        useWebWorker: true,
+      });
+      console.log("Compressed blob size:", finalBlob.size);
     }
     const fileExt = "jpg";
     const fileName = `avatars/${account.address}_${Date.now()}.${fileExt}`;
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from("user-profile-avatar")
       .upload(fileName, finalBlob, { upsert: true });
-    console.log('Supabase upload result:', { uploadData, uploadError });
+    console.log("Supabase upload result:", { uploadData, uploadError });
     if (uploadError) {
       console.error(uploadError);
-      alert('Upload failed');
+      alert("Upload failed");
       setUploading(false);
       return;
     }
     const { data: urlData } = supabase.storage
       .from("user-profile-avatar")
       .getPublicUrl(fileName);
-    console.log('Public URL:', urlData?.publicUrl);
+    console.log("Public URL:", urlData?.publicUrl);
     // delete old avatar file now that new upload succeeded
     if (prevUrl) {
       try {
-        const oldPath = prevUrl.split('/storage/v1/object/public/user-profile-avatar/')[1];
+        const oldPath = prevUrl.split(
+          "/storage/v1/object/public/user-profile-avatar/"
+        )[1];
         if (oldPath) {
           const { error: deleteError } = await supabase.storage
-            .from('user-profile-avatar')
+            .from("user-profile-avatar")
             .remove([oldPath]);
-          console.log('Deleted old avatar file:', { oldPath, deleteError });
+          console.log("Deleted old avatar file:", { oldPath, deleteError });
         }
       } catch (err) {
-        console.error('Error deleting previous avatar:', err);
+        console.error("Error deleting previous avatar:", err);
       }
     }
     setAvatarUrl(urlData.publicUrl);
@@ -230,7 +247,9 @@ export default function ProfilePage() {
       }
     } catch (error: any) {
       console.error("Error saving profile:", error);
-      setSubmitError(error.message || "Error saving profile. Please try again later.");
+      setSubmitError(
+        error.message || "Error saving profile. Please try again later."
+      );
       alert("Error saving profile. Please try again later.");
     } finally {
       if (!saved) setSaving(false);
@@ -244,150 +263,332 @@ export default function ProfilePage() {
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
 
-      <div className="container mx-auto py-10 px-4">
-        <h1 className="text-3xl font-bold mb-8 text-center">Profile Settings</h1>
-
-        {!account ? (
-          <div className="text-center p-8 bg-[#131212] rounded-lg">
-            <p className="mb-4">
-              Please connect your wallet to set up your profile
-            </p>
-            <Button
-              onClick={() => router.push("/")}
-              className="text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
-            >
-              Back to Home
-            </Button>
-          </div>
-        ) : loading ? (
-          <div className="text-center p-8">
-            <p>Loading...</p>
-          </div>
-        ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-6 rounded-lg border bg-[#131212] p-8"
-          >
-            <div className="relative w-24 h-24 mb-6 mx-auto">
-              {/* Hidden file input */}
-              <input
-                ref={inputFileRef}
-                type="file"
-                accept="image/png,image/jpg,image/jpeg,image/heic,image/heif"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-              <Avatar className="w-full h-full">
-                {avatarUrl ? (
-                  <AvatarImage src={avatarUrl} alt={username || "User Avatar"} />
-                ) : (
-                  <AvatarFallback className="bg-blue-500 text-lg">
-                    {username
-                      ? username.charAt(0).toUpperCase()
-                      : account.address.slice(0, 2)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-              {/* Floating upload button */}
-              <button
-                type="button"
-                onClick={() => inputFileRef.current?.click()}
-                className="absolute bottom-0 right-0 bg-white w-4 h-4 rounded-full shadow-md z-10 flex items-center justify-center origin-bottom-right hover:scale-110 transition-transform duration-200 ring-4 ring-[#131212]"
-                style={{ transformOrigin: '100% 100%' }}
+      <div className="container mx-auto py-10 px-4 container-sm">
+        <Tabs.Root defaultValue="tab1" orientation="vertical">
+          <div className="flex justify-center mb-0 w-full lg:flex-row flex-col">
+            <div className="w-full pl-0 pr-0 lg:w-[20%] relative">
+              <Tabs.List
+                aria-label="tabs example"
+                className="flex lg:flex-col flex-row lg:items-start items-center custom_tab justify-center mb-4 lg:mb-0"
               >
-                <Plus className="w-3 h-3 text-black" strokeWidth={3} />
-              </button>
+                <Tabs.Trigger value="tab1">Profile</Tabs.Trigger>
+                <Tabs.Trigger value="tab2">Notifications</Tabs.Trigger>
+                <Tabs.Trigger value="tab3">Wallet</Tabs.Trigger>
+              </Tabs.List>
             </div>
+            <div className="w-full pl-0 lg:pl-10 pr-0 lg:w-[80%]">
+              <Tabs.Content value="tab1">
+                <h1 className="text-2xl font-bold mb-8">Profile Settings</h1>
 
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={handleUsernameChange}
-                className="bg-black border-gray-700 focus:border-blue-500"
-                placeholder="Set a unique username (letters, numbers, underscore only)"
-              />
-              {usernameError && (
-                <p className="text-red-500 text-sm mt-1">{usernameError}</p>
-              )}
-            </div>
+                {!account ? (
+                  <div className="text-center p-8 bg-[#131212] rounded-lg">
+                    <p className="mb-4">
+                      Please connect your wallet to set up your profile
+                    </p>
+                    <Button
+                      onClick={() => router.push("/")}
+                      className="text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
+                    >
+                      Back to Home
+                    </Button>
+                  </div>
+                ) : loading ? (
+                  <div className="text-center p-8">
+                    <p>Loading...</p>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleSubmit}
+                    className="space-y-6 rounded-lg border bg-[#131212] p-8"
+                  >
+                    <div className="relative w-24 h-24 mb-6 mx-auto">
+                      {/* Hidden file input */}
+                      <input
+                        ref={inputFileRef}
+                        type="file"
+                        accept="image/png,image/jpg,image/jpeg,image/heic,image/heif"
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                      <Avatar className="w-full h-full">
+                        {avatarUrl ? (
+                          <AvatarImage
+                            src={avatarUrl}
+                            alt={username || "User Avatar"}
+                          />
+                        ) : (
+                          <AvatarFallback className="bg-blue-500 text-lg">
+                            {username
+                              ? username.charAt(0).toUpperCase()
+                              : account.address.slice(0, 2)}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      {/* Floating upload button */}
+                      <button
+                        type="button"
+                        onClick={() => inputFileRef.current?.click()}
+                        className="absolute bottom-0 right-0 bg-white w-4 h-4 rounded-full shadow-md z-10 flex items-center justify-center origin-bottom-right hover:scale-110 transition-transform duration-200 ring-4 ring-[#131212]"
+                        style={{ transformOrigin: "100% 100%" }}
+                      >
+                        <Plus className="w-3 h-3 text-black" strokeWidth={3} />
+                      </button>
+                    </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="bg-black border-gray-700 focus:border-blue-500"
-                placeholder="Your name (optional)"
-              />
-            </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Username</Label>
+                      <Input
+                        id="username"
+                        value={username}
+                        onChange={handleUsernameChange}
+                        className="bg-black border-[#252525]"
+                        placeholder="Set a unique username (letters, numbers, underscore only)"
+                      />
+                      {usernameError && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {usernameError}
+                        </p>
+                      )}
+                    </div>
 
-            {showCrop && (
-              <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
-                <div className="relative w-80 h-80 bg-white rounded-lg overflow-hidden">
-                  <Cropper
-                    image={selectedFile ? URL.createObjectURL(selectedFile) : ''}
-                    crop={crop}
-                    zoom={zoom}
-                    aspect={1}
-                    cropShape="round"
-                    showGrid={false}
-                    onCropChange={setCrop}
-                    onCropComplete={onCropComplete}
-                    onZoomChange={setZoom}
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Name</Label>
+                      <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="bg-black border-[#252525]"
+                        placeholder="Your name (optional)"
+                      />
+                    </div>
+
+                    {showCrop && (
+                      <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center z-50">
+                        <div className="relative w-80 h-80 bg-white rounded-lg overflow-hidden">
+                          <Cropper
+                            image={
+                              selectedFile
+                                ? URL.createObjectURL(selectedFile)
+                                : ""
+                            }
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={1}
+                            cropShape="round"
+                            showGrid={false}
+                            onCropChange={setCrop}
+                            onCropComplete={onCropComplete}
+                            onZoomChange={setZoom}
+                          />
+                        </div>
+                        <div className="mt-4 flex space-x-4">
+                          <Button
+                            type="button"
+                            onClick={() => setShowCrop(false)}
+                            className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={uploadCroppedImage}
+                            disabled={uploading}
+                            className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+                          >
+                            {uploading ? "Uploading..." : "Upload"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="space-y-2">
+                      <Label htmlFor="bio">Bio</Label>
+                      <textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        className="w-full bg-black border border-[#252525] rounded-md p-2 text-white"
+                        placeholder="Tell us about yourself... (optional)"
+                        rows={3}
+                      />
+                    </div>
+
+                    <div className="text-center">
+                      <Button
+                        type="submit"
+                        disabled={saving || !!usernameError || saved}
+                        className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+                      >
+                        {saving ? (
+                          "Saving..."
+                        ) : saved ? (
+                          <>
+                            <Check className="inline w-4 h-4 text-green-500 mr-1" />
+                            Saved
+                          </>
+                        ) : (
+                          "Save Changes"
+                        )}
+                      </Button>
+                    </div>
+                    {/* show error message if submitError */}
+                    {submitError && (
+                      <p className="text-red-500 text-sm mt-1">{submitError}</p>
+                    )}
+                  </form>
+                )}
+              </Tabs.Content>
+              <Tabs.Content value="tab2">
+                <h1 className="text-2xl font-bold mb-8">
+                  Notification Settings
+                </h1>
+                <div className="space-y-6 rounded-lg border bg-[#131212] p-8">
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/email_icon.png"
+                      alt="Icon"
+                      width={40}
+                      height={40}
+                    />
+                    <span className="text-lg font-semibold">Email</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label
+                      className="Label"
+                      htmlFor="airplane-mode"
+                      style={{ paddingRight: 15 }}
+                    >
+                      Resolutions
+                    </label>
+                    <Switch.Root className="SwitchRoot" id="airplane-mode">
+                      <Switch.Thumb className="SwitchThumb" />
+                    </Switch.Root>
+                  </div>
+
+                  <Separator.Root
+                    className="SeparatorRoot"
+                    style={{ margin: "15px 0" }}
                   />
-                </div>
-                <div className="mt-4 flex space-x-4">
-                  <Button
-                    type="button"
-                    onClick={() => setShowCrop(false)}
-                    className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={uploadCroppedImage}
-                    disabled={uploading}
-                    className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-                  >
-                    {uploading ? "Uploading..." : "Upload"}
-                  </Button>
-                </div>
-              </div>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
-              <textarea
-                id="bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="w-full bg-black border border-gray-700 rounded-md p-2 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                placeholder="Tell us about yourself... (optional)"
-                rows={3}
-              />
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/bell_icon.png"
+                      alt="Icon"
+                      width={40}
+                      height={40}
+                    />
+                    <span className="text-lg font-semibold">In App</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label
+                      className="Label"
+                      htmlFor="airplane-mode"
+                      style={{ paddingRight: 15 }}
+                    >
+                      Order Fills
+                    </label>
+                    <Switch.Root className="SwitchRoot" id="airplane-mode">
+                      <Switch.Thumb className="SwitchThumb" />
+                    </Switch.Root>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox.Root
+                      className="CheckboxRoot"
+                      defaultChecked
+                      id="c1"
+                    >
+                      <Checkbox.Indicator className="CheckboxIndicator">
+                        <CheckIcon className="h-[20px] w-[20px]" />
+                      </Checkbox.Indicator>
+                    </Checkbox.Root>
+                    <label className="Label" htmlFor="c1">
+                      Hide small fills (Less than 1 share)
+                    </label>
+                  </div>
+                </div>
+              </Tabs.Content>
+              <Tabs.Content value="tab3">
+                <h1 className="text-2xl font-bold mb-8">Wallet Settings</h1>
+                <div className="space-y-6 rounded-lg border bg-[#131212] p-8">
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/gas_icon.png"
+                      alt="Icon"
+                      width={40}
+                      height={40}
+                    />
+                    <span className="text-lg font-semibold">
+                      Pay your own gas
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label
+                      className="Label"
+                      htmlFor="airplane-mode"
+                      style={{ paddingRight: 15 }}
+                    >
+                      Use a custom RPC (must own $MATIC in your connected
+                      wallet)
+                    </label>
+                    <Switch.Root className="SwitchRoot" id="airplane-mode">
+                      <Switch.Thumb className="SwitchThumb" />
+                    </Switch.Root>
+                  </div>
+                  <RadioGroup.Root
+                    className="RadioGroupRoot"
+                    defaultValue="default"
+                    aria-label="View density"
+                  >
+                    <div className="flex items-center justify-between">
+                      <label className="Label" htmlFor="r1">
+                        Low gas
+                      </label>
+                      <RadioGroup.Item
+                        className="RadioGroupItem"
+                        value="default"
+                        id="r1"
+                      >
+                        <RadioGroup.Indicator className="RadioGroupIndicator" />
+                      </RadioGroup.Item>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="Label" htmlFor="r2">
+                        Medium gas
+                      </label>
+                      <RadioGroup.Item
+                        className="RadioGroupItem"
+                        value="comfortable"
+                        id="r2"
+                      >
+                        <RadioGroup.Indicator className="RadioGroupIndicator" />
+                      </RadioGroup.Item>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <label className="Label" htmlFor="r3">
+                        High gas
+                      </label>
+                      <RadioGroup.Item
+                        className="RadioGroupItem"
+                        value="compact"
+                        id="r3"
+                      >
+                        <RadioGroup.Indicator className="RadioGroupIndicator" />
+                      </RadioGroup.Item>
+                    </div>
+                  </RadioGroup.Root>
+                  <div className="text-center">
+                    <Button
+                      type="submit"
+                      className="border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+                    >
+                      Save Changes
+                    </Button>
+                  </div>
+                </div>
+              </Tabs.Content>
             </div>
-
-            <Button
-              type="submit"
-              disabled={saving || !!usernameError || saved}
-              className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-            >
-              {saving
-                ? "Saving..."
-                : saved
-                ? (<><Check className="inline w-4 h-4 text-green-500 mr-1"/>Saved</>)
-                : "Save Settings"}
-            </Button>
-            {/* show error message if submitError */}
-            {submitError && (
-              <p className="text-red-500 text-sm mt-1">{submitError}</p>
-            )}
-          </form>
-        )}
+          </div>
+        </Tabs.Root>
       </div>
     </div>
   );
