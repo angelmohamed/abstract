@@ -2,7 +2,6 @@
 import Header from "@/app/Header";
 import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 import { navigationItems } from "@/app/components/constants";
-import { useActiveAccount } from "thirdweb/react";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Avatar,
@@ -18,6 +17,7 @@ import {
 } from "@/app/components/ui/tabs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useWallet } from "@/app/walletconnect/walletContext.js";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -44,8 +44,9 @@ interface PolygonTx {
 }
 
 export default function PortfolioPage() {
-  const account = useActiveAccount();
-  const wallet = account?.address;
+  const { address} = useWallet();
+  const [account, setaccount] = useState(address);
+  const wallet = address?address:"";
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [currentTab, setCurrentTab] = useState("positions");
@@ -113,7 +114,7 @@ export default function PortfolioPage() {
                   {profileData?.username
                     ? profileData.username.charAt(0).toUpperCase()
                     : wallet
-                    ? wallet.slice(2, 8).toUpperCase()
+                    ? wallet ? wallet?.slice(2, 8).toUpperCase():""
                     : "?"}
                 </AvatarFallback>
               )}
@@ -121,7 +122,7 @@ export default function PortfolioPage() {
             <div>
               <h2 className="text-xl font-bold">
                 {profileData?.username ||
-                  (wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : "")}
+                  (wallet ? `${wallet?.slice(0, 6)}...${wallet?.slice(-4)}` : "")}
               </h2>
               <p className="text-sm text-gray-400 whitespace-normal break-all">{wallet}</p>
             </div>

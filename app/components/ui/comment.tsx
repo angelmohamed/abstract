@@ -1,12 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar";
 import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
-import { useActiveAccount } from "thirdweb/react";
+
 import { Trash2, Reply } from "lucide-react";
+import { useWallet } from "@/app/walletconnect/walletContext.js";
 
 interface CommentProps extends React.HTMLAttributes<HTMLDivElement> {
   comment?: {
@@ -106,9 +107,18 @@ interface ReplyFormProps {
 }
 
 export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFormProps) {
-  const account = useActiveAccount();
+ 
+  const {address} = useWallet();
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [account, setaccount] = useState("");
+
+
+  useEffect(() => {
+    try {
+      setaccount(address?address:"")
+    } catch (err) { }
+  }, [address]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +136,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          wallet: account.address,
+          wallet: account,
           eventId,
           comment: reply.trim(),
           parent_id: parentId,
@@ -297,9 +307,12 @@ interface CommentFormProps {
 }
 
 export function CommentForm({ eventId, onCommentAdded }: CommentFormProps) {
-  const account = useActiveAccount();
+  
   const [comment, setComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const {address} = useWallet();
+  const [account, setaccount] = useState(address);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -317,7 +330,7 @@ export function CommentForm({ eventId, onCommentAdded }: CommentFormProps) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          wallet: account.address,
+          wallet: account,
           eventId,
           comment: comment.trim(),
         }),
@@ -377,7 +390,8 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ eventId }: CommentSectionProps) {
-  const account = useActiveAccount();
+  const {address} = useWallet();
+  const [account, setaccount] = useState(address);
   const [comments, setComments] = useState<CommentProps["comment"][]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -493,7 +507,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
         replyingTo={replyingTo}
         eventId={eventId}
         onReplyAdded={handleCommentAdded}
-        currentUserWallet={account?.address}
+        currentUserWallet={account?account:""}
       />
     </div>
   );

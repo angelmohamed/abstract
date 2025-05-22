@@ -21,6 +21,7 @@ var key = {};
     chainId: 80002,
     chaincode: "amoy",
     txurl: "https://testnet.bscscan.com",
+    usdcAdd : "0x7345fD6b75c9796E6cB48cad16542079491A4c63",
     clientId: "736868654424-o0358dlqp1853eafackm2edren909e1m.apps.googleusercontent.com"
   };
 }

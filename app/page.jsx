@@ -23,7 +23,6 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/app/components/ui/navigation-menu";
-import { baseSepolia } from "thirdweb/chains";
 import { Contrast } from "lucide-react";
 import {
   Carousel,

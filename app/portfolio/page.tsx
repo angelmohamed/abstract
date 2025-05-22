@@ -2,7 +2,6 @@
 import Header from "@/app/Header";
 import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 import { navigationItems } from "@/app/components/constants";
-import { useActiveAccount } from "thirdweb/react";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Avatar,
@@ -10,6 +9,8 @@ import {
   AvatarFallback,
 } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
+import Web3 from "web3";
+import config from "../config/config"
 import {
   Tabs,
   TabsList,
@@ -25,6 +26,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
 import { Dialog, Accordion, Checkbox } from "radix-ui";
+import { shortText } from "../helper/custommath"
+import isEmpty from "is-empty"
 import {
   Cross2Icon,
   ChevronDownIcon,
@@ -34,7 +37,8 @@ import {
 } from "@radix-ui/react-icons";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
-
+import { useWallet } from "@/app/walletconnect/walletContext.js";
+import tokenABI from "../ABI/TOKENABI.json"
 // Define PolygonScan transaction type
 interface PolygonTx {
   blockNumber: string;
@@ -59,18 +63,32 @@ interface PolygonTx {
   functionName: string;
 }
 
+
+let initialValue = {
+  currency: "",
+  amount: "",
+  walletAddress: "",
+}
 export default function PortfolioPage() {
-  const account = useActiveAccount();
-  const wallet = account?.address;
+
+  const { address } = useWallet();
+  const [account, setaccount] = useState(address);
+  const [step, setStep] = useState("1");
+  const wallet = address;
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
+  const [balance, setBalance] = useState(0)
+  const [tokenbalance, setTokenBalance] = useState(0)
   const [currentTab, setCurrentTab] = useState("positions");
   const [amountFilter, setAmountFilter] = useState("All");
+  const [depositData, setDepositData] = useState(initialValue);
   const [profileData, setProfileData] = useState<{
     username: string;
     avatar_url: string;
     bio: string;
   } | null>(null);
+
+  var { currency, amount, walletAddress } = depositData
 
   useEffect(() => {
     if (!wallet) return;
@@ -107,6 +125,49 @@ export default function PortfolioPage() {
   ]);
   const [startDate, endDate] = dateRange;
 
+
+
+  const balanceData = async () => {
+    try {
+      const web3 = new Web3(config.rpcUrl);
+      const balanceWei = await web3.eth.getBalance(address ? address : "");
+      const balancePOL = web3.utils.fromWei(balanceWei, 'ether');
+      const formattedBalance = parseFloat(balancePOL).toFixed(6);
+      setBalance(formattedBalance);
+
+      let Contractsss = new web3.eth.Contract(tokenABI, config.usdcAdd);
+    } catch (err) {
+      console.error("Error fetching POL balance:", err);
+    }
+  };
+
+  const getUSDCBalance = async () => {
+    try {
+      const web3 = new Web3(config.rpcUrl);
+      const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
+      const decimals = await usdcContract.methods.decimals().call();
+      const rawBalance = await usdcContract.methods.balanceOf(address).call();
+      console.log(rawBalance, "rawBalance")
+      const formattedBalance = parseFloat(rawBalance / (10 ** decimals)).toFixed(2);
+      setTokenBalance(formattedBalance);
+    } catch (error) {
+      console.error("Error fetching USDC balance:", error);
+    }
+  };
+
+
+
+
+  useEffect(() => {
+    balanceData()
+    getUSDCBalance()
+  }, [address])
+
+  var step2Click = () => {
+    if (!isEmpty(currency)) {
+      setStep("2")
+    }
+  }
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
@@ -161,275 +222,324 @@ export default function PortfolioPage() {
                       <p className="text-center text-[12px] text-gray-400 mb-0">
                         Available Balance: $10.96
                       </p>
+                      {step == '1' && (
+                        <div className="deposit_step deposit_step1">
+                          {/* Wallet Info Button */}
+                          <Button className="mt-4 w-full google_btn flex-col items-start">
+                            <p className="text-[12px] text-gray-400 mb-0">Deposit from</p>
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/images/wallet_icon_01.png"
+                                alt="Profile Icon"
+                                width={16}
+                                height={16}
+                                className="rounded-full"
+                              />
+                              <span className="text-[14px] text-gray-200">
+                                Wallet {shortText(address)}
+                              </span>
+                              <span className="text-[13px] text-gray-400">
+                                {/* $10.20 */}
+                                {balance}
+                                </span>
+                            </div>
+                          </Button>
 
-                      {/* Deposit Form Step 1 */}
-                      <div className="deposit_step deposit_step1">
-                        <Button className="mt-4 w-full google_btn flex-col items-start:[!important]">
-                          <p className="text-[12px] text-gray-400 mb-0">
-                            Deposit from
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src="/images/wallet_icon_01.png"
-                              alt="Profile Icon"
-                              width={16}
-                              height={16}
-                              className="rounded-full"
-                            />
-                            <span className="text-[14px] text-gray-200">
-                              Wallet (0x1DED...d96b)
-                            </span>
-                            <span className="text-[13px] text-gray-400">
-                              $ 10.20
-                            </span>
+                          <div className="wallet_coin_list">
+                            <div
+                              className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDC"
+                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                }`}
+                              onClick={() =>
+                                setDepositData((prev) => ({ ...prev, currency: "USDC" }))
+                              }
+                            >
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src="/images/usdt.svg"
+                                  alt="USDC Icon"
+                                  width={24}
+                                  height={24}
+                                  className="rounded-full"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="text-[14px]">USDC</span>
+                                  <span className="text-[12px] text-gray-400">{tokenbalance} USDC</span>
+                                </div>
+                              </div>
+                              <span className="text-[14px]">
+                                {/* $9.88 */}
+                                {tokenbalance}
+                                </span>
+                            </div>
                           </div>
-                        </Button>
 
-                        <div className="wallet_coin_list">
-                          <div className="flex items-center justify-between my-3 border border-[#3d3d3d] px-3 py-1 rounded">
+                          <div className="wallet_coin_list">
+                            <div
+                              className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "POL"
+                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                }`}
+                              onClick={() =>
+                                setDepositData((prev) => ({ ...prev, currency: "POL" }))
+                              }
+                            >
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src="/images/usdt.svg"
+                                  alt="POL Icon"
+                                  width={24}
+                                  height={24}
+                                  className="rounded-full"
+                                />
+                                <div className="flex flex-col">
+                                  <span className="text-[14px]">POL</span>
+                                  <span className="text-[12px] text-gray-400">{balance} POL</span>
+                                </div>
+                              </div>
+                              <span className="text-[14px]">
+                                {/* $9.88 */}
+                                {balance}
+                                </span>
+                            </div>
+                          </div>
+
+
+                          <p className="mt-2 text-sm text-gray-300">
+                            Selected Currency: <strong>{currency}</strong>
+                          </p>
+
+                          <Button className="mt-4 w-full" onClick={() => step2Click()}>
+                            Continue
+                          </Button>
+                        </div>
+                      )}
+                      {step == '2' && (
+                        <div className="deposit_step deposit_step1">
+                          {/* Deposit Form Step 2 */}
+                          <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
+                            <ChevronLeftIcon />
+                          </Button>
+                          <input
+                            className="wallet_inp"
+                            type="number"
+                            placeholder="$ 0.00"
+                          />
+                          <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                              25%
+                            </Button>
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                              50%
+                            </Button>
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                              75%
+                            </Button>
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                              Max
+                            </Button>
+                          </div>
+                          <p className="text-[12px] text-gray-400 text-center mt-8">
+                            $1.00 minimum order
+                          </p>
+                          <div
+                            className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
+                        "
+                          >
                             <div className="flex items-center gap-2">
                               <Image
                                 src="/images/usdt.svg"
-                                alt="Profile Icon"
+                                alt="Icon"
                                 width={24}
                                 height={24}
                                 className="rounded-full"
                               />
                               <div className="flex flex-col">
-                                <span className="text-[14px]">USDT</span>
                                 <span className="text-[12px] text-gray-400">
-                                  9.86121 USDT
+                                  You Sent
                                 </span>
+                                <span className="text-[14px]">USDT</span>
                               </div>
                             </div>
-                            <span className="text-[14px]">$9.88</span>
-                          </div>
-                        </div>
-                        <Button className="mt-4 w-full">Continue</Button>
-                      </div>
-
-                      {/* Deposit Form Step 2 */}
-                      <div className="deposit_step deposit_step2">
-                        <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
-                          <ChevronLeftIcon />
-                        </Button>
-                        <input
-                          className="wallet_inp"
-                          type="number"
-                          placeholder="$ 0.00"
-                        />
-                        <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
-                            25%
-                          </Button>
-                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
-                            50%
-                          </Button>
-                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
-                            75%
-                          </Button>
-                          <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
-                            Max
-                          </Button>
-                        </div>
-                        <p className="text-[12px] text-gray-400 text-center mt-8">
-                          $1.00 minimum order
-                        </p>
-                        <div
-                          className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
-                        "
-                        >
-                          <div className="flex items-center gap-2">
                             <Image
-                              src="/images/usdt.svg"
+                              src="/images/arrow_icon.png"
                               alt="Icon"
-                              width={24}
-                              height={24}
-                              className="rounded-full"
+                              width={16}
+                              height={16}
                             />
-                            <div className="flex flex-col">
-                              <span className="text-[12px] text-gray-400">
-                                You Sent
-                              </span>
-                              <span className="text-[14px]">USDT</span>
-                            </div>
-                          </div>
-                          <Image
-                            src="/images/arrow_icon.png"
-                            alt="Icon"
-                            width={16}
-                            height={16}
-                          />
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src="/images/usdc.svg"
-                              alt="Icon"
-                              width={24}
-                              height={24}
-                              className="rounded-full"
-                            />
-                            <div className="flex flex-col">
-                              <span className="text-[12px] text-gray-400">
-                                You Receive
-                              </span>
-                              <span className="text-[14px]">USDC</span>
-                            </div>
-                          </div>
-                        </div>
-                        <Button className="mt-4 w-full">Continue</Button>
-                      </div>
-
-                      {/* Deposit Form Step 3 */}
-                      <div className="deposit_step deposit_step3">
-                        <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
-                          <ChevronLeftIcon />
-                        </Button>
-                        <div className="wallet_countdown_panel">
-                          <CountdownCircleTimer
-                            isPlaying
-                            duration={60}
-                            colors={[
-                              "#3b82f6",
-                              "#F7B801",
-                              "#A30000",
-                              "#A30000",
-                            ]}
-                            colorsTime={[30, 15, 10, 0]}
-                            size={30}
-                            strokeWidth={1.5}
-                            trailStrokeWidth={1.5}
-                          >
-                            {({ remainingTime }) => (
-                              <span className="text-[12px]">
-                                {remainingTime}
-                              </span>
-                            )}
-                          </CountdownCircleTimer>
-                        </div>
-                        <p className="text-4xl text-[#efefef] text-center font-semibold pt-5 pb-2">
-                          $1.00
-                        </p>
-                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] mt-4">
-                          <span className="text-[14px] text-gray-400">
-                            Source
-                          </span>
-                          <div className="flex gap-2 items-center">
-                            <Image
-                              src="/images/wallet_icon_01.png"
-                              alt="Icon"
-                              width={18}
-                              height={18}
-                            />
-                            <span className="text-[14px] text-gray-200">
-                              Wallet (…d96b)
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
-                          <span className="text-[14px] text-gray-400">
-                            Destination
-                          </span>
-                          <span className="text-[14px] text-gray-200">
-                            Sonotrade Wallet
-                          </span>
-                        </div>
-                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
-                          <span className="text-[14px] text-gray-400">
-                            Estimated time
-                          </span>
-                          <span className="text-[14px] text-gray-200">
-                            Less than 1 min
-                          </span>
-                        </div>
-                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
-                          <span className="text-[14px] text-gray-400">
-                            You send
-                          </span>
-                          <div className="flex gap-2 items-center">
-                            <Image
-                              src="/images/usdt.svg"
-                              alt="Icon"
-                              width={18}
-                              height={18}
-                            />
-                            <span className="text-[14px] text-gray-200">
-                              1.02021 USDT
-                            </span>
-                          </div>
-                        </div>
-                        <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
-                          <span className="text-[14px] text-gray-400">
-                            You receive
-                          </span>
-                          <div className="flex gap-2 items-center">
-                            <Image
-                              src="/images/usdc.svg"
-                              alt="Icon"
-                              width={18}
-                              height={18}
-                            />
-                            <span className="text-[14px] text-gray-200">
-                              0.99750 USDC
-                            </span>
-                          </div>
-                        </div>
-
-                        <Accordion.Root type="multiple">
-                          <Accordion.Item value="item-1">
-                            <Accordion.Header>
-                              <Accordion.Trigger className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] w-full">
-                                <span className="text-[14px] text-gray-400">
-                                  Transaction breakdown
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/images/usdc.svg"
+                                alt="Icon"
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                              <div className="flex flex-col">
+                                <span className="text-[12px] text-gray-400">
+                                  You Receive
                                 </span>
-                                <div className="flex gap-2 items-center">
-                                  <Image
-                                    src="/images/gas_icon.png"
-                                    alt="Icon"
-                                    width={18}
-                                    height={18}
-                                  />
-                                  <span className="text-[14px] text-gray-200">
+                                <span className="text-[14px]">USDC</span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button className="mt-4 w-full">Continue</Button>
+                        </div>
+                      )}
+                      {step == '3' && (
+                        <div className="deposit_step deposit_step1">
+                          {/* Deposit Form Step 3 */}
+                          <Button className="rounded-full p-0 h-8 w-8 absolute -top-12">
+                            <ChevronLeftIcon />
+                          </Button>
+                          <div className="wallet_countdown_panel">
+                            <CountdownCircleTimer
+                              isPlaying
+                              duration={60}
+                              colors={[
+                                "#3b82f6",
+                                "#F7B801",
+                                "#A30000",
+                                "#A30000",
+                              ]}
+                              colorsTime={[30, 15, 10, 0]}
+                              size={30}
+                              strokeWidth={1.5}
+                              trailStrokeWidth={1.5}
+                            >
+                              {({ remainingTime }) => (
+                                <span className="text-[12px]">
+                                  {remainingTime}
+                                </span>
+                              )}
+                            </CountdownCircleTimer>
+                          </div>
+                          <p className="text-4xl text-[#efefef] text-center font-semibold pt-5 pb-2">
+                            $1.00
+                          </p>
+                          <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] mt-4">
+                            <span className="text-[14px] text-gray-400">
+                              Source
+                            </span>
+                            <div className="flex gap-2 items-center">
+                              <Image
+                                src="/images/wallet_icon_01.png"
+                                alt="Icon"
+                                width={18}
+                                height={18}
+                              />
+                              <span className="text-[14px] text-gray-200">
+                                Wallet (…d96b)
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                            <span className="text-[14px] text-gray-400">
+                              Destination
+                            </span>
+                            <span className="text-[14px] text-gray-200">
+                              Sonotrade Wallet
+                            </span>
+                          </div>
+                          <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                            <span className="text-[14px] text-gray-400">
+                              Estimated time
+                            </span>
+                            <span className="text-[14px] text-gray-200">
+                              Less than 1 min
+                            </span>
+                          </div>
+                          <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                            <span className="text-[14px] text-gray-400">
+                              You send
+                            </span>
+                            <div className="flex gap-2 items-center">
+                              <Image
+                                src="/images/usdt.svg"
+                                alt="Icon"
+                                width={18}
+                                height={18}
+                              />
+                              <span className="text-[14px] text-gray-200">
+                                1.02021 USDT
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f]">
+                            <span className="text-[14px] text-gray-400">
+                              You receive
+                            </span>
+                            <div className="flex gap-2 items-center">
+                              <Image
+                                src="/images/usdc.svg"
+                                alt="Icon"
+                                width={18}
+                                height={18}
+                              />
+                              <span className="text-[14px] text-gray-200">
+                                0.99750 USDC
+                              </span>
+                            </div>
+                          </div>
+
+                          <Accordion.Root type="multiple">
+                            <Accordion.Item value="item-1">
+                              <Accordion.Header>
+                                <Accordion.Trigger className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] w-full">
+                                  <span className="text-[14px] text-gray-400">
+                                    Transaction breakdown
+                                  </span>
+                                  <div className="flex gap-2 items-center">
+                                    <Image
+                                      src="/images/gas_icon.png"
+                                      alt="Icon"
+                                      width={18}
+                                      height={18}
+                                    />
+                                    <span className="text-[14px] text-gray-200">
+                                      $0.01
+                                    </span>
+                                    <ChevronDownIcon
+                                      className="AccordionChevron"
+                                      aria-hidden
+                                    />
+                                  </div>
+                                </Accordion.Trigger>
+                              </Accordion.Header>
+                              <Accordion.Content>
+                                <div className="flex gap-2 items-center justify-between py-1">
+                                  <span className="text-[13px] text-gray-400">
+                                    Your gas costs
+                                  </span>
+                                  <span className="text-[13px] text-gray-200">
                                     $0.01
                                   </span>
-                                  <ChevronDownIcon
-                                    className="AccordionChevron"
-                                    aria-hidden
-                                  />
                                 </div>
-                              </Accordion.Trigger>
-                            </Accordion.Header>
-                            <Accordion.Content>
-                              <div className="flex gap-2 items-center justify-between py-1">
-                                <span className="text-[13px] text-gray-400">
-                                  Your gas costs
-                                </span>
-                                <span className="text-[13px] text-gray-200">
-                                  $0.01
-                                </span>
-                              </div>
 
-                              <div className="flex gap-2 items-center justify-between py-1">
-                                <span className="text-[13px] text-gray-400">
-                                  Market maker gas costs
-                                </span>
-                                <span className="text-[13px] text-gray-200">
-                                  $0.01
-                                </span>
-                              </div>
+                                <div className="flex gap-2 items-center justify-between py-1">
+                                  <span className="text-[13px] text-gray-400">
+                                    Market maker gas costs
+                                  </span>
+                                  <span className="text-[13px] text-gray-200">
+                                    $0.01
+                                  </span>
+                                </div>
 
-                              <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
-                                <span className="text-[13px] text-gray-400">
-                                  LP cost
-                                </span>
-                                <span className="text-[13px] text-gray-200">
-                                  $0.01
-                                </span>
-                              </div>
-                            </Accordion.Content>
-                          </Accordion.Item>
-                        </Accordion.Root>
-                        <Button className="mt-4 w-full">Confirm Order</Button>
-                      </div>
+                                <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
+                                  <span className="text-[13px] text-gray-400">
+                                    LP cost
+                                  </span>
+                                  <span className="text-[13px] text-gray-200">
+                                    $0.01
+                                  </span>
+                                </div>
+                              </Accordion.Content>
+                            </Accordion.Item>
+                          </Accordion.Root>
+                          <Button className="mt-4 w-full">Confirm Order</Button>
+                        </div>
+                      )}
 
                       <Dialog.Close asChild>
                         <button className="modal_close_brn" aria-label="Close">
@@ -792,6 +902,6 @@ export default function PortfolioPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </div >
   );
 }

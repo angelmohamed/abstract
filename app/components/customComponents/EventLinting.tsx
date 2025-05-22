@@ -63,7 +63,7 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
         const data = await response.json();
         console.log(data, "event-data");
         setEvents(data.data);
-        setHasMore(data.pagination.hasMore);
+        setHasMore(data?.pagination?.hasMore);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);

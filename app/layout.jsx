@@ -1,7 +1,5 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import { ThirdwebProvider } from "thirdweb/react";
-import { polygon } from "thirdweb/chains";
 import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
 import { WalletProvider } from '@/app/walletconnect/walletContext';
@@ -46,13 +44,12 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThirdwebProvider>
+       
         <SnackbarClient>
           <WalletProvider>
               {children}
           </WalletProvider>
           </SnackbarClient>
-        </ThirdwebProvider>
         <Footer />
       </body>
     </html>

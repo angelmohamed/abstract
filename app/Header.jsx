@@ -1,9 +1,8 @@
 "use client"; // Add this at the top of the file to enable client-side hooks
 import Link from "next/link";
 import Image from "next/image";
-import { baseSepolia, polygon } from "thirdweb/chains";
+
 import SearchBar from "@/app/components/ui/SearchBar";
-import { ConnectButton, lightTheme, useActiveAccount } from "thirdweb/react";
 import SONOTRADE from "@/public/images/logo.png";
 import React, { useState, useEffect,  } from "react";
 import { client } from "@/app/client";
@@ -39,7 +38,7 @@ let initialValue = {
 
 export default function Header() {
   const router = useRouter();
-  const account = useActiveAccount();
+  
   const [connval, setconnval] = useState(null)
   const [open, setOpen] = useState(false)
   const [otpopen, setOtpOpen] = useState(false)
@@ -49,6 +48,7 @@ export default function Header() {
   const [error, setError] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
+  const [account, setaccount] = useState("");
   const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
@@ -82,41 +82,11 @@ export default function Header() {
     try {
       var { transport } = walletClientToSigner(walletClient);
       setconnval(transport);
+      setaccount(address)
     } catch (err) { }
   }, [address, walletClient]);
 
-  // // 检查并创建用户资料（如果需要）
-  // useEffect(() => {
-  //   async function checkAndCreateProfile() {
-  //     if (account && account.address) {
-  //       try {
-  //         // 调用我们创建的 API 路由，检查并创建用户资料
-  //         const response = await fetch(
-  //           `/api/profile/check?wallet=${account.address}`
-  //         );
-
-  //         if (response.ok) {
-  //           const profileData = await response.json();
-
-  //           // 如果是新创建的资料，可以提示用户完善信息
-  //           if (profileData.is_new) {
-  //             console.log(
-  //               "New profile created, you can complete your profile in the Profile page"
-  //             );
-  //             // 可以选择添加通知或直接导航到个人资料页面
-  //             // router.push("/profilePage");
-  //           }
-  //         } else {
-  //           console.error("Failed to check/create profile");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error checking profile:", error);
-  //       }
-  //     }
-  //   }
-
-  //   checkAndCreateProfile();
-  // }, [account, router]); // 当账号变化时重新检查
+  
 
   const connectMetamaskMobile = () => {
 
@@ -191,18 +161,14 @@ export default function Header() {
           currnetwork = network;
         }
        let connect = await connectWallet(connector);
-        // const message = "Welcome to SonoTrade! Sign to connect.";
-        // const hexMsg = Web3.utils.utf8ToHex(message);
-        // const signature = await window.ethereum.request({
-        //   method: "personal_sign",
-        //   params: [hexMsg, address],
-        // });
+      //  const message = "Welcome to SonoTrade! Sign to connect.";
+      //  const signature = await web3.eth.personal.sign(message, account);
 
         var walletdata = {
-          address ,
+          address:account ,
           LoginHistory
         }
-        console.log(connect,wallet,"addressaddressaddress")
+        console.log(account,"addressaddressaddress")
         let { status , authToken } = await walletLogin(walletdata)
         console.log( status , authToken ," status , authToken ")
         if(status){
@@ -419,25 +385,7 @@ console.log(email,"emaillll")
               <div className="text-xs text-grey">Profile</div>
             </button>
           )} */}
-          <ConnectButton
-            client={client}
-            chain={polygon}
-            connectButton={{
-              label: "Connect",
-              style: {
-                fontSize: "14px",
-                fontWeight: 500, // subtle bold
-                padding: "8px 10px",
-                height: "38px",
-                minWidth: "80px",
-              },
-            }}
-            detailsButton={{
-              displayBalanceToken: {
-                [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
-              },
-            }}
-          />
+          
         </div>
       </div>
 
@@ -467,27 +415,9 @@ console.log(email,"emaillll")
             <div className="text-xs text-grey">Profile</div>
           </button>
         )} */}
-        {/* <ConnectButton
-          client={client}
-          chain={polygon}
-          connectButton={{
-            label: "Connect Wallet",
-            style: {
-              fontSize: "14px",
-              fontWeight: 500, // subtle bold
-              padding: "10px 16px",
-              height: "40px",
-              minWidth: "110px",
-            },
-          }}
-          detailsButton={{
-            displayBalanceToken: {
-              [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
-            },
-          }}
-        /> */}
+        
       {isLogin() == true && 
-          <Button onClick = {navigateToPortfolioPage}>Deposit</Button>
+          <Button onClick = {() => navigateToPortfolioPage()}>Deposit</Button>
       }
         <Dialog.Root open={open} onOpenChange={setOpen}>
           {!isLogin() == true && 
