@@ -438,12 +438,13 @@ console.log(email,"emaillll")
           <Dialog.Portal>
             <Dialog.Overlay className="DialogOverlay" />
             <Dialog.Content className="DialogContent">
-              <Dialog.Title className="DialogTitle">
+              <Dialog.Title className="DialogTitle mb-4">
                 Welcome to Sonotrade
               </Dialog.Title>
               <GoogleOAuthProvider clientId={config.clientId}>
                 <div className="google_login">
                   <GoogleLogin
+                    theme="filled_black"
                     onSuccess={handleGoogleLogin}
                     onError={() => console.log("Login Failed")}
                   />
