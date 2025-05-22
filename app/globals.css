@@ -549,9 +549,12 @@ input[type="number"]::-webkit-outer-spin-button {
   position: relative;
 }
 .deposit_step1 {
-  display: none;
+  display: block;
 }
 .deposit_step2 {
+  display: none;
+}
+.deposit_step3 {
   display: none;
 }
 

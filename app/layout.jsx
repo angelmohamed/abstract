@@ -5,6 +5,7 @@ import { polygon } from "thirdweb/chains";
 import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
 import { WalletProvider } from '@/app/walletconnect/walletContext';
+import SnackbarClient from "@/app/helper/SnackbarClient";
 
 
 const geistSans = localFont({
@@ -46,9 +47,11 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThirdwebProvider>
+        <SnackbarClient>
           <WalletProvider>
               {children}
           </WalletProvider>
+          </SnackbarClient>
         </ThirdwebProvider>
         <Footer />
       </body>

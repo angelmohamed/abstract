@@ -11,10 +11,11 @@ import {
 import { polygon, polygonAmoy } from 'wagmi/chains';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import config from "../config/config"
 
 const queryClient = new QueryClient();
 
-const config = createConfig({
+const walletconfig = createConfig({
   autoConnect: true,
   chains: [polygon, polygonAmoy],
   transports: {
@@ -25,7 +26,7 @@ const config = createConfig({
     metaMask({ chains: [polygon, polygonAmoy] }),
     walletConnect({
       projectId: 'cb89ebb21cdccb2e1b591e189e27706a',
-      chains: [polygonAmoy],
+      chains: [config?.chainId],
       showQrModal: true,
     }),
   ],
@@ -47,7 +48,7 @@ export const WalletProvider = ({ children }) => {
   }, []);
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={walletconfig}>
       <QueryClientProvider client={queryClient}>
         {isMounted && <WalletProviderInner>{children}</WalletProviderInner>}
       </QueryClientProvider>

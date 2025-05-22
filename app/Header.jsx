@@ -5,7 +5,7 @@ import { baseSepolia, polygon } from "thirdweb/chains";
 import SearchBar from "@/app/components/ui/SearchBar";
 import { ConnectButton, lightTheme, useActiveAccount } from "thirdweb/react";
 import SONOTRADE from "@/public/images/logo.png";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect,  } from "react";
 import { client } from "@/app/client";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
@@ -18,22 +18,54 @@ import {
   OpenInNewWindowIcon,
   Cross2Icon,
 } from "@radix-ui/react-icons";
-import config from "../pages/config/config"
+import config from "./config/config.js"
 import { Button } from "./components/ui/button";
+import { useToast } from "./helper/toastAlert.js";
+import { googleLogin, getUserLocation, register,verifyEmail ,resendOTP, walletLogin} from "./ApiAction/api.js"
+import { regInputValidate, regValidate,otpValidate,otpInputValidate } from "./validation/validation.js"
+import {
+  GoogleOAuthProvider,
+  GoogleLogin,
+  googleLogout,
+} from "@react-oauth/google";
+import isEmpty from "is-empty"
 
+let initialData = {
+  otp: "",
+};
+let initialValue = {
+  email: "",
+};
 
 export default function Header() {
-  console.log("900990090909090909")
   const router = useRouter();
   const account = useActiveAccount();
   const [connval, setconnval] = useState(null)
+  const [open, setOpen] = useState(false)
+  const [otpopen, setOtpOpen] = useState(false)
+  const [userData, setUserData] = useState("")
+  const [otpData, setOtpData] = useState(initialData);
+  const [LoginHistory, setLoginHistory] = useState({});
+  const [error, setError] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
+  const [verifystatus, setVerifyStatus] = useState(false);
   const wallet = useWallet();
-// if (!wallet) {
-//   // Handle the null case, e.g., return null or a fallback UI
-//   return null;
-// }
+  const [expireTime, setExpireTime] = useState(0);
+
   const { connectors, address, isConnected, connectWallet, disconnectWallet } = wallet;
+  const toastAlert = useToast();
+  let { email } = userData
+  let { otp } = otpData
+
+  let registerChange = (e) => {
+    let { name, value, } = e.target;
+    const resetData = { ...userData, [name]: value };
+    delete error[name];
+    setUserData(resetData);
+    let errMsg = regInputValidate(resetData, name);
+    setError({ ...error, ...errMsg });
+  };
+
 
   // navigation handlers
   const navigateToProfilePage = () => {
@@ -53,38 +85,38 @@ export default function Header() {
     } catch (err) { }
   }, [address, walletClient]);
 
-  // 检查并创建用户资料（如果需要）
-  useEffect(() => {
-    async function checkAndCreateProfile() {
-      if (account && account.address) {
-        try {
-          // 调用我们创建的 API 路由，检查并创建用户资料
-          const response = await fetch(
-            `/api/profile/check?wallet=${account.address}`
-          );
+  // // 检查并创建用户资料（如果需要）
+  // useEffect(() => {
+  //   async function checkAndCreateProfile() {
+  //     if (account && account.address) {
+  //       try {
+  //         // 调用我们创建的 API 路由，检查并创建用户资料
+  //         const response = await fetch(
+  //           `/api/profile/check?wallet=${account.address}`
+  //         );
 
-          if (response.ok) {
-            const profileData = await response.json();
+  //         if (response.ok) {
+  //           const profileData = await response.json();
 
-            // 如果是新创建的资料，可以提示用户完善信息
-            if (profileData.is_new) {
-              console.log(
-                "New profile created, you can complete your profile in the Profile page"
-              );
-              // 可以选择添加通知或直接导航到个人资料页面
-              // router.push("/profilePage");
-            }
-          } else {
-            console.error("Failed to check/create profile");
-          }
-        } catch (error) {
-          console.error("Error checking profile:", error);
-        }
-      }
-    }
+  //           // 如果是新创建的资料，可以提示用户完善信息
+  //           if (profileData.is_new) {
+  //             console.log(
+  //               "New profile created, you can complete your profile in the Profile page"
+  //             );
+  //             // 可以选择添加通知或直接导航到个人资料页面
+  //             // router.push("/profilePage");
+  //           }
+  //         } else {
+  //           console.error("Failed to check/create profile");
+  //         }
+  //       } catch (error) {
+  //         console.error("Error checking profile:", error);
+  //       }
+  //     }
+  //   }
 
-    checkAndCreateProfile();
-  }, [account, router]); // 当账号变化时重新检查
+  //   checkAndCreateProfile();
+  // }, [account, router]); // 当账号变化时重新检查
 
   const connectMetamaskMobile = () => {
 
@@ -132,7 +164,7 @@ export default function Header() {
           ? connector.id
           : "";
 
-      if (check && !window.ethereum && isType == "metaMaskSDK") {
+      if (check && !window.ethereum && isType == "MetaMask") {
         connectMetamaskMobile();
         return;
       } else {
@@ -143,9 +175,8 @@ export default function Header() {
         } else if (isType !== "walletConnect") {
           web3 = new Web3(window.ethereum);
         } else {
-          var rpcUrl = config.rpc[network];
+          var rpcUrl = config.rpcUrl;
           web3 = new Web3(rpcUrl);
-          var signature = await web3.eth.personal.sign("sonotrades", account, 'sonotrade');
         }
         var currnetwork = await web3.eth.net.getId();
 
@@ -159,27 +190,200 @@ export default function Header() {
           });
           currnetwork = network;
         }
-        await connectWallet(connector);
-        window.$("#exampleModal").modal("hide");
+       let connect = await connectWallet(connector);
+        // const message = "Welcome to SonoTrade! Sign to connect.";
+        // const hexMsg = Web3.utils.utf8ToHex(message);
+        // const signature = await window.ethereum.request({
+        //   method: "personal_sign",
+        //   params: [hexMsg, address],
+        // });
+
+        var walletdata = {
+          address ,
+          LoginHistory
+        }
+        console.log(connect,wallet,"addressaddressaddress")
+        let { status , authToken } = await walletLogin(walletdata)
+        console.log( status , authToken ," status , authToken ")
+        if(status){
+          setOpen(false)
+          localStorage.setItem("sonoTradeToken", authToken);
+          toastAlert("success", "Wallet Connected Successfully",);
+        }
+
+        // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
       }
     } catch (err) {
+      console.log(err,"errerr")
       var error = err && err.message ? err.message.toString() : err.toString();
       var pos = error.search("Provider not set or invalid");
       var pos1 = error.search("User rejected");
       if (pos >= 0) {
-        toastAlert("error", "Please login into metamask", "errormetamask");
+        toastAlert("error", "Please login into metamask");
       } else if (pos1 >= 0) {
-        toastAlert("error", "Confirmation is rejected", "errormetamask");
+        toastAlert("error", "Confirmation is rejected");
       } else {
-        toastAlert("error", "Please try again later", "errormetamask");
+        toastAlert("error", "Please try again later");
       }
     }
   }
 
+  const getUserLogindetails = async () => {
+    try {
+      let result = await getUserLocation();
+      setLoginHistory(result);
+    } catch (err) {
+      console.error("Failed to get user location", err);
+    }
+  };
 
+  let getTime = async () => {
+    if (expireTime > 0) {
+      setTimeout(() => {
+        if (expireTime != 0) {
+          setExpireTime(expireTime - 1);
+        }
+      }, 1000);
+    }
+  };
+
+  useEffect(() => {
+    if (expireTime > 0) {
+      getTime();
+    }
+  }, [expireTime]);
+
+  useEffect(() => {
+    getUserLogindetails();
+  }, []);
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    const token = credentialResponse.credential;
+    console.log("Google Token:", token);
+
+    try {
+      let data = {
+        token,
+        LoginHistory: LoginHistory,
+      };
+      toastAlert("success", "Login Successfully",);
+      let { status, message, authToken, errors } = await googleLogin(data);
+      console.log(authToken, "authTokenauthTokenauthToken");
+
+      if (status) {
+        console.log("Login Successful:", message);
+        localStorage.setItem("sonoTradeToken", authToken);
+        localStorage.setItem("googlelogin", true);
+        toastAlert("success", message);
+        setOpen(false)
+      } else {
+        console.error("Login Failed:", message, errors);
+        toastAlert("error", message);
+      }
+    } catch (error) {
+      console.error("Google Login Error:", error);
+    }
+  };
+
+  let handleClick = async () => {
+    try {
+      let errMsg = await regValidate(userData);
+      setError(errMsg);
+      if (isEmpty(errMsg)) {
+        let { status, message, errors } = await register(userData);
+        console.log(errors, 'errorserrors')
+        if (status == true) {
+          toastAlert("success", message);
+          setVerifyStatus(true);
+          setExpireTime(180);
+          setOtpOpen(true)
+          setOpen(false)
+          getTime();
+        } else if (!isEmpty(errors)) {
+          setError(errors);
+          return;
+        } else {
+          toastAlert("error", message);
+        }
+      }
+    } catch (err) {
+      console.log(err, "errr");
+    }
+  };
+
+  let handleOtpChange = (e) => {
+    let { name, value } = e.target;
+    var resetData = { ...otpData, ...{ [name]: value } };
+    delete error[name];
+    setOtpData(resetData);
+    let errMsg = otpInputValidate(resetData, name);
+    setError({ ...error, ...errMsg });
+};
+
+let handleOtpClick = async () => {
+    try {
+      console.log("onCLick")
+        let errMsg = await otpValidate(otpData);
+        setError(errMsg);
+        if (isEmpty(errMsg)) {
+            if (expireTime == 0) {
+                toastAlert("error", "OTP expired,Please resend", "otp");
+                setOtpData({})
+            } else {
+                let data = { otp, email ,LoginHistory: LoginHistory,};
+                let { message, status ,authToken} = await verifyEmail(data);
+                if (status == true) {
+                    toastAlert("success", message);
+                    localStorage.setItem("sonoTradeToken", authToken);
+                    setOtpOpen(false)
+                } else {
+                    toastAlert("error", message);
+                }
+            }
+        }
+    } catch (err) {
+        console.log(err, "err");
+    }
+};
+
+let resendCode = async () => {
+    try {
+        let data = {
+            email,
+        };
+        let { message, status } = await resendOTP(data);
+        if (status == true) {
+            toastAlert("success", message, "otp");
+            setExpireTime(180);
+            getTime();
+            setisLoad(false);
+        } else {
+            toastAlert("error", message, "otp");
+            setisLoad(false);
+        }
+    } catch (err) {
+        console.log(err, "err");
+    }
+};
+
+  const isLogin = () => {
+    if (localStorage.getItem("sonoTradeToken")) {
+      return true;
+    }
+    return false;
+  };
+
+
+  async function logout() {
+    localStorage.removeItem("sonoTradeToken");
+    localStorage.removeItem("googlelogin");
+    disconnectWallet();
+    toastAlert("success", "Successfully Logout");
+  }
+console.log(email,"emaillll")
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
-     {console.log("88888888888888888888")}
+      {console.log("88888888888888888888")}
       <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
         {/* Logo and Title */}
         <div className="flex items-center">
@@ -263,7 +467,7 @@ export default function Header() {
             <div className="text-xs text-grey">Profile</div>
           </button>
         )} */}
-        <ConnectButton
+        {/* <ConnectButton
           client={client}
           chain={polygon}
           connectButton={{
@@ -281,26 +485,41 @@ export default function Header() {
               [polygon.id]: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", // USDC
             },
           }}
-        />
-
-        <Dialog.Root>
+        /> */}
+      {isLogin() == true && 
+          <Button onClick = {navigateToPortfolioPage}>Deposit</Button>
+      }
+        <Dialog.Root open={open} onOpenChange={setOpen}>
+          {!isLogin() == true && 
+          <>
           <Dialog.Trigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
               Log In
             </Button>
           </Dialog.Trigger>
           <Dialog.Trigger asChild>
-            <Button variant="outline" size="sm" className="bg-blue-500">
+            <Button variant="outline" size="sm" className="bg-blue-500" onClick={() => setOpen(true)}>
               Sign Up
             </Button>
           </Dialog.Trigger>
+          </>
+        }
+      
           <Dialog.Portal>
             <Dialog.Overlay className="DialogOverlay" />
             <Dialog.Content className="DialogContent">
               <Dialog.Title className="DialogTitle">
                 Welcome to Sonotrade
               </Dialog.Title>
-              <Button className="mt-4 w-full google_btn">
+              <GoogleOAuthProvider clientId={config.clientId}>
+                <div className="google_login">
+                  <GoogleLogin
+                    onSuccess={handleGoogleLogin}
+                    onError={() => console.log("Login Failed")}
+                  />
+                </div>
+              </GoogleOAuthProvider>
+              {/* <Button className="mt-4 w-full google_btn">
                 <Image
                   src="/images/google_icon.png"
                   alt="Profile Icon"
@@ -309,7 +528,7 @@ export default function Header() {
                   className="rounded-full"
                 />
                 <span>Continue with Google</span>
-              </Button>
+              </Button> */}
               <div className="custom_seperator">
                 <Separator.Root
                   className="SeparatorRoot"
@@ -325,32 +544,38 @@ export default function Header() {
                 <input
                   className="Input"
                   type="email"
+                  name="email"
+                  value={email}
+                  onChange={registerChange}
                   placeholder="Enter Email"
-                />
-                <Button>Continue</Button>
+                />               
+                <Button onClick={handleClick}>Continue</Button>             
               </div>
+              {error && error.email && (
+                  <span style={{ color: "red" }}>{error.email}</span>
+                )}
               <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-              {connectors.map((connector, i) => {
+                {connectors.map((connector, i) => {
                   if (
                     connector.name == "MetaMask" || connector.name == "WalletConnect"
                   ) {
                     return (
-                 <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
-                   <Image
-                   src={
-                    connector.name == "MetaMask"
-                      ? "/images/wallet_icon_01.png"
-                      : "/images/wallet_icon_05.png"
+                      <Button onClick={() => handleConnect(connector)} className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                        <Image
+                          src={
+                            connector.name == "MetaMask"
+                              ? "/images/wallet_icon_01.png"
+                              : "/images/wallet_icon_05.png"
+                          }
+                          alt="Icon"
+                          width={40}
+                          height={40}
+
+                        />
+                      </Button>
+                    );
                   }
-                    alt="Icon"
-                    width={40}
-                    height={40}
-                    onClick={() => handleConnect(connector)}
-                  />
-                </Button>
-                 );
-                }
-              })}
+                })}
                 {/* <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
                   <Image
                     src="/images/wallet_icon_02.png"
@@ -385,96 +610,137 @@ export default function Header() {
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
-
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <button className="profile_button" aria-label="Customise options">
-              <Image
-                src="/images/Ye.png"
-                alt="Profile Icon"
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <div className="custom_dropdown_portal">
-              <DropdownMenu.Content
-                className="DropdownMenuContent"
-                sideOffset={5}
-              >
-                <div className="flex items-center space-x-3">
-                  <Image
-                    src="/images/Ye.png"
-                    alt="Profile Icon"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
+        {verifystatus == true &&
+          <Dialog.Root open={otpopen} onOpenChange={setOtpOpen}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="DialogOverlay" />
+              <Dialog.Content className="DialogContent">
+                <Dialog.Title className="DialogTitle">
+                 Verify Your Email
+                </Dialog.Title>
+                <div className="custom_grpinp">
+                  <input
+                    className="Input"
+                    type="otp"
+                    name="otp"
+                    value={otp}
+                    onChange={handleOtpChange}
+                    placeholder="Enter OTP"
                   />
-                  <div>
-                    <span className="text-sm text-gray-100">Alex</span>
-                    <div className="text-sm text-gray-100 flex items-center space-x-2">
-                      <Tooltip.Provider>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger asChild>
-                            <button className="IconButton bg-[#131212] px-2 py-1 rounded">
-                              <span className="text-[12px]">{`${account?.address.slice(
-                                0,
-                                6
-                              )}...${account?.address.slice(-4)}`}</span>
-                            </button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Portal>
-                            <div className="custom_tooltip_content">
-                              <Tooltip.Content
-                                className="TooltipContent"
-                                sideOffset={5}
-                              >
-                                Copy Address
-                                <Tooltip.Arrow className="TooltipArrow" />
-                              </Tooltip.Content>
-                            </div>
-                          </Tooltip.Portal>
-                        </Tooltip.Root>
-                      </Tooltip.Provider>
-                      <Link href="#" target="_blank">
-                        <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
-                      </Link>
+                    {expireTime == 0 ? (
+                      <Button onClick={resendCode}>
+                        Resend OTP
+                      </Button>
+                    ) : (
+                      <Button >{`${expireTime}`}</Button>
+                    )}
+                  {/* <Button>Continue</Button> */}
+                </div>
+                {error && error.otp && (
+                  <span style={{ color: "red" }}>{error.otp}</span>
+                )}
+                <br></br>
+                <div className="text-center">
+                  <Button onClick = {() => handleOtpClick()}>Submit</Button>
+                </div>
+                <Dialog.Close asChild>
+                  <button className="modal_close_brn" aria-label="Close">
+                    <Cross2Icon />
+                  </button>
+                </Dialog.Close>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
+        }
+        {isLogin() == true || !isEmpty(address) ?
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="profile_button" aria-label="Customise options">
+                <Image
+                  src="/images/Ye.png"
+                  alt="Profile Icon"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <div className="custom_dropdown_portal">
+                <DropdownMenu.Content
+                  className="DropdownMenuContent"
+                  sideOffset={5}
+                >
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/Ye.png"
+                      alt="Profile Icon"
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <span className="text-sm text-gray-100">Alex</span>
+                      <div className="text-sm text-gray-100 flex items-center space-x-2">
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <button className="IconButton bg-[#131212] px-2 py-1 rounded">
+                                <span className="text-[12px]">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
+                              </button>
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <div className="custom_tooltip_content">
+                                <Tooltip.Content
+                                  className="TooltipContent"
+                                  sideOffset={5}
+                                >
+                                  Copy Address
+                                  <Tooltip.Arrow className="TooltipArrow" />
+                                </Tooltip.Content>
+                              </div>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                        <Link href="#" target="_blank">
+                          <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/settings">Settings</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Watchlist</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Rewards</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Learn</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Documentation</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Terms of Use</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/">Logout</Link>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </div>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/settings">Settings</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Watchlist</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Rewards</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Learn</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Documentation</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Terms of Use</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/" onClick={logout}>Logout</Link>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </div>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+          :""
+        }
       </div>
     </header>
   );

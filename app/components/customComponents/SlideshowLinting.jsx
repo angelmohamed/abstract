@@ -78,7 +78,7 @@ export default function EventCarousel() {
     <div className="w-full max-w-screen overflow-hidden pb-10">
       <Carousel autoPlayInterval={8000}>
         <CarouselContent>
-          {events.map((event, index) => {
+          {events?.map((event, index) => {
             const mainMarket = event.markets[0];
             const outcomePrices = mainMarket?.outcomePrices
               ? JSON.parse(mainMarket.outcomePrices)
