@@ -1,13 +1,12 @@
 # #!/bin/bash
-set -e
+# set -e
 
 TMP_DIR="./next-deploy"
 REPO="git@gitlab.com:wealwinprojects/sonotrade-frontend-2025.git"
 SSH_KEY="/Users/mariselvam/Documents/project/sonotrade/ref/developerssh.pem"
 BRANCH="main"
 
-yarn install
-yarn build
+npx @cloudflare/next-on-pages
 
 # Clone repo into new temp folder
 echo "📁 Cloning repo into temp dir: $TMP_DIR"
@@ -15,8 +14,8 @@ GIT_SSH_COMMAND="ssh -i $SSH_KEY" git clone --branch "$BRANCH" "$REPO" "$TMP_DIR
 
 # Copy build into repo
 echo "📦 Copying build output to repo..."
-rm -rf "$TMP_DIR/build"
-cp -r .vercel "$TMP_DIR/"
+rm -rf "$TMP_DIR/build/.vercel"
+cp -r .vercel "$TMP_DIR/build/"
 
 # Commit & push
 git -C "$TMP_DIR" add .
