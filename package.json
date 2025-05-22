@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "pages:build": "npx @cloudflare/next-on-pages"
+    "deploy": "bash ./deploy.sh"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
