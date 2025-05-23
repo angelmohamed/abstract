@@ -20,7 +20,7 @@ import {
 import config from "./config/config.js"
 import { Button } from "./components/ui/button";
 import { useToast } from "./helper/toastAlert.js";
-import { googleLogin, getUserLocation, register,verifyEmail ,resendOTP, walletLogin} from "./ApiAction/api.js"
+import { googleLogin, getUserLocation, register,verifyEmail ,resendOTP, walletLogin,getUserData} from "./ApiAction/api.js"
 import { regInputValidate, regValidate,otpValidate,otpInputValidate } from "./validation/validation.js"
 import {
   GoogleOAuthProvider,
@@ -46,6 +46,7 @@ export default function Header() {
   const [otpData, setOtpData] = useState(initialData);
   const [LoginHistory, setLoginHistory] = useState({});
   const [error, setError] = useState({})
+  const [data, setData] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
   const [account, setaccount] = useState("");
@@ -242,6 +243,7 @@ export default function Header() {
         localStorage.setItem("googlelogin", true);
         toastAlert("success", message);
         setOpen(false)
+        getUser()
       } else {
         console.error("Login Failed:", message, errors);
         toastAlert("error", message);
@@ -302,6 +304,7 @@ let handleOtpClick = async () => {
                     toastAlert("success", message);
                     localStorage.setItem("sonoTradeToken", authToken);
                     setOtpOpen(false)
+                    getUser()
                 } else {
                     toastAlert("error", message);
                 }
@@ -339,14 +342,32 @@ let resendCode = async () => {
     return false;
   };
 
+  const getUser = async() =>{
+    try{
+    let {status ,result} = await getUserData()
+    if(status){
+      setData(result)
+     }
+    }catch(err){
+      console.log(err,'errr')
+    }
+  }
+
 
   async function logout() {
     localStorage.removeItem("sonoTradeToken");
     localStorage.removeItem("googlelogin");
     disconnectWallet();
     toastAlert("success", "Successfully Logout");
+    router.push("/");
   }
-console.log(email,"emaillll")
+
+  useEffect(() =>{
+    if(isLogin() == true){
+      getUser()
+    }
+  },[])
+console.log(email,data,"emaillll")
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
       {console.log("88888888888888888888")}
@@ -583,7 +604,7 @@ console.log(email,"emaillll")
             </Dialog.Portal>
           </Dialog.Root>
         }
-        {isLogin() == true || !isEmpty(address) ?
+        {isLogin() == true  ?
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">

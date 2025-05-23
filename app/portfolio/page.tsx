@@ -26,7 +26,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
 import { Dialog, Accordion, Checkbox } from "radix-ui";
-import { shortText } from "../helper/custommath"
+import { shortText, numberFloatOnly } from "../helper/custommath"
+import { useToast } from "../helper/toastAlert";
 import isEmpty from "is-empty"
 import {
   Cross2Icon,
@@ -35,10 +36,17 @@ import {
   InfoCircledIcon,
   CheckIcon,
 } from "@radix-ui/react-icons";
+import { getUserData } from "@/app/ApiAction/api"
+import { useRouter } from "next/navigation";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
+import { WalletClient, useWalletClient } from 'wagmi'
+import { getCoinAmt, depsoitToken, depsoitCoin, approveToken } from "./multicall"
+import { walletClientToSigner } from "../helper/ethersconnect";
+import { formatNumber } from "../helper/custommath"
 import tokenABI from "../ABI/TOKENABI.json"
+
 // Define PolygonScan transaction type
 interface PolygonTx {
   blockNumber: string;
@@ -70,9 +78,10 @@ let initialValue = {
   walletAddress: "",
 }
 export default function PortfolioPage() {
-
-  const { address } = useWallet();
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } = useWallet();
   const [account, setaccount] = useState(address);
+  const [data, setData] = useState(address);
+  const [open, setOpen] = useState(false)
   const [step, setStep] = useState("1");
   const wallet = address;
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
@@ -82,6 +91,16 @@ export default function PortfolioPage() {
   const [currentTab, setCurrentTab] = useState("positions");
   const [amountFilter, setAmountFilter] = useState("All");
   const [depositData, setDepositData] = useState(initialValue);
+  const [depsoitAmt, setDepositAmt] = useState(0);
+  const [received, setreceived] = useState(0)
+  const [loader, setloader] = useState(false)
+  const [txopen, setTxOpen] = useState(false)
+  const [showallowance, setshowallowance] = useState(false)
+  const [transactionHash, settransactionHash] = useState("")
+  const [connval, setconnval] = useState(null)
+  const [tokenValue, setTokenValue] = useState({ minDeposit: 0, tokenAmt: 0, allowance: 0 })
+  const toastAlert = useToast();
+  const router = useRouter();
   const [profileData, setProfileData] = useState<{
     username: string;
     avatar_url: string;
@@ -89,6 +108,7 @@ export default function PortfolioPage() {
   } | null>(null);
 
   var { currency, amount, walletAddress } = depositData
+  var { minDeposit, tokenAmt, allowance } = tokenValue
 
   useEffect(() => {
     if (!wallet) return;
@@ -148,15 +168,140 @@ export default function PortfolioPage() {
       const decimals = await usdcContract.methods.decimals().call();
       const rawBalance = await usdcContract.methods.balanceOf(address).call();
       console.log(rawBalance, "rawBalance")
-      const formattedBalance = parseFloat(rawBalance / (10 ** decimals)).toFixed(2);
+      const formattedBalance = parseFloat(rawBalance / (10 ** decimals)).toFixed(4);
       setTokenBalance(formattedBalance);
     } catch (error) {
       console.error("Error fetching USDC balance:", error);
     }
   };
 
+  var chainId = config.chainId;
+  const { data: walletClient } = useWalletClient({ chainId });
+
+  useEffect(() => {
+    try {
+      var { transport } = walletClientToSigner(walletClient);
+      setconnval(transport);
+      setaccount(address)
+    } catch (err) { }
+  }, [address, walletClient]);
 
 
+
+  const connectMetamaskMobile = () => {
+
+    const currentUrl = window.location.href;
+
+    // Split the URL to get the dapp URL
+    const urlParts = currentUrl.split("//");
+    if (urlParts.length > 1) {
+      const dappUrl = urlParts[1].split("/")[0];
+      const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + dappUrl;
+      window.open(metamaskAppDeepLink, "_self");
+
+    } else {
+      console.error("Invalid URL format");
+    }
+
+  };
+
+  function isMobile() {
+    let check = false;
+    (function (a) {
+      if (
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
+          a
+        ) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+          a.substr(0, 4)
+        )
+      )
+        check = true;
+    })(navigator.userAgent || navigator.vendor || window.opera);
+    return check;
+  }
+
+
+  async function handleConnect(connector) {
+    disconnectWallet();
+
+    try {
+      var network = config.chainId;
+
+      let check = isMobile();
+      var isType =
+        connector && connector.id
+          ? connector.id
+          : "";
+
+      if (check && !window.ethereum && isType == "MetaMask") {
+        connectMetamaskMobile();
+        return;
+      } else {
+
+        var web3 = null;
+        if (isType == "injected") {
+          web3 = new Web3(window.BinanceChain);
+        } else if (isType !== "walletConnect") {
+          web3 = new Web3(window.ethereum);
+        } else {
+          var rpcUrl = config.rpcUrl;
+          web3 = new Web3(rpcUrl);
+        }
+        var currnetwork = await web3.eth.net.getId();
+
+        if (
+          parseInt(currnetwork) !== parseInt(network) &&
+          isType !== "walletConnect"
+        ) {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: Web3.utils.toHex(network) }],
+          });
+          currnetwork = network;
+        }
+        let connect = await connectWallet(connector);
+        //  const message = "Welcome to SonoTrade! Sign to connect.";
+        //  const signature = await web3.eth.personal.sign(message, account);
+
+        setOpen(false)
+        toastAlert("success", "Wallet Connected Successfully",);
+        getUser()
+        // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
+      }
+    } catch (err) {
+      console.log(err, "errerr")
+      var error = err && err.message ? err.message.toString() : err.toString();
+      var pos = error.search("Provider not set or invalid");
+      var pos1 = error.search("User rejected");
+      if (pos >= 0) {
+        toastAlert("error", "Please login into metamask");
+      } else if (pos1 >= 0) {
+        toastAlert("error", "Confirmation is rejected");
+      } else {
+        toastAlert("error", "Please try again later");
+      }
+    }
+  }
+
+  const getCoinValue = async () => {
+    try {
+      const web3 = new Web3(config.rpcUrl);
+      const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
+      const decimals = await usdcContract.methods.decimals().call();
+      let amt = (depsoitAmt * (10 ** decimals))
+      console.log(amt, "depsoitAmtdepsoitAmt")
+      let { minDeposit, tokenAmt, allowance } = await getCoinAmt(address, amt, connval)
+      console.log(minDeposit, tokenAmt, allowance, " minDeposit, tokenAmt, allowance")
+      setTokenValue({ minDeposit, tokenAmt, allowance })
+    } catch (err) {
+      console.log(err, "errr")
+    }
+  }
+
+  useEffect(() => {
+    getCoinValue()
+  }, [depsoitAmt])
 
   useEffect(() => {
     balanceData()
@@ -168,6 +313,147 @@ export default function PortfolioPage() {
       setStep("2")
     }
   }
+
+  var step3Click = () => {
+    try {
+      var depositBalance = currency == "USDT" ? tokenbalance : balance
+      if (depositBalance > 0) {
+        if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(minDeposit)) {
+          toastAlert("error", "Enter the amount must be greater than minimum deposit value",);
+        } else if (currency == "POL" && tokenAmt < minDeposit) {
+          toastAlert("error", `Enter the amount must be greater than minimum deposit value`,);
+        }
+        else if (depsoitAmt > 0) {
+          setStep("3")
+        }
+      } else if (depositBalance <= 0) {
+        toastAlert("error", "Insufficient Balance",);
+      }
+    } catch (err) {
+      console.log(err, "ererrrr")
+    }
+  }
+
+  const getUser = async () => {
+    try {
+      let { status, result } = await getUserData()
+      if (status) {
+        setData(result)
+      }
+    } catch (err) {
+      console.log(err, 'errr')
+    }
+  }
+
+
+  const balanceChange = (value) => {
+    if (currency == "USDT") {
+      setDepositAmt(tokenbalance * (value / 100))
+    } else {
+      setDepositAmt(balance * (value / 100))
+    }
+  }
+
+
+
+  async function disconnect() {
+    disconnectWallet();
+  }
+
+  async function buy() {
+    try {
+      setloader(true)
+
+      if (currency == "USDT") {
+        var { status, txId, message } = await depsoitToken(address, depsoitAmt, connval);
+        settransactionHash(txId);
+        setloader(true);
+        if (status) {
+          toastAlert(
+            "success",
+            "Your transaction is successfully completed",
+          );
+          getCoinValue();
+          setDepositAmt(0);
+          setStep("")
+          setTxOpen(true)
+        } else {
+          toastAlert("error", message);
+        }
+        setloader(false);
+
+      } else if (currency == "POL") {
+        var { status, txId, message } = await depsoitCoin(address, depsoitAmt, connval);
+        settransactionHash(txId)
+        setloader(true);
+        if (status) {
+          toastAlert(
+            "success",
+            "Your transaction is successfully completed",
+          );
+          getCoinValue();
+          setDepositAmt(0);
+          setStep("")
+          setTxOpen(true)
+        } else {
+          toastAlert("error", message);
+        }
+        setloader(false);
+      }
+    } catch (err) {
+      setloader(false);
+
+    }
+  }
+
+  const handlechange = async (e) => {
+    let value = e.target.value;
+    setDepositAmt(e.target.value)
+    let isNum = numberFloatOnly(value);
+    if (isNum) {
+      setshowallowance(false);
+      if (value > allowance && currency == "USDT") {
+        setshowallowance(true);
+      }
+    }
+  };
+
+  async function approve() {
+    setloader(true);
+    try {
+      var { approvalAmt, isAllowed, error } = await approveToken(address, connval);
+      if (isAllowed) {
+        if (depsoitAmt > approvalAmt) {
+          toastAlert("error", "Insufficient approval amount");
+        } else {
+          toastAlert("success", "Successfully approved");
+          setshowallowance(false);
+        }
+      } else {
+        toastAlert("error", error);
+      }
+      setloader(false);
+    } catch (err) {
+
+      setloader(false);
+    }
+  }
+
+  const isLogin = () => {
+    if (localStorage.getItem("sonoTradeToken")) {
+      return true;
+    }
+    return false;
+  };
+
+
+  useEffect(() => {
+    if (isLogin() == false) {
+      router.push("/");
+    }
+    getUser()
+  }, [])
+  console.log(data, data?.loginType, "datadatadata")
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
@@ -175,6 +461,20 @@ export default function PortfolioPage() {
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
       <div className="container mx-auto py-10 px-4 container-sm">
+        {!isEmpty(data) && data?.loginType !== "wallet" && (
+          <div className="flex justify-end mb-4">
+            {isConnected ? (
+              <>
+                <Button className="mr-2">{shortText(address)}</Button>
+                <Button onClick={() => disconnect()}>Disconnect</Button>
+              </>
+            ) : (
+              <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
+            )}
+          </div>
+        )}
+
+        <br></br>
         {/* 2. Key metrics card area */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="bg-[#131212] p-4 rounded-lg">
@@ -209,7 +509,10 @@ export default function PortfolioPage() {
               >
                 <Dialog.Root>
                   <Dialog.Trigger asChild>
-                    <Button className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                    <Button onClick={() => {
+                      setStep("1")
+                      setDepositAmt(0)
+                    }} className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
                       Deposit
                     </Button>
                   </Dialog.Trigger>
@@ -220,7 +523,7 @@ export default function PortfolioPage() {
                         Deposit
                       </Dialog.Title>
                       <p className="text-center text-[12px] text-gray-400 mb-0">
-                        Available Balance: $10.96
+                        Available Balance: {currency == "USDT" ? tokenbalance : balance}
                       </p>
                       {step == '1' && (
                         <div className="deposit_step deposit_step1">
@@ -241,45 +544,43 @@ export default function PortfolioPage() {
                               <span className="text-[13px] text-gray-400">
                                 {/* $10.20 */}
                                 {balance}
-                                </span>
+                              </span>
                             </div>
                           </Button>
 
                           <div className="wallet_coin_list">
                             <div
-                              className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDC"
-                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                              className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDT"
+                                ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                 }`}
                               onClick={() =>
-                                setDepositData((prev) => ({ ...prev, currency: "USDC" }))
+                                setDepositData((prev) => ({ ...prev, currency: "USDT" }))
                               }
                             >
                               <div className="flex items-center gap-2">
                                 <Image
                                   src="/images/usdt.svg"
-                                  alt="USDC Icon"
+                                  alt="USDT Icon"
                                   width={24}
                                   height={24}
                                   className="rounded-full"
                                 />
                                 <div className="flex flex-col">
-                                  <span className="text-[14px]">USDC</span>
-                                  <span className="text-[12px] text-gray-400">{tokenbalance} USDC</span>
+                                  <span className="text-[14px]">USDT</span>
+                                  <span className="text-[12px] text-gray-400">{tokenbalance} USDT</span>
                                 </div>
                               </div>
-                              <span className="text-[14px]">
-                                {/* $9.88 */}
-                                {tokenbalance}
-                                </span>
+                              <span className="text-[14px]">{tokenbalance}</span>
                             </div>
                           </div>
+
 
                           <div className="wallet_coin_list">
                             <div
                               className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "POL"
-                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                 }`}
                               onClick={() =>
                                 setDepositData((prev) => ({ ...prev, currency: "POL" }))
@@ -301,14 +602,9 @@ export default function PortfolioPage() {
                               <span className="text-[14px]">
                                 {/* $9.88 */}
                                 {balance}
-                                </span>
+                              </span>
                             </div>
                           </div>
-
-
-                          <p className="mt-2 text-sm text-gray-300">
-                            Selected Currency: <strong>{currency}</strong>
-                          </p>
 
                           <Button className="mt-4 w-full" onClick={() => step2Click()}>
                             Continue
@@ -324,24 +620,35 @@ export default function PortfolioPage() {
                           <input
                             className="wallet_inp"
                             type="number"
-                            placeholder="$ 0.00"
+                            onChange={handlechange}
+                            value={depsoitAmt}
+                            placeholder={depsoitAmt}
                           />
                           <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                              onClick={() => balanceChange(25)}>
                               25%
                             </Button>
-                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                              onClick={() => balanceChange(50)}>
                               50%
                             </Button>
-                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                              onClick={() => balanceChange(75)}>
                               75%
                             </Button>
-                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]">
+                            <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                              onClick={() => balanceChange(100)}>
                               Max
                             </Button>
                           </div>
                           <p className="text-[12px] text-gray-400 text-center mt-8">
-                            $1.00 minimum order
+                            {currency === "POL" ? (
+                              tokenAmt
+                            ) : (
+                              `${minDeposit} ${currency} minimum deposit`
+                            )}
+
                           </p>
                           <div
                             className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
@@ -359,7 +666,7 @@ export default function PortfolioPage() {
                                 <span className="text-[12px] text-gray-400">
                                   You Sent
                                 </span>
-                                <span className="text-[14px]">USDT</span>
+                                <span className="text-[14px]">{currency}</span>
                               </div>
                             </div>
                             <Image
@@ -384,7 +691,7 @@ export default function PortfolioPage() {
                               </div>
                             </div>
                           </div>
-                          <Button className="mt-4 w-full">Continue</Button>
+                          <Button className="mt-4 w-full" onClick={() => step3Click()}>Continue</Button>
                         </div>
                       )}
                       {step == '3' && (
@@ -416,7 +723,7 @@ export default function PortfolioPage() {
                             </CountdownCircleTimer>
                           </div>
                           <p className="text-4xl text-[#efefef] text-center font-semibold pt-5 pb-2">
-                            $1.00
+                            {depsoitAmt ? depsoitAmt : 0} {currency ? currency : ""}
                           </p>
                           <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] mt-4">
                             <span className="text-[14px] text-gray-400">
@@ -430,7 +737,7 @@ export default function PortfolioPage() {
                                 height={18}
                               />
                               <span className="text-[14px] text-gray-200">
-                                Wallet (…d96b)
+                                Wallet {shortText(address)}
                               </span>
                             </div>
                           </div>
@@ -462,7 +769,7 @@ export default function PortfolioPage() {
                                 height={18}
                               />
                               <span className="text-[14px] text-gray-200">
-                                1.02021 USDT
+                                {depsoitAmt ? depsoitAmt : 0} {currency ? currency : ""}
                               </span>
                             </div>
                           </div>
@@ -478,7 +785,7 @@ export default function PortfolioPage() {
                                 height={18}
                               />
                               <span className="text-[14px] text-gray-200">
-                                0.99750 USDC
+                                {currency == "USDT" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}
                               </span>
                             </div>
                           </div>
@@ -537,10 +844,11 @@ export default function PortfolioPage() {
                               </Accordion.Content>
                             </Accordion.Item>
                           </Accordion.Root>
-                          <Button className="mt-4 w-full">Confirm Order</Button>
+                          {showallowance ?
+                            <Button className="mt-4 w-full" onClick={() => approve()}>Approve {loader && <i className="fas fa-spinner fa-spin" style={{ color: "black" }}></i>}</Button> :
+                            <Button className="mt-4 w-full" onClick={() => buy()}>Confirm Order {loader && <i className="fas fa-spinner fa-spin" style={{ color: "black" }}></i>}</Button>}
                         </div>
                       )}
-
                       <Dialog.Close asChild>
                         <button className="modal_close_brn" aria-label="Close">
                           <Cross2Icon />
@@ -550,6 +858,74 @@ export default function PortfolioPage() {
                   </Dialog.Portal>
                 </Dialog.Root>
               </div>
+
+              <Dialog.Root open={txopen} onOpenChange={setTxOpen}>
+                <Dialog.Portal>
+                  <Dialog.Overlay className="DialogOverlay fixed inset-0 bg-black/50 z-40" />
+                  <Dialog.Content className="DialogContent fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white p-6 rounded-2xl shadow-lg">
+                    <Dialog.Title className="DialogTitle text-xl font-semibold text-center mb-4">
+                      Transaction Completed
+                    </Dialog.Title>
+
+                    <div className="flex flex-col items-center text-center">
+                      <svg
+                        className="success"
+                        version="1.1"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 130.2 130.2"
+                        width="80"
+                        height="80"
+                      >
+                        <circle
+                          className="path circle"
+                          fill="none"
+                          stroke="#73AF55"
+                          strokeWidth="6"
+                          strokeMiterlimit="10"
+                          cx="65.1"
+                          cy="65.1"
+                          r="62.1"
+                        />
+                        <polyline
+                          className="path check"
+                          fill="none"
+                          stroke="#73AF55"
+                          strokeWidth="6"
+                          strokeLinecap="round"
+                          strokeMiterlimit="10"
+                          points="100.2,40.2 51.5,88.8 29.8,67.5"
+                        />
+                      </svg>
+
+                      <div className="text-light mt-4 text-lg">
+                        You will receive: <strong>{currency == "USDT" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}</strong>
+                      </div>
+
+                      {transactionHash && (
+                        <a
+                          className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
+                          href={`${config.txurl}tx/${transactionHash}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <i className="fa fa-eye" aria-hidden="true"></i>
+                          View Transaction
+                        </a>
+                      )}
+                    </div>
+
+                    <Dialog.Close asChild>
+                      <button
+                        className="modal_close_btn absolute top-4 right-4 text-white hover:text-gray-400"
+                        aria-label="Close"
+                      >
+                        <Cross2Icon />
+                      </button>
+                    </Dialog.Close>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
+
 
               <div
                 className="text-[12px]"
@@ -902,6 +1278,45 @@ export default function PortfolioPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle mb-4">
+              Welcome to Sonotrade
+            </Dialog.Title>
+            <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+              {connectors.map((connector, i) => {
+                if (
+                  connector.name == "MetaMask" || connector.name == "WalletConnect"
+                ) {
+                  return (
+                    <Button onClick={() => handleConnect(connector)} className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                      <Image
+                        src={
+                          connector.name == "MetaMask"
+                            ? "/images/wallet_icon_01.png"
+                            : "/images/wallet_icon_05.png"
+                        }
+                        alt="Icon"
+                        width={40}
+                        height={40}
+
+                      />
+                    </Button>
+                  );
+                }
+              })}
+
+            </div>
+            <Dialog.Close asChild>
+              <button className="modal_close_brn" aria-label="Close">
+                <Cross2Icon />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div >
   );
 }

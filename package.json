@@ -71,6 +71,7 @@
     "viem": "^2.28.0",
     "wagmi": "^2.15.0",
     "browser-detect": "^0.2.28",
+    "ethereum-multicall": "^2.26.0",
     "web-vitals": "^2.1.4",
     "react-copy-to-clipboard": "^5.1.0",
     "notistack": "^3.0.2",
