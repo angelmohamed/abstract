@@ -130,19 +130,19 @@ export default function EventPage() {
         <Header />
         <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
       </div>
-      <div className="sm:pr-[10%] sm:pl-[10%] pl-0 pr-0">
+      <div className="container mx-auto px-4 max-w-full overflow-hidden">
         {eventsLoading ? (
           <div className="flex justify-center items-center h-[80vh] w-[80vw]">
             <Loader className="w-26 h-26 animate-spin bg-blend-overlay" />
-            ...Loading
+            Loading...
           </div>
         ) : (
           <div className="sm:mx-auto mx-0 sm:px-4 px-0 sm:pt-4 pt-0">
             {/* Preview Card Section */}
             <div className="flex justify-center items-center">
-              <div className="flex justify-center sm:max-w-8xl mb-0 w-full">
+              <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
                 {/* Main Content (Charts, Accordion, etc.) */}
-                <div className="w-full pl-0 pr-0 lg:w-[70%]">
+                <div className="w-full lg:w-[70%]">
                   {markets.length < 2 ? (
                     <SingleLineChart
                       title={events.title}
@@ -163,14 +163,14 @@ export default function EventPage() {
                       interval={interval}
                     />
                   )}
-                  <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 justify-center items-center">
+                  <div className="justify-center items-center">
                     <ChartIntervals
                       interval={interval}
                       setInterval={setInterval}
                     />
                   </div>
 
-                  <div className="pr-10 pl-10 sm:pr-5 sm:pl-0">
+                  <div>
                     {markets?.length < 2 && books ? (
                       <OrderbookAccordion type="single" collapsible>
                         <OrderbookAccordionItem value="item-1">
@@ -301,7 +301,7 @@ export default function EventPage() {
 
                 {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                 <div className="hidden lg:block lg:w-[30%] relative">
-                  <div className="fixed right-[10%] top-[200px] w-[20%] z-60">
+                  <div className="fixed top-[180px] z-60 w-[25%]">
                     {markets.length < 2 ? (
                       <TradingCard
                         activeView={activeView}
