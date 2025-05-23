@@ -181,11 +181,11 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
   const [activeDate, setActiveDate] = useState("Jun 18");
   return (
     <Card
-      className="w-[115vw] lg:w-[55vw] sm:w-[90vw] h-auto" // Wider on mobile
+      className="h-auto" // Wider on mobile
       style={{ backgroundColor: "transparent", borderColor: "transparent" }}
     >
       <div>
-        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0 postion-relative">
+        <CardHeader className="p-0">
           {/* 先显示标题 */}
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -283,9 +283,9 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
           </CardDescription>
         </CardHeader>
 
-        <CardContent className="gap-0 sm:gap-2 p-0 pl-2">
+        <CardContent className="gap-0 sm:gap-2 p-0">
           <div className="w-full test">
-            <CardHeader className="p-0 sm:pb-4">
+            <CardHeader className="sm:pb-4 p-0 mt-3">
               {displayChance !== undefined && (
                 <div className="flex justify-start mb-4">
                   {" "}
@@ -300,9 +300,9 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                 </div>
               )}
             </CardHeader>
-            <CardContent className="p-0 sm:pl-0 pl-10 pr-8 sm:pr-0 pr-0">
+            <CardContent className="p-0">
               <ChartContainer
-                className="h-[350px] p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full" // Shorter on mobile
+                className="h-[350px] lg:h-[300px] sm:h-[200px] w-full" // Shorter on mobile
                 config={chartConfig}
               >
                 <LineChart

@@ -186,14 +186,14 @@ export default function MultiLineChart({
 
   return (
     <Card
-      className="w-[115vw] lg:w-[55vw] sm:w-[90vw] h-auto"
+      className="h-auto"
       style={{
         backgroundColor: "transparent",
         borderColor: "transparent",
       }}
     >
       <div>
-        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
+        <CardHeader className="p-0">
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
@@ -294,13 +294,13 @@ export default function MultiLineChart({
           </CardDescription>
         </CardHeader>
       </div>
-      <CardContent className="pl-4 sm:pl-0 pt-1 pb-0 pr-0">
-        <div className="pr-0 pl-4 sm:pl-0 w-[100%]">
+      <CardContent className="p-0">
+        <div className="p-0">
           <ChartContainer
-            className="h-[350px] pl-5 sm:pl-0 p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full"
+            className="h-[350px] lg:h-[300px] sm:h-[200px] w-full"
             config={chartConfig}
           >
-            <LineChart className="pl-4 sm:pl-0" data={multiChartData}>
+            <LineChart className="" data={multiChartData}>
               <XAxis
                 dataKey="timestamp"
                 interval={xAxisInterval}
