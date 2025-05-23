@@ -20,6 +20,8 @@ import {
   ChartDataPoint,
 } from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
+import { HoverCard } from "radix-ui";
+import { CountdownTimerIcon } from "@radix-ui/react-icons";
 
 interface MarketData {
   clobTokenIds: string;
@@ -176,7 +178,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
       ? 1 - chance
       : undefined;
   const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
-
+  const [activeDate, setActiveDate] = useState("Jun 18");
   return (
     <Card
       className="w-[115vw] lg:w-[55vw] sm:w-[90vw] h-auto" // Wider on mobile
@@ -219,7 +221,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
           </CardTitle>
 
           {/* 显示 Vol 和时间等信息 */}
-          <CardDescription className="py-2 flex flex-col sm:flex-row sm:gap-3 gap-1 justify-start items-start sm:items-center">
+          <CardDescription className="py-2">
             {/* First line - Volume and Date */}
             <div className="flex flex-wrap gap-3 items-center">
               <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
@@ -244,6 +246,38 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                 onClick={() => setSelectedYes(!selectedYes)}
               >
                 <ArrowRightLeft />
+              </Button>
+            </div>
+            <div className="flex items-center gap-2 mt-3">
+              <HoverCard.Root>
+                <HoverCard.Trigger asChild>
+                  <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
+                    <CountdownTimerIcon />
+                  </Button>
+                </HoverCard.Trigger>
+                <HoverCard.Portal>
+                  <HoverCard.Content className="history_card" sideOffset={5}>
+                    <ul className="history_card_list">
+                      <li>Ended: May 7, 2025</li>
+                      <li>Ended: March 19, 2025</li>
+                    </ul>
+                    <HoverCard.Arrow className="HoverCardArrow" />
+                  </HoverCard.Content>
+                </HoverCard.Portal>
+              </HoverCard.Root>
+              <Button
+                // className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]"
+                className={`w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] ${
+                  activeDate === "Jun 18"
+                    ? "bg-[#fff] text-[#262626] border-[#262626]"
+                    : ""
+                }`}
+                onClick={() => setActiveDate("Jun 18")}
+              >
+                Jun 18
+              </Button>
+              <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
+                Jul 30
               </Button>
             </div>
           </CardDescription>

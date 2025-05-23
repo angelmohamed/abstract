@@ -1,12 +1,5 @@
 "use client";
-import {
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-} from "recharts";
+import { Line, LineChart, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import {
   Card,
   CardContent,
@@ -22,6 +15,9 @@ import { toTwoDecimal } from "@/utils/helpers";
 import Image from "next/image";
 // import Polymarket from "/public/images/polymarket.png";
 import { StaticImageData } from "next/image";
+import { HoverCard } from "radix-ui";
+import { CountdownTimerIcon } from "@radix-ui/react-icons";
+import { Button } from "@/app/components/ui/button";
 
 // 定义接口
 interface Market {
@@ -65,7 +61,7 @@ interface MultiLineChartProps {
   endDate?: string;
   markets: Market[];
   interval: string;
-  activeView?: 'Yes' | 'No';
+  activeView?: "Yes" | "No";
 }
 
 export default function MultiLineChart({
@@ -75,11 +71,13 @@ export default function MultiLineChart({
   endDate,
   markets,
   interval,
-  activeView = 'Yes'
+  activeView = "Yes",
 }: MultiLineChartProps) {
   const [multiChartData, setMultiChartData] = useState<ChartDataItem[]>([]);
   const [multiChartLabels, setMultiChartLabels] = useState<string[]>([]);
-  const [screenWidth, setScreenWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 0);
+  const [screenWidth, setScreenWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
 
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
@@ -99,14 +97,15 @@ export default function MultiLineChart({
           .forEach((market) => {
             if (market.clobTokenIds) {
               const tokenIds = JSON.parse(market.clobTokenIds);
-              const selectedTokenId = activeView === 'Yes' ? tokenIds[0] : tokenIds[1];
+              const selectedTokenId =
+                activeView === "Yes" ? tokenIds[0] : tokenIds[1];
               ids.push(selectedTokenId);
               chartLabelsTemp.push(market.groupItemTitle);
             }
           });
 
         const idsLength = Math.min(ids.length, 4);
-        
+
         try {
           const fetchPromises = ids.slice(0, idsLength).map(async (id) => {
             const response = await fetch(
@@ -163,7 +162,11 @@ export default function MultiLineChart({
           {payload.map(
             (entry, index) =>
               entry.value !== null && (
-                <p key={index} style={{ color: entry.color }} className="text-sm">
+                <p
+                  key={index}
+                  style={{ color: entry.color }}
+                  className="text-sm"
+                >
                   {entry.name} {entry.value?.toFixed()}¢
                 </p>
               )
@@ -174,7 +177,12 @@ export default function MultiLineChart({
     return null;
   };
 
-  const xAxisInterval = screenWidth < 640 ? Math.floor(multiChartData.length / 6) : Math.floor(multiChartData.length / 12);
+  const xAxisInterval =
+    screenWidth < 640
+      ? Math.floor(multiChartData.length / 6)
+      : Math.floor(multiChartData.length / 12);
+
+  const [activeDate, setActiveDate] = useState("Jun 18");
 
   return (
     <Card
@@ -185,62 +193,113 @@ export default function MultiLineChart({
       }}
     >
       <div>
-      <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
-        <CardTitle style={{ lineHeight: "1.5" }}>
-          <div style={{ display: "flex", alignItems: "center" }}>
-          <div
-              style={{
-                width: screenWidth < 640 ? "50px" : "75px",
-                height: screenWidth < 640 ? "50px" : "75px",
-                overflow: "hidden",
-                borderRadius: "10px",
-                flexShrink: 0,
-              }}
-            >
-              <Image
-                src={image}
-                alt="Event"
-                width={screenWidth < 640 ? 50 : 75}
-                height={screenWidth < 640 ? 50 : 75}
-                style={{ 
-                  width: "100%", 
-                  height: "100%", 
-                  objectFit: "cover",
-                  transition: "all 0.3s ease" 
+        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
+          <CardTitle style={{ lineHeight: "1.5" }}>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                style={{
+                  width: screenWidth < 640 ? "50px" : "75px",
+                  height: screenWidth < 640 ? "50px" : "75px",
+                  overflow: "hidden",
+                  borderRadius: "10px",
+                  flexShrink: 0,
                 }}
-              />
+              >
+                <Image
+                  src={image}
+                  alt="Event"
+                  width={screenWidth < 640 ? 50 : 75}
+                  height={screenWidth < 640 ? 50 : 75}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    transition: "all 0.3s ease",
+                  }}
+                />
+              </div>
+              <div
+                className="text-[22px] lg:text-[26px] sm:text-[20px]"
+                style={{ paddingLeft: "15px", marginRight: "10px" }}
+              >
+                {title}
+              </div>
             </div>
-            <div className="text-[22px] lg:text-[26px] sm:text-[20px]" style={{ paddingLeft:"15px", marginRight: "10px" }}>
-              {title}
+          </CardTitle>
+          <CardDescription className="py-2 pb-6">
+            {/* First Line: Volume and Date */}
+            <div className="flex pb-1 flex-wrap gap-3 items-center">
+              <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
+              {endDate && (
+                <p className="flex items-center gap-1">
+                  <Clock size={14} />{" "}
+                  {new Date(endDate)?.toLocaleString("en-US", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "numeric",
+                    minute: "numeric",
+                  })}
+                </p>
+              )}
             </div>
-          </div>
-        </CardTitle>
-        <CardDescription className="py-2 pb-6 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          {/* First Line: Volume and Date */}
-          <div className="flex pb-1 flex-wrap gap-3 items-center">
-            <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
-            {endDate && (
-              <p className="flex items-center gap-1">
-                <Clock size={14} />{" "}
-                {new Date(endDate)?.toLocaleString("en-US", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                  hour: "numeric",
-                  minute: "numeric",
-                })}
-              </p>
-            )}
-          </div>
-
-
-        </CardDescription>
-
-      </CardHeader>
+            <div className="flex items-center gap-2 mt-3">
+              <HoverCard.Root>
+                <HoverCard.Trigger asChild>
+                  <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
+                    <CountdownTimerIcon />
+                  </Button>
+                </HoverCard.Trigger>
+                <HoverCard.Portal>
+                  <HoverCard.Content className="history_card" sideOffset={5}>
+                    <ul className="history_card_list">
+                      <li>Ended: May 7, 2025</li>
+                      <li>Ended: March 19, 2025</li>
+                      <li>Ended: Jan 16, 2025</li>
+                      <li>Ended: Dec 18, 2024</li>
+                      <li>Ended: Sep 2, 2024</li>
+                      <li>Ended: Jun 6, 2024</li>
+                      <li>Ended: May 7, 2024</li>
+                      <li>Ended: March 19, 2024</li>
+                      <li>Ended: Jan 16, 2024</li>
+                      <li>Ended: Dec 18, 2023</li>
+                      <li>Ended: Sep 2, 2023</li>
+                      <li>Ended: Jun 6, 2023</li>
+                      <li>Ended: May 7, 2023</li>
+                      <li>Ended: March 19, 2023</li>
+                      <li>Ended: Jan 16, 2023</li>
+                    </ul>
+                    <HoverCard.Arrow className="HoverCardArrow" />
+                  </HoverCard.Content>
+                </HoverCard.Portal>
+              </HoverCard.Root>
+              <Button
+                // className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]"
+                className={`w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] ${
+                  activeDate === "Jun 18"
+                    ? "bg-[#fff] text-[#262626] border-[#262626]"
+                    : ""
+                }`}
+                onClick={() => setActiveDate("Jun 18")}
+              >
+                Jun 18
+              </Button>
+              <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
+                Jul 30
+              </Button>
+              <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
+                Sep 17
+              </Button>
+            </div>
+          </CardDescription>
+        </CardHeader>
       </div>
       <CardContent className="pl-4 sm:pl-0 pt-1 pb-0 pr-0">
         <div className="pr-0 pl-4 sm:pl-0 w-[100%]">
-          <ChartContainer className="h-[350px] pl-5 sm:pl-0 p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full" config={chartConfig}>
+          <ChartContainer
+            className="h-[350px] pl-5 sm:pl-0 p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full"
+            config={chartConfig}
+          >
             <LineChart className="pl-4 sm:pl-0" data={multiChartData}>
               <XAxis
                 dataKey="timestamp"
@@ -268,7 +327,9 @@ export default function MultiLineChart({
                   key={`asset${assetNum}`}
                   type="natural"
                   dataKey={`asset${assetNum}`}
-                  name={chartConfig[`asset${assetNum}` as keyof ChartConfig].label}
+                  name={
+                    chartConfig[`asset${assetNum}` as keyof ChartConfig].label
+                  }
                   stroke={`hsl(var(--chart-${index + 1}))`}
                   strokeWidth={2}
                   dot={false}

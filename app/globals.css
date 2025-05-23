@@ -556,6 +556,30 @@ input[type="number"]::-webkit-outer-spin-button {
 .deposit_step3 {
   display: none;
 }
+.history_card {
+  border-radius: 6px;
+  width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: #161616;
+  box-shadow: hsl(206 22% 7% / 35%) 0px 10px 38px -10px,
+    hsl(206 22% 7% / 20%) 0px 10px 20px -15px;
+  animation-duration: 400ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+}
+.HoverCardArrow {
+  fill: #161616;
+}
+.history_card_list li {
+  padding: 10px;
+  cursor: pointer;
+}
+.history_card_list li:hover {
+  background-color: #212121;
+}
+
+
 
 /* Media queries */
 @media screen and (max-width: 1023px) {

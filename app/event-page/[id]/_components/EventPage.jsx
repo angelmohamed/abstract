@@ -134,7 +134,7 @@ export default function EventPage() {
         {eventsLoading ? (
           <div className="flex justify-center items-center h-[80vh] w-[80vw]">
             <Loader className="w-26 h-26 animate-spin bg-blend-overlay" />
-            ...Loading
+            Loading...
           </div>
         ) : (
           <div className="sm:mx-auto mx-0 sm:px-4 px-0 sm:pt-4 pt-0">
