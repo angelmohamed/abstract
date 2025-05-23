@@ -1,0 +1,288 @@
+import config from "../config/config";
+import DEPOSITABI from "../ABI/DEPOSITABI.json";
+import tokenABI from "../ABI/TOKENABI.json"
+import Web3 from "web3";
+import { Multicall } from "ethereum-multicall";
+import { convert } from "../helper/convert";
+import { getFormatMulticall,getFormatMulticall1 } from "../helper/custommath";
+import { useWallet } from "@/app/walletconnect/walletContext.js";
+import { userDeposit } from "@/app/ApiAction/api"
+
+export async function getCoinAmt(address,amount,transport) {
+  try {
+    console.log(address,"addressaddressaddressaddress")
+    const POLAddress = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"; 
+    let amt = convert(amount.toString())
+    const web3 = new Web3(transport);
+    const multicall = new Multicall({ web3Instance: web3 });
+      console.log(amt,"amtamtamtamt")
+
+    const Contract = [
+        {
+            reference: "balanceOf",
+            contractAddress: config.usdcAdd,
+            abi: tokenABI,
+            calls: [
+                {
+                    reference: "allowance",
+                    methodName: "allowance",
+                    methodParameters: [address, config.contractAdd],
+                },
+            ]
+        },
+      {
+        reference: "MIN_DEPOSIT_USD",
+        contractAddress: config.contractAdd,
+        abi: DEPOSITABI,
+        calls: [
+          {
+            reference: "MIN_DEPOSIT_USD",
+            methodName: "MIN_DEPOSIT_USD",
+            methodParameters: [],
+          },
+          {
+            reference: "getTokenValue",
+            methodName: "getTokenValue",
+            methodParameters: [POLAddress, amt],
+          },
+        ],
+      }
+    ];
+
+    const results = await multicall.call(Contract);
+console.log(results,"resultsresultsresults")
+    let minDepositRaw = await getFormatMulticall(results, "MIN_DEPOSIT_USD", 0);
+    let tokenAmtRaw = await getFormatMulticall(results, "MIN_DEPOSIT_USD", 1);
+
+    var allowance = await getFormatMulticall(results, "balanceOf", 0);
+    allowance = parseInt(allowance.hex) / 10 ** 18;
+    
+    const minDeposit = parseInt(minDepositRaw.hex) / 1e18;
+    const tokenAmt = parseInt(tokenAmtRaw.hex) / 1e18;
+    console.log(tokenAmt,minDeposit,"tokenAmtRaw")
+    return { minDeposit, tokenAmt, allowance};
+  } catch (err) {
+    console.error("Error in getCoinAmt:", err);
+    return { minDeposit: 0, tokenAmt: 0 };
+  }
+}
+
+
+
+export async function depsoitToken(address,amount,transport) {
+    try {
+        console.log(address,amount,"depsoitToken")
+        const web3 = new Web3(transport);
+        var currnetwork = await web3.eth.net.getId();
+        if (currnetwork != config.chainId) {
+            return {
+                isAllowed: false,
+                approvalAmt: 0,
+                error: `Please login into polygon chain.`
+            }
+        }
+        const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
+        const decimals = await usdcContract.methods.decimals().call();
+        var tkn = amount * (10 ** decimals);
+        tkn = tkn.toString();
+        tkn = convert(tkn);
+
+        var gasPrice = await web3.eth.getGasPrice();
+        var balance = await web3.eth.getBalance(address);
+        let Contractsss = new web3.eth.Contract(DEPOSITABI, config.contractAdd);
+
+        var estimateGas = await Contractsss.methods.depositERC20(
+            config?.usdcAdd,tkn,
+        ).estimateGas({ from: address });
+        estimateGas = parseInt(estimateGas) + 30000;
+
+        if (parseFloat(estimateGas) / 10 ** 6 > balance) {
+            return {
+                isAllowed: false,
+                approvalAmt: 0,
+                error: `Please make sure you have gas fee(${parseFloat(estimateGas) / 10 ** 6} POL) in your wallet.`
+            }
+        }
+
+        var result = await Contractsss.methods.depositERC20(
+            config?.usdcAdd,tkn,
+        ).send({ from: address, gasPrice: gasPrice, gasLimit: estimateGas });
+
+        let transactionHash = result?.transactionHash;
+        let DepAmt = result?.events?.Deposited?.returnValues?.usdValue
+           balance = DepAmt / (10 ** decimals)
+         let depositdata = {
+            hash : transactionHash,
+            address: address,
+            amount : balance,
+            symbol : "USDC"
+         }
+        var { message ,status} = await userDeposit(depositdata)
+        console.log( message ,status," message ,status")
+        return {
+            status: status,
+            txId: transactionHash,
+            message: message
+        }
+
+
+    } catch (err) {
+        var error = err.toString();
+        console.log(error, 'error')
+        var pos = error.search("User denied")
+        var pos1 = error.search("funds")
+        var message = "Please try again later";
+        if (pos >= 0) {
+            message = "Cancelled the transaction";
+        } else if (pos1 >= 0) {
+            message = "Insufficient funds";
+        }
+        return {
+            status: false,
+            message: message,
+            txId: "",
+            reward: 0
+        }
+
+    }
+
+}
+
+
+export async function approveToken(address,transport) {
+console.log(address,"addressaddress")
+    var tkn = 1000 * 10 ** 18;
+    tkn = convert(tkn.toString());
+
+    try {
+        const web3 = new Web3(transport)
+        var gasPrice = await web3.eth.getGasPrice();
+        var balance = await web3.eth.getBalance(address);
+        let Contractsss = new web3.eth.Contract(tokenABI, config.usdcAdd);
+
+        var estimateGas = await Contractsss.methods.approve(
+            config.contractAdd,
+            tkn
+        ).estimateGas({ from: address });
+        estimateGas = parseInt(estimateGas) + 30000;
+
+        if (parseFloat(estimateGas) / 10 ** 6 > balance) {
+            return {
+                isAllowed: false,
+                approvalAmt: 0,
+                error: `Please make sure you have gas fee(${parseFloat(estimateGas) / 10 ** 8} BNB) in your wallet.`
+            }
+        }
+
+        var result = await Contractsss.methods.approve(
+            config.contractAdd,
+            tkn
+        ).send({ from: address, gasPrice: gasPrice, gasLimit: estimateGas });
+
+        var approvalAmt = (result && result.events && result.events.Approval && result.events.Approval.returnValues
+            && result.events.Approval.returnValues && result.events.Approval.returnValues
+            && result.events.Approval.returnValues.value) ?
+            parseFloat(result.events.Approval.returnValues.value) : 0
+        approvalAmt = approvalAmt / 10 ** 18;
+
+        return {
+            approvalAmt: approvalAmt,
+            isAllowed: (result && result.status) ? result.status : false,
+            error: ""
+        }
+
+    } catch (err) {
+        console.log(err, 'errerrerrerrerrerr121212')
+        var error = err.toString();
+        var pos = error.search("User denied")
+        var pos1 = error.search("funds")
+        var message = "Please try again later";
+        if (pos >= 0) {
+            message = "Cancelled the transaction";
+        } else if (pos1 >= 0) {
+            message = "Insufficient funds";
+        }
+
+        return {
+            approvalAmt: 0,
+            isAllowed: false,
+            error: message
+        }
+
+    }
+
+}
+
+export async function depsoitCoin(address,amount) {
+    try {
+        console.log("depsoitCoin")
+        const web3 = new Web3(window.ethereum);
+        var currnetwork = await web3.eth.net.getId();
+        if (currnetwork != config.chainId) {
+            return {
+                isAllowed: false,
+                approvalAmt: 0,
+                error: `Please login into bsc chain.`
+            }
+        }
+        const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
+        const decimals = await usdcContract.methods.decimals().call();
+        var tkn = amount * (10 ** decimals);
+        tkn = tkn.toString();
+        tkn = convert(tkn);
+console.log(tkn,"tkntkntkntkn")
+        var gasPrice = await web3.eth.getGasPrice();
+        var balance = await web3.eth.getBalance(address);
+        let Contractsss = new web3.eth.Contract(DEPOSITABI, config.contractAdd);
+        var estimateGas = await Contractsss.methods.depositPOL().estimateGas({ from: address ,value :tkn});
+        estimateGas = parseInt(estimateGas) + 30000;
+
+        if (parseFloat(estimateGas) / 10 ** 6 > balance) {
+            return {
+                isAllowed: false,
+                approvalAmt: 0,
+                error: `Please make sure you have gas fee(${parseFloat(estimateGas) / 10 ** 6} POL) in your wallet.`
+            }
+        }
+
+        var result = await Contractsss.methods.depositPOL().send({ from: address, gasPrice: gasPrice, gasLimit: estimateGas,value :tkn });
+        console.log(result,"depositpoll")
+
+        let transactionHash = result?.transactionHash;
+        let DepAmt = result?.events?.Deposited?.returnValues?.usdValue
+           balance = DepAmt / (10 ** decimals)
+         let depositdata = {
+            hash : transactionHash,
+            address: address,
+            amount : balance,
+            symbol : "USDC"
+         }
+        var { message ,status} = await userDeposit(depositdata)
+        console.log( message ,status," message ,status")
+        return {
+            status: status,
+            txId: transactionHash,
+            message: message
+        }
+
+    } catch (err) {
+        var error = err.toString();
+        console.log(error, 'error')
+        var pos = error.search("User denied")
+        var pos1 = error.search("funds")
+        var message = "Please try again later";
+        if (pos >= 0) {
+            message = "Cancelled the transaction";
+        } else if (pos1 >= 0) {
+            message = "Insufficient funds";
+        }
+        return {
+            status: false,
+            message: message,
+            txId: "",
+            reward: 0
+        }
+
+    }
+
+}
