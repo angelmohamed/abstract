@@ -225,7 +225,7 @@ body {
   z-index: 100 !important;
   left: -50px !important;
 }
-.DropdownMenuContent {
+.profile_menu {
   min-width: 250px;
   background-color: #262626;
   border-radius: 6px;
@@ -578,8 +578,64 @@ input[type="number"]::-webkit-outer-spin-button {
 .history_card_list li:hover {
   background-color: #212121;
 }
-
-
+.DropdownMenuContent {
+  min-width: 120px;
+  background-color: #262626;
+  border-radius: 6px;
+  padding: 5px;
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation: fadeIn 150ms ease-in-out;
+}
+.react-datepicker {
+  background-color: #181818 !important;
+  border: 1px solid #181818 !important;
+}
+.react-datepicker__header {
+  background-color: #181818 !important;
+  border-bottom: 1px solid #181818 !important;
+}
+.react-datepicker__time-container {
+  border-left: 1px solid #181818 !important;
+}
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: #181818 !important;
+}
+.react-datepicker__day-name,
+.react-datepicker__day,
+.react-datepicker__time-name,
+.react-datepicker__current-month,
+.react-datepicker-time__header,
+.react-datepicker-year-header,
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item {
+  color: #fff !important;
+}
+.react-datepicker__time-container
+  .react-datepicker__time
+  .react-datepicker__time-box
+  ul.react-datepicker__time-list
+  li.react-datepicker__time-list-item:hover {
+  background-color: #262626 !important;
+}
+.react-datepicker__day:not([aria-disabled="true"]):hover,
+.react-datepicker__month-text:not([aria-disabled="true"]):hover,
+.react-datepicker__quarter-text:not([aria-disabled="true"]):hover,
+.react-datepicker__year-text:not([aria-disabled="true"]):hover {
+  background-color: #262626 !important;
+}
+.react-datepicker__day--disabled,
+.react-datepicker__month-text--disabled,
+.react-datepicker__quarter-text--disabled,
+.react-datepicker__year-text--disabled {
+  color: #ccc !important;
+}
+.react-datepicker-wrapper {
+  width: 100%;
+}
 
 /* Media queries */
 @media screen and (max-width: 1023px) {

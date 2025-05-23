@@ -7,9 +7,11 @@ import { TrendingUp } from "lucide-react";
 import { Comment } from "@/app/components/ui/comment";
 import { Amount } from "@/app/components/ui/amount";
 import { SharesInput } from "@/app/components/ui/sharesInput";
-
-
-
+import { DropdownMenu, Switch, Dialog } from "radix-ui";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { setHours, setMinutes } from "date-fns";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -39,6 +41,7 @@ import {
   sellFunction,
   toTwoDecimal,
 } from "@/utils/helpers";
+import { ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
 
 export function TradingCard({
   market,
@@ -85,44 +88,107 @@ export function TradingCard({
   const sellYes = sellFunction(selectedOrderBookData?.[0]?.bids, shares);
   const sellNo = sellFunction(selectedOrderBookData?.[1]?.bids, shares);
 
+  const [orderType, setOrderType] = React.useState("market");
+  const [showCustomDialog, setShowCustomDialog] = React.useState(false);
+  const [customDate, setCustomDate] = React.useState("");
+  const [daysLeft, setDaysLeft] = React.useState(null);
+  const [startDate, setStartDate] = React.useState(
+    setHours(setMinutes(new Date(), 30), 17)
+  );
+
+  // Calculate days left when customDate changes
+  React.useEffect(() => {
+    if (customDate) {
+      const now = new Date();
+      const diff = customDate - now;
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      setDaysLeft(days > 0 ? days : 0);
+    } else {
+      setDaysLeft(null);
+    }
+  }, [customDate]);
+
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
         <CardHeader>
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-            <div 
-                  style={{ 
-                    width: "55px", 
-                    height: "55px", 
-                    overflow: "hidden", 
-                    borderRadius: "8px", 
-                    flexShrink: 0 
-                  }}
-                >
-                  <Image 
-                    src={market.image} 
-                    alt="Event" 
-                    width={55} 
-                    height={55} 
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }} 
-                  />
-                </div>
-              <div className="text-[16px]" style={{ paddingLeft:"8px", marginRight: "0px" }}>
+              <div
+                style={{
+                  width: "55px",
+                  height: "55px",
+                  overflow: "hidden",
+                  borderRadius: "8px",
+                  flexShrink: 0,
+                }}
+              >
+                <Image
+                  src={market.image}
+                  alt="Event"
+                  width={55}
+                  height={55}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              </div>
+              <div
+                className="text-[16px]"
+                style={{ paddingLeft: "8px", marginRight: "0px" }}
+              >
                 {market.question}
               </div>
             </div>
           </CardTitle>
-          <CardDescription>  ${market.volume ? market.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
+          <CardDescription>
+            {" "}
+            $
+            {market.volume
+              ? market.volume.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              : "0.00"}
           </CardDescription>
         </CardHeader>
 
         <CardContent>
           <Tabs defaultValue="buy" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="buy">Buy</TabsTrigger>
-              <TabsTrigger value="sell">Sell</TabsTrigger>
-            </TabsList>
+            <div className="flex justify-between gap-3">
+              <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="buy">Buy</TabsTrigger>
+                <TabsTrigger value="sell">Sell</TabsTrigger>
+              </TabsList>
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button
+                    className="flex items-center gap-2 p-2 text-[14px] font-normal"
+                    aria-label="Customise options"
+                  >
+                    {orderType.charAt(0).toUpperCase() + orderType.slice(1)}
+                    <ChevronDownIcon className="w-4 h-4" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="DropdownMenuContent"
+                    sideOffset={5}
+                  >
+                    <DropdownMenu.Item
+                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
+                      onSelect={() => setOrderType("market")}
+                    >
+                      <span>Market</span>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
+                      onSelect={() => setOrderType("limit")}
+                    >
+                      <span>Limit</span>
+                    </DropdownMenu.Item>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
+            </div>
             <TabsContent value="buy">
               <div className="pt-4">
                 <h1 className="pb-2">Pick side ⓘ</h1>
@@ -133,15 +199,16 @@ export function TradingCard({
                   className="w-full"
                 >
                   <OptionsList className="grid w-full grid-cols-2 gap-2">
-                    <OptionsTrigger 
-                    className=  " border-transparent hover:bg-[#e0e0e0] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
-                    value="Yes">
+                    <OptionsTrigger
+                      className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
+                      value="Yes"
+                    >
                       {lowestAskYes
                         ? `Yes   ${Number(lowestAskYes * 100).toFixed(1)}¢`
                         : "Yes"}
                     </OptionsTrigger>
                     <OptionsTrigger
-                      className="hover:bg-[#e0e0e0] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ffe0f3] data-[state=active]:bg-[#321b29]"
+                      className="hover:bg-[#282828] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:bg-[#321b29]"
                       value="No"
                     >
                       {lowestAskNo
@@ -149,112 +216,326 @@ export function TradingCard({
                         : "No"}
                     </OptionsTrigger>
                   </OptionsList>
-                  <OptionsContent value="Yes">
-                    <div className="pt-2">
-                      <Amount
-                        setAmount={setAmount}
-                        amount={amount}
-                        className="h-[85%] w-full"
-                      />
-                    </div>
 
-                    <div className="pt-4 space-y-2 pb-2">
-                      {/* Shares */}
-                      <div className="flex justify-between text-sm pt-2">
-                        <span className="text-muted-foreground">Shares</span>
-                        <span className="text-foreground">
-                          {(buyYes?.totalShares &&
-                            toTwoDecimal(buyYes?.totalShares)) ||
-                            0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-
-                      {/* Average Price */}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Average price
-                        </span>
-                        <span className="text-foreground">
-                          {Number((buyYes?.averagePrice)*100).toFixed(1) || 0}¢
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-
-                      {/* Potential Return */}
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Potential return if
-                          </span>
-                          <span className="text-white"> Yes </span>
-                          <span className="text-muted-foreground"> wins</span>
+                  {/* Market Order Content */}
+                  {orderType === "market" && (
+                    <>
+                      <OptionsContent value="Yes">
+                        <div className="pt-2">
+                          <p className="text-muted-foreground text-sm text-right mb-1">
+                            Balance $8.96
+                          </p>
+                          <Amount
+                            setAmount={setAmount}
+                            amount={amount}
+                            className="h-[85%] w-full"
+                          />
+                          <div className="flex gap-2 pt-2 justify-between">
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$1
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$20
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$100
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              Max
+                            </Button>
+                          </div>
                         </div>
-                        <span className="text-green-500">
-                          ${toTwoDecimal(buyYes?.totalShares) || 0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-                    </div>
 
-                    <div className="pt-4">
-                    <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">Trading Unavailable</Button>
-                    </div>
-                  </OptionsContent>
+                        <div className="pt-4 space-y-2 pb-2">
+                          {/* Shares */}
+                          <div className="flex justify-between text-sm pt-2">
+                            <span className="text-muted-foreground">
+                              Shares
+                            </span>
+                            <span className="text-foreground">
+                              {(buyYes?.totalShares &&
+                                toTwoDecimal(buyYes?.totalShares)) ||
+                                0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
 
-                  <OptionsContent value="No">
-                    <div className="pt-2">
-                      <Amount
-                        setAmount={setAmount}
-                        amount={amount}
-                        className="h-[85%] w-full"
-                      />
-                    </div>
+                          {/* Average Price */}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Average price
+                            </span>
+                            <span className="text-foreground">
+                              {Number(buyYes?.averagePrice * 100).toFixed(1) ||
+                                0}
+                              ¢
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
 
-                    <div className="pt-4 space-y-2 pb-2">
-                      {/* Shares */}
-                      <div className="flex justify-between text-sm pt-2">
-                        <span className="text-muted-foreground">Shares</span>
-                        <span className="text-foreground">
-                          {(buyNo?.totalShares &&
-                            toTwoDecimal(buyNo?.totalShares)) ||
-                            0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-
-                      {/* Average Price */}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Average price
-                        </span>
-                        <span className="text-foreground">
-                          {Number((buyNo?.averagePrice)*100).toFixed(1) || 0}¢
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-
-                      {/* Potential Return */}
-                      <div className="flex justify-between text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Potential return if
-                          </span>
-                          <span className="text-white"> No </span>
-                          <span className="text-muted-foreground"> wins</span>
+                          {/* Potential Return */}
+                          <div className="flex justify-between text-sm">
+                            <div>
+                              <span className="text-muted-foreground">
+                                Potential return if
+                              </span>
+                              <span className="text-white"> Yes </span>
+                              <span className="text-muted-foreground">
+                                {" "}
+                                wins
+                              </span>
+                            </div>
+                            <span className="text-green-500">
+                              ${toTwoDecimal(buyYes?.totalShares) || 0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
                         </div>
-                        <span className="text-green-500">
-                          ${toTwoDecimal(buyNo?.totalShares) || 0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-                    </div>
 
-                    <div className="pt-4">
-                    <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">Trading Unavailable
-                    </Button>
-                    </div>
-                  </OptionsContent>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Trading Unavailable
+                          </Button>
+                        </div>
+                      </OptionsContent>
+
+                      <OptionsContent value="No">
+                        <div className="pt-2">
+                          <p className="text-muted-foreground text-sm text-right mb-1">
+                            Balance $8.96
+                          </p>
+                          <Amount
+                            setAmount={setAmount}
+                            amount={amount}
+                            className="h-[85%] w-full"
+                          />
+                          <div className="flex gap-2 pt-2 justify-between">
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$1
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$20
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              +$100
+                            </Button>
+                            <Button className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                              Max
+                            </Button>
+                          </div>
+                        </div>
+
+                        <div className="pt-4 space-y-2 pb-2">
+                          {/* Shares */}
+                          <div className="flex justify-between text-sm pt-2">
+                            <span className="text-muted-foreground">
+                              Shares
+                            </span>
+                            <span className="text-foreground">
+                              {(buyNo?.totalShares &&
+                                toTwoDecimal(buyNo?.totalShares)) ||
+                                0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
+
+                          {/* Average Price */}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Average price
+                            </span>
+                            <span className="text-foreground">
+                              {Number(buyNo?.averagePrice * 100).toFixed(1) ||
+                                0}
+                              ¢
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
+
+                          {/* Potential Return */}
+                          <div className="flex justify-between text-sm">
+                            <div>
+                              <span className="text-muted-foreground">
+                                Potential return if
+                              </span>
+                              <span className="text-white"> No </span>
+                              <span className="text-muted-foreground">
+                                {" "}
+                                wins
+                              </span>
+                            </div>
+                            <span className="text-green-500">
+                              ${toTwoDecimal(buyNo?.totalShares) || 0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
+                        </div>
+
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Trading Unavailable
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                    </>
+                  )}
+
+                  {/* LIMIT ORDER CONTENT */}
+                  {orderType === "limit" && (
+                    <>
+                      <OptionsContent value="Yes">
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Limit Price
+                            </span>
+                            <p className="text-muted-foreground text-sm">
+                              Balance $8.96
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              -
+                            </span>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0 ¢"
+                              className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              +
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Shares
+                            </span>
+                            <p className="text-muted-foreground text-sm cursor-pointer">
+                              Max
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2 justify-end">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            -$10
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            +$10
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3">
+                          <label
+                            className="Label"
+                            htmlFor="expiry"
+                            style={{ paddingRight: 15 }}
+                          >
+                            Set Expiration
+                          </label>
+                          <Switch.Root className="SwitchRoot" id="expiry">
+                            <Switch.Thumb className="SwitchThumb" />
+                          </Switch.Root>
+                        </div>
+
+                        <select
+                          className="border bg-[#131212] border-[#262626] bg-black rounded w-full p-3 mt-2 text-[14px]"
+                          onChange={(e) => {
+                            if (e.target.value === "Custom") {
+                              setShowCustomDialog(true);
+                            }
+                          }}
+                        >
+                          <option>End of Day</option>
+                          <option>Custom</option>
+                        </select>
+
+                        {customDate && (
+                          <div className="text-sm text-[#fff] mt-2">
+                            {daysLeft !== null &&
+                              `Expires in ${daysLeft} day${
+                                daysLeft === 1 ? "" : "s"
+                              }`}
+                          </div>
+                        )}
+
+                        <div className="pt-1 pb-1 mt-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Total</span>
+                            <span className="text-foreground">
+                              {/* You can add logic for limit order shares */}
+                              {shares}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="pt-1 pb-1">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              To Win
+                            </span>
+                            <span className="text-foreground">
+                              {/* You can add logic for limit order shares */}
+                              $0
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Place Limit Order (Unavailable)
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                      <OptionsContent value="No">
+                        <div className="pt-2">
+                          <Amount
+                            setAmount={setAmount}
+                            amount={amount}
+                            className="h-[85%] w-full"
+                          />
+                        </div>
+                        <div className="pt-4 space-y-2 pb-2">
+                          <div className="flex justify-between text-sm pt-2">
+                            <span className="text-muted-foreground">
+                              Shares
+                            </span>
+                            <span className="text-foreground">{shares}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Limit Price
+                            </span>
+                            <span className="text-foreground">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="Set price (¢)"
+                                className="w-24"
+                              />
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Place Limit Order (Unavailable)
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                    </>
+                  )}
                 </Options>
               </div>
             </TabsContent>
@@ -268,17 +549,16 @@ export function TradingCard({
                   className="w-full"
                 >
                   <OptionsList className="grid w-full grid-cols-2 gap-2">
-                    <OptionsTrigger 
-                      className=  "data-[state=active]:text-[#7DFDFE] border-transparent hover:bg-[#e0e0e0] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
-
-                    value={"Yes"}>
+                    <OptionsTrigger
+                      className="data-[state=active]:text-[#7DFDFE] border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
+                      value={"Yes"}
+                    >
                       {lowestBidYes
                         ? `Yes   ${Number(lowestBidYes * 100).toFixed(1)}¢`
                         : "Yes"}
                     </OptionsTrigger>
                     <OptionsTrigger
-                      className="hover:bg-[#e0e0e0] data-[state=active]:bg-[#321b29] data-[state=active]:text-[#ffe0f3] data-[state=active]:border-[#321b29]"
-
+                      className="hover:bg-[#282828] data-[state=active]:bg-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:border-[#321b29]"
                       value={"No"}
                     >
                       {lowestBidNo
@@ -286,94 +566,291 @@ export function TradingCard({
                         : "No"}
                     </OptionsTrigger>
                   </OptionsList>
-                  <OptionsContent value="Yes">
-                    <div className="pt-2">
-                      <SharesInput
-                        setShares={setShares}
-                        shares={shares}
-                        className="h-[85%] w-full"
-                      />
-                    </div>
-
-                    <div className="pt-4 space-y-2 pb-2">
-                      <div className="flex justify-between text-sm pt-2">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Average price return per
-                          </span>
-                          <span className="text-white"> Yes</span>
+                  {/* MARKET ORDER CONTENT */}
+                  {orderType === "market" && (
+                    <>
+                      <OptionsContent value="Yes">
+                        <div className="pt-2">
+                          <SharesInput
+                            setShares={setShares}
+                            shares={shares}
+                            className="h-[85%] w-full"
+                          />
                         </div>
-                        <span className="text-foreground">
-                          {Number((sellYes?.averagePrice)*100).toFixed(1) || 0}¢
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
 
-                      {/* Average Price */}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Estimated amount to receive
-                        </span>
-                        <span className="text-green-500">
-                          ${toTwoDecimal(sellYes?.totalValue) || 0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-                    </div>
+                        <div className="pt-4 space-y-2 pb-2">
+                          <div className="flex justify-between text-sm pt-2">
+                            <div>
+                              <span className="text-muted-foreground">
+                                Average price return per
+                              </span>
+                              <span className="text-white"> Yes</span>
+                            </div>
+                            <span className="text-foreground">
+                              {Number(sellYes?.averagePrice * 100).toFixed(1) ||
+                                0}
+                              ¢
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
 
-                    <div className="pt-4">
-                    <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">Trading Unavailable
-                  </Button>
-                    </div>
-                  </OptionsContent>
-
-                  <OptionsContent value="No">
-                    <div className="pt-2">
-                      <SharesInput
-                        setShares={setShares}
-                        shares={shares}
-                        className="h-[85%] w-full"
-                      />
-                    </div>
-
-                    <div className="pt-4 space-y-2 pb-2">
-                      {/* Shares */}
-                      <div className="flex justify-between text-sm pt-2">
-                        <div>
-                          <span className="text-muted-foreground">
-                            Average price return per
-                          </span>
-                          <span className="text-white"> No</span>
+                          {/* Average Price */}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Estimated amount to receive
+                            </span>
+                            <span className="text-green-500">
+                              ${toTwoDecimal(sellYes?.totalValue) || 0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
                         </div>
-                        <span className="text-foreground">
-                          {Number((sellNo?.averagePrice)*100).toFixed(1) || 0}¢
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
 
-                      {/* Average Price */}
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Estimated amount to receive
-                        </span>
-                        <span className="text-green-500">
-                          ${toTwoDecimal(sellNo?.totalValue) || 0}
-                        </span>{" "}
-                        {/* Replace with actual number */}
-                      </div>
-                    </div>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Trading Unavailable
+                          </Button>
+                        </div>
+                      </OptionsContent>
 
-                    <div className="pt-4">
-                    <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">Trading Unavailable
-                    </Button>
-                    </div>
-                  </OptionsContent>
+                      <OptionsContent value="No">
+                        <div className="pt-2">
+                          <SharesInput
+                            setShares={setShares}
+                            shares={shares}
+                            className="h-[85%] w-full"
+                          />
+                        </div>
+
+                        <div className="pt-4 space-y-2 pb-2">
+                          {/* Shares */}
+                          <div className="flex justify-between text-sm pt-2">
+                            <div>
+                              <span className="text-muted-foreground">
+                                Average price return per
+                              </span>
+                              <span className="text-white"> No</span>
+                            </div>
+                            <span className="text-foreground">
+                              {Number(sellNo?.averagePrice * 100).toFixed(1) ||
+                                0}
+                              ¢
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
+
+                          {/* Average Price */}
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Estimated amount to receive
+                            </span>
+                            <span className="text-green-500">
+                              ${toTwoDecimal(sellNo?.totalValue) || 0}
+                            </span>{" "}
+                            {/* Replace with actual number */}
+                          </div>
+                        </div>
+
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Trading Unavailable
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                    </>
+                  )}
+
+                  {/* LIMIT ORDER CONTENT */}
+                  {orderType === "limit" && (
+                    <>
+                      <OptionsContent value="Yes">
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Limit Price
+                            </span>
+                            <p className="text-muted-foreground text-sm">
+                              Balance $8.96
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              -
+                            </span>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              placeholder="0 ¢"
+                              className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              +
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Shares
+                            </span>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2 justify-end">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            25%
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            50%
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            Max
+                          </Button>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-3">
+                          <label
+                            className="Label"
+                            htmlFor="expiry"
+                            style={{ paddingRight: 15 }}
+                          >
+                            Set Expiration
+                          </label>
+                          <Switch.Root className="SwitchRoot" id="expiry">
+                            <Switch.Thumb className="SwitchThumb" />
+                          </Switch.Root>
+                        </div>
+
+                        <select
+                          className="border bg-[#131212] border-[#262626] bg-black rounded w-full p-3 mt-2 text-[14px]"
+                          onChange={(e) => {
+                            if (e.target.value === "Custom") {
+                              setShowCustomDialog(true);
+                            }
+                          }}
+                        >
+                          <option>End of Day</option>
+                          <option>Custom</option>
+                        </select>
+
+                        {customDate && (
+                          <div className="text-sm text-[#fff] mt-2">
+                            {daysLeft !== null &&
+                              `Expires in ${daysLeft} day${
+                                daysLeft === 1 ? "" : "s"
+                              }`}
+                          </div>
+                        )}
+
+                        <div className="pt-1 pb-1 mt-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              You'll receive
+                            </span>
+                            <span className="text-foreground">
+                              {/* You can add logic for limit order shares */}
+                              $0
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Place Limit Order (Unavailable)
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                      <OptionsContent value="No">
+                        <div className="pt-2">
+                          <Amount
+                            setAmount={setAmount}
+                            amount={amount}
+                            className="h-[85%] w-full"
+                          />
+                        </div>
+                        <div className="pt-4 space-y-2 pb-2">
+                          <div className="flex justify-between text-sm pt-2">
+                            <span className="text-muted-foreground">
+                              Shares
+                            </span>
+                            <span className="text-foreground">{shares}</span>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              Limit Price
+                            </span>
+                            <span className="text-foreground">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                placeholder="Set price (¢)"
+                                className="w-24"
+                              />
+                            </span>
+                          </div>
+                        </div>
+                        <div className="pt-4">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Place Limit Order (Unavailable)
+                          </Button>
+                        </div>
+                      </OptionsContent>
+                    </>
+                  )}
                 </Options>
               </div>
             </TabsContent>
           </Tabs>
         </CardContent>
       </div>
+
+      {/* Custom Date */}
+      <Dialog.Root open={showCustomDialog} onOpenChange={setShowCustomDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-40" />
+          <Dialog.Content className="fixed z-50 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#181818] p-6 rounded-lg w-full max-w-md shadow-lg">
+            <Dialog.Title className="text-lg font-bold mb-4 text-center">
+              Set Custom Expiry
+            </Dialog.Title>
+            <div className="mt-4">
+              <label className="block mb-2">Pick a date and time:</label>
+              {/* <Input
+                type="datetime-local"
+                className="border p-2 rounded w-full justify-center"
+                value={customDate}
+                onChange={(e) => setCustomDate(e.target.value)}
+              /> */}
+              <DatePicker
+                className="custom_datepicker border p-2 rounded w-full"
+                selected={customDate}
+                onChange={(date) => setCustomDate(date)}
+                showTimeSelect
+                minDate={new Date()}
+                minTime={setHours(setMinutes(new Date(), 0), 17)}
+                maxTime={setHours(setMinutes(new Date(), 30), 20)}
+                dateFormat="MMMM d, yyyy h:mm aa"
+              />
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowCustomDialog(false)}>Apply</Button>
+            </div>
+            <Dialog.Close asChild>
+              <button className="modal_close_brn" aria-label="Close">
+                <Cross2Icon />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </Card>
   );
 }
