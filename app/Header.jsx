@@ -29,6 +29,7 @@ import {
   googleLogout,
 } from "@react-oauth/google";
 import isEmpty from "is-empty"
+import Authentication from "./Authentication.jsx";
 
 let initialData = {
   otp: "",
@@ -402,7 +403,7 @@ console.log(email,data,"emaillll")
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
       {console.log("88888888888888888888")}
-      <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
+      <div className="flex w-full md:w-auto items-center justify-between p-0 md:ml-6 ml-0 overflow-hidden">
         {/* Logo and Title */}
         <div className="flex items-center">
           <Link href="/">
@@ -429,6 +430,7 @@ console.log(email,data,"emaillll")
               <div className="text-xs text-grey">Portfolio</div>
             </button>
           )}
+          <Authentication />
           {/* {account && (
             <button
               className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -443,7 +445,7 @@ console.log(email,data,"emaillll")
 
       {/* Search Bar - Now visible on all screen sizes as second row on mobile/sm */}
       <div className="w-full px-4 pb-2 md:pb-0 md:pl-[2%] md:pr-[2%] mt-1 md:mt-0">
-        <SearchBar placeholder="Search markets or artists" />
+        <SearchBar placeholder="Search markets or artists" className="lg:max-w-[600px] min-w-[400px]" />
       </div>
 
       {/* Auth Buttons - For md+ screens, keep their original position */}
@@ -728,6 +730,7 @@ console.log(email,data,"emaillll")
           </DropdownMenu.Root>
           :""
         }
+      <Authentication />
       </div>
     </header>
   );
