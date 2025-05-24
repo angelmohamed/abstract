@@ -43,25 +43,45 @@ export const chartPerformance = [
 
 export const navigationItems = [
   {
-    title: 'Markets',
+    title: 'Politics',
     subItems: chartPerformance
   },
   {
-    title: 'Explore',
+    title: 'Sports',
     subItems: chartPerformance
   },
   {
-    title: 'Chart Performance',
+    title: 'Crypto',
     subItems: chartPerformance
   },
   {
-    title: 'Awards',
+    title: 'Tech',
     subItems: chartPerformance
   },
   {
-    title: 'Latest News',
+    title: 'Culture',
     subItems: chartPerformance
-  }
+  },
+  {
+    title: 'World',
+    subItems: chartPerformance
+  },
+  {
+    title: 'Economy',
+    subItems: chartPerformance
+  },
+  {
+    title: 'Trump',
+    subItems: chartPerformance
+  },
+  {
+    title: 'Elections',
+    subItems: chartPerformance
+  },
+  {
+    title: 'Mentions',
+    subItems: chartPerformance
+  },
 ];
 
 export const infoCards = [

@@ -111,7 +111,7 @@ export function TradingCard({
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
@@ -139,7 +139,7 @@ export function TradingCard({
               </div>
             </div>
           </CardTitle>
-          <CardDescription>
+          {/* <CardDescription>
             {" "}
             $
             {market.volume
@@ -148,7 +148,7 @@ export function TradingCard({
                   maximumFractionDigits: 2,
                 })
               : "0.00"}
-          </CardDescription>
+          </CardDescription> */}
         </CardHeader>
 
         <CardContent>

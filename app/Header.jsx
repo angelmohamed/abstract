@@ -28,6 +28,7 @@ import {
   googleLogout,
 } from "@react-oauth/google";
 import isEmpty from "is-empty"
+import Authentication from "./Authentication.jsx";
 
 let initialData = {
   otp: "",
@@ -394,7 +395,7 @@ console.log(email,data,"emaillll")
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
       {console.log("88888888888888888888")}
-      <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
+      <div className="flex w-full md:w-auto items-center justify-between p-0 md:ml-6 ml-0 overflow-hidden">
         {/* Logo and Title */}
         <div className="flex items-center">
           <Link href="/">
@@ -421,6 +422,7 @@ console.log(email,data,"emaillll")
               <div className="text-xs text-grey">Portfolio</div>
             </button>
           )}
+          <Authentication />
           {/* {account && (
             <button
               className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -435,7 +437,7 @@ console.log(email,data,"emaillll")
 
       {/* Search Bar - Now visible on all screen sizes as second row on mobile/sm */}
       <div className="w-full px-4 pb-2 md:pb-0 md:pl-[2%] md:pr-[2%] mt-1 md:mt-0">
-        <SearchBar placeholder="Search markets or artists" />
+        <SearchBar placeholder="Search markets or artists" className="lg:max-w-[600px] min-w-[400px]" />
       </div>
 
       {/* Auth Buttons - For md+ screens, keep their original position */}
@@ -460,262 +462,7 @@ console.log(email,data,"emaillll")
           </button>
         )} */}
         
-      {isLogin() == true && 
-          <Button onClick = {() => navigateToPortfolioPage()}>Deposit</Button>
-      }
-        <Dialog.Root open={open} onOpenChange={setOpen}>
-          {!isLogin() == true && 
-          <>
-          <Dialog.Trigger asChild>
-            <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
-              Log In
-            </Button>
-          </Dialog.Trigger>
-          <Dialog.Trigger asChild>
-            <Button variant="outline" size="sm" className="bg-blue-500" onClick={() => setOpen(true)}>
-              Sign Up
-            </Button>
-          </Dialog.Trigger>
-          </>
-        }
-      
-          <Dialog.Portal>
-            <Dialog.Overlay className="DialogOverlay" />
-            <Dialog.Content className="DialogContent">
-              <Dialog.Title className="DialogTitle mb-4">
-                Welcome to Sonotrade
-              </Dialog.Title>
-              <GoogleOAuthProvider clientId={config.clientId}>
-                <div className="google_login">
-                  <GoogleLogin
-                    theme="filled_black"
-                    onSuccess={handleGoogleLogin}
-                    onError={() => console.log("Login Failed")}
-                  />
-                </div>
-              </GoogleOAuthProvider>
-              {/* <Button className="mt-4 w-full google_btn">
-                <Image
-                  src="/images/google_icon.png"
-                  alt="Profile Icon"
-                  width={24}
-                  height={27}
-                  className="rounded-full"
-                />
-                <span>Continue with Google</span>
-              </Button> */}
-              <div className="custom_seperator">
-                <Separator.Root
-                  className="SeparatorRoot"
-                  style={{ margin: "15px 0" }}
-                />
-                or
-                <Separator.Root
-                  className="SeparatorRoot"
-                  style={{ margin: "15px 0" }}
-                />
-              </div>
-              <div className="custom_grpinp">
-                <input
-                  className="Input"
-                  type="email"
-                  name="email"
-                  value={email}
-                  onChange={registerChange}
-                  placeholder="Enter Email"
-                />               
-                <Button onClick={handleClick}>Continue</Button>             
-              </div>
-              {error && error.email && (
-                  <span style={{ color: "red" }}>{error.email}</span>
-                )}
-              <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-                {connectors.map((connector, i) => {
-                  if (
-                    connector.name == "MetaMask" || connector.name == "WalletConnect"
-                  ) {
-                    return (
-                      <Button onClick={() => handleConnect(connector)} className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
-                        <Image
-                          src={
-                            connector.name == "MetaMask"
-                              ? "/images/wallet_icon_01.png"
-                              : "/images/wallet_icon_05.png"
-                          }
-                          alt="Icon"
-                          width={40}
-                          height={40}
-
-                        />
-                      </Button>
-                    );
-                  }
-                })}
-                {/* <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
-                  <Image
-                    src="/images/wallet_icon_02.png"
-                    alt="Icon"
-                    width={40}
-                    height={40}
-                  />
-                </Button>
-                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
-                  <Image
-                    src="/images/wallet_icon_03.png"
-                    alt="Icon"
-                    width={40}
-                    height={40}
-                  />
-                </Button>
-                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
-                  <Image
-                    src="/images/wallet_icon_04.png"
-                    alt="Icon"
-                    width={40}
-                    height={40}
-                  />
-
-                </Button> */}
-              </div>
-              <Dialog.Close asChild>
-                <button className="modal_close_brn" aria-label="Close">
-                  <Cross2Icon />
-                </button>
-              </Dialog.Close>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-        {verifystatus == true &&
-          <Dialog.Root open={otpopen} onOpenChange={setOtpOpen}>
-            <Dialog.Portal>
-              <Dialog.Overlay className="DialogOverlay" />
-              <Dialog.Content className="DialogContent">
-                <Dialog.Title className="DialogTitle">
-                 Verify Your Email
-                </Dialog.Title>
-                <div className="custom_grpinp">
-                  <input
-                    className="Input"
-                    type="otp"
-                    name="otp"
-                    value={otp}
-                    onChange={handleOtpChange}
-                    placeholder="Enter OTP"
-                  />
-                    {expireTime == 0 ? (
-                      <Button onClick={resendCode}>
-                        Resend OTP
-                      </Button>
-                    ) : (
-                      <Button >{`${expireTime}`}</Button>
-                    )}
-                  {/* <Button>Continue</Button> */}
-                </div>
-                {error && error.otp && (
-                  <span style={{ color: "red" }}>{error.otp}</span>
-                )}
-                <br></br>
-                <div className="text-center">
-                  <Button onClick = {() => handleOtpClick()}>Submit</Button>
-                </div>
-                <Dialog.Close asChild>
-                  <button className="modal_close_brn" aria-label="Close">
-                    <Cross2Icon />
-                  </button>
-                </Dialog.Close>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog.Root>
-        }
-        {isLogin() == true  ?
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button className="profile_button" aria-label="Customise options">
-                <Image
-                  src="/images/Ye.png"
-                  alt="Profile Icon"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-                <ChevronDownIcon className="w-4 h-4" />
-              </button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <div className="custom_dropdown_portal">
-                <DropdownMenu.Content
-                  className="profile_menu"
-                  sideOffset={5}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Image
-                      src="/images/Ye.png"
-                      alt="Profile Icon"
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                    <div>
-                      <span className="text-sm text-gray-100">{data?.name ? data?.name : ""}</span>
-                      <div className="text-sm text-gray-100 flex items-center space-x-2">
-                        <Tooltip.Provider>
-                          <Tooltip.Root>
-                            <Tooltip.Trigger asChild>
-                              <button className="IconButton bg-[#131212] px-2 py-1 rounded">
-                                <span className="text-[12px]">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
-                              </button>
-                            </Tooltip.Trigger>
-                            <Tooltip.Portal>
-                              <div className="custom_tooltip_content">
-                                <Tooltip.Content
-                                  className="TooltipContent"
-                                  sideOffset={5}
-                                >
-                                  Copy Address
-                                  <Tooltip.Arrow className="TooltipArrow" />
-                                </Tooltip.Content>
-                              </div>
-                            </Tooltip.Portal>
-                          </Tooltip.Root>
-                        </Tooltip.Provider>
-                        <Link href="#" target="_blank">
-                          <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                  <DropdownMenu.Item className="DropdownMenuItem">
-                    <Link href="/profile">Profile</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem">
-                    <Link href="/settings">Settings</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                    <Link href="/">Watchlist</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                    <Link href="/">Rewards</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                    <Link href="/">Learn</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                    <Link href="/">Documentation</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                    <Link href="/">Terms of Use</Link>
-                  </DropdownMenu.Item>
-                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                  <DropdownMenu.Item className="DropdownMenuItem">
-                    <Link href="/" onClick={logout}>Logout</Link>
-                  </DropdownMenu.Item>
-                </DropdownMenu.Content>
-              </div>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
-          :""
-        }
+      <Authentication />
       </div>
     </header>
   );
