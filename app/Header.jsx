@@ -644,7 +644,7 @@ console.log(email,data,"emaillll")
             <DropdownMenu.Portal>
               <div className="custom_dropdown_portal">
                 <DropdownMenu.Content
-                  className="DropdownMenuContent"
+                  className="profile_menu"
                   sideOffset={5}
                 >
                   <div className="flex items-center space-x-3">
