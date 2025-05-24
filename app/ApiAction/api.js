@@ -161,13 +161,15 @@ export const walletLogin = async (data) => {
 
 export const getUserData = async () => {
     try {
+
         let response = await axios({
             'method': 'get',
             'url': `${apiUrl}/get-user`,
         })
         return {
             status: (response && response.data && response.data.status) ? response.data.status : false,
-            result: (response && response.data && response.data.result) ? response.data.result : "",
+            result: (response && response.data && response.data.result) ? response.data.result : {},
+            wallet : (response && response.data && response.data.wallet) ? response.data.wallet : {}
         }
     }
     catch (err) {

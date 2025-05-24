@@ -41,35 +41,11 @@ import { useRouter } from "next/navigation";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
-import { WalletClient, useWalletClient } from 'wagmi'
+import { useWalletClient } from 'wagmi'
 import { getCoinAmt, depsoitToken, depsoitCoin, approveToken } from "./multicall"
 import { walletClientToSigner } from "../helper/ethersconnect";
 import { formatNumber } from "../helper/custommath"
 import tokenABI from "../ABI/TOKENABI.json"
-
-// Define PolygonScan transaction type
-interface PolygonTx {
-  blockNumber: string;
-  timeStamp: string;
-  hash: string;
-  nonce: string;
-  blockHash: string;
-  transactionIndex: string;
-  from: string;
-  to: string;
-  value: string;
-  gas: string;
-  gasPrice: string;
-  isError: string;
-  txreceipt_status: string;
-  input: string;
-  contractAddress: string;
-  cumulativeGasUsed: string;
-  gasUsed: string;
-  confirmations: string;
-  methodId: string;
-  functionName: string;
-}
 
 
 let initialValue = {
@@ -82,9 +58,8 @@ export default function PortfolioPage() {
   const [account, setaccount] = useState(address);
   const [data, setData] = useState(address);
   const [open, setOpen] = useState(false)
-  const [step, setStep] = useState("1");
+  const [step, setStep] = useState("");
   const wallet = address;
-  const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [balance, setBalance] = useState(0)
   const [tokenbalance, setTokenBalance] = useState(0)
@@ -101,26 +76,22 @@ export default function PortfolioPage() {
   const [tokenValue, setTokenValue] = useState({ minDeposit: 0, tokenAmt: 0, allowance: 0 })
   const toastAlert = useToast();
   const router = useRouter();
-  const [profileData, setProfileData] = useState<{
-    username: string;
-    avatar_url: string;
-    bio: string;
-  } | null>(null);
+  const [profileData, setProfileData] = useState({ username: "",avatar_url: "", bio: ""} )
 
   var { currency, amount, walletAddress } = depositData
   var { minDeposit, tokenAmt, allowance } = tokenValue
 
-  useEffect(() => {
-    if (!wallet) return;
-    const fetchTx = async () => {
-      setLoadingTx(true);
-      const res = await fetch(`/api/polygon/transactions?address=${wallet}`);
-      const data = await res.json();
-      setTransactions(data.result || []);
-      setLoadingTx(false);
-    };
-    fetchTx();
-  }, [wallet]);
+  // useEffect(() => {
+  //   if (!wallet) return;
+  //   const fetchTx = async () => {
+  //     setLoadingTx(true);
+  //     const res = await fetch(`/api/polygon/transactions?address=${wallet}`);
+  //     const data = await res.json();
+  //     setTransactions(data.result || []);
+  //     setLoadingTx(false);
+  //   };
+  //   fetchTx();
+  // }, [wallet]);
 
   useEffect(() => {
     if (!wallet) return;
@@ -139,10 +110,7 @@ export default function PortfolioPage() {
   }, [wallet]);
 
   const [interval, setInterval] = useState("all");
-  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([
-    null,
-    null,
-  ]);
+  const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
 
@@ -446,10 +414,17 @@ export default function PortfolioPage() {
     return false;
   };
 
-
+const iniDepsotClick = () =>{
+  if(isConnected == true){
+    setStep("1")
+     setDepositAmt(0)
+  }else{
+    toastAlert("error","Connect Your Wallet")
+  }
+}
   useEffect(() => {
     if (isLogin() == false) {
-      router.push("/");
+      window.location.href = '/'
     }
     getUser()
   }, [])
@@ -507,15 +482,16 @@ export default function PortfolioPage() {
                   width: "48%",
                 }}
               >
-                <Dialog.Root>
+    
+                <Dialog.Root >
                   <Dialog.Trigger asChild>
-                    <Button onClick={() => {
-                      setStep("1")
-                      setDepositAmt(0)
-                    }} className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                    <Button onClick={() => 
+                     iniDepsotClick()
+                    } className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
                       Deposit
                     </Button>
                   </Dialog.Trigger>
+                  {isConnected == true &&
                   <Dialog.Portal>
                     <Dialog.Overlay className="DialogOverlay" />
                     <Dialog.Content className="DialogContent">
@@ -643,8 +619,8 @@ export default function PortfolioPage() {
                             </Button>
                           </div>
                           <p className="text-[12px] text-gray-400 text-center mt-8">
-                            {currency === "POL" ? (
-                              tokenAmt
+                             {currency === "POL" ? (
+                              `${tokenAmt} minimum deposit`
                             ) : (
                               `${minDeposit} ${currency} minimum deposit`
                             )}
@@ -845,8 +821,14 @@ export default function PortfolioPage() {
                             </Accordion.Item>
                           </Accordion.Root>
                           {showallowance ?
-                            <Button className="mt-4 w-full" onClick={() => approve()}>Approve {loader && <i className="fas fa-spinner fa-spin" style={{ color: "black" }}></i>}</Button> :
-                            <Button className="mt-4 w-full" onClick={() => buy()}>Confirm Order {loader && <i className="fas fa-spinner fa-spin" style={{ color: "black" }}></i>}</Button>}
+                            <Button className="mt-4 w-full" onClick={() => approve()}>Approve {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }}
+                            ></i>}</Button> :
+                            <Button className="mt-4 w-full" onClick={() => buy()}>Confirm Order {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }}
+                            ></i>}</Button>}
                         </div>
                       )}
                       <Dialog.Close asChild>
@@ -856,6 +838,7 @@ export default function PortfolioPage() {
                       </Dialog.Close>
                     </Dialog.Content>
                   </Dialog.Portal>
+}
                 </Dialog.Root>
               </div>
 
@@ -897,14 +880,14 @@ export default function PortfolioPage() {
                         />
                       </svg>
 
-                      <div className="text-light mt-4 text-lg">
+                      {/* <div className="text-light mt-4 text-lg">
                         You will receive: <strong>{currency == "USDT" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}</strong>
-                      </div>
+                      </div> */}
 
                       {transactionHash && (
                         <a
                           className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
-                          href={`${config.txurl}tx/${transactionHash}`}
+                          href={`${config.txLink}tx/${transactionHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >

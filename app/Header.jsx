@@ -46,14 +46,15 @@ export default function Header() {
   const [otpData, setOtpData] = useState(initialData);
   const [LoginHistory, setLoginHistory] = useState({});
   const [error, setError] = useState({})
+  const [connect, setIsConnect] = useState(false)
   const [data, setData] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
   const [account, setaccount] = useState("");
-  const wallet = useWallet();
+  //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
-  const { connectors, address, isConnected, connectWallet, disconnectWallet } = wallet;
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } = useWallet();
   const toastAlert = useToast();
   let { email } = userData
   let { otp } = otpData
@@ -74,18 +75,24 @@ export default function Header() {
   };
   const navigateToPortfolioPage = () => {
     router.push("/portfolio");
+    window.location.href = '/portfolio'
   };
 
   var chainId = config.chainId;
   const { data: walletClient } = useWalletClient({ chainId });
 
   useEffect(() => {
+    if (!isConnected || !walletClient || !address) return;
+  
     try {
-      var { transport } = walletClientToSigner(walletClient);
+      const { transport } = walletClientToSigner(walletClient);
       setconnval(transport);
-      setaccount(address)
-    } catch (err) { }
-  }, [address, walletClient]);
+      setaccount(address);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [address, walletClient, isConnected]);
+  
 
   
 
@@ -164,20 +171,9 @@ export default function Header() {
        let connect = await connectWallet(connector);
       //  const message = "Welcome to SonoTrade! Sign to connect.";
       //  const signature = await web3.eth.personal.sign(message, account);
-
-        var walletdata = {
-          address:account ,
-          LoginHistory
-        }
-        console.log(account,"addressaddressaddress")
-        let { status , authToken } = await walletLogin(walletdata)
-        console.log( status , authToken ," status , authToken ")
-        if(status){
-          setOpen(false)
-          localStorage.setItem("sonoTradeToken", authToken);
-          toastAlert("success", "Wallet Connected Successfully",);
-        }
-
+      setIsConnect(true)
+      setOpen(false)
+      walletAdd()
         // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
       }
     } catch (err) {
@@ -214,6 +210,33 @@ export default function Header() {
     }
   };
 
+
+  const walletAdd = async(address) =>{
+    var walletdata = {
+      address:address ,
+      LoginHistory
+    }
+    let { status , authToken } = await walletLogin(walletdata)
+    console.log( status , authToken ," status , authToken ")
+    if(status){
+      localStorage.setItem("sonoTradeToken", authToken);
+      toastAlert("success", "Wallet Connected Successfully",);
+      getUser()
+    }
+  }
+
+  useEffect(() => {
+    const handleWalletAdd = async () => {
+      if (isConnected && connect) {
+        console.log(address,'connecttt')
+        await walletAdd(address)
+      }
+    }
+
+    handleWalletAdd()
+  }, [isConnected])
+
+
   useEffect(() => {
     if (expireTime > 0) {
       getTime();
@@ -233,7 +256,6 @@ export default function Header() {
         token,
         LoginHistory: LoginHistory,
       };
-      toastAlert("success", "Login Successfully",);
       let { status, message, authToken, errors } = await googleLogin(data);
       console.log(authToken, "authTokenauthTokenauthToken");
 
@@ -359,6 +381,7 @@ let resendCode = async () => {
     localStorage.removeItem("googlelogin");
     disconnectWallet();
     toastAlert("success", "Successfully Logout");
+    window.location.href = '/'
     router.push("/");
   }
 
@@ -633,7 +656,7 @@ console.log(email,data,"emaillll")
                       className="rounded-full"
                     />
                     <div>
-                      <span className="text-sm text-gray-100">Alex</span>
+                      <span className="text-sm text-gray-100">{data?.name ? data?.name : ""}</span>
                       <div className="text-sm text-gray-100 flex items-center space-x-2">
                         <Tooltip.Provider>
                           <Tooltip.Root>

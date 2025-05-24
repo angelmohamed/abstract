@@ -11,7 +11,7 @@ var key = {};
     txurl: "https://testnet.bscscan.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "736868654424-o0358dlqp1853eafackm2edren909e1m.apps.googleusercontent.com"
+    clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com"
   }
 } else {
   key = {
@@ -25,7 +25,7 @@ var key = {};
     txurl: "https://testnet.bscscan.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "736868654424-o0358dlqp1853eafackm2edren909e1m.apps.googleusercontent.com"
+    clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com"
   };
 }
 export default key;
