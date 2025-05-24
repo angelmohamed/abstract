@@ -18,6 +18,7 @@ import {
   Cross2Icon,
 } from "@radix-ui/react-icons";
 import config from "./config/config.js"
+import { formatNumber ,shortText} from "../app/helper/custommath.js"
 import { Button } from "./components/ui/button";
 import { useToast } from "./helper/toastAlert.js";
 import { googleLogin, getUserLocation, register,verifyEmail ,resendOTP, walletLogin,getUserData} from "./ApiAction/api.js"
@@ -41,6 +42,7 @@ export default function Header() {
   
   const [connval, setconnval] = useState(null)
   const [open, setOpen] = useState(false)
+  const [loader, setloader] = useState(false)
   const [otpopen, setOtpOpen] = useState(false)
   const [userData, setUserData] = useState("")
   const [otpData, setOtpData] = useState(initialData);
@@ -48,6 +50,7 @@ export default function Header() {
   const [error, setError] = useState({})
   const [connect, setIsConnect] = useState(false)
   const [data, setData] = useState({})
+  const [walletData, setWalletData] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
   const [account, setaccount] = useState("");
@@ -280,6 +283,7 @@ export default function Header() {
       let errMsg = await regValidate(userData);
       setError(errMsg);
       if (isEmpty(errMsg)) {
+        setloader(true)
         let { status, message, errors } = await register(userData);
         console.log(errors, 'errorserrors')
         if (status == true) {
@@ -288,6 +292,7 @@ export default function Header() {
           setExpireTime(180);
           setOtpOpen(true)
           setOpen(false)
+          setloader(false)
           getTime();
         } else if (!isEmpty(errors)) {
           setError(errors);
@@ -320,6 +325,7 @@ let handleOtpClick = async () => {
                 toastAlert("error", "OTP expired,Please resend", "otp");
                 setOtpData({})
             } else {
+              setloader(true)
                 let data = { otp, email ,LoginHistory: LoginHistory,};
                 let { message, status ,authToken} = await verifyEmail(data);
                 if (status == true) {
@@ -327,6 +333,7 @@ let handleOtpClick = async () => {
                     localStorage.setItem("sonoTradeToken", authToken);
                     setOtpOpen(false)
                     getUser()
+                    setloader(false)
                 } else {
                     toastAlert("error", message);
                 }
@@ -366,9 +373,10 @@ let resendCode = async () => {
 
   const getUser = async() =>{
     try{
-    let {status ,result} = await getUserData()
+    let {status ,result,wallet} = await getUserData()
     if(status){
       setData(result)
+      setWalletData(wallet)
      }
     }catch(err){
       console.log(err,'errr')
@@ -440,17 +448,15 @@ console.log(email,data,"emaillll")
 
       {/* Auth Buttons - For md+ screens, keep their original position */}
       <div className="hidden md:flex items-center gap-2 flex-shrink-0 ml-auto">
-        {account && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
             onClick={navigateToPortfolioPage}
           >
             <div className="text-l" style={{ color: "#33ff4c" }}>
-              {currentPosition}
+              {walletData?.balance ? formatNumber(walletData?.balance,4) : 0}
             </div>
             <div className="text-xs text-grey">Portfolio</div>
           </button>
-        )}
         {/* {account && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -524,7 +530,10 @@ console.log(email,data,"emaillll")
                   onChange={registerChange}
                   placeholder="Enter Email"
                 />               
-                <Button onClick={handleClick}>Continue</Button>             
+                <Button onClick={handleClick} disabled = {loader}>Continue {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }} 
+                            ></i>}</Button>             
               </div>
               {error && error.email && (
                   <span style={{ color: "red" }}>{error.email}</span>
@@ -603,8 +612,8 @@ console.log(email,data,"emaillll")
                     placeholder="Enter OTP"
                   />
                     {expireTime == 0 ? (
-                      <Button onClick={resendCode}>
-                        Resend OTP
+                      <Button onClick={resendCode} >
+                        Resend OTP 
                       </Button>
                     ) : (
                       <Button >{`${expireTime}`}</Button>
@@ -616,7 +625,10 @@ console.log(email,data,"emaillll")
                 )}
                 <br></br>
                 <div className="text-center">
-                  <Button onClick = {() => handleOtpClick()}>Submit</Button>
+                  <Button onClick = {() => handleOtpClick()} disabled = {loader}>Submit {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }} 
+                            ></i>}</Button>
                 </div>
                 <Dialog.Close asChild>
                   <button className="modal_close_brn" aria-label="Close">
@@ -662,7 +674,7 @@ console.log(email,data,"emaillll")
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
                               <button className="IconButton bg-[#131212] px-2 py-1 rounded">
-                                <span className="text-[12px]">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
+                                <span className="text-[12px]">{address ? shortText(address) : ""}</span>
                               </button>
                             </Tooltip.Trigger>
                             <Tooltip.Portal>

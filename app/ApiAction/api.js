@@ -204,3 +204,25 @@ export const userDeposit = async (data) => {
         }
     }
 }
+
+export const addressCheck = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'post',
+            'url': `${apiUrl}/address-check`,
+            data :data
+        })
+        return {
+            status: (response && response.data && response.data.status) ? response.data.status : false,
+            result: (response && response.data && response.data.result) ? response.data.result : false,
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
