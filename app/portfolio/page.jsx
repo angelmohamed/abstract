@@ -254,8 +254,9 @@ export default function PortfolioPage() {
       var gasPrice = await web3.eth.getGasPrice();
       var marketGasCost = (gasPrice / 1e9 * usdConvt)
       let estimateGas = 110171
+      console.log(marketGasCost,'***********************21',usdConvt,gasPrice)
       var gasCost = (((gasPrice * estimateGas) / 1e18) * usdConvt)
-      setGasAmt({marketGasCost,gasCost})
+      setGasAmt({marketGasCost:gasPrice / 1e9,gasCost})
     } catch (err) {
       console.log(err, "errr")
     }
@@ -302,7 +303,7 @@ export default function PortfolioPage() {
       setStep("2")
       getCoinValue()
     } else {
-      toastAlert("error", "Please Choose Any One")
+      toastAlert("error", "Please select a currency")
     }
   }
 
@@ -356,6 +357,7 @@ export default function PortfolioPage() {
   }
 
   async function buy() {
+    
     try {
       setloader(true)
 
@@ -371,6 +373,10 @@ export default function PortfolioPage() {
           setDepositAmt(0);
           setStep("")
           setTxOpen(true)
+          const button = document.querySelector('.modal_close_brn');
+          if (button) {
+            button.click();
+          }
           await getUser()
         } else {
           toastAlert("error", message);
@@ -389,6 +395,10 @@ export default function PortfolioPage() {
           setDepositAmt(0);
           setStep("")
           setTxOpen(true)
+          const button = document.querySelector('.modal_close_brn');
+          if (button) {
+            button.click();
+          }
           await getUser()
         } else {
           toastAlert("error", message);
@@ -816,7 +826,7 @@ export default function PortfolioPage() {
                                         height={18}
                                       />
                                       <span className="text-[14px] text-gray-200">
-                                        $0.01
+                                      ${gasAmt?.gasCost ? formatNumber(gasAmt?.gasCost,4) : 0}
                                       </span>
                                       <ChevronDownIcon
                                         className="AccordionChevron"
@@ -837,21 +847,21 @@ export default function PortfolioPage() {
 
                                   <div className="flex gap-2 items-center justify-between py-1">
                                     <span className="text-[13px] text-gray-400">
-                                      Market maker gas costs
+                                      Market gas price
                                     </span>
                                     <span className="text-[13px] text-gray-200">
-                                      $ {gasAmt?.marketGasCost ? formatNumber(gasAmt?.marketGasCost,4) : 0}
+                                      {gasAmt?.marketGasCost ? formatNumber(gasAmt?.marketGasCost,4) : 0} Gwei
                                     </span>
                                   </div>
 
-                                  <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
+                                  {/* <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
                                     <span className="text-[13px] text-gray-400">
                                       LP cost
                                     </span>
                                     <span className="text-[13px] text-gray-200">
                                       $0.01
                                     </span>
-                                  </div>
+                                  </div> */}
                                 </Accordion.Content>
                               </Accordion.Item>
                             </Accordion.Root>
