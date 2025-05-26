@@ -110,7 +110,7 @@ export function MultipleOptionCard({
 
         <ScrollArea className="sm:h-[85px] h-[80px] group-hover:h-[95px] overflow-hidden top-0 relative ease-in-out absolute bottom-full left-0 w-full border bg-[#0f0f0f] pb-0 transition-all z-10 duration-200"  >
           <div className="space-y-1 top-0">
-            {options.map((option, index) => {
+            {options?.map((option, index) => {
               const question =
                 option.groupItemTitle ||
                 option.option1 ||
@@ -158,9 +158,7 @@ export function MultipleOptionCard({
                       onClick={() => handleYesClick(option)}
                       className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] text-[10px] transition-colors duration-300 rounded-full"
                     >
-                      {(option.outcomes && JSON.parse(option.outcomes)[0]) ||
-                        option.button1label ||
-                        "Yes"}
+                      {option.outcome && option.outcome?.[0]?.title || "Yes"}
                     </Button>
                   </div>
 
@@ -178,9 +176,7 @@ export function MultipleOptionCard({
                       onClick={() => handleNoClick(option)}
                       className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] text-[10px] transition-colors duration-300 rounded-full"
                     >
-                      {(option.outcomes && JSON.parse(option.outcomes)[1]) ||
-                        option.button2label ||
-                        "No"}
+                      {option.outcome && option.outcome?.[1]?.title || "No"}
                     </Button>
                   </div>
 

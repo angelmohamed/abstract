@@ -5,6 +5,7 @@ import { Loader } from "lucide-react";
 import EventCard from "@/app/components/ui/eventCard";
 import { MultipleOptionCard } from "@/app/components/ui/multipleOptionCard";
 import Link from "next/link";
+import { getEventData } from "@/app/ApiAction/api";
 
 interface Market {
   id: string;
@@ -51,19 +52,26 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/event-data/all?limit=${pagination.limit}&offset=${pagination.offset}&tag_slug=${selectCategory}&closed=${showClosed}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          }
-        );
-        const data = await response.json();
-        console.log(data, "event-data");
-        setEvents(data.data);
-        setHasMore(data?.pagination?.hasMore);
+        let { status, result } = await getEventData({ id: selectCategory, page: pagination.page, limit: pagination.limit });
+        // const response = await fetch(
+        //   `http://localhost:3001/api/v1/events/paginate/${selectCategory}`,
+        //   {
+        //     method: "POST",
+        //     // headers: {
+        //     //   "Content-Type": "application/x-www-form-urlencoded",
+        //     // },
+        //   }
+        // );
+        if(status){
+          setEvents(result?.data);
+          setHasMore(result?.count > pagination.page * pagination.limit);
+        }
+        // const data = await response.json();
+        // if(response.status){
+          // const data = response;
+        console.log(result, "event-data");
+        
+        // }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -85,37 +93,39 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
           events.length > 0 &&
           events.map((event) => (
             <div
-              key={event.id}
+              key={event._id}
               className="event-card w-full transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
             >
-              {event.markets.length < 2 ? (
-                <Link href={`/event-page/${event.id}`} className="w-full block">
+              {event.marketId?.length < 2 ? (
+                <Link href={`/event-page/${event._id}`} className="w-full block">
                   <EventCard
-                    imageSrc={event?.icon || '/images/logo.png'} // 提供默认图片路径
+                    imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
                     probability={
-                      event.markets[0].outcomePrices &&
-                      JSON.parse(event.markets[0].outcomePrices)[0]
+                      event.marketId[0]?.outcomePrices &&
+                      JSON.parse(event.marketId[0]?.outcomePrices)[0]
                     }
                     totalPool={`$${(event.volume ? event.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
+                    yesButtonLabel = {`${event.marketId[0]?.outcome?.[0]?.title || "Yes"} 24.0¢`}
+                    noButtonLabel = {`${event.marketId[0]?.outcome?.[1]?.title || "No"} 74.0¢`}
                     yesPotential={
-                      event.markets[0].outcomePrices &&
-                      JSON.parse(event.markets[0].outcomePrices)[0]
+                      event.marketId[0]?.outcomePrices &&
+                      JSON.parse(event.marketId[0]?.outcomePrices)[0]
                     }
                     noPotential={
-                      event.markets[0].outcomePrices &&
-                      JSON.parse(event.markets[0].outcomePrices)[1]
+                      event.marketId[0]?.outcomePrices &&
+                      JSON.parse(event.marketId[0]?.outcomePrices)[1]
                     }
-                    id={event.id}
+                    id={event._id}
                   />
                 </Link>
               ) : (
-                <Link href={`/event-page/${event.id}`} className="w-full block">
+                <Link href={`/event-page/${event._id}`} className="w-full block">
                   <MultipleOptionCard
-                    imageSrc={event?.icon || '/images/logo.png'} // 提供默认图片路径
+                    imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
                     totalPool={`$${(event.volume ? event.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
-                    options={event?.markets}
+                    options={event?.marketId}
                   />
                 </Link>
               )}

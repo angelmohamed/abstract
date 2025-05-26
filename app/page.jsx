@@ -39,6 +39,7 @@ import {
   navigationItems,
   infoCards,
 } from "@/app/components/constants";
+import { getCategories } from "./ApiAction/api";
 
 const ListItem = ({ title, children }) => {
   return (
@@ -104,9 +105,28 @@ const InfoCards = () => {
 };
 
 export default function Home() {
-  const [selectCategory, setSelectedCategory] = useState("music");
+  const [selectCategory, setSelectedCategory] = useState("all");
+  const [categoryList, setCategoryList] = useState([]);
   const [showClosed, setShowClosed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // State to toggle mobile dropdown
+
+  const fetchCategories = async () => {
+    try {
+      const response = await getCategories();
+      console.log('response: ',response)
+      if (response.status) {
+        setCategoryList(response.result);
+      } else {
+        console.error("Failed to fetch categories:", response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }
+// console.log("categoryList: ", categoryList);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -129,6 +149,31 @@ export default function Home() {
                 {" "}
                 {/* Reduce gap on mobile */}
                 <Button
+                  className={cn(
+                    selectCategory === "all"
+                      ? "text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500 w-[100px] sm:w-[130px]" // Narrower on mobile
+                      : "text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212] w-[100px] sm:w-[130px]" // Narrower on mobile
+                  )}
+                  onClick={() => setSelectedCategory("all")}
+                >
+                  All
+                </Button>
+                {
+                  categoryList?.map((category) => (
+                    <Button
+                      key={category.slug}
+                      className={cn(
+                        selectCategory === category.slug
+                          ? "text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500 w-[100px] sm:w-[130px]" // Narrower on mobile
+                          : "text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212] w-[100px] sm:w-[130px]" // Narrower on mobile
+                      )}
+                      onClick={() => setSelectedCategory(category.slug)}
+                    >
+                      {category.title}
+                    </Button>
+                  ))
+                }
+                {/* <Button
                   className={cn(
                     selectCategory === "music"
                       ? "text-white px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500 w-[100px] sm:w-[130px]" // Narrower on mobile
@@ -167,8 +212,7 @@ export default function Home() {
                   onClick={() => setShowClosed(!showClosed)}
                 >
                   {showClosed ? "Closed" : "Open"}{" "}
-                  {/* Shorten text on mobile */}
-                </Button>
+                </Button> */}
               </div>
             </div>
           </div>
