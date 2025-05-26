@@ -177,7 +177,7 @@ export default function Header() {
       //  const signature = await web3.eth.personal.sign(message, account);
       setIsConnect(true)
       setOpen(false)
-      walletAdd()
+      //walletAdd()
         // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
       }
     } catch (err) {
@@ -216,17 +216,21 @@ export default function Header() {
 
 
   const walletAdd = async(address) =>{
-    var walletdata = {
-      address:address ,
-      LoginHistory
+    
+    if(address){
+      var walletdata = {
+        address:address ,
+        LoginHistory
+      }
+      let { status , authToken } = await walletLogin(walletdata)
+      console.log( status , authToken ," status , authToken ")
+      if(status){
+        localStorage.setItem("sonoTradeToken", authToken);
+        toastAlert("success", "Wallet Connected Successfully",);
+        getUser()
+      }
     }
-    let { status , authToken } = await walletLogin(walletdata)
-    console.log( status , authToken ," status , authToken ")
-    if(status){
-      localStorage.setItem("sonoTradeToken", authToken);
-      toastAlert("success", "Wallet Connected Successfully",);
-      getUser()
-    }
+    
   }
 
   useEffect(() => {
