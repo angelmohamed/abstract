@@ -367,10 +367,10 @@ let resendCode = async () => {
       getUser()
     }
   },[])
-console.log(email,data,"emaillll")
+// console.log(email,data,"emaillll")
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
-      {console.log("88888888888888888888")}
+      {/* {console.log("88888888888888888888")} */}
       <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
         {/* Logo and Title */}
         <div className="flex items-center">

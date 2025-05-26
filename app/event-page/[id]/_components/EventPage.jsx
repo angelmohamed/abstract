@@ -35,6 +35,7 @@ import {
   DrawerHeader,
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
+import { getOrderBook, getSingleEvent } from "../../../ApiAction/api";
 
 export default function EventPage() {
   const param = useParams();
@@ -59,19 +60,24 @@ export default function EventPage() {
     const fetchEvents = async () => {
       try {
         setEventsLoading(true);
-        const response = await fetch(`/api/event-data/by-id?id=${id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        const data = await response.json();
-        setEvents(data);
-        setMarkets(
-          data?.markets
-            .filter((market) => market.active)
-            .sort((a, b) => b.bestAsk - a.bestAsk)
-        );
+        // const response = await fetch(`/api/event-data/by-id?id=${id}`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/x-www-form-urlencoded",
+        //   },
+        // });
+        // const data = await response.json();
+        // console.log('market Data', data);
+        let response = await getSingleEvent({id:id})
+        console.log('response of singleEvent: ',response)
+        if(response.status){
+          let data = response.result
+          setEvents(data);
+          setMarkets(
+            data?.marketId?.filter((market) => market.status === "active")
+              // .sort((a, b) => b.bestAsk - a.bestAsk)
+          );
+        }
         setEventsLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -88,12 +94,12 @@ export default function EventPage() {
       const ids = [];
       const bookLabelsTemp = [];
       markets
-        .filter((market) => market.active)
-        .sort((a, b) => b.bestAsk - a.bestAsk)
+        .filter((market) => market.status === "active")
+        // .sort((a, b) => b.bestAsk - a.bestAsk)
         .forEach((market, index) => {
           if (market.clobTokenIds) {
-            const yes = JSON.parse(market.clobTokenIds)[0];
-            const no = JSON.parse(market.clobTokenIds)[1];
+            const yes = JSON.parse(market?.clobTokenIds)?.[0] || "";
+            const no = JSON.parse(market?.clobTokenIds)?.[1] || "";
             ids.push({ yes, no });
             bookLabelsTemp.push(market.groupItemTitle);
           }
@@ -106,6 +112,7 @@ export default function EventPage() {
         });
 
         try {
+          console.log("idsGroup: ", idsGroup);
           const response = await fetch(`/api/event-data/books`, {
             method: "Post",
             headers: {
@@ -114,6 +121,10 @@ export default function EventPage() {
             body: JSON.stringify(idsGroup),
           });
           setBooks(await response.json());
+          // const response = await getOrderBook({ id:"6833f3f2d89952a086170050"})
+          // if(response.status){
+          //   setBooks(response.result);
+          // }
         } catch (error) {
           console.error("Error fetching PriceHistory:", error);
         }
@@ -122,7 +133,7 @@ export default function EventPage() {
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
-
+console.log('books: ', books)
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -147,7 +158,7 @@ export default function EventPage() {
                     <SingleLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.icon}
+                      image={events.image || '/images/logo.png'}
                       endDate={events.endDate}
                       market={markets}
                       interval={interval}
@@ -157,8 +168,8 @@ export default function EventPage() {
                     <MultiLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.icon}
-                      markets={markets.filter((market) => market.active)}
+                      image={events.image || '/images/logo.png'}
+                      markets={markets.filter((market) => market.status === "active")}
                       endDate={events.endDate}
                       interval={interval}
                     />
@@ -202,7 +213,7 @@ export default function EventPage() {
                       <>
                         <Accordion type="single" collapsible>
                           {markets
-                            .filter((market) => market.active)
+                            .filter((market) => market.status === "active")
                             ?.map((market, index) => (
                               <AccordionItem
                                 value={`market-${index + 1}`}
@@ -219,12 +230,12 @@ export default function EventPage() {
                                     setSelectedOrderBookData
                                   }
                                   orderBook={[
-                                    ...books.filter(
+                                    ...books?.filter(
                                       (book) =>
                                         book.asset_id ==
                                         JSON?.parse(market?.clobTokenIds)[0]
                                     ),
-                                    ...books.filter(
+                                    ...books?.filter(
                                       (book) =>
                                         book.asset_id ==
                                         JSON?.parse(market?.clobTokenIds)[1]
@@ -233,14 +244,14 @@ export default function EventPage() {
                                   setSelectedIndex={setSelectedIndex}
                                   index={index}
                                 >
-                                  <div className="pr-2">
+                                  {/* <div className="pr-2">
                                     <Image
                                       src={market.icon}
                                       alt="Market 1"
                                       width={42}
                                       height={42}
                                     />
-                                  </div>
+                                  </div> */}
                                   <span className="pt-1">
                                     {market.groupItemTitle}
                                   </span>

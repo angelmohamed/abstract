@@ -78,7 +78,7 @@ const WalletProviderInner = ({ children }) => {
 
 export const useWallet = () => {
   const context = useContext(WalletContext);
-  console.log(context,"contextcontextcontextcontext")
+  // console.log(context,"contextcontextcontextcontext")
   if (context === undefined) {
     throw new Error('useWallet must be used within a WalletProvider');
   }

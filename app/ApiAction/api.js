@@ -3,6 +3,8 @@ import config from "../config/config";
 import browser from "browser-detect";
 
 var apiUrl = config.baseUrl;
+var eventUrl = `${config.backendURL}/api/v1/events`;
+var baseUrl = `${config.backendURL}/api/v1`
 
 export const register = async (data) => {
     try {
@@ -35,7 +37,7 @@ export const getUserLocation = async () => {
             'method': "get",
             'url': config.getLoginInfo,
         });
-        console.log("respDatarespData",respData)
+        // console.log("respDatarespData",respData)
         if (respData) {
             const browserRes = browser();
             respData = respData?.data;
@@ -191,6 +193,116 @@ export const userDeposit = async (data) => {
         return {
             status: (response && response.data && response.data.status) ? response.data.status : false,
             message: (response && response.data && response.data.message) ? response.data.message : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const getEventData = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'post',
+            'url': `${eventUrl}/paginate/${data.id}?page=${data.page}&limit=${data.limit}`,
+        })
+        return {
+            status: (response && response.data && response.data.success) ? response.data.success : false,
+            result: (response && response.data && response.data.result) ? response.data.result : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const getCategories = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'get',
+            'url': `${eventUrl}/category`,
+        })
+        console.log(response, 'responseee')
+        return {
+            status: (response && response.data && response.data.success) ? response.data.success : false,
+            result: (response && response.data && response.data.response) ? response.data.response : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const getSingleEvent = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'get',
+            'url': `${eventUrl}/market/${data.id}`,
+        })
+        console.log(response, 'responseee')
+        return {
+            status: (response && response.data && response.data.success) ? response.data.success : false,
+            result: (response && response.data && response.data.response) ? response.data.response : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const OrderPlace = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'post',
+            'url': `${baseUrl}/order`,
+            data :data
+        })
+        console.log(response, 'responseee OrderPlace')
+        return {
+            status: (response && response.data && response.data.success) ? response.data.success : false,
+            result: (response && response.data && response.data.response) ? response.data.response : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const getOrderBook = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'get',
+            'url': `${baseUrl}/order/${data.id}`,
+        })
+        console.log(response, 'responseee')
+        return {
+            status: (response && response.data && response.data.success) ? response.data.success : false,
+            result: (response && response.data && response.data.orderbook) ? response.data.orderbook : "",
         }
     }
     catch (err) {

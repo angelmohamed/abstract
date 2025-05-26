@@ -224,7 +224,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
           <CardDescription className="py-2">
             {/* First line - Volume and Date */}
             <div className="flex flex-wrap gap-3 items-center">
-              <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
+              <p>Vol ${(volume && toTwoDecimal(volume)?.toLocaleString()) || "0.00"}</p>
               {endDate && (
                 <p className="flex items-center gap-1">
                   <Clock size={14} />{" "}

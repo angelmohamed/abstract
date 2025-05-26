@@ -3,6 +3,7 @@ var key = {};
   key = {
     frontUrl: "http://localhost:3000",
     baseUrl: "http://localhost:3001/api/v1/user",
+    backendURL: "http://localhost:3001",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
     getLoginInfo: "https://ipapi.co/json/",
@@ -17,6 +18,7 @@ var key = {};
   key = {
     frontUrl: "http://localhost:3000",
     baseUrl: "http://localhost:3001/api/v1/user",
+    backendURL: "http://localhost:3001",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
     getLoginInfo: "https://ipapi.co/json/",

@@ -42,6 +42,7 @@ import {
   toTwoDecimal,
 } from "@/utils/helpers";
 import { ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
+import { OrderPlace } from "@/app/ApiAction/api";
 
 export function TradingCard({
   market,
@@ -96,6 +97,27 @@ export function TradingCard({
     setHours(setMinutes(new Date(), 30), 17)
   );
 
+  const handleAmountChange = (e) => {
+    const value = e.target.value;
+    if (value < 100) {
+      setAmount(value);
+    }else {
+      console.log("Invalid amount entered. Please enter a number between 0 and 100.");
+    }
+  }
+
+  const handleSharesChange = (operation) =>{
+    if(operation === "+"){
+      setShares((prev)=>prev+10)
+    }else if(operation === '-'){
+      if((shares - 10)>0){
+        setShares(prev => prev-10)
+      }else{
+        setShares(0)
+      }
+    }
+  }
+
   // Calculate days left when customDate changes
   React.useEffect(() => {
     if (customDate) {
@@ -108,6 +130,30 @@ export function TradingCard({
     }
   }, [customDate]);
 
+  const handlePlaceOrder = async(action) => {
+    let userId = "68315926f0827fa7c35ee40a";
+    let activeTab = activeView?.toLowerCase()
+    let data ={
+      price: action === "sell" ? 100 - amount : amount,
+      side: action === "buy" ? activeTab : activeTab === "yes" ? "no" : "yes",
+      userSide: activeTab,
+      action: action,
+      capped: action === "sell" ? true : false,
+      marketId:market._id,
+      userId:userId,
+      quantity:shares,
+      type: orderType,
+    }
+    const response = await OrderPlace(data);
+    if (response.status) {
+      alert("Order placed successfully!");
+    }
+    else {
+      alert("Failed to place order. Please try again.");
+    }
+    console.log("Placing order with data: ", data);
+  }
+console.log('market ====> ', amount,shares)
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
@@ -124,7 +170,7 @@ export function TradingCard({
                 }}
               >
                 <Image
-                  src={market.image}
+                  src={market?.image || '/images/logo.png'}
                   alt="Event"
                   width={55}
                   height={55}
@@ -399,9 +445,11 @@ export function TradingCard({
                             </span>
                             <Input
                               type="number"
+                              value={amount}
                               min="0"
                               step="0.01"
                               placeholder="0 ¢"
+                              onChange={handleAmountChange}
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
                             <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
@@ -423,6 +471,8 @@ export function TradingCard({
                             <Input
                               type="number"
                               placeholder="0"
+                              value={shares}
+                              onChange={(e)=>setShares(e.target.value)}
                               className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
                           </div>
@@ -437,7 +487,7 @@ export function TradingCard({
                           </Button>
                         </div>
 
-                        <div className="flex items-center justify-between mt-3">
+                        {/* <div className="flex items-center justify-between mt-3">
                           <label
                             className="Label"
                             htmlFor="expiry"
@@ -460,7 +510,7 @@ export function TradingCard({
                         >
                           <option>End of Day</option>
                           <option>Custom</option>
-                        </select>
+                        </select> */}
 
                         {customDate && (
                           <div className="text-sm text-[#fff] mt-2">
@@ -493,43 +543,75 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
                             Place Limit Order (Unavailable)
                           </Button>
                         </div>
                       </OptionsContent>
                       <OptionsContent value="No">
-                        <div className="pt-2">
+                        {/* <div className="pt-2">
                           <Amount
                             setAmount={setAmount}
                             amount={amount}
                             className="h-[85%] w-full"
                           />
-                        </div>
-                        <div className="pt-4 space-y-2 pb-2">
-                          <div className="flex justify-between text-sm pt-2">
-                            <span className="text-muted-foreground">
-                              Shares
-                            </span>
-                            <span className="text-foreground">{shares}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
+                        </div> */}
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
                               Limit Price
                             </span>
-                            <span className="text-foreground">
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                placeholder="Set price (¢)"
-                                className="w-24"
-                              />
+                            <p className="text-muted-foreground text-sm">
+                              Balance $8.96
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              -
+                            </span>
+                            <Input
+                              type="number"
+                              value={amount}
+                              min="0"
+                              step="0.01"
+                              placeholder="0 ¢"
+                              onChange={handleAmountChange}
+                              className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              +
                             </span>
                           </div>
                         </div>
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Shares
+                            </span>
+                            <p className="text-muted-foreground text-sm cursor-pointer">
+                              Max
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              value={shares}
+                              onChange={(e)=>setShares(e.target.value)}
+                              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-2 justify-end">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            -$10
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            +$10
+                          </Button>
+                        </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
                             Place Limit Order (Unavailable)
                           </Button>
                         </div>
@@ -681,6 +763,8 @@ export function TradingCard({
                               type="number"
                               min="0"
                               step="0.01"
+                              value={amount}
+                              onChange={handleAmountChange}
                               placeholder="0 ¢"
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
@@ -700,6 +784,8 @@ export function TradingCard({
                             <Input
                               type="number"
                               placeholder="0"
+                              value={shares}
+                              onChange={(e)=>setShares(e.target.value)}
                               className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
                           </div>
@@ -717,7 +803,7 @@ export function TradingCard({
                           </Button>
                         </div>
 
-                        <div className="flex items-center justify-between mt-3">
+                        {/* <div className="flex items-center justify-between mt-3">
                           <label
                             className="Label"
                             htmlFor="expiry"
@@ -740,7 +826,7 @@ export function TradingCard({
                         >
                           <option>End of Day</option>
                           <option>Custom</option>
-                        </select>
+                        </select> */}
 
                         {customDate && (
                           <div className="text-sm text-[#fff] mt-2">
@@ -763,20 +849,47 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
                             Place Limit Order (Unavailable)
                           </Button>
                         </div>
                       </OptionsContent>
                       <OptionsContent value="No">
-                        <div className="pt-2">
+                        {/* <div className="pt-2">
                           <Amount
                             setAmount={setAmount}
                             amount={amount}
                             className="h-[85%] w-full"
                           />
+                        </div> */}
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Limit Price
+                            </span>
+                            <p className="text-muted-foreground text-sm">
+                              Balance $8.96
+                            </p>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              -
+                            </span>
+                            <Input
+                              type="number"
+                              value={amount}
+                              min="0"
+                              step="0.01"
+                              placeholder="0 ¢"
+                              onChange={handleAmountChange}
+                              className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                              +
+                            </span>
+                          </div>
                         </div>
-                        <div className="pt-4 space-y-2 pb-2">
+                        {/* <div className="pt-4 space-y-2 pb-2">
                           <div className="flex justify-between text-sm pt-2">
                             <span className="text-muted-foreground">
                               Shares
@@ -797,9 +910,37 @@ export function TradingCard({
                               />
                             </span>
                           </div>
+                        </div> */}
+                        <div className="flex justify-between mt-3">
+                          <div className="flex flex-col">
+                            <span className="text-[#fff] text-[16px]">
+                              Shares
+                            </span>
+                          </div>
+                          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+                            <Input
+                              type="number"
+                              placeholder="0"
+                              value={shares}
+                              onChange={(e)=>setShares(e.target.value)}
+                              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2 justify-end">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            25%
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            50%
+                          </Button>
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                            Max
+                          </Button>
                         </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
                             Place Limit Order (Unavailable)
                           </Button>
                         </div>
