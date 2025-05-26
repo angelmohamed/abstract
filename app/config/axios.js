@@ -8,7 +8,7 @@ axios.defaults.baseURL = config.baseUrl;
 
 let localtoken = localStorage.getItem("sonoTradeToken")
 
-axios.defaults.headers.common["Authorization"] = localtoken ? localtoken : "";
+axios.defaults.headers.common["Authorization"] = localtoken ? `Bearer ${localtoken}` : "";
 
 export const setAuthToken = (token) => {
   axios.defaults.headers.common["Authorization"] = token;
