@@ -4,7 +4,7 @@ import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
 import { WalletProvider } from '@/app/walletconnect/walletContext';
 import SnackbarClient from "@/app/helper/SnackbarClient";
-
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

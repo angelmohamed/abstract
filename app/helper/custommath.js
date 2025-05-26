@@ -53,6 +53,23 @@ export async function getFormatMulticall(results, name, pos) {
     }
   }
 
+
+export function toFixedWithoutRound(number, decimalPlaces = 2) {
+  try {
+      let numberString = number.toString();
+      let decimalIndex = numberString.indexOf('.');
+      if (decimalIndex === -1) {
+          return number;
+      }
+      numberString = numberString.slice(0, decimalIndex + decimalPlaces + 1);
+      let truncatedNumber = parseFloat(numberString);
+      return truncatedNumber;
+  } catch (err) {
+      return 0;
+  }
+
+}
+
   export function formatNumber(num, defaultFixed) {
 
     try {

@@ -157,7 +157,7 @@ console.log('market ====> ', amount,shares)
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
-        <CardHeader>
+        <CardHeader className="pb-3">
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
@@ -185,7 +185,7 @@ console.log('market ====> ', amount,shares)
               </div>
             </div>
           </CardTitle>
-          <CardDescription>
+          {/* <CardDescription>
             {" "}
             $
             {market.volume
@@ -194,7 +194,7 @@ console.log('market ====> ', amount,shares)
                   maximumFractionDigits: 2,
                 })
               : "0.00"}
-          </CardDescription>
+          </CardDescription> */}
         </CardHeader>
 
         <CardContent>

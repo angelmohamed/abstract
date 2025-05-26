@@ -312,7 +312,7 @@ console.log('books: ', books)
 
                 {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                 <div className="hidden lg:block lg:w-[30%] relative">
-                  <div className="fixed top-[180px] z-60 w-[25%]">
+                  <div className="fixed top-[135px] z-60 w-[25%]">
                     {markets.length < 2 ? (
                       <TradingCard
                         activeView={activeView}

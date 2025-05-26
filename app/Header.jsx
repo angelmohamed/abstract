@@ -18,6 +18,7 @@ import {
   Cross2Icon,
 } from "@radix-ui/react-icons";
 import config from "./config/config.js"
+import { formatNumber ,shortText} from "../app/helper/custommath.js"
 import { Button } from "./components/ui/button";
 import { useToast } from "./helper/toastAlert.js";
 import { googleLogin, getUserLocation, register,verifyEmail ,resendOTP, walletLogin,getUserData} from "./ApiAction/api.js"
@@ -28,6 +29,7 @@ import {
   googleLogout,
 } from "@react-oauth/google";
 import isEmpty from "is-empty"
+import Authentication from "./Authentication.jsx";
 
 let initialData = {
   otp: "",
@@ -41,19 +43,22 @@ export default function Header() {
   
   const [connval, setconnval] = useState(null)
   const [open, setOpen] = useState(false)
+  const [loader, setloader] = useState(false)
   const [otpopen, setOtpOpen] = useState(false)
   const [userData, setUserData] = useState("")
   const [otpData, setOtpData] = useState(initialData);
   const [LoginHistory, setLoginHistory] = useState({});
   const [error, setError] = useState({})
+  const [connect, setIsConnect] = useState(false)
   const [data, setData] = useState({})
+  const [walletData, setWalletData] = useState({})
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
   const [account, setaccount] = useState("");
-  const wallet = useWallet();
+  //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
-  const { connectors, address, isConnected, connectWallet, disconnectWallet } = wallet;
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } = useWallet();
   const toastAlert = useToast();
   let { email } = userData
   let { otp } = otpData
@@ -74,18 +79,24 @@ export default function Header() {
   };
   const navigateToPortfolioPage = () => {
     router.push("/portfolio");
+    window.location.href = '/portfolio'
   };
 
   var chainId = config.chainId;
   const { data: walletClient } = useWalletClient({ chainId });
 
   useEffect(() => {
+    if (!isConnected || !walletClient || !address) return;
+  
     try {
-      var { transport } = walletClientToSigner(walletClient);
+      const { transport } = walletClientToSigner(walletClient);
       setconnval(transport);
-      setaccount(address)
-    } catch (err) { }
-  }, [address, walletClient]);
+      setaccount(address);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [address, walletClient, isConnected]);
+  
 
   
 
@@ -164,20 +175,9 @@ export default function Header() {
        let connect = await connectWallet(connector);
       //  const message = "Welcome to SonoTrade! Sign to connect.";
       //  const signature = await web3.eth.personal.sign(message, account);
-
-        var walletdata = {
-          address:account ,
-          LoginHistory
-        }
-        console.log(account,"addressaddressaddress")
-        let { status , authToken } = await walletLogin(walletdata)
-        console.log( status , authToken ," status , authToken ")
-        if(status){
-          setOpen(false)
-          localStorage.setItem("sonoTradeToken", authToken);
-          toastAlert("success", "Wallet Connected Successfully",);
-        }
-
+      setIsConnect(true)
+      setOpen(false)
+      walletAdd()
         // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
       }
     } catch (err) {
@@ -214,6 +214,33 @@ export default function Header() {
     }
   };
 
+
+  const walletAdd = async(address) =>{
+    var walletdata = {
+      address:address ,
+      LoginHistory
+    }
+    let { status , authToken } = await walletLogin(walletdata)
+    console.log( status , authToken ," status , authToken ")
+    if(status){
+      localStorage.setItem("sonoTradeToken", authToken);
+      toastAlert("success", "Wallet Connected Successfully",);
+      getUser()
+    }
+  }
+
+  useEffect(() => {
+    const handleWalletAdd = async () => {
+      if (isConnected && connect) {
+        console.log(address,'connecttt')
+        await walletAdd(address)
+      }
+    }
+
+    handleWalletAdd()
+  }, [isConnected])
+
+
   useEffect(() => {
     if (expireTime > 0) {
       getTime();
@@ -233,7 +260,6 @@ export default function Header() {
         token,
         LoginHistory: LoginHistory,
       };
-      toastAlert("success", "Login Successfully",);
       let { status, message, authToken, errors } = await googleLogin(data);
       console.log(authToken, "authTokenauthTokenauthToken");
 
@@ -258,6 +284,7 @@ export default function Header() {
       let errMsg = await regValidate(userData);
       setError(errMsg);
       if (isEmpty(errMsg)) {
+        setloader(true)
         let { status, message, errors } = await register(userData);
         console.log(errors, 'errorserrors')
         if (status == true) {
@@ -266,6 +293,7 @@ export default function Header() {
           setExpireTime(180);
           setOtpOpen(true)
           setOpen(false)
+          setloader(false)
           getTime();
         } else if (!isEmpty(errors)) {
           setError(errors);
@@ -298,6 +326,7 @@ let handleOtpClick = async () => {
                 toastAlert("error", "OTP expired,Please resend", "otp");
                 setOtpData({})
             } else {
+              setloader(true)
                 let data = { otp, email ,LoginHistory: LoginHistory,};
                 let { message, status ,authToken} = await verifyEmail(data);
                 if (status == true) {
@@ -305,6 +334,7 @@ let handleOtpClick = async () => {
                     localStorage.setItem("sonoTradeToken", authToken);
                     setOtpOpen(false)
                     getUser()
+                    setloader(false)
                 } else {
                     toastAlert("error", message);
                 }
@@ -344,9 +374,10 @@ let resendCode = async () => {
 
   const getUser = async() =>{
     try{
-    let {status ,result} = await getUserData()
+    let {status ,result,wallet} = await getUserData()
     if(status){
       setData(result)
+      setWalletData(wallet)
      }
     }catch(err){
       console.log(err,'errr')
@@ -359,6 +390,7 @@ let resendCode = async () => {
     localStorage.removeItem("googlelogin");
     disconnectWallet();
     toastAlert("success", "Successfully Logout");
+    window.location.href = '/'
     router.push("/");
   }
 
@@ -371,7 +403,7 @@ let resendCode = async () => {
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
       {/* {console.log("88888888888888888888")} */}
-      <div className="flex w-full md:w-auto items-center justify-between p-0 md:p-4 md:ml-6 ml-0 overflow-hidden">
+      <div className="flex w-full md:w-auto items-center justify-between p-0 md:ml-6 ml-0 overflow-hidden">
         {/* Logo and Title */}
         <div className="flex items-center">
           <Link href="/">
@@ -398,6 +430,7 @@ let resendCode = async () => {
               <div className="text-xs text-grey">Portfolio</div>
             </button>
           )}
+          <Authentication />
           {/* {account && (
             <button
               className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -412,22 +445,20 @@ let resendCode = async () => {
 
       {/* Search Bar - Now visible on all screen sizes as second row on mobile/sm */}
       <div className="w-full px-4 pb-2 md:pb-0 md:pl-[2%] md:pr-[2%] mt-1 md:mt-0">
-        <SearchBar placeholder="Search markets or artists" />
+        <SearchBar placeholder="Search markets or artists" className="lg:max-w-[600px] min-w-[400px]" />
       </div>
 
       {/* Auth Buttons - For md+ screens, keep their original position */}
       <div className="hidden md:flex items-center gap-2 flex-shrink-0 ml-auto">
-        {account && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
             onClick={navigateToPortfolioPage}
           >
             <div className="text-l" style={{ color: "#33ff4c" }}>
-              {currentPosition}
+              {walletData?.balance ? formatNumber(walletData?.balance,4) : 0}
             </div>
             <div className="text-xs text-grey">Portfolio</div>
           </button>
-        )}
         {/* {account && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -501,7 +532,10 @@ let resendCode = async () => {
                   onChange={registerChange}
                   placeholder="Enter Email"
                 />               
-                <Button onClick={handleClick}>Continue</Button>             
+                <Button onClick={handleClick} disabled = {loader}>Continue {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }} 
+                            ></i>}</Button>             
               </div>
               {error && error.email && (
                   <span style={{ color: "red" }}>{error.email}</span>
@@ -580,8 +614,8 @@ let resendCode = async () => {
                     placeholder="Enter OTP"
                   />
                     {expireTime == 0 ? (
-                      <Button onClick={resendCode}>
-                        Resend OTP
+                      <Button onClick={resendCode} >
+                        Resend OTP 
                       </Button>
                     ) : (
                       <Button >{`${expireTime}`}</Button>
@@ -593,7 +627,10 @@ let resendCode = async () => {
                 )}
                 <br></br>
                 <div className="text-center">
-                  <Button onClick = {() => handleOtpClick()}>Submit</Button>
+                  <Button onClick = {() => handleOtpClick()} disabled = {loader}>Submit {loader &&  <i
+                              className="fas fa-spinner fa-spin ml-2"
+                              style={{ color: "black" }} 
+                            ></i>}</Button>
                 </div>
                 <Dialog.Close asChild>
                   <button className="modal_close_brn" aria-label="Close">
@@ -633,13 +670,13 @@ let resendCode = async () => {
                       className="rounded-full"
                     />
                     <div>
-                      <span className="text-sm text-gray-100">Alex</span>
+                      <span className="text-sm text-gray-100">{data?.name ? data?.name : ""}</span>
                       <div className="text-sm text-gray-100 flex items-center space-x-2">
                         <Tooltip.Provider>
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
                               <button className="IconButton bg-[#131212] px-2 py-1 rounded">
-                                <span className="text-[12px]">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
+                                <span className="text-[12px]">{address ? shortText(address) : ""}</span>
                               </button>
                             </Tooltip.Trigger>
                             <Tooltip.Portal>
@@ -693,6 +730,7 @@ let resendCode = async () => {
           </DropdownMenu.Root>
           :""
         }
+      {/* <Authentication /> */}
       </div>
     </header>
   );

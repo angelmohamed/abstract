@@ -27,7 +27,7 @@ const walletconfig = createConfig({
     walletConnect({
       projectId: 'cb89ebb21cdccb2e1b591e189e27706a',
       chains: [config?.chainId],
-      showQrModal: true,
+      showQrModal: false,
     }),
   ],
 });

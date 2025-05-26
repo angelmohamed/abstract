@@ -163,13 +163,15 @@ export const walletLogin = async (data) => {
 
 export const getUserData = async () => {
     try {
+
         let response = await axios({
             'method': 'get',
             'url': `${apiUrl}/get-user`,
         })
         return {
             status: (response && response.data && response.data.status) ? response.data.status : false,
-            result: (response && response.data && response.data.result) ? response.data.result : "",
+            result: (response && response.data && response.data.result) ? response.data.result : {},
+            wallet : (response && response.data && response.data.wallet) ? response.data.wallet : {}
         }
     }
     catch (err) {
@@ -193,6 +195,28 @@ export const userDeposit = async (data) => {
         return {
             status: (response && response.data && response.data.status) ? response.data.status : false,
             message: (response && response.data && response.data.message) ? response.data.message : "",
+        }
+    }
+    catch (err) {
+        return {
+            status: false,
+            errors: {},
+            message: "Failed to register",
+            authToken: null,
+        }
+    }
+}
+
+export const addressCheck = async (data) => {
+    try {
+        let response = await axios({
+            'method': 'post',
+            'url': `${apiUrl}/address-check`,
+            data :data
+        })
+        return {
+            status: (response && response.data && response.data.status) ? response.data.status : false,
+            result: (response && response.data && response.data.result) ? response.data.result : false,
         }
     }
     catch (err) {
