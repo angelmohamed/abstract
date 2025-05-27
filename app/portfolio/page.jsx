@@ -1340,7 +1340,7 @@ export default function PortfolioPage() {
                                   </div>
                                 </div>
                                 <Button className="bg-[#37ce37] text-[#fff] hover:text-[#000] w-full mt-5 text-[14px] font-medium">
-                                  Redeem
+                                  Claim
                                 </Button>
                               </div>
                               <Dialog.Close asChild>
@@ -1380,7 +1380,7 @@ export default function PortfolioPage() {
                                 </div>
                                 <div className="flex items-center justify-between mb-4">
                                   <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#e9f7ef] font-normal rounded">
-                                    Chennai Super Kings
+                                    56x Chennai Super Kings
                                   </Badge>
                                   <span>Avg 52¢</span>
                                 </div>
@@ -1392,7 +1392,7 @@ export default function PortfolioPage() {
 
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <h5 className="text-gray-400">Bet</h5>
+                                    <h5 className="text-gray-400">Trade</h5>
                                     <p className="text-[#fff] mb-0 font-medium">
                                       $2.00
                                     </p>

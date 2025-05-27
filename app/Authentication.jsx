@@ -2,7 +2,6 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import SearchBar from "@/app/components/ui/SearchBar";
 import SONOTRADE from "@/public/images/logo.png";
 import React, { useState, useEffect } from "react";
 import { client } from "@/app/client";
@@ -16,6 +15,7 @@ import {
   ChevronDownIcon,
   OpenInNewWindowIcon,
   Cross2Icon,
+  BellIcon,
 } from "@radix-ui/react-icons";
 import config from "./config/config.js";
 import { Button } from "./components/ui/button";
@@ -41,6 +41,7 @@ import {
   googleLogout,
 } from "@react-oauth/google";
 import isEmpty from "is-empty";
+import { formatNumber, shortText } from "../app/helper/custommath.js";
 
 let initialData = {
   otp: "",
@@ -54,6 +55,7 @@ export default function Authentication() {
 
   const [connval, setconnval] = useState(null);
   const [open, setOpen] = useState(false);
+  const [loader, setloader] = useState(false);
   const [otpopen, setOtpOpen] = useState(false);
   const [userData, setUserData] = useState("");
   const [otpData, setOtpData] = useState(initialData);
@@ -461,7 +463,15 @@ export default function Authentication() {
                 onChange={registerChange}
                 placeholder="Enter Email"
               />
-              <Button onClick={handleClick}>Continue</Button>
+              <Button onClick={handleClick} disabled={loader}>
+                Continue{" "}
+                {loader && (
+                  <i
+                    className="fas fa-spinner fa-spin ml-2"
+                    style={{ color: "black" }}
+                  ></i>
+                )}
+              </Button>
             </div>
             {error && error.email && (
               <span style={{ color: "red" }}>{error.email}</span>
@@ -554,7 +564,15 @@ export default function Authentication() {
               )}
               <br></br>
               <div className="text-center">
-                <Button onClick={() => handleOtpClick()}>Submit</Button>
+                <Button onClick={() => handleOtpClick()} disabled={loader}>
+                  Submit{" "}
+                  {loader && (
+                    <i
+                      className="fas fa-spinner fa-spin ml-2"
+                      style={{ color: "black" }}
+                    ></i>
+                  )}
+                </Button>
               </div>
               <Dialog.Close asChild>
                 <button className="modal_close_brn" aria-label="Close">
@@ -566,96 +584,242 @@ export default function Authentication() {
         </Dialog.Root>
       )}
       {isLogin() == true ? (
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger asChild>
-            <button className="profile_button" aria-label="Customise options">
-              <Image
-                src="/images/Ye.png"
-                alt="Profile Icon"
-                width={32}
-                height={32}
-                className="rounded-full"
-              />
-              <ChevronDownIcon className="w-4 h-4" />
-            </button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Portal>
-            <div className="custom_dropdown_portal">
-              <DropdownMenu.Content className="profile_menu" sideOffset={5}>
-                <div className="flex items-center space-x-3">
-                  <Image
-                    src="/images/Ye.png"
-                    alt="Profile Icon"
-                    width={40}
-                    height={40}
-                    className="rounded-full"
-                  />
-                  <div>
-                    <span className="text-sm text-gray-100">
-                      {data?.name ? data?.name : ""}
-                    </span>
-                    <div className="text-sm text-gray-100 flex items-center space-x-2">
-                      <Tooltip.Provider>
-                        <Tooltip.Root>
-                          <Tooltip.Trigger asChild>
-                            <button className="IconButton bg-[#131212] px-2 py-1 rounded">
-                              <span className="text-[12px]">{`${address?.slice(
-                                0,
-                                6
-                              )}...${address?.slice(-4)}`}</span>
-                            </button>
-                          </Tooltip.Trigger>
-                          <Tooltip.Portal>
-                            <div className="custom_tooltip_content">
-                              <Tooltip.Content
-                                className="TooltipContent"
-                                sideOffset={5}
-                              >
-                                Copy Address
-                                <Tooltip.Arrow className="TooltipArrow" />
-                              </Tooltip.Content>
-                            </div>
-                          </Tooltip.Portal>
-                        </Tooltip.Root>
-                      </Tooltip.Provider>
-                      <Link href="#" target="_blank">
-                        <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
-                      </Link>
+        <>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                className="rounded p-2 hover:bg-[#333333] relative"
+                aria-label="Customise options"
+              >
+                <BellIcon className="w-6 h-6 " />
+                <span className="absolute top-[8px] right-[8px] w-2 h-2 bg-red-500 rounded-full block"></span>
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <div className="notification_dropdown_portal">
+                <DropdownMenu.Content
+                  className="notification_menu"
+                  sideOffset={5}
+                >
+                  <DropdownMenu.Label className="text-[18px] font-medium text-gray-100 px-4 py-3 border-b border-gray-700">
+                    Notifications
+                  </DropdownMenu.Label>
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </DropdownMenu.Content>
+              </div>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="profile_button" aria-label="Customise options">
+                <Image
+                  src="/images/Ye.png"
+                  alt="Profile Icon"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <div className="custom_dropdown_portal">
+                <DropdownMenu.Content className="profile_menu" sideOffset={5}>
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/Ye.png"
+                      alt="Profile Icon"
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <span className="text-sm text-gray-100">
+                        {data?.name ? data?.name : ""}
+                      </span>
+                      <div className="text-sm text-gray-100 flex items-center space-x-2">
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <button className="IconButton bg-[#131212] px-2 py-1 rounded">
+                                <span className="text-[12px]">
+                                  {address ? shortText(address) : ""}
+                                </span>
+                              </button>
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <div className="custom_tooltip_content">
+                                <Tooltip.Content
+                                  className="TooltipContent"
+                                  sideOffset={5}
+                                >
+                                  Copy Address
+                                  <Tooltip.Arrow className="TooltipArrow" />
+                                </Tooltip.Content>
+                              </div>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                        <Link href="#" target="_blank">
+                          <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/profile">Profile</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/settings">Settings</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Watchlist</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Rewards</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Learn</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Documentation</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="DropdownMenuItem" disabled>
-                  <Link href="/">Terms of Use</Link>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="DropdownMenuSeparator" />
-                <DropdownMenu.Item className="DropdownMenuItem">
-                  <Link href="/" onClick={logout}>
-                    Logout
-                  </Link>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </div>
-          </DropdownMenu.Portal>
-        </DropdownMenu.Root>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/settings">Settings</Link>
+                  </DropdownMenu.Item>
+                  {/* <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Watchlist</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Rewards</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Learn</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Documentation</Link>
+                  </DropdownMenu.Item> */}
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Terms of Use</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/" onClick={logout}>
+                      Logout
+                    </Link>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </div>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        </>
       ) : (
         ""
       )}
