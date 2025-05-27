@@ -448,15 +448,18 @@ export default function Header() {
 
       {/* Search Bar - Now visible on all screen sizes as second row on mobile/sm */}
       <div className="w-full px-4 pb-2 md:pb-0 md:pl-[2%] md:pr-[2%] mt-1 md:mt-0">
-        <div className="relative lg:max-w-[600px] min-w-[300px] sm:min-w-[400px]">
+        <div
+          className="relative lg:max-w-[600px] min-w-[300px] sm:min-w-[400px]"
+          tabIndex={-1}
+          onFocus={() => setIsSearchActive(true)}
+          onBlur={() => setIsSearchActive(false)}
+        >
           <SearchBar
             placeholder="Search markets"
             className={
               "w-full transition-all duration-150 outline-none " +
               (isSearchActive ? "rounded-t-lg rounded-b-none" : "rounded-lg")
             }
-            onFocus={() => setIsSearchActive(true)}
-            onBlur={() => setIsSearchActive(false)}
           />
           {isSearchActive && (
             <div className="absolute left-0 right-0 bg-[#070707] z-[156] rounded-b-lg border border-[#262626] border-t-0">
@@ -546,7 +549,7 @@ export default function Header() {
                           Will the U.S. take over Gaza in 2025?
                         </span>
                       </div>
-                      <button aria-label="Close">
+                      <button aria-label="Close" onMouseDown={e => e.preventDefault()}>
                         <Cross2Icon className="h-4 w-4" />
                       </button>
                     </Link>
@@ -565,7 +568,7 @@ export default function Header() {
                         />
                         <span className="text-sm">Fed decision in July?</span>
                       </div>
-                      <button aria-label="Close">
+                      <button aria-label="Close" onMouseDown={e => e.preventDefault()}>
                         <Cross2Icon className="h-4 w-4" />
                       </button>
                     </Link>
