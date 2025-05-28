@@ -34,7 +34,7 @@ export const initialState = {
 
 export const getUserDetails = createAsyncThunk("auth/user", async () => {
   const response = await getUserData();
-  return response.result;
+  return response.data.result;
 });
 
 export const userSlice = createSlice({

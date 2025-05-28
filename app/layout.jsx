@@ -5,6 +5,11 @@ import { Footer } from "@/app/components/customComponents/Footer";
 import { WalletProvider } from '@/app/walletconnect/walletContext';
 import SnackbarClient from "@/app/helper/SnackbarClient";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+// import { Provider } from "react-redux"
+// import { PersistGate } from "redux-persist/integration/react"
+// import store, { persistor } from "./store"
+
+
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,17 +46,22 @@ export default function RootLayout({ children }) {
         {/* Favicon */}
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </head>
+      
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-       
+       {/* <Provider store={store}> */}
+      {/* <PersistGate persistor={persistor} loading={null}> */}
         <SnackbarClient>
           <WalletProvider>
               {children}
           </WalletProvider>
           </SnackbarClient>
         <Footer />
+        {/* </PersistGate> */}
+      {/* </Provider> */}
       </body>
+      
     </html>
   );
 }

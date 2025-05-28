@@ -43,6 +43,8 @@ import {
 } from "@react-oauth/google";
 import isEmpty from "is-empty";
 import Authentication from "./Authentication.jsx";
+// import { getUserDetails } from "@/app/store/auth/userSlice.js";
+// import { useDispatch } from "./store/index";
 
 let initialData = {
   otp: "",
@@ -70,6 +72,7 @@ export default function Header() {
   const [account, setaccount] = useState("");
   //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
+  // const dispatch = useDispatch();
 
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
@@ -377,6 +380,7 @@ export default function Header() {
   const getUser = async () => {
     try {
       let { status, result, wallet } = await getUserData();
+      
       if (status) {
         setData(result);
         setWalletData(wallet);
@@ -398,6 +402,7 @@ export default function Header() {
   useEffect(() => {
     if (isLogin() == true) {
       getUser();
+      // dispatch(getUserDetails())
     }
   }, []);
   // console.log(email,data,"emaillll")
