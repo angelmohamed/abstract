@@ -10,7 +10,7 @@ import {
 } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
 import Web3 from "web3";
-import config from "../config/config"
+import config from "../config/config";
 import {
   Tabs,
   TabsList,
@@ -25,62 +25,77 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
-import { Dialog, Accordion, Checkbox } from "radix-ui";
-import { shortText, numberFloatOnly } from "../helper/custommath"
+import { Dialog, Accordion, Checkbox, Separator } from "radix-ui";
+import { shortText, numberFloatOnly } from "../helper/custommath";
 import { useToast } from "../helper/toastAlert";
-import isEmpty from "is-empty"
+import isEmpty from "is-empty";
 import {
   Cross2Icon,
   ChevronDownIcon,
   ChevronLeftIcon,
   InfoCircledIcon,
   CheckIcon,
+  CopyIcon,
 } from "@radix-ui/react-icons";
-import { getUserData, addressCheck } from "@/app/ApiAction/api"
+import { getUserData, addressCheck } from "@/app/ApiAction/api";
 import { useRouter } from "next/navigation";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
-import { useWalletClient } from 'wagmi'
-import { getCoinAmt, depsoitToken, depsoitCoin, approveToken ,getGasCostAmt} from "./multicall"
+import { useWalletClient } from "wagmi";
+import {
+  getCoinAmt,
+  depsoitToken,
+  depsoitCoin,
+  approveToken,
+  getGasCostAmt,
+} from "./multicall";
 import { walletClientToSigner } from "../helper/ethersconnect";
-import { formatNumber } from "../helper/custommath"
-import tokenABI from "../ABI/TOKENABI.json"
-
+import { formatNumber } from "../helper/custommath";
+import tokenABI from "../ABI/TOKENABI.json";
 
 let initialValue = {
   currency: "",
   amount: "",
   walletAddress: "",
-}
+};
 export default function PortfolioPage() {
-  const { connectors, address, isConnected, connectWallet, disconnectWallet } = useWallet();
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } =
+    useWallet();
   const [account, setaccount] = useState(address);
   const [data, setData] = useState(address);
-  const [open, setOpen] = useState(false)
-  const [check, setCheck] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [check, setCheck] = useState(false);
   const [step, setStep] = useState("");
   const wallet = address;
-  const [balance, setBalance] = useState(0)
-  const [tokenbalance, setTokenBalance] = useState(0)
+  const [balance, setBalance] = useState(0);
+  const [tokenbalance, setTokenBalance] = useState(0);
   const [currentTab, setCurrentTab] = useState("positions");
   const [depositData, setDepositData] = useState(initialValue);
   const [depsoitAmt, setDepositAmt] = useState(0);
-  const [loader, setloader] = useState(false)
-  const [txopen, setTxOpen] = useState(false)
-  const [showallowance, setshowallowance] = useState(false)
-  const [transactionHash, settransactionHash] = useState("")
-  const [connval, setconnval] = useState(null)
-  const [walletData, setWalletData] = useState({})
-  const [tokenValue, setTokenValue] = useState({ minDeposit: 0, tokenAmt: 0, allowance: 0, usdConvt: 0 })
+  const [loader, setloader] = useState(false);
+  const [txopen, setTxOpen] = useState(false);
+  const [showallowance, setshowallowance] = useState(false);
+  const [transactionHash, settransactionHash] = useState("");
+  const [connval, setconnval] = useState(null);
+  const [walletData, setWalletData] = useState({});
+  const [tokenValue, setTokenValue] = useState({
+    minDeposit: 0,
+    tokenAmt: 0,
+    allowance: 0,
+    usdConvt: 0,
+  });
   const toastAlert = useToast();
   const router = useRouter();
-  const [profileData, setProfileData] = useState({ username: "", avatar_url: "", bio: "" })
-  const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0,})
+  const [profileData, setProfileData] = useState({
+    username: "",
+    avatar_url: "",
+    bio: "",
+  });
+  const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0 });
 
-
-  var { currency, amount, walletAddress } = depositData
-  var { minDeposit, tokenAmt, allowance ,usdConvt} = tokenValue
+  var { currency, amount, walletAddress } = depositData;
+  var { minDeposit, tokenAmt, allowance, usdConvt } = tokenValue;
 
   // useEffect(() => {
   //   if (!wallet) return;
@@ -114,27 +129,24 @@ export default function PortfolioPage() {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
-
-
   const balanceData = async () => {
     try {
       const web3 = new Web3(config.rpcUrl);
       const balanceWei = await web3.eth.getBalance(address ? address : "");
-      const balancePOL = web3.utils.fromWei(balanceWei, 'ether');
+      const balancePOL = web3.utils.fromWei(balanceWei, "ether");
       const formattedBalance = parseFloat(balancePOL).toFixed(6);
       setBalance(formattedBalance);
       const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
       const decimals = await usdcContract.methods.decimals().call();
       const rawBalance = await usdcContract.methods.balanceOf(address).call();
-      const formattedBalance1 = parseFloat(rawBalance / (10 ** decimals)).toFixed(4);
+      const formattedBalance1 = parseFloat(rawBalance / 10 ** decimals).toFixed(
+        4
+      );
       setTokenBalance(formattedBalance1);
-
     } catch (err) {
       console.error("Error fetching POL balance:", err);
     }
   };
-
-
 
   var chainId = config.chainId;
   const { data: walletClient } = useWalletClient({ chainId });
@@ -143,14 +155,11 @@ export default function PortfolioPage() {
     try {
       var { transport } = walletClientToSigner(walletClient);
       setconnval(transport);
-      setaccount(address)
-    } catch (err) { }
+      setaccount(address);
+    } catch (err) {}
   }, [address, walletClient]);
 
-
-
   const connectMetamaskMobile = () => {
-
     const currentUrl = window.location.href;
 
     // Split the URL to get the dapp URL
@@ -159,11 +168,9 @@ export default function PortfolioPage() {
       const dappUrl = urlParts[1].split("/")[0];
       const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + dappUrl;
       window.open(metamaskAppDeepLink, "_self");
-
     } else {
       console.error("Invalid URL format");
     }
-
   };
 
   function isMobile() {
@@ -182,23 +189,18 @@ export default function PortfolioPage() {
     return check;
   }
 
-
   async function handleConnect(connector) {
     disconnectWallet();
     try {
       var network = config.chainId;
 
       let check = isMobile();
-      var isType =
-        connector && connector.id
-          ? connector.id
-          : "";
+      var isType = connector && connector.id ? connector.id : "";
 
       if (check && !window.ethereum && isType == "MetaMask") {
         connectMetamaskMobile();
         return;
       } else {
-
         var web3 = null;
         if (isType == "injected") {
           web3 = new Web3(window.BinanceChain);
@@ -221,12 +223,12 @@ export default function PortfolioPage() {
           currnetwork = network;
         }
         let connect = await connectWallet(connector);
-        setOpen(false)
-        getUser()
-        getAddress()
+        setOpen(false);
+        getUser();
+        getAddress();
       }
     } catch (err) {
-      console.log(err, "errerr")
+      console.log(err, "errerr");
       var error = err && err.message ? err.message.toString() : err.toString();
       var pos = error.search("Provider not set or invalid");
       var pos1 = error.search("User rejected");
@@ -245,36 +247,52 @@ export default function PortfolioPage() {
       const web3 = new Web3(config.rpcUrl);
       const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
       const decimals = await usdcContract.methods.decimals().call();
-      let amt = (depsoitAmt * (10 ** decimals))
-      console.log(amt, "depsoitAmtdepsoitAmt")
-      let { minDeposit, tokenAmt, allowance, usdConvt } = await getCoinAmt(address, amt, connval)
-      setTokenValue({ minDeposit, tokenAmt, allowance, usdConvt })
-      
+      let amt = depsoitAmt * 10 ** decimals;
+      console.log(amt, "depsoitAmtdepsoitAmt");
+      let { minDeposit, tokenAmt, allowance, usdConvt } = await getCoinAmt(
+        address,
+        amt,
+        connval
+      );
+      setTokenValue({ minDeposit, tokenAmt, allowance, usdConvt });
+
       //gasCostValues
       var gasPrice = await web3.eth.getGasPrice();
-      var marketGasCost = (gasPrice / 1e9 * usdConvt)
-      let estimateGas = 110171
-      var gasCost = (((gasPrice * estimateGas) / 1e18) * usdConvt)
-      setGasAmt({marketGasCost,gasCost})
+      var marketGasCost = (gasPrice / 1e9) * usdConvt;
+      let estimateGas = 110171;
+      console.log(
+        marketGasCost,
+        "***********************21",
+        usdConvt,
+        gasPrice
+      );
+      var gasCost = ((gasPrice * estimateGas) / 1e18) * usdConvt;
+      setGasAmt({ marketGasCost: gasPrice / 1e9, gasCost });
     } catch (err) {
-      console.log(err, "errr")
+      console.log(err, "errr");
     }
-  }
-
+  };
 
   const getAddress = async (address) => {
     try {
       const { result } = await addressCheck({ address });
-      if (isEmpty(data?.walletAddress) && result === true ||
-        !isEmpty(data?.walletAddress) && result === true) {
+      if (
+        (isEmpty(data?.walletAddress) && result === true) ||
+        (!isEmpty(data?.walletAddress) && result === true)
+      ) {
         disconnectWallet();
         localStorage.removeItem("sonoTradeToken");
         localStorage.removeItem("googlelogin");
-        toastAlert("error", "You have been logged out. Please select the correct wallet address.");
+        toastAlert(
+          "error",
+          "You have been logged out. Please select the correct wallet address."
+        );
         router.push("/");
-        window.location.href = '/'
-      } else if (!isEmpty(data?.walletAddress) && result === false ||
-        isEmpty(data?.walletAddress) && result === false) {
+        window.location.href = "/";
+      } else if (
+        (!isEmpty(data?.walletAddress) && result === false) ||
+        (isEmpty(data?.walletAddress) && result === false)
+      ) {
         return;
       }
     } catch (error) {
@@ -282,74 +300,75 @@ export default function PortfolioPage() {
     }
   };
 
-
   useEffect(() => {
     if (isConnected == true) {
-      getAddress(address)
+      getAddress(address);
     }
-  }, [isConnected])
+  }, [isConnected]);
 
   // useEffect(() => {
   //   getCoinValue()
   // }, [depsoitAmt])
 
   useEffect(() => {
-    balanceData()
-  }, [address])
+    balanceData();
+  }, [address]);
 
   var step2Click = () => {
     if (!isEmpty(currency)) {
-      setStep("2")
-      getCoinValue()
+      setStep("2");
+      getCoinValue();
     } else {
-      toastAlert("error", "Please Choose Any One")
+      toastAlert("error", "Please select a currency");
     }
-  }
+  };
 
   var step3Click = () => {
     try {
-      var depositBalance = currency == "USDT" ? tokenbalance : balance
+      var depositBalance = currency == "USDT" ? tokenbalance : balance;
       if (depositBalance > 0) {
         if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(minDeposit)) {
-          toastAlert("error", "Enter the amount must be greater than minimum deposit value",);
+          toastAlert(
+            "error",
+            "Enter the amount must be greater than minimum deposit value"
+          );
         } else if (currency == "POL" && depsoitAmt < 0.001) {
-          toastAlert("error", `Enter the amount must be greater than minimum deposit value`,);
-        }
-        else if (depsoitAmt > 0) {
-          setStep("3")
-          getCoinValue()
+          toastAlert(
+            "error",
+            `Enter the amount must be greater than minimum deposit value`
+          );
+        } else if (depsoitAmt > 0) {
+          setStep("3");
+          getCoinValue();
         }
       } else if (depositBalance <= 0) {
-        toastAlert("error", "Insufficient Balance",);
+        toastAlert("error", "Insufficient Balance");
       }
     } catch (err) {
-      console.log(err, "ererrrr")
+      console.log(err, "ererrrr");
     }
-  }
+  };
 
   const getUser = async () => {
     try {
-      console.log("userrr")
-      let { status, result, wallet } = await getUserData()
+      console.log("userrr");
+      let { status, result, wallet } = await getUserData();
       if (status) {
-        setData(result)
-        setWalletData(wallet)
+        setData(result);
+        setWalletData(wallet);
       }
     } catch (err) {
-      console.log(err, 'errr')
+      console.log(err, "errr");
     }
-  }
-
+  };
 
   const balanceChange = (value) => {
     if (currency == "USDT") {
-      setDepositAmt(tokenbalance * (value / 100))
+      setDepositAmt(tokenbalance * (value / 100));
     } else {
-      setDepositAmt(balance * (value / 100))
+      setDepositAmt(balance * (value / 100));
     }
-  }
-
-
+  };
 
   async function disconnect() {
     disconnectWallet();
@@ -357,39 +376,48 @@ export default function PortfolioPage() {
 
   async function buy() {
     try {
-      setloader(true)
+      setloader(true);
 
       if (currency == "USDT") {
-        var { status, txId, message } = await depsoitToken(address, depsoitAmt, connval);
+        var { status, txId, message } = await depsoitToken(
+          address,
+          depsoitAmt,
+          connval
+        );
         settransactionHash(txId);
         setloader(true);
         if (status) {
-          toastAlert(
-            "success",
-            "Your transaction is successfully completed",
-          );
+          toastAlert("success", "Your transaction is successfully completed");
           setDepositAmt(0);
-          setStep("")
-          setTxOpen(true)
-          await getUser()
+          setStep("");
+          setTxOpen(true);
+          const button = document.querySelector(".modal_close_brn");
+          if (button) {
+            button.click();
+          }
+          await getUser();
         } else {
           toastAlert("error", message);
         }
         setloader(false);
-
       } else if (currency == "POL") {
-        var { status, txId, message } = await depsoitCoin(address, depsoitAmt, connval);
-        settransactionHash(txId)
+        var { status, txId, message } = await depsoitCoin(
+          address,
+          depsoitAmt,
+          connval
+        );
+        settransactionHash(txId);
         setloader(true);
         if (status) {
-          toastAlert(
-            "success",
-            "Your transaction is successfully completed",
-          );
+          toastAlert("success", "Your transaction is successfully completed");
           setDepositAmt(0);
-          setStep("")
-          setTxOpen(true)
-          await getUser()
+          setStep("");
+          setTxOpen(true);
+          const button = document.querySelector(".modal_close_brn");
+          if (button) {
+            button.click();
+          }
+          await getUser();
         } else {
           toastAlert("error", message);
         }
@@ -397,13 +425,12 @@ export default function PortfolioPage() {
       }
     } catch (err) {
       setloader(false);
-
     }
   }
 
   const handlechange = async (e) => {
     let value = e.target.value;
-    setDepositAmt(e.target.value)
+    setDepositAmt(e.target.value);
     let isNum = numberFloatOnly(value);
     if (isNum) {
       setshowallowance(false);
@@ -416,7 +443,10 @@ export default function PortfolioPage() {
   async function approve() {
     setloader(true);
     try {
-      var { approvalAmt, isAllowed, error } = await approveToken(address, connval);
+      var { approvalAmt, isAllowed, error } = await approveToken(
+        address,
+        connval
+      );
       if (isAllowed) {
         if (depsoitAmt > approvalAmt) {
           toastAlert("error", "Insufficient approval amount");
@@ -429,7 +459,6 @@ export default function PortfolioPage() {
       }
       setloader(false);
     } catch (err) {
-
       setloader(false);
     }
   }
@@ -443,21 +472,21 @@ export default function PortfolioPage() {
 
   const iniDepsotClick = () => {
     if (isConnected == true) {
-      setStep("1")
-      setDepositAmt(0)
-      getCoinValue()
-      setTxOpen(false)
+      setStep("1");
+      setDepositAmt(0);
+      getCoinValue();
+      setTxOpen(false);
     } else {
-      toastAlert("error", "Connect Your Wallet")
+      toastAlert("error", "Connect Your Wallet");
     }
-  }
+  };
   useEffect(() => {
     if (isLogin() == false) {
-      window.location.href = '/'
+      window.location.href = "/";
     }
-    getUser()
-  }, [])
-  console.log(data, data?.loginType,tokenAmt, "datadatadata")
+    getUser();
+  }, []);
+  console.log(data, data?.loginType, tokenAmt, "datadatadata");
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
@@ -485,13 +514,19 @@ export default function PortfolioPage() {
             <div className="flex items-start justify-between">
               <div className="flex flex-col items-left">
                 <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
-                <span className="mt-2 text-3xl font-semibold">${walletData?.balance ? formatNumber(walletData?.balance, 4) : 0}</span>
+                <span className="mt-2 text-3xl font-semibold">
+                  $
+                  {walletData?.balance
+                    ? formatNumber(walletData?.balance, 4)
+                    : 0}
+                </span>
                 <span className="text-sm text-gray-500 mt-1">
                   <span className="text-green-500">$0.00 (0.00%)</span> Today
                 </span>
               </div>
               <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
-                ${walletData?.balance ? formatNumber(walletData?.balance, 4) : 0}
+                $
+                {walletData?.balance ? formatNumber(walletData?.balance, 4) : 0}
               </Badge>
             </div>
             <div
@@ -511,32 +546,42 @@ export default function PortfolioPage() {
                   width: "48%",
                 }}
               >
-
-                <Dialog.Root >
+                <Dialog.Root>
                   <Dialog.Trigger asChild>
-                    <Button onClick={() =>
-                      iniDepsotClick()
-                    } className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                    <Button
+                      onClick={() => iniDepsotClick()}
+                      className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full"
+                    >
                       Deposit
                     </Button>
                   </Dialog.Trigger>
-                  {isConnected == true && txopen == false &&
+                  {isConnected == true && txopen == false && (
                     <Dialog.Portal>
                       <Dialog.Overlay className="DialogOverlay" />
                       <Dialog.Content className="DialogContent">
-                        {(step == '1' || step == '2' || step == '3') && <Dialog.Title className="DialogTitle">
-                          Deposit
-                        </Dialog.Title>}
-                        {(step == '1' || step == '2' || step == '3') && <p className="text-center text-[12px] text-gray-400 mb-0">
-                          Available Balance: $ {currency === "USDT"
-                            ? `${tokenbalance} ${currency}`
-                            : `${formatNumber(balance * usdConvt, 4)} ${currency}`}
-                        </p>}
-                        {step == '1' && (
+                        {(step == "1" || step == "2" || step == "3") && (
+                          <Dialog.Title className="DialogTitle">
+                            Deposit
+                          </Dialog.Title>
+                        )}
+                        {(step == "1" || step == "2" || step == "3") && (
+                          <p className="text-center text-[12px] text-gray-400 mb-0">
+                            Available Balance: ${" "}
+                            {currency === "USDT"
+                              ? `${tokenbalance} ${currency}`
+                              : `${formatNumber(
+                                  balance * usdConvt,
+                                  4
+                                )} ${currency}`}
+                          </p>
+                        )}
+                        {step == "1" && (
                           <div className="deposit_step deposit_step1">
                             {/* Wallet Info Button */}
                             <Button className="mt-4 w-full google_btn flex-col items-start">
-                              <p className="text-[12px] text-gray-400 mb-0">Deposit from</p>
+                              <p className="text-[12px] text-gray-400 mb-0">
+                                Deposit from
+                              </p>
                               <div className="flex items-center gap-2">
                                 <Image
                                   src="/images/wallet_icon_01.png"
@@ -557,12 +602,16 @@ export default function PortfolioPage() {
 
                             <div className="wallet_coin_list">
                               <div
-                                className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDT"
-                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                  }`}
+                                className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
+                                  depositData.currency === "USDT"
+                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                }`}
                                 onClick={() =>
-                                  setDepositData((prev) => ({ ...prev, currency: "USDT" }))
+                                  setDepositData((prev) => ({
+                                    ...prev,
+                                    currency: "USDT",
+                                  }))
                                 }
                               >
                                 <div className="flex items-center gap-2">
@@ -575,22 +624,29 @@ export default function PortfolioPage() {
                                   />
                                   <div className="flex flex-col">
                                     <span className="text-[14px]">USDT</span>
-                                    <span className="text-[12px] text-gray-400">{tokenbalance} USDT</span>
+                                    <span className="text-[12px] text-gray-400">
+                                      {tokenbalance} USDT
+                                    </span>
                                   </div>
                                 </div>
-                                <span className="text-[14px]">$ {tokenbalance}</span>
+                                <span className="text-[14px]">
+                                  $ {tokenbalance}
+                                </span>
                               </div>
                             </div>
 
-
                             <div className="wallet_coin_list">
                               <div
-                                className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "POL"
-                                  ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                  : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                  }`}
+                                className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
+                                  depositData.currency === "POL"
+                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                }`}
                                 onClick={() =>
-                                  setDepositData((prev) => ({ ...prev, currency: "POL" }))
+                                  setDepositData((prev) => ({
+                                    ...prev,
+                                    currency: "POL",
+                                  }))
                                 }
                               >
                                 <div className="flex items-center gap-2">
@@ -603,25 +659,33 @@ export default function PortfolioPage() {
                                   />
                                   <div className="flex flex-col">
                                     <span className="text-[14px]">POL</span>
-                                    <span className="text-[12px] text-gray-400">{balance} POL</span>
+                                    <span className="text-[12px] text-gray-400">
+                                      {balance} POL
+                                    </span>
                                   </div>
                                 </div>
                                 <span className="text-[14px]">
-                                  {/* $9.88 */}
-                                  $ {formatNumber(balance * usdConvt, 4)}
+                                  {/* $9.88 */}${" "}
+                                  {formatNumber(balance * usdConvt, 4)}
                                 </span>
                               </div>
                             </div>
 
-                            <Button className="mt-4 w-full" onClick={() => step2Click()}>
+                            <Button
+                              className="mt-4 w-full"
+                              onClick={() => step2Click()}
+                            >
                               Continue
                             </Button>
                           </div>
                         )}
-                        {step == '2' && (
+                        {step == "2" && (
                           <div className="deposit_step deposit_step1">
                             {/* Deposit Form Step 2 */}
-                            <Button className="rounded-full p-0 h-8 w-8 absolute -top-12" onClick={() => setStep("1")}>
+                            <Button
+                              className="rounded-full p-0 h-8 w-8 absolute -top-12"
+                              onClick={() => setStep("1")}
+                            >
                               <ChevronLeftIcon />
                             </Button>
                             <input
@@ -632,30 +696,35 @@ export default function PortfolioPage() {
                               placeholder={depsoitAmt}
                             />
                             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-                              <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
-                                onClick={() => balanceChange(25)}>
+                              <Button
+                                className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                                onClick={() => balanceChange(25)}
+                              >
                                 25%
                               </Button>
-                              <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
-                                onClick={() => balanceChange(50)}>
+                              <Button
+                                className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                                onClick={() => balanceChange(50)}
+                              >
                                 50%
                               </Button>
-                              <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
-                                onClick={() => balanceChange(75)}>
+                              <Button
+                                className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                                onClick={() => balanceChange(75)}
+                              >
                                 75%
                               </Button>
-                              <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
-                                onClick={() => balanceChange(100)}>
+                              <Button
+                                className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333] text-[#efefef]"
+                                onClick={() => balanceChange(100)}
+                              >
                                 Max
                               </Button>
                             </div>
                             <p className="text-[12px] text-gray-400 text-center mt-8">
-                              {currency === "POL" ? (
-                                `${0.001} minimum deposit`
-                              ) : (
-                                `${minDeposit} ${currency} minimum deposit`
-                              )}
-
+                              {currency === "POL"
+                                ? `${0.001} minimum deposit`
+                                : `${minDeposit} ${currency} minimum deposit`}
                             </p>
                             <div
                               className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
@@ -663,7 +732,11 @@ export default function PortfolioPage() {
                             >
                               <div className="flex items-center gap-2">
                                 <Image
-                                  src={currency == "USDT" ? "/images/usdt.svg" : "/images/polygon.svg"}
+                                  src={
+                                    currency == "USDT"
+                                      ? "/images/usdt.svg"
+                                      : "/images/polygon.svg"
+                                  }
                                   alt="Icon"
                                   width={24}
                                   height={24}
@@ -673,7 +746,9 @@ export default function PortfolioPage() {
                                   <span className="text-[12px] text-gray-400">
                                     You Sent
                                   </span>
-                                  <span className="text-[14px]">{currency}</span>
+                                  <span className="text-[14px]">
+                                    {currency}
+                                  </span>
                                 </div>
                               </div>
                               <Image
@@ -698,13 +773,21 @@ export default function PortfolioPage() {
                                 </div>
                               </div>
                             </div>
-                            <Button className="mt-4 w-full" onClick={() => step3Click()}>Continue</Button>
+                            <Button
+                              className="mt-4 w-full"
+                              onClick={() => step3Click()}
+                            >
+                              Continue
+                            </Button>
                           </div>
                         )}
-                        {step == '3' && (
+                        {step == "3" && (
                           <div className="deposit_step deposit_step1">
                             {/* Deposit Form Step 3 */}
-                            <Button className="rounded-full p-0 h-8 w-8 absolute -top-12" onClick={() => setStep("2")}>
+                            <Button
+                              className="rounded-full p-0 h-8 w-8 absolute -top-12"
+                              onClick={() => setStep("2")}
+                            >
                               <ChevronLeftIcon />
                             </Button>
                             <div className="wallet_countdown_panel">
@@ -723,7 +806,7 @@ export default function PortfolioPage() {
                                 trailStrokeWidth={1.5}
                                 onComplete={() => {
                                   console.log("Timer completed!");
-                                  setStep("")
+                                  setStep("");
                                 }}
                               >
                                 {({ remainingTime }) => (
@@ -734,7 +817,8 @@ export default function PortfolioPage() {
                               </CountdownCircleTimer>
                             </div>
                             <p className="text-4xl text-[#efefef] text-center font-semibold pt-5 pb-2">
-                              {depsoitAmt ? depsoitAmt : 0} {currency ? currency : ""}
+                              {depsoitAmt ? depsoitAmt : 0}{" "}
+                              {currency ? currency : ""}
                             </p>
                             <div className="flex gap-2 items-center justify-between py-3 border-b border-[#302f2f] mt-4">
                               <span className="text-[14px] text-gray-400">
@@ -774,13 +858,18 @@ export default function PortfolioPage() {
                               </span>
                               <div className="flex gap-2 items-center">
                                 <Image
-                                  src={currency == "USDT" ? "/images/usdt.svg" : "/images/polygon.svg"}
+                                  src={
+                                    currency == "USDT"
+                                      ? "/images/usdt.svg"
+                                      : "/images/polygon.svg"
+                                  }
                                   alt="Icon"
                                   width={18}
                                   height={18}
                                 />
                                 <span className="text-[14px] text-gray-200">
-                                  {depsoitAmt ? depsoitAmt : 0} {currency ? currency : ""}
+                                  {depsoitAmt ? depsoitAmt : 0}{" "}
+                                  {currency ? currency : ""}
                                 </span>
                               </div>
                             </div>
@@ -796,7 +885,9 @@ export default function PortfolioPage() {
                                   height={18}
                                 />
                                 <span className="text-[14px] text-gray-200">
-                                  {currency == "USDT" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}
+                                  {currency == "USDT"
+                                    ? `${depsoitAmt} USDC`
+                                    : `${tokenAmt} USDC`}
                                 </span>
                               </div>
                             </div>
@@ -816,7 +907,10 @@ export default function PortfolioPage() {
                                         height={18}
                                       />
                                       <span className="text-[14px] text-gray-200">
-                                        $0.01
+                                        $
+                                        {gasAmt?.gasCost
+                                          ? formatNumber(gasAmt?.gasCost, 4)
+                                          : 0}
                                       </span>
                                       <ChevronDownIcon
                                         className="AccordionChevron"
@@ -831,49 +925,78 @@ export default function PortfolioPage() {
                                       Your gas costs
                                     </span>
                                     <span className="text-[13px] text-gray-200">
-                                      ${gasAmt?.gasCost ? formatNumber(gasAmt?.gasCost,4) : 0}
+                                      $
+                                      {gasAmt?.gasCost
+                                        ? formatNumber(gasAmt?.gasCost, 4)
+                                        : 0}
                                     </span>
                                   </div>
 
                                   <div className="flex gap-2 items-center justify-between py-1">
                                     <span className="text-[13px] text-gray-400">
-                                      Market maker gas costs
+                                      Market gas price
                                     </span>
                                     <span className="text-[13px] text-gray-200">
-                                      $ {gasAmt?.marketGasCost ? formatNumber(gasAmt?.marketGasCost,4) : 0}
+                                      {gasAmt?.marketGasCost
+                                        ? formatNumber(gasAmt?.marketGasCost, 4)
+                                        : 0}{" "}
+                                      Gwei
                                     </span>
                                   </div>
 
-                                  <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
+                                  {/* <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
                                     <span className="text-[13px] text-gray-400">
                                       LP cost
                                     </span>
                                     <span className="text-[13px] text-gray-200">
                                       $0.01
                                     </span>
-                                  </div>
+                                  </div> */}
                                 </Accordion.Content>
                               </Accordion.Item>
                             </Accordion.Root>
-                            {showallowance ?
-                              <Button className="mt-4 w-full" disabled={loader} onClick={() => approve()}>Approve {loader && <i
-                                className="fas fa-spinner fa-spin ml-2"
-                                style={{ color: "black" }}
-                              ></i>}</Button> :
-                              <Button className="mt-4 w-full" disabled={loader} onClick={() => buy()}>Confirm Order {loader && <i
-                                className="fas fa-spinner fa-spin ml-2"
-                                style={{ color: "black" }}
-                              ></i>}</Button>}
+                            {showallowance ? (
+                              <Button
+                                className="mt-4 w-full"
+                                disabled={loader}
+                                onClick={() => approve()}
+                              >
+                                Approve{" "}
+                                {loader && (
+                                  <i
+                                    className="fas fa-spinner fa-spin ml-2"
+                                    style={{ color: "black" }}
+                                  ></i>
+                                )}
+                              </Button>
+                            ) : (
+                              <Button
+                                className="mt-4 w-full"
+                                disabled={loader}
+                                onClick={() => buy()}
+                              >
+                                Confirm Order{" "}
+                                {loader && (
+                                  <i
+                                    className="fas fa-spinner fa-spin ml-2"
+                                    style={{ color: "black" }}
+                                  ></i>
+                                )}
+                              </Button>
+                            )}
                           </div>
                         )}
                         <Dialog.Close asChild>
-                          <button className="modal_close_brn" aria-label="Close">
+                          <button
+                            className="modal_close_brn"
+                            aria-label="Close"
+                          >
                             <Cross2Icon />
                           </button>
                         </Dialog.Close>
                       </Dialog.Content>
                     </Dialog.Portal>
-                  }
+                  )}
                 </Dialog.Root>
               </div>
 
@@ -943,7 +1066,6 @@ export default function PortfolioPage() {
                   </Dialog.Content>
                 </Dialog.Portal>
               </Dialog.Root>
-
 
               <div
                 className="text-[12px]"
@@ -1136,10 +1258,171 @@ export default function PortfolioPage() {
                     <td>$3.83</td>
                     <td>
                       <div className="flex items-center space-x-2">
-                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000]">
+                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000] w-[80px]">
                           Sell
                         </Button>
-                        <Button>Share</Button>
+                        <Button className="w-[80px]">Share</Button>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-2xl">
+                          <Image
+                            src="/images/album.png"
+                            alt="Icon"
+                            width={42}
+                            height={42}
+                          />
+                        </span>
+                        <div className="flex flex-col gap-1">
+                          <Link className="text-sm font-normal" href="/">
+                            Stars vs Jets
+                          </Link>
+                          <div className="flex items-center gap-2">
+                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                              Stars
+                            </Badge>
+                            <span className="text-xs font-normal">
+                              4 Shares
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>51¢</td>
+                    <td>$2.00</td>
+                    <td>
+                      $1.93 <span className="text-red-500">(-3.22%)</span>
+                    </td>
+                    <td>$3.83</td>
+                    <td>
+                      <div className="flex items-center space-x-2">
+                        <Dialog.Root>
+                          <Dialog.Trigger asChild>
+                            <Button className="bg-[#37ce37] text-[#fff] hover:text-[#000] w-[80px]">
+                              Claim
+                            </Button>
+                          </Dialog.Trigger>
+                          <Dialog.Portal>
+                            <Dialog.Overlay className="DialogOverlay" />
+                            <Dialog.Content className="DialogContent">
+                              <div className="flex justify-center mb-4 flex-col items-center">
+                                <Image
+                                  src="/images/ipl_logo.png"
+                                  alt="Icon"
+                                  width={100}
+                                  height={61}
+                                  className="mb-2"
+                                />
+                                <h4 className="font-semibold">
+                                  Redeem Chennai super kings
+                                </h4>
+                                <h6 className="text-sm text-gray-400">
+                                  Chennai Super Kings vs. Rajasthan Royals
+                                </h6>
+                                <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full flex justify-center items-center flex-col">
+                                  <h5 className="font-semibold text-gray-300 mb-3">
+                                    Receive
+                                  </h5>
+                                  <div className="flex items-center space-x-2">
+                                    <Image
+                                      src="/images/money-bag.png"
+                                      alt="Icon"
+                                      width={32}
+                                      height={32}
+                                    />
+                                    <p className="font-semibold text-[#27ae60] mb-0 text-[24px]">
+                                      $0.00
+                                    </p>
+                                  </div>
+                                </div>
+                                <Button className="bg-[#37ce37] text-[#fff] hover:text-[#000] w-full mt-5 text-[14px] font-medium">
+                                  Claim
+                                </Button>
+                              </div>
+                              <Dialog.Close asChild>
+                                <button
+                                  className="modal_close_brn"
+                                  aria-label="Close"
+                                >
+                                  <Cross2Icon />
+                                </button>
+                              </Dialog.Close>
+                            </Dialog.Content>
+                          </Dialog.Portal>
+                        </Dialog.Root>
+
+                        <Dialog.Root>
+                          <Dialog.Trigger asChild>
+                            <Button className="w-[80px]">Share</Button>
+                          </Dialog.Trigger>
+                          <Dialog.Portal>
+                            <Dialog.Overlay className="DialogOverlay" />
+                            <Dialog.Content className="DialogContent">
+                              <Dialog.Title className="DialogTitle">
+                                Shill Your Bag
+                              </Dialog.Title>
+                              <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
+                                <div className="flex gap-3 mb-4 items-center">
+                                  <Image
+                                    src="/images/ipl_logo.png"
+                                    alt="Icon"
+                                    width={60}
+                                    height={21}
+                                    className="mb-2"
+                                  />
+                                  <h4 className="font-semibold">
+                                    Chennai Super Kings vs. Rajasthan Royals
+                                  </h4>
+                                </div>
+                                <div className="flex items-center justify-between mb-4">
+                                  <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#e9f7ef] font-normal rounded">
+                                    56x Chennai Super Kings
+                                  </Badge>
+                                  <span>Avg 52¢</span>
+                                </div>
+
+                                <Separator.Root
+                                  className="SeparatorRoot"
+                                  style={{ margin: "20px 0 15px" }}
+                                />
+
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <h5 className="text-gray-400">Trade</h5>
+                                    <p className="text-[#fff] mb-0 font-medium">
+                                      $2.00
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <h5 className="text-gray-400">To win</h5>
+                                    <p className="text-[#27ae60] mb-0 font-semibold">
+                                      $3.83
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex justify-between items-center mt-4 gap-3">
+                                <Button className="w-full bg-[transparent] border border-[#2d2d2d] text-[#fff] hover:text-[#000]">
+                                  <CopyIcon className="h-4 w-4" />
+                                  <span>Copy Image</span>
+                                </Button>
+                                <Button className="w-full">Share</Button>
+                              </div>
+                              <Dialog.Close asChild>
+                                <button
+                                  className="modal_close_brn"
+                                  aria-label="Close"
+                                >
+                                  <Cross2Icon />
+                                </button>
+                              </Dialog.Close>
+                            </Dialog.Content>
+                          </Dialog.Portal>
+                        </Dialog.Root>
                       </div>
                     </td>
                   </tr>
@@ -1306,10 +1589,14 @@ export default function PortfolioPage() {
             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
               {connectors.map((connector, i) => {
                 if (
-                  connector.name == "MetaMask" || connector.name == "WalletConnect"
+                  connector.name == "MetaMask" ||
+                  connector.name == "WalletConnect"
                 ) {
                   return (
-                    <Button onClick={() => handleConnect(connector)} className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                    <Button
+                      onClick={() => handleConnect(connector)}
+                      className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]"
+                    >
                       <Image
                         src={
                           connector.name == "MetaMask"
@@ -1319,13 +1606,11 @@ export default function PortfolioPage() {
                         alt="Icon"
                         width={40}
                         height={40}
-
                       />
                     </Button>
                   );
                 }
               })}
-
             </div>
             <Dialog.Close asChild>
               <button className="modal_close_brn" aria-label="Close">
@@ -1335,6 +1620,6 @@ export default function PortfolioPage() {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
-    </div >
+    </div>
   );
 }

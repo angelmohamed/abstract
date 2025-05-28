@@ -643,6 +643,21 @@ input[type="number"]::-webkit-outer-spin-button {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.notification_dropdown_portal > div {
+  z-index: 100 !important;
+  left: -10px !important;
+}
+.notification_menu {
+  width: 440px;
+  max-height: 500px;
+  overflow-y: auto;
+  background-color: #262626;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0px 10px 38px -10px rgba(22, 23, 24, 0.35),
+    0px 10px 20px -15px rgba(22, 23, 24, 0.2);
+  animation: fadeIn 150ms ease-in-out;
+}
 
 /* Media queries */
 @media screen and (max-width: 1023px) {
