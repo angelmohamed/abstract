@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
+import { getSingleEvent } from "@/app/ApiAction/api";
 
 const chartConfig = {
   desktop: {
@@ -61,19 +62,21 @@ export function PreviewCard({
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`/api/event-data/by-id?id=${eventID}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        const data = await response.json();
-        setEvents(data);
-        setMarkets(
-          data?.markets
-            .filter((market) => market.active)
-            .sort((a, b) => b.bestAsk - a.bestAsk)
-        );
+        // const response = await fetch(`/api/event-data/by-id?id=${eventID}`, {
+        //   method: "GET",
+        //   headers: {
+        //     "Content-Type": "application/x-www-form-urlencoded",
+        //   },
+        // });
+        const response = await getSingleEvent({id: eventID});
+        // const data = await response.json();
+        if(response.status) {
+          setEvents(response.result);
+          setMarkets(
+            response.result?.marketId?.filter((market) => market.status === "active")
+              // .sort((a, b) => b.bestAsk - a.bestAsk)
+          );
+        }
         setLoadingGraph(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -156,7 +159,7 @@ export function PreviewCard({
                 className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                Yes 24.0¢
+                {markets?.[0]?.outcome?.[0]?.title || "Yes"} 24.0¢
               </Button>
             </div>
 
@@ -165,7 +168,7 @@ export function PreviewCard({
                 className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                No 76.0¢
+                {markets?.[0]?.outcome?.[1]?.title || "No"} 76.0¢
               </Button>
             </div>
 

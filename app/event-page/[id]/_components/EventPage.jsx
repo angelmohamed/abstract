@@ -2,7 +2,7 @@
 import "@/app/globals.css";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use, useContext } from "react";
 import { Loader, TrendingUp } from "lucide-react";
 import Ye from "/public/images/Ye.png";
 import {
@@ -36,11 +36,12 @@ import {
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
 import { getOrderBook, getSingleEvent } from "../../../ApiAction/api";
+import {  SocketContext, subscribe, unsubscribe } from "@/app/config/socketConnectivity";
 
 export default function EventPage() {
   const param = useParams();
   const id = param.id;
-
+  const socketContext = useContext(SocketContext)
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [markets, setMarkets] = useState([]);
@@ -54,6 +55,38 @@ export default function EventPage() {
     books[1],
   ]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      subscribe(id);
+    }
+    return () => {
+      unsubscribe(id);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    // socket
+    if (socketContext?.socket) {
+      socketContext.socket.on("orderbook", (result) => {
+        console.log('socket: result', result)
+        fetchAllBooks()
+      });      
+    }
+    // console.log(socketContext?.socket, "socketContext");
+    // socketContext?.socket?.on("orderbook", (result) => {
+    //   console.log('socket: result', result)
+    // });
+  }, [id,socketContext]);
+
+  // useEffect(() => {
+  //   socketContext.socket.emit("subscribe", "spot");
+  //   return () => {
+  //     socketContext.socket.off("orderbook");
+  //     // unsubscribe(id);
+  //     // socketContext.socket.emit("unsubscribe", "spot");
+  //   };
+  // }, []);
 
   // Get Event Data
   useEffect(() => {
@@ -69,7 +102,6 @@ export default function EventPage() {
         // const data = await response.json();
         // console.log('market Data', data);
         let response = await getSingleEvent({id:id})
-        console.log('response of singleEvent: ',response)
         if(response.status){
           let data = response.result
           setEvents(data);
@@ -87,7 +119,24 @@ export default function EventPage() {
 
     fetchEvents();
   }, [id]);
-
+  const fetchAllBooks = async () => {
+    try {
+      // const response = await fetch(`/api/event-data/books`, {
+      //   method: "Post",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(idsGroup),
+      // });
+      // setBooks(await response.json());
+      const response = await getOrderBook({ id:id})
+      if(response.result){
+        setBooks(response.result);
+      }
+    } catch (error) {
+      console.error("Error fetching PriceHistory:", error);
+    }
+  };
   // Get Books Data
   useEffect(() => {
     if (markets.length > 0) {
@@ -104,36 +153,10 @@ export default function EventPage() {
             bookLabelsTemp.push(market.groupItemTitle);
           }
         });
-
-      const fetchAllBooks = async () => {
-        const idsGroup = [];
-        ids.map((id) => {
-          return idsGroup.push({ token_id: id.yes }, { token_id: id.no });
-        });
-
-        try {
-          console.log("idsGroup: ", idsGroup);
-          const response = await fetch(`/api/event-data/books`, {
-            method: "Post",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(idsGroup),
-          });
-          setBooks(await response.json());
-          // const response = await getOrderBook({ id:"6833f3f2d89952a086170050"})
-          // if(response.status){
-          //   setBooks(response.result);
-          // }
-        } catch (error) {
-          console.error("Error fetching PriceHistory:", error);
-        }
-      };
       fetchAllBooks();
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
-console.log('books: ', books)
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -189,18 +212,14 @@ console.log('books: ', books)
                             Orderbook
                           </OrderbookAccordionTrigger>
                           <OrderbookAccordionContent
-                            orderBook={[
-                              ...books.filter(
+                            orderBook={
+                              books.find(
                                 (book) =>
-                                  book.asset_id ==
-                                  JSON?.parse(markets[0]?.clobTokenIds)[0]
-                              ),
-                              ...books.filter(
-                                (book) =>
-                                  book.asset_id ==
-                                  JSON?.parse(markets[0]?.clobTokenIds)[1]
-                              ),
-                            ]}
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}
+                            }
                             activeView={activeView}
                             setActiveView={setActiveView}
                             setSelectedOrderBookData={setSelectedOrderBookData}
@@ -222,25 +241,21 @@ console.log('books: ', books)
                                 <AccordionTrigger
                                   marketId="market-1"
                                   outcomePrice={
-                                    market.outcomePrices &&
+                                    market?.outcomePrices &&
                                     JSON.parse(market.outcomePrices)[0]
                                   }
                                   className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
                                   setSelectedOrderBookData={
                                     setSelectedOrderBookData
                                   }
-                                  orderBook={[
-                                    ...books?.filter(
+                                  orderBook={
+                                    books.find(
                                       (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[0]
-                                    ),
-                                    ...books?.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[1]
-                                    ),
-                                  ]}
+                                        book.marketId ==
+                                        // JSON?.parse(market?.clobTokenIds)[0]
+                                        market?._id
+                                    ) || {}
+                                  }
                                   setSelectedIndex={setSelectedIndex}
                                   index={index}
                                 >
@@ -257,18 +272,15 @@ console.log('books: ', books)
                                   </span>
                                 </AccordionTrigger>
                                 <OrderbookAccordionContent
-                                  orderBook={[
-                                    ...books.filter(
+                                  orderBook={
+                                    books.find(
                                       (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[0]
-                                    ),
-                                    ...books.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[1]
-                                    ),
-                                  ]}
+                                        book.marketId ==
+                                        // JSON?.parse(market?.clobTokenIds)[0]
+                                        market?._id
+                                    ) || {}
+                                  }
+                                  book={books}
                                   activeView={activeView}
                                   setActiveView={setActiveView}
                                   setSelectedOrderBookData={
@@ -317,18 +329,14 @@ console.log('books: ', books)
                       <TradingCard
                         activeView={activeView}
                         setActiveView={setActiveView}
-                        selectedOrderBookData={[
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[0]
-                          ),
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[1]
-                          ),
-                        ]}
+                        selectedOrderBookData={
+                          books.find(
+                                (book) =>
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}
+                          }
                         market={markets[selectedIndex]}
                       />
                     ) : (
@@ -336,18 +344,12 @@ console.log('books: ', books)
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          selectedOrderBookData || [
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[0]
-                            ),
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[1]
-                            ),
-                          ]
+                          selectedOrderBookData || books.find(
+                                (book) =>
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}
                         }
                         market={markets[selectedIndex]}
                       />
@@ -396,18 +398,12 @@ console.log('books: ', books)
                       <TradingCard
                         activeView={activeView}
                         setActiveView={setActiveView}
-                        selectedOrderBookData={[
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[0]
-                          ),
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[1]
-                          ),
-                        ]}
+                        selectedOrderBookData={books.find(
+                                (book) =>
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}}
                         market={markets[selectedIndex]}
                       />
                     ) : (
@@ -415,18 +411,12 @@ console.log('books: ', books)
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          selectedOrderBookData || [
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[0]
-                            ),
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[1]
-                            ),
-                          ]
+                          selectedOrderBookData || books.find(
+                                (book) =>
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}
                         }
                         market={markets[selectedIndex]}
                       />

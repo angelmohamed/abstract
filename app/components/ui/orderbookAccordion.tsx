@@ -12,6 +12,7 @@ import {
   getAccumalativeValueReverse,
   toTwoDecimal,
 } from "@/utils/helpers";
+import { useEffect, useState } from "react";
 
 interface OrderBookItem {
   price: string;
@@ -91,7 +92,8 @@ OrderbookAccordionTrigger.displayName = "AccordionTrigger";
 
 interface OrderbookAccordionContentProps 
   extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> {
-  orderBook?: [OrderBookData, OrderBookData];
+  // orderBook?: [OrderBookData, OrderBookData];
+  orderBook?: any;
   activeView: string;
   setActiveView: (value: string) => void;
   setSelectedIndex?: (index: number) => void;
@@ -118,40 +120,58 @@ const OrderbookAccordionContent = React.forwardRef<
     },
     ref
   ) => {
-    const yesAskBook = orderBook?.[0]?.asks?.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-    const yesAskBookHighest = getAccumalativeTotal(yesAskBook);
+    // const yesAskBook = orderBook?.[0]?.asks?.sort(
+    //   (a, b) => Number(b.price) - Number(a.price)
+    // );
+    // const yesAskBookHighest = getAccumalativeTotal(yesAskBook);
 
-    const yesBidBook = orderBook?.[0]?.bids?.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-    const yesBidBookHighest = getAccumalativeTotal(yesBidBook);
+    // const yesBidBook = orderBook?.[0]?.bids?.sort(
+    //   (a, b) => Number(b.price) - Number(a.price)
+    // );
+    // const yesBidBookHighest = getAccumalativeTotal(yesBidBook);
 
-    const noAskBook = orderBook?.[1]?.asks?.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-    const noAskBookHighest = getAccumalativeTotal(noAskBook);
+    // const noAskBook = orderBook?.[1]?.asks?.sort(
+    //   (a, b) => Number(b.price) - Number(a.price)
+    // );
+    // const noAskBookHighest = getAccumalativeTotal(noAskBook);
 
-    const noBidBook = orderBook?.[1]?.bids?.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-    const noBidBookHighest = getAccumalativeTotal(noBidBook);
+    // const noBidBook = orderBook?.[1]?.bids?.sort(
+    //   (a, b) => Number(b.price) - Number(a.price)
+    // );
+    // const noBidBookHighest = getAccumalativeTotal(noBidBook);
 
-    const selectedOrderBook: [OrderBookItem[] | undefined, OrderBookItem[] | undefined, number, number] =
-      activeView === "Yes"
-        ? [yesAskBook, yesBidBook, yesAskBookHighest, yesBidBookHighest]
-        : [noAskBook, noBidBook, noAskBookHighest, noBidBookHighest];
+    // const selectedOrderBook: [OrderBookItem[] | undefined, OrderBookItem[] | undefined, number, number] =
+    //   activeView === "Yes"
+    //     ? [yesAskBook, yesBidBook, yesAskBookHighest, yesBidBookHighest]
+    //     : [noAskBook, noBidBook, noAskBookHighest, noBidBookHighest];
 
+    const selectedOrderBook: [any[], any[], number, number] = [[[1,1], [1,1]], [[1,1], [1,1]], 0, 0];
     const onClickOrderBook = () => {
-      if (setSelectedOrderBookData) {
-        setSelectedOrderBookData(orderBook);
-      }
-      if (setSelectedIndex && typeof index === 'number') {
-        setSelectedIndex(index);
-      }
+      // if (setSelectedOrderBookData) {
+      //   setSelectedOrderBookData(orderBook);
+      // }
+      // if (setSelectedIndex && typeof index === 'number') {
+      //   setSelectedIndex(index);
+      // }
     };
 
+    const [bids, setBids] = useState<any[]>([]);
+    const [asks, setAsks] = useState<any[]>([]);
+
+    useEffect(() => {
+      if (activeView === "Yes") {
+        setBids(orderBook?.bids?.[0] || [])
+        setAsks(orderBook?.asks?.[0]?.map((item:any) => {
+          return [(100 - Number(item[0]))?.toString() || "0", item[1]];
+        }) || []);
+      }
+      else if (activeView === "No") {
+        setBids(orderBook?.asks?.[0] || []);
+        setAsks(orderBook?.bids?.[0]?.map((item:any) => {
+          return [(100 - Number(item[0]))?.toString() || "0", item[1]];
+        }) || []);
+      }
+    }, [activeView,orderBook]);
     return (
       <AccordionPrimitive.Content
         ref={ref}
@@ -189,7 +209,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 No
               </TabsTrigger>
             </TabsList>
-
+            {/* bids */}
             <div className="w-full border-collapse rounded-lg">
               <div className="relative">
                 <table className="w-full text-left">
@@ -208,9 +228,11 @@ const OrderbookAccordionContent = React.forwardRef<
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedOrderBook[0]?.map((row, index) => {
+                    {asks?.map((row:any, index:any) => {
                       // 确保 selectedOrderBook[0] 存在且有长度
-                      const orderBookLength = selectedOrderBook[0]?.length || 0;
+                      const orderBookLength = asks?.length || 0;
+                      // console.log()
+                      console.log(orderBookLength, "orderBookLength")
                       return (
                       <tr
                         key={index}
@@ -220,25 +242,25 @@ const OrderbookAccordionContent = React.forwardRef<
                           <FillAsk
                             value={
                               (getAccumalativeValueReverse(
-                                selectedOrderBook[0] || [],
+                                asks || [],
                                 orderBookLength - (index + 1)
                               ) /
-                                selectedOrderBook[2]) *
+                                10) *
                               100
                             }
                             className="w-full"
                           />
                         </td>
                         <td className="p-2 pl-1 ml-0 w-[40%]">
-                        {(Number(row.price) * 100).toFixed(1) + "¢"}
+                        {(Number(row[0])).toFixed(1) + "¢"}
                         </td>
-                        <td className="p-2">{Number((row.size)).toFixed(2)}</td>
+                        <td className="p-2">{Number((row[1])).toFixed(2)}</td>
 
                         <td className="p-2">
                           {"$" +
                             Number(
                               getAccumalativeValueReverse(
-                                selectedOrderBook[0] || [],
+                                asks || [],
                                 orderBookLength - (index + 1)
                               )
                             ).toFixed(2)}
@@ -257,7 +279,7 @@ const OrderbookAccordionContent = React.forwardRef<
                     Bids
                   </Badge>
                 </div>
-
+                    {/* asks */}
                 <table className="w-full text-left mt-0">
                   <thead>
                     <tr className="bg-black text-transparent">
@@ -274,7 +296,9 @@ const OrderbookAccordionContent = React.forwardRef<
                     </tr>
                   </thead>
                   <tbody>
-                    {selectedOrderBook[1]?.map((row, index) => (
+                    {bids?.map((row, index) => {
+                      const orderBookLength = bids?.length || 0;
+                      return (
                       <tr
                         key={index}
                         className="bg-black text-white hover:bg-[#0a0a0a] duration-300 ease-in-out"
@@ -283,27 +307,34 @@ const OrderbookAccordionContent = React.forwardRef<
                           <FillBid
                             value={
                               (getAccumalativeValue(
-                                selectedOrderBook[1] || [],
+                                bids || [],
                                 index
                               ) /
-                                selectedOrderBook[3]) *
+                                15) *
                               100
                             }
                             className="hover:bg-[#0a0a0a]"
                           />
                         </td>
                         <td className="p-2 pl-1 ml-0 w-[40%]">
-                        {(Number(row.price) * 100).toFixed(1) + "¢"}
+                        {(Number(row[0])).toFixed(1) + "¢"}
                         </td>
-                        <td className="p-2">{Number((row.size)).toFixed(2)}</td>
+                        <td className="p-2">{Number((row[1])).toFixed(2)}</td>
                         <td className="p-2">
+                          {/* {"$" +
+                            Number(
+                              getAccumalativeValue(bids || [], index)
+                            ).toFixed(2)} */}
                           {"$" +
                             Number(
-                              getAccumalativeValue(selectedOrderBook[1] || [], index)
+                              getAccumalativeValueReverse(
+                                bids || [],
+                                orderBookLength - (index + 1)
+                              )
                             ).toFixed(2)}
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               </div>

@@ -108,10 +108,13 @@ export default function MultiLineChart({
 
         try {
           const fetchPromises = ids.slice(0, idsLength).map(async (id) => {
-            const response = await fetch(
-              `/api/event-data/price-history?interval=${interval}&market=${id}&fidelity=30`
-            );
-            const data = await response.json();
+            // const response = await fetch(
+            //   `/api/event-data/price-history?interval=${interval}&market=${id}&fidelity=30`
+            // );
+            // const data = await response.json();
+            const data = {
+              history:[]
+            }
             return data.history;
           });
 
