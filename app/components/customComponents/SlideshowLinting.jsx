@@ -21,6 +21,7 @@ import KanyePitchfork from "@/public/images/kanyepitchfork.png";
 import Oscars from "@/public/images/oscars.png";
 import Travis from "@/public/images/concert1.png";
 import AsapTrial from "@/public/images/asaptrial.png";
+import { getEventData } from "@/app/ApiAction/api";
 
 
 export default function EventCarousel() {
@@ -51,11 +52,14 @@ export default function EventCarousel() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/event-data/all?limit=20&offset=0&tag_slug=music&closed=false`
-        );
-        const data = await response.json();
-        setEvents(data.data);
+        // const response = await fetch(
+        //   `/api/event-data/all?limit=20&offset=0&tag_slug=music&closed=false`
+        // );
+        const response = await getEventData({id:"all",limit:20,page:1})
+        // const data = await response.json();
+        if(response.status){
+          setEvents(response.result?.data || []);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -79,7 +83,7 @@ export default function EventCarousel() {
       <Carousel autoPlayInterval={8000}>
         <CarouselContent>
           {events?.map((event, index) => {
-            const mainMarket = event.markets[0];
+            const mainMarket = event.marketId?.[0] || {};
             const outcomePrices = mainMarket?.outcomePrices
               ? JSON.parse(mainMarket.outcomePrices)
               : [50, 50];
@@ -93,25 +97,25 @@ export default function EventCarousel() {
             const backgroundImage = backgroundImages[index % 3];
 
             return (
-              <CarouselItem key={event.id}>
+              <CarouselItem key={event?._id}>
               {(() => {
                 const imageIndex = index % backgroundImages.length; // Ensure it cycles through 3 images
                 const backgroundImage = backgroundImages[imageIndex]?.src || "/images/travis.png";
             
-                return event.markets.length > 1 ? (
+                return event.marketId?.length > 1 ? (
                   <ImageCardMultiple
-                    eventID={event.id}
+                    eventID={event._id}
                     backgroundImage={backgroundImage}
-                    imageSrc={event.icon}
+                    imageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     totalPool={`$${event.volume?.toLocaleString() || "0"}`}
-                    options={event.markets}
+                    options={event.marketId}
                   />
                 ) : index % 3 === 2 ? (
                   <PreviewCard
                     endDate={event.endDate}
-                    eventID={event.id}
-                    eventImageSrc={event.icon || "/images/travis.png"}
+                    eventID={event._id}
+                    eventImageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     probability={outcomePrices[0]}
                     totalPool={`$${(
@@ -129,9 +133,9 @@ export default function EventCarousel() {
                   />
                 ) : (
                   <ImageCard
-                    eventID={event.id}
+                    eventID={event._id}
                     backgroundImage={backgroundImage}
-                    eventImageSrc={event.icon || "/images/travis.png"}
+                    eventImageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     probability={outcomePrices[0]}
                     totalPool={`$${(

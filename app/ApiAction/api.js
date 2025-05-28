@@ -321,7 +321,7 @@ export const getOrderBook = async (data) => {
     try {
         let response = await axios({
             'method': 'get',
-            'url': `${baseUrl}/order/${data.id}`,
+            'url': `${baseUrl}/order/books/${data.id}`,
         })
         console.log(response, 'responseee')
         return {

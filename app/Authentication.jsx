@@ -391,7 +391,7 @@ export default function Authentication() {
       getUser();
     }
   }, []);
-  console.log(email, data, "emaillll");
+  // console.log(email, data, "emaillll");
   return (
     <>
       {isLogin() == true && (

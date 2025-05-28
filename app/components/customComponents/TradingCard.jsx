@@ -147,13 +147,15 @@ export function TradingCard({
     const response = await OrderPlace(data);
     if (response.status) {
       alert("Order placed successfully!");
+      setAmount(0);
+      setShares(0);
     }
     else {
       alert("Failed to place order. Please try again.");
     }
-    console.log("Placing order with data: ", data);
+    console.log("Placing order with data: ", market._id)
   }
-console.log('market ====> ', amount,shares)
+
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">

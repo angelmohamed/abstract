@@ -103,35 +103,41 @@ export default function MiniLineChart({
 
   useEffect(() => {
     const fetchAllPriceHistories = async () => {
-      if (market.length > 0) {
-        const yes = JSON.parse(market?.[0]?.clobTokenIds)[0];
-        const no = JSON.parse(market?.[0]?.clobTokenIds)[1];
+      if (market?.length > 0) {
+        const yes = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds)[0] : "";
+        const no = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds)[1] : "";
         try {
-          const response = await fetch(
-            `/api/event-data/price-history?interval=${interval}&market=${yes}&fidelity=${30}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
-          const data = await response.json();
+          // const response = await fetch(
+          //   `/api/event-data/price-history?interval=${interval}&market=${yes}&fidelity=${30}`,
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //   }
+          // );
+          // const data = await response.json();
+          const data = {
+            history:[]
+          }
           setChartDataYes(processSingleChartData(data.history, interval) as unknown as ChartDataItem[]);
         } catch (error) {
           console.error("Error fetching PriceHistory:", error);
         }
         try {
-          const response = await fetch(
-            `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
-          const data = await response.json();
+          // const response = await fetch(
+          //   `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //   }
+          // );
+          // const data = await response.json();
+          const data = {
+            history:[]
+          }
           setChartDataNo(processSingleChartData(data.history, interval) as unknown as ChartDataItem[]);
         } catch (error) {
           console.error("Error fetching PriceHistory:", error);

@@ -99,7 +99,7 @@ export const getAccumalativeValue = (arr, length) => {
   let arr2 = [...arr];
   let total = 0;
   for (let i = 0; i < length + 1; i++) {
-    total += Number(arr2[i]?.price) * Number(arr2[i]?.size);
+    total += Number(arr2[i]?.[0]) * Number(arr2[i]?.[1]);
   }
   return total;
 };
@@ -112,7 +112,7 @@ export const getAccumalativeValueReverse = (arr, length) => {
   arr2 = arr2.reverse();
   let total = 0;
   for (let i = 0; i <= length; i++) {
-    total += Number(arr2[i].price) * Number(arr2[i]?.size);
+    total += Number(arr2[i]?.[0]) * Number(arr2[i]?.[1]);
   }
   return total;
 };
