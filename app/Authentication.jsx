@@ -57,7 +57,7 @@ export default function Authentication() {
   const [open, setOpen] = useState(false);
   const [loader, setloader] = useState(false);
   const [otpopen, setOtpOpen] = useState(false);
-  const [userData, setUserData] = useState("");
+  const [userData, setUserData] = useState(initialValue);
   const [otpData, setOtpData] = useState(initialData);
   const [LoginHistory, setLoginHistory] = useState({});
   const [error, setError] = useState({});

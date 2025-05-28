@@ -12,7 +12,7 @@ var key = {};
     txurl: "https://testnet.bscscan.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com"
+    clientId: "787150198787150198264-7mtj9n2alrvc62h1vpqho2a01t9o9ln5.apps.googleusercontent.com"
   }
 } else {
   key = {
