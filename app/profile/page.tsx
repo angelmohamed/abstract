@@ -46,7 +46,7 @@ interface PolygonTx {
 export default function PortfolioPage() {
   const { address} = useWallet();
   const [account, setaccount] = useState(address);
-  const wallet = address?address:"";
+  const wallet: string = address?address:"";
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [currentTab, setCurrentTab] = useState("positions");

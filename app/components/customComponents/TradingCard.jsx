@@ -44,6 +44,7 @@ import {
 import { ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
 import { getUserData, OrderPlace } from "@/app/ApiAction/api";
 import isEmpty from "is-empty";
+import { toastAlert } from "@/lib/toast";
 
 export function TradingCard({
   market,
@@ -97,7 +98,7 @@ export function TradingCard({
   const sellNo = selectedOrderBookData?.asks?.[0]?.[0] || []
 
 
-  const [orderType, setOrderType] = React.useState("market");
+  const [orderType, setOrderType] = React.useState("limit");
   const [showCustomDialog, setShowCustomDialog] = React.useState(false);
   const [customDate, setCustomDate] = React.useState("");
   const [daysLeft, setDaysLeft] = React.useState(null);
@@ -204,13 +205,12 @@ export function TradingCard({
     }
     const response = await OrderPlace(data);
     if (response.status) {
-      alert("Order placed successfully!");
+      toastAlert("success", "Order placed successfully!", "order-success");
       setAmount(0);
       setShares(0);
     }
     else {
-      console.log("Error placing order: ", response);
-      alert(response.message);
+      toastAlert("error", response.message, "order-failed");
     }
     console.log("Placing order with data: ", market._id)
   }
@@ -302,15 +302,15 @@ export function TradingCard({
                   >
                     <DropdownMenu.Item
                       className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
-                      onSelect={() => setOrderType("market")}
-                    >
-                      <span>Market</span>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
                       onSelect={() => setOrderType("limit")}
                     >
                       <span>Limit</span>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
+                      onSelect={() => setOrderType("market")}
+                    >
+                      <span>Market</span>
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>
@@ -939,7 +939,7 @@ export function TradingCard({
                         <div className="pt-1 pb-1 mt-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
-                              You'll receive
+                              You&apos;ll receive
                             </span>
                             <span className="text-foreground">
                               {/* You can add logic for limit order shares */}
@@ -950,7 +950,7 @@ export function TradingCard({
                         <div className="pt-4">
                           {!isEmpty(user) ? (
                           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
-                            Place Limit Order (Unavailable)
+                            Place Limit Order
                           </Button>
                           ) : (
                               <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
@@ -1049,7 +1049,7 @@ export function TradingCard({
                         <div className="pt-4">
                           {!isEmpty(user) ? (
                           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
-                            Place Limit Order (Unavailable)
+                            Place Limit Order
                           </Button>
                           ) : (
                               <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
