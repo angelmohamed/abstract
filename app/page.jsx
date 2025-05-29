@@ -75,7 +75,7 @@ const InfoCards = () => {
 
   return (
     <div className="flex justify-center mb-8 mt-8 pt-2">
-      <div className="w-full max-w-7xl">
+      <div className="w-full">
         {/* Desktop view */}
         <div className="hidden md:grid md:grid-cols-4 gap-4">
           {cards.map((card, index) => (
@@ -143,7 +143,7 @@ export default function Home() {
 
         <div>
           <div className="flex justify-center pb-5 sm:pt-4 pt-0 items-center">
-            <div className="w-full max-w-7xl">
+            <div className="w-full">
               {/* Category selection buttons */}
               <div className="flex justify-center gap-2 sm:gap-4">
                 {" "}
@@ -220,7 +220,7 @@ export default function Home() {
 
         {/* Event Cards Section */}
         <div className="flex pb-6 justify-center w-full">
-          <div className="w-full max-w-7xl px-4">
+          <div className="w-full">
             <EventLinting
               selectCategory={selectCategory}
               showClosed={showClosed}

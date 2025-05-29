@@ -88,7 +88,7 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
         <Loader className="w-26 h-26 absolute animate-spin bg-blend-overlay" />
       )}
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
         {events &&
           events.length > 0 &&
           events.map((event) => (
