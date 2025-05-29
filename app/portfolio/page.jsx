@@ -398,6 +398,10 @@ export default function PortfolioPage() {
           await getUser();
         } else {
           toastAlert("error", message);
+          const button = document.querySelector(".modal_close_brn");
+          if (button) {
+            button.click();
+          }
         }
         setloader(false);
       } else if (currency == "POL") {
@@ -420,6 +424,10 @@ export default function PortfolioPage() {
           await getUser();
         } else {
           toastAlert("error", message);
+          const button = document.querySelector(".modal_close_brn");
+          if (button) {
+            button.click();
+          }
         }
         setloader(false);
       }
@@ -475,6 +483,7 @@ export default function PortfolioPage() {
       setStep("1");
       setDepositAmt(0);
       getCoinValue();
+      balanceData()
       setTxOpen(false);
     } else {
       toastAlert("error", "Connect Your Wallet");
@@ -807,6 +816,10 @@ export default function PortfolioPage() {
                                 onComplete={() => {
                                   console.log("Timer completed!");
                                   setStep("");
+                                  const button = document.querySelector(".modal_close_brn");
+                                  if (button) {
+                                    button.click();
+                                  }
                                 }}
                               >
                                 {({ remainingTime }) => (
