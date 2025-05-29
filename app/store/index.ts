@@ -30,7 +30,7 @@ const persistConfig = {
 
 const store: any = configureStore({
   reducer: persistReducer(persistConfig, rootReducer()),
-  middleware: (getDefaultMiddleware) =>
+  middleware: (getDefaultMiddleware: any) =>
     getDefaultMiddleware({
       immutableCheck: false,
       serializableCheck: {
