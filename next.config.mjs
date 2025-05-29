@@ -19,6 +19,10 @@ const nextConfig = {
         hostname: "localhost",  // Add this line
         port: "3001",
       },
+      {
+        protocol:"https",
+        hostname: "sonotradesdemo.wearedev.team",
+      }
     ],
   },
 };

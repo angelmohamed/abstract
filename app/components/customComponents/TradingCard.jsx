@@ -205,8 +205,8 @@ export function TradingCard({
     const response = await OrderPlace(data);
     if (response.status) {
       alert("Order placed successfully!");
-      // setAmount(0);
-      // setShares(0);
+      setAmount(0);
+      setShares(0);
     }
     else {
       console.log("Error placing order: ", response);
@@ -331,16 +331,16 @@ export function TradingCard({
                       value="Yes"
                     >
                       {buyYes?.length > 0
-                        ? `Yes   ${100 - buyYes?.[0]}¢`
-                        : "Yes"}
+                        ? `${market?.outcome?.[0]?.title || "Yes"}   ${100 - buyYes?.[0]}¢`
+                        : `${market?.outcome?.[0]?.title || "Yes"}`}
                     </OptionsTrigger>
                     <OptionsTrigger
                       className="hover:bg-[#282828] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:bg-[#321b29]"
                       value="No"
                     >
                       {buyNo?.length > 0
-                        ? `No   ${100 - buyNo?.[0]}¢`
-                        : "No"}
+                        ? `${market?.outcome?.[1]?.title || "No"}   ${100 - buyNo?.[0]}¢`
+                        : `${market?.outcome?.[1]?.title || "No"}`}
                     </OptionsTrigger>
                   </OptionsList>
 
@@ -734,16 +734,16 @@ export function TradingCard({
                       value={"Yes"}
                     >
                       {sellYes?.length > 0
-                        ? `Yes   ${sellYes?.[0]}¢`
-                        : "Yes"}
+                        ? `${market?.outcome?.[0]?.title || "Yes"}   ${sellYes?.[0]}¢`
+                        : `${market?.outcome?.[0]?.title || "Yes"}`}
                     </OptionsTrigger>
                     <OptionsTrigger
                       className="hover:bg-[#282828] data-[state=active]:bg-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:border-[#321b29]"
                       value={"No"}
                     >
                       {sellNo?.length > 0
-                        ? `No   ${sellNo?.[0]}¢`
-                        : "No"}
+                        ? `${market?.outcome?.[1]?.title || "No"}   ${sellNo?.[0]}¢`
+                        : `${market?.outcome?.[1]?.title || "No"}`}
                     </OptionsTrigger>
                   </OptionsList>
                   {/* MARKET ORDER CONTENT */}

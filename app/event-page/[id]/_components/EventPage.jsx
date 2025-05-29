@@ -344,7 +344,7 @@ export default function EventPage() {
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          selectedOrderBookData || books.find(
+                          books.find(
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
