@@ -190,7 +190,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 className={cn(
                   "flex-1 p-2 transition-colors duration-300",
                   activeView === "Yes"
-                    ? "bg-transparent text-[#7DFDFE]"
+                    ? "bg-transparent text-[#27ae60]"
                     : "bg-transparent text-white hover:bg-transparent"
                 )}
               >

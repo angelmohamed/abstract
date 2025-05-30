@@ -18,7 +18,7 @@ const FillAsk = React.forwardRef<
     className={cn("relative h-10 w-full overflow-hidden bg-transparent", className)} // Changed bg-secondary to bg-pink-500
     {...props}>
     <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-[#240000] transition-all" // Changed bg-primary to bg-[#7DFDFE]
+      className="h-full w-full flex-1 bg-[#240000] transition-all" // Changed bg-primary to bg-[#27ae60]
       style={{ transform: `translateX(-${100 - (value ? Number(value) : 0)}%)` }} />
   </ProgressPrimitive.Root>
 ))

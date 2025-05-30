@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { decimalToPercentage, toTwoDecimal } from "@/utils/helpers";
+import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
 
 interface EventCardProps {
   imageSrc: string;
@@ -44,7 +45,7 @@ const EventCard: React.FC<EventCardProps> = ({
   noButtonLabel = "No 76.0¢",
   yesPotential,
   noPotential,
-  yesColor = "#7dfdfe",
+  yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
@@ -53,6 +54,7 @@ const EventCard: React.FC<EventCardProps> = ({
   id,
 }) => {
   const router = useRouter();
+  const [bookmarked, setBookmarked] = React.useState(false);
 
   const handleYesClick = () => {
     if (onYesClick) {
@@ -68,6 +70,11 @@ const EventCard: React.FC<EventCardProps> = ({
     } else {
       router.push("/eventPage");
     }
+  };
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookmarked((prev) => !prev);
   };
 
   return (
@@ -138,7 +145,7 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             <Button
               onClick={handleYesClick}
-              className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] transition-colors duration-300 rounded-full uppercase"
+              className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] transition-colors duration-300 rounded-full uppercase"
             >
               {yesButtonLabel}
             </Button>
@@ -156,7 +163,7 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             <Button
               onClick={handleNoClick}
-              className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] transition-colors duration-300 rounded-full uppercase"
+              className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] transition-colors duration-300 rounded-full uppercase"
             >
               {noButtonLabel}
             </Button>
@@ -171,6 +178,7 @@ const EventCard: React.FC<EventCardProps> = ({
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
+            position: "relative",
           }}
         >
           <span
@@ -183,6 +191,13 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
           </span>
+          <Button
+            className="p-1 h-6 w-6  z-10 rounded"
+            variant="ghost"
+            onClick={handleBookmarkClick}
+          >
+            {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
+          </Button>
         </div>
       </CardFooter>
     </Card>

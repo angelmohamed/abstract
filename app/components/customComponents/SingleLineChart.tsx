@@ -88,7 +88,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     asset1: {
       label: "Yes",
-      color: "#7DFDFE",
+      color: "#27ae60",
     },
   });
 
@@ -120,11 +120,11 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
     if (selectedYes) {
       setChartData(chartDataYes);
       setChartConfig({
-        asset1: { label: "Yes", color: "#7DFDFE" },
+        asset1: { label: "Yes", color: "#27ae60" },
       });
     } else {
       setChartData(chartDataNo);
-      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
+      setChartConfig({ asset1: { label: "No", color: "#e64800" } });
     }
   }, [selectedYes, chartDataYes, chartDataNo]);
 
@@ -183,7 +183,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
       : chance !== undefined
       ? 1 - chance
       : undefined;
-  const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
+  const chanceColor = selectedYes ? "#27ae60" : "#e64800";
   const [activeDate, setActiveDate] = useState("Jun 18");
   return (
     <Card
@@ -349,7 +349,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                       type="natural"
                       dataKey={asset}
                       name={chartConfig[asset].label}
-                      stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
+                      stroke={selectedYes ? "#27ae60" : "#e64800"}
                       strokeWidth={2}
                       dot={false}
                       label={false}
