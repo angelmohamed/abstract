@@ -41,48 +41,50 @@ export const chartPerformance = [
   },
 ];
 
-export const navigationItems = [
-  {
-    title: 'Politics',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Sports',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Crypto',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Tech',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Culture',
-    subItems: chartPerformance
-  },
-  {
-    title: 'World',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Economy',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Trump',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Elections',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Mentions',
-    subItems: chartPerformance
-  },
-];
+// export const navigationItems = [
+//   {
+//     title: 'Politics',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Sports',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Crypto',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Tech',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Culture',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'World',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Economy',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Trump',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Elections',
+//     subItems: chartPerformance
+//   },
+//   {
+//     title: 'Mentions',
+//     subItems: chartPerformance
+//   },
+// ];
+
+export const navigationItems = []
 
 export const infoCards = [
   {

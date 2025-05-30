@@ -308,10 +308,11 @@ export const OrderPlace = async (data) => {
         }
     }
     catch (err) {
+        console.log(err?.response?.data, 'error in OrderPlace')
         return {
             status: false,
             errors: {},
-            message: "Failed to register",
+            message: err?.response?.data?.message || "Failed to place order",
             authToken: null,
         }
     }

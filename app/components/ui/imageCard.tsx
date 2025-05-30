@@ -106,7 +106,7 @@ export function ImageCard({
 
       {/* Centered EventCard */}
       <div style={{ cursor: "pointer" }}
-          onClick={handleCardClick} className="absolute top-1/2 left-1/2 transform max-w-[350px] -translate-x-1/2 -translate-y-1/2 z-10">
+          onClick={handleCardClick} className="absolute top-1/2 left-1/2 transform max-w-[350px] w-full -translate-x-1/2 -translate-y-1/2 z-10">
         <EventCard
           imageSrc={eventImageSrc}
           question={question}

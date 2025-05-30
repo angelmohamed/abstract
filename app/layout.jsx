@@ -8,7 +8,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 // import { Provider } from "react-redux"
 // import { PersistGate } from "redux-persist/integration/react"
 // import store, { persistor } from "./store"
-
+import { ToastContainer } from "react-toastify";
 
 
 const geistSans = localFont({
@@ -58,6 +58,7 @@ export default function RootLayout({ children }) {
           </WalletProvider>
           </SnackbarClient>
         <Footer />
+        <ToastContainer />
         {/* </PersistGate> */}
       {/* </Provider> */}
       </body>

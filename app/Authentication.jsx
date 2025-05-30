@@ -485,6 +485,7 @@ export default function Authentication() {
                 ) {
                   return (
                     <Button
+                      key={i}
                       onClick={() => handleConnect(connector)}
                       className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]"
                     >

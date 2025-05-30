@@ -334,7 +334,7 @@ export default function EventPage() {
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[0]?._id
+                                  markets[selectedIndex]?._id
                               ) || {}
                           }
                         market={markets[selectedIndex]}
@@ -344,11 +344,11 @@ export default function EventPage() {
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          selectedOrderBookData || books.find(
+                          books.find(
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[0]?._id
+                                  markets[selectedIndex]?._id
                               ) || {}
                         }
                         market={markets[selectedIndex]}
@@ -402,7 +402,7 @@ export default function EventPage() {
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[0]?._id
+                                  markets[selectedIndex]?._id
                               ) || {}}
                         market={markets[selectedIndex]}
                       />
@@ -415,7 +415,7 @@ export default function EventPage() {
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[0]?._id
+                                  markets[selectedIndex]?._id
                               ) || {}
                         }
                         market={markets[selectedIndex]}

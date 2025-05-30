@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Ye from "/public/images/Ye.png";
 import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
@@ -42,7 +42,9 @@ import {
   toTwoDecimal,
 } from "@/utils/helpers";
 import { ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { OrderPlace } from "@/app/ApiAction/api";
+import { getUserData, OrderPlace } from "@/app/ApiAction/api";
+import isEmpty from "is-empty";
+import { toastAlert } from "@/lib/toast";
 
 export function TradingCard({
   market,
@@ -52,6 +54,7 @@ export function TradingCard({
 }) {
   const [amount, setAmount] = React.useState(0);
   const [shares, setShares] = React.useState(0);
+  const [errors, setErrors] = React.useState({});
   const sortedYesAsks =
     selectedOrderBookData &&
     selectedOrderBookData[0] &&
@@ -84,36 +87,65 @@ export function TradingCard({
     setActiveView(value);
   };
 
-  const buyYes = buyFunction(selectedOrderBookData?.[0]?.asks, amount);
-  const buyNo = buyFunction(selectedOrderBookData?.[1]?.asks, amount);
-  const sellYes = sellFunction(selectedOrderBookData?.[0]?.bids, shares);
-  const sellNo = sellFunction(selectedOrderBookData?.[1]?.bids, shares);
+  // const buyYes = buyFunction(selectedOrderBookData?.[0]?.asks, amount);
+  // const buyNo = buyFunction(selectedOrderBookData?.[1]?.asks, amount);
+  // const sellYes = sellFunction(selectedOrderBookData?.[0]?.bids, shares);
+  // const sellNo = sellFunction(selectedOrderBookData?.[1]?.bids, shares);
 
-  const [orderType, setOrderType] = React.useState("market");
+  const buyYes = selectedOrderBookData?.asks?.[0]?.reverse()?.[0] || []
+  const buyNo = selectedOrderBookData?.bids?.[0]?.reverse()?.[0] || []
+  const sellYes = selectedOrderBookData?.bids?.[0]?.[0] || []
+  const sellNo = selectedOrderBookData?.asks?.[0]?.[0] || []
+
+
+  const [orderType, setOrderType] = React.useState("limit");
   const [showCustomDialog, setShowCustomDialog] = React.useState(false);
   const [customDate, setCustomDate] = React.useState("");
   const [daysLeft, setDaysLeft] = React.useState(null);
   const [startDate, setStartDate] = React.useState(
     setHours(setMinutes(new Date(), 30), 17)
   );
+  const [tab,setTab] = React.useState("buy");
+  const [user,setUser] = React.useState({})
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
     if (value < 100) {
       setAmount(value);
-    }else {
+    } else if (value < 0){ 
+      setAmount(0)
+    }
+    else {
       console.log("Invalid amount entered. Please enter a number between 0 and 100.");
     }
   }
 
   const handleSharesChange = (operation) =>{
+    let balance = 10000
     if(operation === "+"){
-      setShares((prev)=>prev+10)
+      setShares((prev)=>Number(prev)+10)
     }else if(operation === '-'){
       if((shares - 10)>0){
-        setShares(prev => prev-10)
+        setShares(prev => Number(prev)-10)
       }else{
         setShares(0)
+      }
+    }else if(operation == "25%"){
+      setShares(Math.floor(balance * 25 / 100))
+    } else if(operation == "50%"){
+      setShares(Math.floor(balance * 50 / 100))
+    } else if(operation == "max"){
+      setShares(Math.floor(balance * 100 / 100))
+    }
+  }
+  const handleAmountChangeUsingButton = (operation) =>{
+    if(operation === "+"){
+      setAmount((prev)=>Number(prev)+1)
+    }else if(operation === '-'){
+      if((amount - 1)>0){
+        setAmount(prev => Number(prev)-1)
+      }else{
+        setAmount(0)
       }
     }
   }
@@ -129,10 +161,37 @@ export function TradingCard({
       setDaysLeft(null);
     }
   }, [customDate]);
+  const limitOrderValidation = () => {
+    let errors = {};
+    if (!amount) {
+      errors.amount = "Amount field is required";
+    }
+    if (amount <= 0) {
+      errors.amount = "Amount must be greater than 0";
+    }
+    if (!shares) {
+      errors.shares = "Shares field is required";
+    }
+    if (shares <= 0) {
+      errors.shares = "Shares must be greater than 0";
+    }
+    // if (customDate && customDate <= new Date()) {
+    //   errors.customDate = "Custom date must be in the future";
+    // }
+    setErrors(errors);
+    return Object.keys(errors).length > 0 ? false : true;
+  };
 
   const handlePlaceOrder = async(action) => {
-    let userId = "68315926f0827fa7c35ee40a";
+    if (orderType === "limit" && !limitOrderValidation()) {
+      console.log("Validation failed", errors);
+      return;
+    }
+    let userId = user?._id;
     let activeTab = activeView?.toLowerCase()
+    // if(action == "sell"){
+    //   return
+    // }
     let data ={
       price: action === "sell" ? 100 - amount : amount,
       side: action === "buy" ? activeTab : activeTab === "yes" ? "no" : "yes",
@@ -146,23 +205,43 @@ export function TradingCard({
     }
     const response = await OrderPlace(data);
     if (response.status) {
-      alert("Order placed successfully!");
+      toastAlert("success", "Order placed successfully!", "order-success");
       setAmount(0);
       setShares(0);
     }
     else {
-      alert("Failed to place order. Please try again.");
+      toastAlert("error", response.message, "order-failed");
     }
     console.log("Placing order with data: ", market._id)
   }
 
+  useEffect(() => {
+    setAmount(0);
+    setShares(0);
+    setErrors({});
+  },[activeView,orderType,tab])
+
+  const getUserInfo = async () => {
+    try {
+      let {status,result} = await getUserData()
+      if(status){
+        setUser(result)
+      }
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+    }
+  }
+
+  useEffect(() => {
+    getUserInfo()
+  }, []);
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
         <CardHeader className="pb-3">
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <div
+              {/* <div
                 style={{
                   width: "55px",
                   height: "55px",
@@ -178,7 +257,7 @@ export function TradingCard({
                   height={55}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
-              </div>
+              </div> */}
               <div
                 className="text-[16px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
@@ -200,7 +279,7 @@ export function TradingCard({
         </CardHeader>
 
         <CardContent>
-          <Tabs defaultValue="buy" className="w-full">
+          <Tabs defaultValue="buy" className="w-full" value = {tab} onValueChange={setTab}>
             <div className="flex justify-between gap-3">
               <TabsList className="grid grid-cols-2">
                 <TabsTrigger value="buy">Buy</TabsTrigger>
@@ -223,15 +302,15 @@ export function TradingCard({
                   >
                     <DropdownMenu.Item
                       className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
-                      onSelect={() => setOrderType("market")}
-                    >
-                      <span>Market</span>
-                    </DropdownMenu.Item>
-                    <DropdownMenu.Item
-                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
                       onSelect={() => setOrderType("limit")}
                     >
                       <span>Limit</span>
+                    </DropdownMenu.Item>
+                    <DropdownMenu.Item
+                      className="text-[14px] p-2 cursor-pointer hover:bg-[#100f0f]"
+                      onSelect={() => setOrderType("market")}
+                    >
+                      <span>Market</span>
                     </DropdownMenu.Item>
                   </DropdownMenu.Content>
                 </DropdownMenu.Portal>
@@ -239,7 +318,7 @@ export function TradingCard({
             </div>
             <TabsContent value="buy">
               <div className="pt-4">
-                <h1 className="pb-2">Pick side ⓘ</h1>
+                {/* <h1 className="pb-2">Pick side ⓘ</h1> */}
                 <Options
                   defaultValue={activeView}
                   value={activeView}
@@ -251,17 +330,17 @@ export function TradingCard({
                       className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
                       value="Yes"
                     >
-                      {lowestAskYes
-                        ? `Yes   ${Number(lowestAskYes * 100).toFixed(1)}¢`
-                        : "Yes"}
+                      {buyYes?.length > 0
+                        ? `${market?.outcome?.[0]?.title || "Yes"}   ${100 - buyYes?.[0]}¢`
+                        : `${market?.outcome?.[0]?.title || "Yes"}`}
                     </OptionsTrigger>
                     <OptionsTrigger
                       className="hover:bg-[#282828] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:bg-[#321b29]"
                       value="No"
                     >
-                      {lowestAskNo
-                        ? `No   ${Number(lowestAskNo * 100).toFixed(1)}¢`
-                        : "No"}
+                      {buyNo?.length > 0
+                        ? `${market?.outcome?.[1]?.title || "No"}   ${100 - buyNo?.[0]}¢`
+                        : `${market?.outcome?.[1]?.title || "No"}`}
                     </OptionsTrigger>
                   </OptionsList>
 
@@ -314,7 +393,7 @@ export function TradingCard({
                               Average price
                             </span>
                             <span className="text-foreground">
-                              {Number(buyYes?.averagePrice * 100).toFixed(1) ||
+                              {Number(buyYes?.[0]).toFixed(1) ||
                                 0}
                               ¢
                             </span>{" "}
@@ -442,7 +521,7 @@ export function TradingCard({
                             </p>
                           </div>
                           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('-')}>
                               -
                             </span>
                             <Input
@@ -454,11 +533,12 @@ export function TradingCard({
                               onChange={handleAmountChange}
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('+')}>
                               +
                             </span>
                           </div>
                         </div>
+                        <span className="text-red-500">{errors?.amount}</span>
 
                         <div className="flex justify-between mt-3">
                           <div className="flex flex-col">
@@ -479,12 +559,12 @@ export function TradingCard({
                             />
                           </div>
                         </div>
-
+                        <span className="text-red-500">{errors?.shares}</span>
                         <div className="flex gap-2 pt-2 justify-end">
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('-')}>
                             -$10
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('+')}>
                             +$10
                           </Button>
                         </div>
@@ -545,9 +625,16 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
-                            Place Limit Order (Unavailable)
-                          </Button>
+                          {!isEmpty(user) ? (
+                            <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
+                              Place Limit Order
+                            </Button>
+                            ) : (
+                              <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                                Login to Place Order
+                              </Button>
+                            )
+                          }
                         </div>
                       </OptionsContent>
                       <OptionsContent value="No">
@@ -568,7 +655,7 @@ export function TradingCard({
                             </p>
                           </div>
                           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('-')}>
                               -
                             </span>
                             <Input
@@ -580,11 +667,12 @@ export function TradingCard({
                               onChange={handleAmountChange}
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('+')}>
                               +
                             </span>
                           </div>
                         </div>
+                        <span className="text-red-500">{errors?.amount}</span>
                         <div className="flex justify-between mt-3">
                           <div className="flex flex-col">
                             <span className="text-[#fff] text-[16px]">
@@ -604,18 +692,26 @@ export function TradingCard({
                             />
                           </div>
                         </div>
+                        <span className="text-red-500">{errors?.shares}</span>
                         <div className="flex gap-2 pt-2 justify-end">
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('-')}>
                             -$10
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('+')}>
                             +$10
                           </Button>
                         </div>
                         <div className="pt-4">
-                          <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
-                            Place Limit Order (Unavailable)
-                          </Button>
+                          {!isEmpty(user) ? (
+                              <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('buy')}>
+                                Place Limit Order
+                              </Button>
+                            ) : (
+                              <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                                Login to Place Order
+                              </Button>
+                            )
+                          }
                         </div>
                       </OptionsContent>
                     </>
@@ -625,7 +721,7 @@ export function TradingCard({
             </TabsContent>
             <TabsContent value="sell">
               <div className="pt-4">
-                <h1 className="pb-2">Your position ⓘ</h1>
+                {/* <h1 className="pb-2">Your position ⓘ</h1> */}
                 <Options
                   defaultValue={activeView}
                   value={activeView}
@@ -637,17 +733,17 @@ export function TradingCard({
                       className="data-[state=active]:text-[#7DFDFE] border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7DFDFE] data-[state=active]:border-[#152632]"
                       value={"Yes"}
                     >
-                      {lowestBidYes
-                        ? `Yes   ${Number(lowestBidYes * 100).toFixed(1)}¢`
-                        : "Yes"}
+                      {sellYes?.length > 0
+                        ? `${market?.outcome?.[0]?.title || "Yes"}   ${sellYes?.[0]}¢`
+                        : `${market?.outcome?.[0]?.title || "Yes"}`}
                     </OptionsTrigger>
                     <OptionsTrigger
                       className="hover:bg-[#282828] data-[state=active]:bg-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:border-[#321b29]"
                       value={"No"}
                     >
-                      {lowestBidNo
-                        ? `No   ${Number(lowestBidNo * 100).toFixed(1)}¢`
-                        : "No"}
+                      {sellNo?.length > 0
+                        ? `${market?.outcome?.[1]?.title || "No"}   ${sellNo?.[0]}¢`
+                        : `${market?.outcome?.[1]?.title || "No"}`}
                     </OptionsTrigger>
                   </OptionsList>
                   {/* MARKET ORDER CONTENT */}
@@ -758,7 +854,7 @@ export function TradingCard({
                             </p>
                           </div>
                           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('-')}>
                               -
                             </span>
                             <Input
@@ -770,11 +866,12 @@ export function TradingCard({
                               placeholder="0 ¢"
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('+')}>
                               +
                             </span>
                           </div>
                         </div>
+                        <span className="text-red-500">{errors?.amount}</span>
 
                         <div className="flex justify-between mt-3">
                           <div className="flex flex-col">
@@ -792,15 +889,15 @@ export function TradingCard({
                             />
                           </div>
                         </div>
-
+                        <span className="text-red-500">{errors?.shares}</span>
                         <div className="flex gap-2 pt-2 justify-end">
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('25%')}>
                             25%
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('50%')}>
                             50%
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('max')}>
                             Max
                           </Button>
                         </div>
@@ -842,7 +939,7 @@ export function TradingCard({
                         <div className="pt-1 pb-1 mt-2">
                           <div className="flex justify-between text-sm">
                             <span className="text-muted-foreground">
-                              You'll receive
+                              You&apos;ll receive
                             </span>
                             <span className="text-foreground">
                               {/* You can add logic for limit order shares */}
@@ -851,9 +948,16 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
+                          {!isEmpty(user) ? (
                           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
-                            Place Limit Order (Unavailable)
+                            Place Limit Order
                           </Button>
+                          ) : (
+                              <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                                Login to Place Order
+                              </Button>
+                            )
+                          }
                         </div>
                       </OptionsContent>
                       <OptionsContent value="No">
@@ -874,7 +978,7 @@ export function TradingCard({
                             </p>
                           </div>
                           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('-')}>
                               -
                             </span>
                             <Input
@@ -886,11 +990,12 @@ export function TradingCard({
                               onChange={handleAmountChange}
                               className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
                             />
-                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]">
+                            <span className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]" onClick={()=>handleAmountChangeUsingButton('+')}>
                               +
                             </span>
                           </div>
                         </div>
+                        <span className="text-red-500">{errors?.amount}</span>
                         {/* <div className="pt-4 space-y-2 pb-2">
                           <div className="flex justify-between text-sm pt-2">
                             <span className="text-muted-foreground">
@@ -929,22 +1034,29 @@ export function TradingCard({
                             />
                           </div>
                         </div>
-
+                        <span className="text-red-500">{errors?.shares}</span>
                         <div className="flex gap-2 pt-2 justify-end">
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('25%')}>
                             25%
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('50%')}>
                             50%
                           </Button>
-                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+                          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={()=>handleSharesChange('max')}>
                             Max
                           </Button>
                         </div>
                         <div className="pt-4">
+                          {!isEmpty(user) ? (
                           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" onClick={()=>handlePlaceOrder('sell')}>
-                            Place Limit Order (Unavailable)
+                            Place Limit Order
                           </Button>
+                          ) : (
+                              <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
+                                Login to Place Order
+                              </Button>
+                            )
+                          }
                         </div>
                       </OptionsContent>
                     </>

@@ -161,15 +161,17 @@ const OrderbookAccordionContent = React.forwardRef<
     useEffect(() => {
       if (activeView === "Yes") {
         setBids(orderBook?.bids?.[0] || [])
-        setAsks(orderBook?.asks?.[0]?.map((item:any) => {
+        let asks = orderBook?.asks?.[0]?.map((item:any) => {
           return [(100 - Number(item[0]))?.toString() || "0", item[1]];
-        }) || []);
+        }) || []
+        setAsks(asks ? asks.reverse() : []);
       }
       else if (activeView === "No") {
         setBids(orderBook?.asks?.[0] || []);
-        setAsks(orderBook?.bids?.[0]?.map((item:any) => {
+        let asks = orderBook?.bids?.[0]?.map((item:any) => {
           return [(100 - Number(item[0]))?.toString() || "0", item[1]];
-        }) || []);
+        }) || []
+        setAsks(asks ? asks.reverse() : []);
       }
     }, [activeView,orderBook]);
     return (
@@ -228,46 +230,55 @@ const OrderbookAccordionContent = React.forwardRef<
                     </tr>
                   </thead>
                   <tbody>
-                    {asks?.map((row:any, index:any) => {
-                      // 确保 selectedOrderBook[0] 存在且有长度
-                      const orderBookLength = asks?.length || 0;
-                      // console.log()
-                      console.log(orderBookLength, "orderBookLength")
-                      return (
-                      <tr
-                        key={index}
-                        className="duration-300 ease-in-out bg-black text-white hover:bg-[#0a0a0a]"
-                      >
-                        <td className="p-0 pr-0 mr-0 w-[60%]">
-                          <FillAsk
-                            value={
-                              (getAccumalativeValueReverse(
-                                asks || [],
-                                orderBookLength - (index + 1)
-                              ) /
-                                10) *
-                              100
-                            }
-                            className="w-full"
-                          />
-                        </td>
-                        <td className="p-2 pl-1 ml-0 w-[40%]">
-                        {(Number(row[0])).toFixed(1) + "¢"}
-                        </td>
-                        <td className="p-2">{Number((row[1])).toFixed(2)}</td>
+                    {asks?.length > 0 ? (
+                      asks?.map((row:any, index:any) => {
+                        // 确保 selectedOrderBook[0] 存在且有长度
+                        const orderBookLength = asks?.length || 0;
+                        // console.log()
+                        console.log(orderBookLength, "orderBookLength")
+                        return (
+                        <tr
+                          key={index}
+                          className="duration-300 ease-in-out bg-black text-white hover:bg-[#0a0a0a]"
+                        >
+                          <td className="p-0 pr-0 mr-0 w-[60%]">
+                            <FillAsk
+                              value={
+                                (getAccumalativeValueReverse(
+                                  asks || [],
+                                  orderBookLength - (index + 1)
+                                ) /
+                                  100) *
+                                100
+                              }
+                              className="w-full"
+                            />
+                          </td>
+                          <td className="p-2 pl-1 ml-0 w-[40%]">
+                          {(Number(row[0])).toFixed(1) + "¢"}
+                          </td>
+                          <td className="p-2">{Number((row[1])).toFixed(2)}</td>
 
-                        <td className="p-2">
-                          {"$" +
-                            Number(
-                              getAccumalativeValueReverse(
-                                asks || [],
-                                orderBookLength - (index + 1)
-                              )
-                            ).toFixed(2)}
-                        </td>
-                      </tr>
-                      );
-                    })}
+                          <td className="p-2">
+                            {"$" +
+                              Number(
+                                getAccumalativeValueReverse(
+                                  asks || [],
+                                  orderBookLength - (index + 1)
+                                ) / 100
+                              ).toFixed(2)}
+                          </td>
+                        </tr>
+                        );
+                      })
+                      ) : (
+                        <tr className="bg-black text-white">
+                          <td colSpan={4} className="p-2 text-center">
+                            No contracts available
+                          </td>
+                        </tr>
+                      )
+                    }
                   </tbody>
                 </table>
 
@@ -296,45 +307,54 @@ const OrderbookAccordionContent = React.forwardRef<
                     </tr>
                   </thead>
                   <tbody>
-                    {bids?.map((row, index) => {
-                      const orderBookLength = bids?.length || 0;
-                      return (
-                      <tr
-                        key={index}
-                        className="bg-black text-white hover:bg-[#0a0a0a] duration-300 ease-in-out"
-                      >
-                        <td className="hover:bg-[#0a0a0a] p-0 pr-0 mr-0 w-[60%]">
-                          <FillBid
-                            value={
-                              (getAccumalativeValue(
-                                bids || [],
-                                index
-                              ) /
-                                15) *
-                              100
-                            }
-                            className="hover:bg-[#0a0a0a]"
-                          />
-                        </td>
-                        <td className="p-2 pl-1 ml-0 w-[40%]">
-                        {(Number(row[0])).toFixed(1) + "¢"}
-                        </td>
-                        <td className="p-2">{Number((row[1])).toFixed(2)}</td>
-                        <td className="p-2">
-                          {/* {"$" +
-                            Number(
-                              getAccumalativeValue(bids || [], index)
-                            ).toFixed(2)} */}
-                          {"$" +
-                            Number(
-                              getAccumalativeValueReverse(
-                                bids || [],
-                                orderBookLength - (index + 1)
-                              )
-                            ).toFixed(2)}
-                        </td>
-                      </tr>
-                    )})}
+                    {bids?.length > 0 ? (
+                        bids?.map((row, index) => {
+                          const orderBookLength = bids?.length || 0;
+                          return (
+                          <tr
+                            key={index}
+                            className="bg-black text-white hover:bg-[#0a0a0a] duration-300 ease-in-out"
+                          >
+                            <td className="hover:bg-[#0a0a0a] p-0 pr-0 mr-0 w-[60%]">
+                              <FillBid
+                                value={
+                                  (getAccumalativeValue(
+                                    bids || [],
+                                    index
+                                  ) /
+                                    15) *
+                                  100
+                                }
+                                className="hover:bg-[#0a0a0a]"
+                              />
+                            </td>
+                            <td className="p-2 pl-1 ml-0 w-[40%]">
+                            {(Number(row[0])).toFixed(1) + "¢"}
+                            </td>
+                            <td className="p-2">{Number((row[1])).toFixed(2)}</td>
+                            <td className="p-2">
+                              {/* {"$" +
+                                Number(
+                                  getAccumalativeValue(bids || [], index)
+                                ).toFixed(2)} */}
+                              {"$" +
+                                Number(
+                                  getAccumalativeValueReverse(
+                                    bids || [],
+                                    orderBookLength - (index + 1)
+                                  ) / 100
+                                ).toFixed(2)}
+                            </td>
+                          </tr>
+                        )})
+                      ) : (
+                        <tr className="bg-black text-white">
+                          <td colSpan={4} className="p-2 text-center">
+                            No contracts available
+                          </td>
+                        </tr>
+                      )
+                  }
                   </tbody>
                 </table>
               </div>
