@@ -72,7 +72,7 @@ export default function PortfolioPage() {
   const [tokenbalance, setTokenBalance] = useState(0);
   const [currentTab, setCurrentTab] = useState("positions");
   const [depositData, setDepositData] = useState(initialValue);
-  const [depsoitAmt, setDepositAmt] = useState(0);
+  const [depsoitAmt, setDepositAmt] = useState();
   const [loader, setloader] = useState(false);
   const [txopen, setTxOpen] = useState(false);
   const [showallowance, setshowallowance] = useState(false);
@@ -388,7 +388,7 @@ export default function PortfolioPage() {
         setloader(true);
         if (status) {
           toastAlert("success", "Your transaction is successfully completed");
-          setDepositAmt(0);
+          setDepositAmt();
           setStep("");
           setTxOpen(true);
           const button = document.querySelector(".modal_close_brn");
@@ -414,7 +414,7 @@ export default function PortfolioPage() {
         setloader(true);
         if (status) {
           toastAlert("success", "Your transaction is successfully completed");
-          setDepositAmt(0);
+          setDepositAmt();
           setStep("");
           setTxOpen(true);
           const button = document.querySelector(".modal_close_brn");
@@ -481,7 +481,7 @@ export default function PortfolioPage() {
   const iniDepsotClick = () => {
     if (isConnected == true) {
       setStep("1");
-      setDepositAmt(0);
+      setDepositAmt();
       getCoinValue();
       balanceData()
       setTxOpen(false);
@@ -702,7 +702,7 @@ export default function PortfolioPage() {
                               type="number"
                               onChange={handlechange}
                               value={depsoitAmt}
-                              placeholder={depsoitAmt}
+                              placeholder="0"
                             />
                             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
                               <Button
