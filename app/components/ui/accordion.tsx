@@ -175,7 +175,7 @@ const AccordionTrigger = React.forwardRef<
     const isActive = activeMarket === marketId;
 
     return (
-      <AccordionPrimitive.Header className="flex items-center justify-between w-full">
+      <AccordionPrimitive.Header className="flex items-center justify-between w-full mt-3">
         <AccordionPrimitive.Trigger
           onClick={(e) => handleSelection("yes", e)}
           ref={(node) => {
@@ -184,7 +184,7 @@ const AccordionTrigger = React.forwardRef<
             triggerRef.current = node;
           }}
           className={cn(
-            "h-[80px] w-full pr-3 pl-3 flex flex-1 items-center justify-between py-4 font-medium transition-all",
+            "h-[60px] w-full pr-3 pl-3 flex flex-1 items-center justify-between py-4 font-medium transition-all",
             className
           )}
           {...props}

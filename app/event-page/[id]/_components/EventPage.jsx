@@ -157,6 +157,7 @@ export default function EventPage() {
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
+  const [openItem, setOpenItem] = useState(null);
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -206,8 +207,8 @@ export default function EventPage() {
 
                   <div>
                     {markets?.length < 2 && books ? (
-                      <OrderbookAccordion type="single" collapsible>
-                        <OrderbookAccordionItem value="item-1">
+                      <OrderbookAccordion type="single" value={openItem} onValueChange={setOpenItem} collapsible>
+                        <OrderbookAccordionItem value="orderbook">
                           <OrderbookAccordionTrigger>
                             Orderbook
                           </OrderbookAccordionTrigger>
@@ -220,6 +221,7 @@ export default function EventPage() {
                                   markets[0]?._id
                               ) || {}
                             }
+                             isOpen={openItem === "orderbook"}
                             activeView={activeView}
                             setActiveView={setActiveView}
                             setSelectedOrderBookData={setSelectedOrderBookData}
