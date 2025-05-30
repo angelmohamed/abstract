@@ -173,12 +173,9 @@ export default function Authentication() {
           currnetwork = network;
         }
         let connect = await connectWallet(connector);
-        //  const message = "Welcome to SonoTrade! Sign to connect.";
-        //  const signature = await web3.eth.personal.sign(message, account);
         setIsConnect(true);
         setOpen(false);
         walletAdd();
-        // var signature = await Web3.eth.personal.sign("Wlcome to SonoTrade! Sign to connect.", address, 'SonoTrade');
       }
     } catch (err) {
       console.log(err, "errerr");
@@ -198,6 +195,7 @@ export default function Authentication() {
   const getUserLogindetails = async () => {
     try {
       let result = await getUserLocation();
+      console.log(result,"result")
       setLoginHistory(result);
     } catch (err) {
       console.error("Failed to get user location", err);
@@ -225,6 +223,7 @@ export default function Authentication() {
       localStorage.setItem("sonoTradeToken", authToken);
       toastAlert("success", "Wallet Connected Successfully");
       getUser();
+      window.location.href = "/";
     }
   };
 
@@ -267,6 +266,7 @@ export default function Authentication() {
         localStorage.setItem("googlelogin", true);
         toastAlert("success", message);
         setOpen(false);
+        window.location.href = "/";
         getUser();
       } else {
         console.error("Login Failed:", message, errors);
@@ -328,6 +328,7 @@ export default function Authentication() {
             toastAlert("success", message);
             localStorage.setItem("sonoTradeToken", authToken);
             setOtpOpen(false);
+            window.location.href = "/";
             getUser();
           } else {
             toastAlert("error", message);

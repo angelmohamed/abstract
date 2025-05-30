@@ -6,13 +6,13 @@ var key = {};
     backendURL: "https://sonotradesdemo.wearedev.team",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
-    getLoginInfo: "https://ipapi.co/json/",
+    getLoginInfo: "https://freeipapi.com/api/json",
     chainId: 80002,
     chaincode: "amoy",
     txurl: "https://testnet.bscscan.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "787150198787150198264-7mtj9n2alrvc62h1vpqho2a01t9o9ln5.apps.googleusercontent.com"
+    clientId: "787150198264-2mkh4meu0m9phtb4m65f7bdre82kuibl.apps.googleusercontent.com"
   }
 } else {
   key = {
@@ -21,7 +21,7 @@ var key = {};
     backendURL: "http://localhost:3001",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
-    getLoginInfo: "https://ipapi.co/json/",
+    getLoginInfo: "https://freeipapi.com/api/json",
     chainId: 80002,
     chaincode: "amoy",
     txurl: "https://testnet.bscscan.com",
