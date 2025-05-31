@@ -388,14 +388,6 @@ export default function Header() {
   //   router.push("/");
   // }
 
-  useEffect(() => {
-    if (isLogin() == true) {
-      getUser();
-      // dispatch(getUserDetails())
-    }
-  }, []);
-  // console.log(email,data,"emaillll")
-
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   return (

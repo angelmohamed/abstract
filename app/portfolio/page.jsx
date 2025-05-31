@@ -224,7 +224,7 @@ export default function PortfolioPage() {
         }
         let connect = await connectWallet(connector);
         setOpen(false);
-        getUser();
+        // getUser();
         getAddress();
       }
     } catch (err) {
@@ -395,7 +395,7 @@ export default function PortfolioPage() {
           if (button) {
             button.click();
           }
-          await getUser();
+          // await getUser();
         } else {
           toastAlert("error", message);
           const button = document.querySelector(".modal_close_brn");
@@ -421,7 +421,7 @@ export default function PortfolioPage() {
           if (button) {
             button.click();
           }
-          await getUser();
+          // await getUser();
         } else {
           toastAlert("error", message);
           const button = document.querySelector(".modal_close_brn");
@@ -489,12 +489,12 @@ export default function PortfolioPage() {
       toastAlert("error", "Connect Your Wallet");
     }
   };
-  useEffect(() => {
-    if (isLogin() == false) {
-      window.location.href = "/";
-    }
-    getUser();
-  }, []);
+  // useEffect(() => {
+  //   if (isLogin() == false) {
+  //     window.location.href = "/";
+  //   }
+  //   // getUser();
+  // }, []);
   console.log(data, data?.loginType, tokenAmt, "datadatadata");
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">

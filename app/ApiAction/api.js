@@ -6,30 +6,6 @@ var apiUrl = config.baseUrl;
 var eventUrl = `${config.backendURL}/api/v1/events`;
 var baseUrl = `${config.backendURL}/api/v1`
 
-export const register = async (data) => {
-    try {
-        let response = await axios({
-            'method': 'post',
-            'url': `${apiUrl}/register`,
-            'data': data
-        });
-        console.log(response, 'responseee')
-        return {
-            status: (response && response.data && response.data.status) ? response.data.status : false,
-            errors: (response && response.data && response.data.errors) ? response.data.errors : {},
-            message: (response && response.data && response.data.message) ? response.data.message : "",
-        }
-    }
-    catch (err) {
-        return {
-            status: false,
-            errors: {},
-            message: "Failed to register",
-            authToken: null,
-        }
-    }
-}
-
 export const getUserLocation = async () => {
     try {
         let loginHistory = {};
@@ -61,30 +37,6 @@ export const getUserLocation = async () => {
     }
 };
 
-
-export const verifyEmail = async (data) => {
-    try {
-        let response = await axios({
-            'method': 'post',
-            'url': `${apiUrl}/email-verify`,
-            'data': data
-        });
-        console.log(response, 'responseee')
-        return {
-            status: (response && response.data && response.data.status) ? response.data.status : false,
-            message: (response && response.data && response.data.message) ? response.data.message : "",
-            authToken: (response && response.data && response.data.token) ? response.data.token : null,
-        }
-    }
-    catch (err) {
-        return {
-            status: false,
-            errors: {},
-            message: "Failed to register",
-        }
-    }
-}
-
 export const resendOTP = async (data) => {
     try {
         let response = await axios({
@@ -103,59 +55,6 @@ export const resendOTP = async (data) => {
             status: false,
             errors: {},
             message: "Failed to register",
-        }
-    }
-}
-
-
-export const googleLogin = async (data) => {
-    console.log('datssssa: ', data);
-    try {
-        let response = await axios({
-            'method': 'post',
-            'url': `${apiUrl}/google-sign`,
-            'data': data
-        });
-        console.log(response, 'responseee')
-        return {
-            status: (response && response.data && response.data.status) ? response.data.status : false,
-            success: (response && response.data && response.data.success) ? response.data.success : false,
-            errors: (response && response.data && response.data.errors) ? response.data.errors : {},
-            authToken: (response && response.data && response.data.token) ? response.data.token : null,
-            message: (response && response.data && response.data.message) ? response.data.message : "",
-        }
-    }
-    catch (err) {
-        return {
-            status: false,
-            errors: {},
-            message: "Failed to register",
-            authToken: null,
-        }
-    }
-}
-
-export const walletLogin = async (data) => {
-    console.log('datssssa: ', data);
-    try {
-        let response = await axios({
-            'method': 'post',
-            'url': `${apiUrl}/wallet-sign`,
-            'data': data
-        });
-        console.log(response, 'responseee')
-        return {
-            status: (response && response.data && response.data.status) ? response.data.status : false,
-            authToken: (response && response.data && response.data.token) ? response.data.token : null,
-            message: (response && response.data && response.data.message) ? response.data.message : "",
-        }
-    }
-    catch (err) {
-        return {
-            status: false,
-            errors: {},
-            message: "Failed to register",
-            authToken: null,
         }
     }
 }

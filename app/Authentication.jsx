@@ -2,6 +2,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
+import { useSelector } from "@/store";
+
 import SONOTRADE from "@/public/images/logo.png";
 import React, { useState, useEffect } from "react";
 import { client } from "@/app/client";
@@ -21,13 +23,8 @@ import config from "./config/config.js";
 import { Button } from "./components/ui/button";
 import { useToast } from "./helper/toastAlert.js";
 import {
-  googleLogin,
   getUserLocation,
-  register,
-  verifyEmail,
   resendOTP,
-  walletLogin,
-  getUserData,
 } from "./ApiAction/api.js";
 import {
   regInputValidate,
@@ -36,12 +33,16 @@ import {
   otpInputValidate,
 } from "./validation/validation.js";
 import {
-  GoogleOAuthProvider,
   GoogleLogin,
+  GoogleOAuthProvider,
   googleLogout,
 } from "@react-oauth/google";
 import isEmpty from "is-empty";
 import { formatNumber, shortText } from "../app/helper/custommath.js";
+import { googleLogin, register, verifyEmail, walletLogin } from "@/services/auth";
+import { useDispatch } from "react-redux";
+import { reset } from "../store/slices/auth/userSlice"
+import { signOut } from "@/store/slices/auth/sessionSlice";
 
 let initialData = {
   otp: "",
@@ -52,6 +53,8 @@ let initialValue = {
 
 export default function Authentication() {
   const router = useRouter();
+  const dispatch = useDispatch();
+	const { signedIn } = useSelector((state) => state.auth?.session);
 
   const [connval, setconnval] = useState(null);
   const [open, setOpen] = useState(false);
@@ -213,18 +216,17 @@ export default function Authentication() {
   };
 
   const walletAdd = async (address) => {
-    var walletdata = {
+    var data = {
       address: address,
       LoginHistory,
     };
-    let { status, authToken } = await walletLogin(walletdata);
-    console.log(status, authToken, " status , authToken ");
-    if (status) {
-      localStorage.setItem("sonoTradeToken", authToken);
-      toastAlert("success", "Wallet Connected Successfully");
-      getUser();
-      window.location.href = "/";
-    }
+    let { status, message } = await walletLogin(data, dispatch);
+      if (status == "success") {
+        setOpen(false);
+        toastAlert("success", message);
+      } else {
+        toastAlert("error", message);
+      }
   };
 
   useEffect(() => {
@@ -257,19 +259,11 @@ export default function Authentication() {
         token,
         LoginHistory: LoginHistory,
       };
-      let { status, message, authToken, errors } = await googleLogin(data);
-      console.log(authToken, "authTokenauthTokenauthToken");
-
-      if (status) {
-        console.log("Login Successful:", message);
-        localStorage.setItem("sonoTradeToken", authToken);
-        localStorage.setItem("googlelogin", true);
-        toastAlert("success", message);
+      let { status, message } = await googleLogin(data, dispatch);
+      if (status == "success") {
         setOpen(false);
-        window.location.href = "/";
-        getUser();
+        toastAlert("success", message);
       } else {
-        console.error("Login Failed:", message, errors);
         toastAlert("error", message);
       }
     } catch (error) {
@@ -284,7 +278,7 @@ export default function Authentication() {
       if (isEmpty(errMsg)) {
         let { status, message, errors } = await register(userData);
         console.log(errors, "errorserrors");
-        if (status == true) {
+        if (status == "success") {
           toastAlert("success", message);
           setVerifyStatus(true);
           setExpireTime(180);
@@ -323,13 +317,10 @@ export default function Authentication() {
           setOtpData({});
         } else {
           let data = { otp, email, LoginHistory: LoginHistory };
-          let { message, status, authToken } = await verifyEmail(data);
-          if (status == true) {
+          let { message, status } = await verifyEmail(data, dispatch);
+          if (status == "success") {
             toastAlert("success", message);
-            localStorage.setItem("sonoTradeToken", authToken);
             setOtpOpen(false);
-            window.location.href = "/";
-            getUser();
           } else {
             toastAlert("error", message);
           }
@@ -360,46 +351,21 @@ export default function Authentication() {
     }
   };
 
-  const isLogin = () => {
-    if (localStorage.getItem("sonoTradeToken")) {
-      return true;
-    }
-    return false;
-  };
-
-  const getUser = async () => {
-    try {
-      let { status, result } = await getUserData();
-      if (status) {
-        setData(result);
-      }
-    } catch (err) {
-      console.log(err, "errr");
-    }
-  };
-
   async function logout() {
-    localStorage.removeItem("sonoTradeToken");
-    localStorage.removeItem("googlelogin");
     disconnectWallet();
-    toastAlert("success", "Successfully Logout");
+    document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+		dispatch(reset());
+		dispatch(signOut());
     window.location.href = "/";
-    router.push("/");
   }
 
-  useEffect(() => {
-    if (isLogin() == true) {
-      getUser();
-    }
-  }, []);
-  // console.log(email, data, "emaillll");
   return (
     <>
-      {isLogin() == true && (
+      {signedIn && (
         <Button onClick={() => navigateToPortfolioPage()}>Deposit</Button>
       )}
       <Dialog.Root open={open} onOpenChange={setOpen}>
-        {!isLogin() == true && (
+        {!signedIn && (
           <>
             <Dialog.Trigger asChild>
               <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -585,7 +551,7 @@ export default function Authentication() {
           </Dialog.Portal>
         </Dialog.Root>
       )}
-      {isLogin() == true ? (
+      {signedIn ? (
         <>
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>

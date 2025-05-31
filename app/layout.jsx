@@ -1,15 +1,11 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import { client } from "@/app/client";
 import { Footer } from "@/app/components/customComponents/Footer";
-import { WalletProvider } from '@/app/walletconnect/walletContext';
+import { WalletProvider } from "@/app/walletconnect/walletContext";
 import SnackbarClient from "@/app/helper/SnackbarClient";
 import "@fortawesome/fontawesome-free/css/all.min.css";
-// import { Provider } from "react-redux"
-// import { PersistGate } from "redux-persist/integration/react"
-// import store, { persistor } from "./store"
 import { ToastContainer } from "react-toastify";
-
+import { StoreProvider } from "@/providers/store-provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,38 +27,26 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Default Metadata */}
         <title>Sonotrade</title>
         <meta name="description" content="The Music Stock Market" />
-
-        {/* Google Structured Data */}
         <meta itemProp="name" content="Sonotrade" />
         <meta itemProp="description" content="The Music Stock Market" />
         <meta
           itemProp="image"
           content="https://www.sonotrade.co/images/SONOTRADE.png"
         />
-
-        {/* Favicon */}
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </head>
-      
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-       {/* <Provider store={store}> */}
-      {/* <PersistGate persistor={persistor} loading={null}> */}
-        <SnackbarClient>
-          <WalletProvider>
-              {children}
-          </WalletProvider>
+
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <StoreProvider>
+          <SnackbarClient>
+            <WalletProvider>{children}</WalletProvider>
           </SnackbarClient>
+        </StoreProvider>
         <Footer />
         <ToastContainer />
-        {/* </PersistGate> */}
-      {/* </Provider> */}
       </body>
-      
     </html>
   );
 }
