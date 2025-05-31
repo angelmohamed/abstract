@@ -17,6 +17,7 @@ import {
 import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { decimalToPercentage, toTwoDecimal } from "@/utils/helpers";
 // import Polymarket from "/public/images/polymarket.png";
+import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
 
 interface Option {
   groupItemTitle?: string;
@@ -50,7 +51,7 @@ export function MultipleOptionCard({
   question,
   totalPool,
   options,
-  yesColor = "#7DFDFE",
+  yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
@@ -58,7 +59,7 @@ export function MultipleOptionCard({
   onNoClick,
 }: MultipleOptionCardProps) {
   const router = useRouter();
-
+  const [bookmarked, setBookmarked] = React.useState(false);
   const handleYesClick = (option: Option) => {
     if (onYesClick) {
       onYesClick(option);
@@ -75,6 +76,11 @@ export function MultipleOptionCard({
     }
   };
 
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookmarked((prev) => !prev);
+  };
+  
   return (
     <Card
       className="flex flex-col w-full h-[200px] sm:h-[200px] justify-between"
@@ -161,7 +167,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleYesClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] text-[10px] transition-colors duration-300 rounded-full uppercase"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] text-[10px] transition-colors duration-300 rounded-full uppercase"
                         >
                           {(option.outcome && option.outcome?.[0]?.title) ||
                             "Yes"}
@@ -180,7 +186,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleNoClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] text-[10px] transition-colors duration-300 rounded-full uppercase"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] text-[10px] transition-colors duration-300 rounded-full uppercase"
                         >
                           {(option.outcome && option.outcome?.[1]?.title) ||
                             "No"}
@@ -214,6 +220,13 @@ export function MultipleOptionCard({
           >
             {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
           </span>
+          <Button
+            className="p-1 h-6 w-6  z-10 rounded"
+            variant="ghost"
+            onClick={handleBookmarkClick}
+          >
+            {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
+          </Button>
         </div>
       </CardFooter>
     </Card>

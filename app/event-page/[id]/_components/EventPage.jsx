@@ -36,12 +36,16 @@ import {
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
 import { getOrderBook, getSingleEvent } from "../../../ApiAction/api";
-import {  SocketContext, subscribe, unsubscribe } from "@/app/config/socketConnectivity";
+import {
+  SocketContext,
+  subscribe,
+  unsubscribe,
+} from "@/app/config/socketConnectivity";
 
 export default function EventPage() {
   const param = useParams();
   const id = param.id;
-  const socketContext = useContext(SocketContext)
+  const socketContext = useContext(SocketContext);
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [markets, setMarkets] = useState([]);
@@ -62,22 +66,22 @@ export default function EventPage() {
     }
     return () => {
       unsubscribe(id);
-    }
+    };
   }, [id]);
 
   useEffect(() => {
     // socket
     if (socketContext?.socket) {
       socketContext.socket.on("orderbook", (result) => {
-        console.log('socket: result', result)
-        fetchAllBooks()
-      });      
+        console.log("socket: result", result);
+        fetchAllBooks();
+      });
     }
     // console.log(socketContext?.socket, "socketContext");
     // socketContext?.socket?.on("orderbook", (result) => {
     //   console.log('socket: result', result)
     // });
-  }, [id,socketContext]);
+  }, [id, socketContext]);
 
   // useEffect(() => {
   //   socketContext.socket.emit("subscribe", "spot");
@@ -101,13 +105,13 @@ export default function EventPage() {
         // });
         // const data = await response.json();
         // console.log('market Data', data);
-        let response = await getSingleEvent({id:id})
-        if(response.status){
-          let data = response.result
+        let response = await getSingleEvent({ id: id });
+        if (response.status) {
+          let data = response.result;
           setEvents(data);
           setMarkets(
             data?.marketId?.filter((market) => market.status === "active")
-              // .sort((a, b) => b.bestAsk - a.bestAsk)
+            // .sort((a, b) => b.bestAsk - a.bestAsk)
           );
         }
         setEventsLoading(false);
@@ -129,8 +133,8 @@ export default function EventPage() {
       //   body: JSON.stringify(idsGroup),
       // });
       // setBooks(await response.json());
-      const response = await getOrderBook({ id:id})
-      if(response.result){
+      const response = await getOrderBook({ id: id });
+      if (response.result) {
         setBooks(response.result);
       }
     } catch (error) {
@@ -157,6 +161,7 @@ export default function EventPage() {
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
+  const [openItem, setOpenItem] = useState(null);
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -181,7 +186,7 @@ export default function EventPage() {
                     <SingleLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.image || '/images/logo.png'}
+                      image={events.image || "/images/logo.png"}
                       endDate={events.endDate}
                       market={markets}
                       interval={interval}
@@ -191,8 +196,10 @@ export default function EventPage() {
                     <MultiLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.image || '/images/logo.png'}
-                      markets={markets.filter((market) => market.status === "active")}
+                      image={events.image || "/images/logo.png"}
+                      markets={markets.filter(
+                        (market) => market.status === "active"
+                      )}
                       endDate={events.endDate}
                       interval={interval}
                     />
@@ -206,8 +213,13 @@ export default function EventPage() {
 
                   <div>
                     {markets?.length < 2 && books ? (
-                      <OrderbookAccordion type="single" collapsible>
-                        <OrderbookAccordionItem value="item-1">
+                      <OrderbookAccordion
+                        type="single"
+                        value={openItem}
+                        onValueChange={setOpenItem}
+                        collapsible
+                      >
+                        <OrderbookAccordionItem value="orderbook">
                           <OrderbookAccordionTrigger>
                             Orderbook
                           </OrderbookAccordionTrigger>
@@ -220,6 +232,7 @@ export default function EventPage() {
                                   markets[0]?._id
                               ) || {}
                             }
+                            isOpen={openItem === "orderbook"}
                             activeView={activeView}
                             setActiveView={setActiveView}
                             setSelectedOrderBookData={setSelectedOrderBookData}
@@ -331,12 +344,12 @@ export default function EventPage() {
                         setActiveView={setActiveView}
                         selectedOrderBookData={
                           books.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[selectedIndex]?._id
-                              ) || {}
-                          }
+                            (book) =>
+                              book.marketId ==
+                              // JSON?.parse(market?.clobTokenIds)[0]
+                              markets[selectedIndex]?._id
+                          ) || {}
+                        }
                         market={markets[selectedIndex]}
                       />
                     ) : (
@@ -345,11 +358,11 @@ export default function EventPage() {
                         setActiveView={setActiveView}
                         selectedOrderBookData={
                           books.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[selectedIndex]?._id
-                              ) || {}
+                            (book) =>
+                              book.marketId ==
+                              // JSON?.parse(market?.clobTokenIds)[0]
+                              markets[selectedIndex]?._id
+                          ) || {}
                         }
                         market={markets[selectedIndex]}
                       />
@@ -398,12 +411,14 @@ export default function EventPage() {
                       <TradingCard
                         activeView={activeView}
                         setActiveView={setActiveView}
-                        selectedOrderBookData={books.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[selectedIndex]?._id
-                              ) || {}}
+                        selectedOrderBookData={
+                          books.find(
+                            (book) =>
+                              book.marketId ==
+                              // JSON?.parse(market?.clobTokenIds)[0]
+                              markets[selectedIndex]?._id
+                          ) || {}
+                        }
                         market={markets[selectedIndex]}
                       />
                     ) : (
@@ -411,12 +426,14 @@ export default function EventPage() {
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          selectedOrderBookData || books.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[selectedIndex]?._id
-                              ) || {}
+                          selectedOrderBookData ||
+                          books.find(
+                            (book) =>
+                              book.marketId ==
+                              // JSON?.parse(market?.clobTokenIds)[0]
+                              markets[selectedIndex]?._id
+                          ) ||
+                          {}
                         }
                         market={markets[selectedIndex]}
                       />

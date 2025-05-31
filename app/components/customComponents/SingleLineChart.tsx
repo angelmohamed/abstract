@@ -88,7 +88,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     asset1: {
       label: "Yes",
-      color: "#7DFDFE",
+      color: "#27ae60",
     },
   });
 
@@ -120,11 +120,11 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
     if (selectedYes) {
       setChartData(chartDataYes);
       setChartConfig({
-        asset1: { label: "Yes", color: "#7DFDFE" },
+        asset1: { label: "Yes", color: "#27ae60" },
       });
     } else {
       setChartData(chartDataNo);
-      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
+      setChartConfig({ asset1: { label: "No", color: "#e64800" } });
     }
   }, [selectedYes, chartDataYes, chartDataNo]);
 
@@ -183,7 +183,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
       : chance !== undefined
       ? 1 - chance
       : undefined;
-  const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
+  const chanceColor = selectedYes ? "#27ae60" : "#e64800";
   const [activeDate, setActiveDate] = useState("Jun 18");
   return (
     <Card
@@ -197,18 +197,18 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: screenWidth < 640 ? "50px" : "75px",
-                  height: screenWidth < 640 ? "50px" : "75px",
+                  width: screenWidth < 640 ? "40px" : "40px",
+                  height: screenWidth < 640 ? "40px" : "40px",
                   overflow: "hidden",
-                  borderRadius: "10px",
+                  borderRadius: "4px",
                   flexShrink: 0,
                 }}
               >
                 <Image
                   src={image}
                   alt="Event"
-                  width={screenWidth < 640 ? 50 : 75}
-                  height={screenWidth < 640 ? 50 : 75}
+                  width={screenWidth < 640 ? 40 : 40}
+                  height={screenWidth < 640 ? 40 : 40}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -218,7 +218,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                 />
               </div>
               <div
-                className="text-[22px] lg:text-[26px] sm:text-[20px]"
+                className="text-[18px] lg:text-[24px] sm:text-[16px]"
                 style={{ paddingLeft: "15px", marginRight: "10px" }}
               >
                 {title || ""}
@@ -349,7 +349,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                       type="natural"
                       dataKey={asset}
                       name={chartConfig[asset].label}
-                      stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
+                      stroke={selectedYes ? "#27ae60" : "#e64800"}
                       strokeWidth={2}
                       dot={false}
                       label={false}

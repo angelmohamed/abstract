@@ -38,7 +38,7 @@ export function ImageCardMultiple({
   totalPool,
   onYesClick,
   onNoClick,
-  yesColor = "#7DFDFE",
+  yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",

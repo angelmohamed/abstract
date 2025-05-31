@@ -559,7 +559,7 @@ export default function PortfolioPage() {
                   <Dialog.Trigger asChild>
                     <Button
                       onClick={() => iniDepsotClick()}
-                      className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full"
+                      className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#000000] transition-colors duration-300 rounded-full"
                     >
                       Deposit
                     </Button>
@@ -1091,7 +1091,7 @@ export default function PortfolioPage() {
               >
                 <Dialog.Root>
                   <Dialog.Trigger asChild>
-                    <Button className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#000000] transition-colors duration-300 rounded-full">
+                    <Button className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#000000] transition-colors duration-300 rounded-full">
                       Withdraw
                     </Button>
                   </Dialog.Trigger>
@@ -1253,7 +1253,7 @@ export default function PortfolioPage() {
                             Stars vs Jets
                           </Link>
                           <div className="flex items-center gap-2">
-                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
                               Stars
                             </Badge>
                             <span className="text-xs font-normal">
@@ -1271,7 +1271,7 @@ export default function PortfolioPage() {
                     <td>$3.83</td>
                     <td>
                       <div className="flex items-center space-x-2">
-                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000] w-[80px]">
+                        <Button className="bg-[#e64800] text-[#fff] hover:text-[#000] w-[80px]">
                           Sell
                         </Button>
                         <Button className="w-[80px]">Share</Button>
@@ -1295,7 +1295,7 @@ export default function PortfolioPage() {
                             Stars vs Jets
                           </Link>
                           <div className="flex items-center gap-2">
-                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
                               Stars
                             </Badge>
                             <span className="text-xs font-normal">
@@ -1392,7 +1392,7 @@ export default function PortfolioPage() {
                                   </h4>
                                 </div>
                                 <div className="flex items-center justify-between mb-4">
-                                  <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#e9f7ef] font-normal rounded">
+                                  <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#1f3e2c] font-normal rounded">
                                     56x Chennai Super Kings
                                   </Badge>
                                   <span>Avg 52¢</span>
@@ -1535,7 +1535,7 @@ export default function PortfolioPage() {
                       </div>
                     </td>
                     <td>
-                      <Badge className="z-10 text-xs text-[#27ae60] bg-[#e9f7ef] font-normal">
+                      <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
                         Stars
                       </Badge>
                     </td>
@@ -1570,7 +1570,7 @@ export default function PortfolioPage() {
                       </div>
                     </td>
                     <td>
-                      <Badge className="z-10 text-xs text-[#e64800] bg-[#fdeeee] font-normal">
+                      <Badge className="z-10 text-xs text-[#e64800] bg-[#362020] font-normal">
                         Stars
                       </Badge>
                     </td>
