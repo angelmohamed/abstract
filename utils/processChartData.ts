@@ -25,7 +25,7 @@ export function processMultiChartData(
   data2: DataPoint[] = [],
   data3: DataPoint[] = [],
   data4: DataPoint[] = [],
-  interval = "all"
+  interval = "max"
 ): ChartDataItem[] {
   const allTimestamps = new Set([
     ...data1?.map((d) => d?.t),
@@ -39,7 +39,7 @@ export function processMultiChartData(
     .map((timestamp) => {
       const date = new Date(timestamp * 1000);
       let timestampString = "";
-      if (interval === "all" || interval === "1m" || interval === "1w") {
+      if (interval === "max" || interval === "1m" || interval === "1w") {
         timestampString = date.toLocaleString("en-US", {
           day: "numeric",
           month: "short",
@@ -76,7 +76,7 @@ export function processSingleChartData(
     .map((timestamp) => {
       const date = new Date(timestamp * 1000);
       let timestampString = "";
-      if (interval === "all" || interval === "1m" || interval === "1w") {
+      if (interval === "max" || interval === "1m" || interval === "1w") {
         timestampString = date.toLocaleString("en-US", {
           day: "numeric",
           month: "short",

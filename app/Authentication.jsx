@@ -19,13 +19,9 @@ import {
   Cross2Icon,
   BellIcon,
 } from "@radix-ui/react-icons";
-import config from "./config/config.js";
+import config from "../config/config.js";
 import { Button } from "./components/ui/button";
 import { useToast } from "./helper/toastAlert.js";
-import {
-  getUserLocation,
-  resendOTP,
-} from "./ApiAction/api.js";
 import {
   regInputValidate,
   regValidate,
@@ -39,7 +35,7 @@ import {
 } from "@react-oauth/google";
 import isEmpty from "is-empty";
 import { formatNumber, shortText } from "../app/helper/custommath.js";
-import { googleLogin, register, verifyEmail, walletLogin } from "@/services/auth";
+import { getLocation, googleLogin, register, resendOTP, verifyEmail, walletLogin } from "@/services/auth";
 import { useDispatch } from "react-redux";
 import { reset } from "../store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
@@ -197,8 +193,7 @@ export default function Authentication() {
 
   const getUserLogindetails = async () => {
     try {
-      let result = await getUserLocation();
-      console.log(result,"result")
+      let result = await getLocation();
       setLoginHistory(result);
     } catch (err) {
       console.error("Failed to get user location", err);
@@ -220,8 +215,8 @@ export default function Authentication() {
       address: address,
       LoginHistory,
     };
-    let { status, message } = await walletLogin(data, dispatch);
-      if (status == "success") {
+    let { success, message } = await walletLogin(data, dispatch);
+      if (success) {
         setOpen(false);
         toastAlert("success", message);
       } else {
@@ -259,8 +254,8 @@ export default function Authentication() {
         token,
         LoginHistory: LoginHistory,
       };
-      let { status, message } = await googleLogin(data, dispatch);
-      if (status == "success") {
+      let { success, message } = await googleLogin(data, dispatch);
+      if (success) {
         setOpen(false);
         toastAlert("success", message);
       } else {
@@ -276,9 +271,9 @@ export default function Authentication() {
       let errMsg = await regValidate(userData);
       setError(errMsg);
       if (isEmpty(errMsg)) {
-        let { status, message, errors } = await register(userData);
+        let { success, message, errors } = await register(userData);
         console.log(errors, "errorserrors");
-        if (status == "success") {
+        if (success) {
           toastAlert("success", message);
           setVerifyStatus(true);
           setExpireTime(180);
@@ -317,8 +312,8 @@ export default function Authentication() {
           setOtpData({});
         } else {
           let data = { otp, email, LoginHistory: LoginHistory };
-          let { message, status } = await verifyEmail(data, dispatch);
-          if (status == "success") {
+          let { message, success } = await verifyEmail(data, dispatch);
+          if (success) {
             toastAlert("success", message);
             setOtpOpen(false);
           } else {
@@ -336,8 +331,8 @@ export default function Authentication() {
       let data = {
         email,
       };
-      let { message, status } = await resendOTP(data);
-      if (status == true) {
+      let { message, success } = await resendOTP(data);
+      if (success) {
         toastAlert("success", message, "otp");
         setExpireTime(180);
         getTime();

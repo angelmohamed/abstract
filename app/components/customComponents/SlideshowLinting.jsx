@@ -1,27 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Loader } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-  CarouselPagination
-} from "@/app/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselPagination } from "@/app/components/ui/carousel";
 import { ImageCard } from "@/app/components/ui/imageCard";
-import { MultipleOptionCard } from "@/app/components/ui/multipleOptionCard";
 import { ImageCardMultiple } from "@/app/components/ui/imageCardMultiple";
 import { PreviewCard } from "@/app/components/ui/previewCard";
-// import Polymarket from "/public/images/polymarket.png";
-import Link from "next/link";
-import { Card } from "@/app/components/ui/card";
 
 import KanyePitchfork from "@/public/images/kanyepitchfork.png";
 import Oscars from "@/public/images/oscars.png";
 import Travis from "@/public/images/concert1.png";
 import AsapTrial from "@/public/images/asaptrial.png";
-import { getEventData } from "@/app/ApiAction/api";
+import { getEvents } from "@/services/market";
 
 
 export default function EventCarousel() {
@@ -52,13 +41,9 @@ export default function EventCarousel() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        // const response = await fetch(
-        //   `/api/event-data/all?limit=20&offset=0&tag_slug=music&closed=false`
-        // );
-        const response = await getEventData({id:"all",limit:20,page:1})
-        // const data = await response.json();
-        if(response.status){
-          setEvents(response.result?.data || []);
+        const { success, result } = await getEvents({id:"all",limit:20,page:1})
+        if(success){
+          setEvents(result?.data || []);
         }
         setLoading(false);
       } catch (error) {

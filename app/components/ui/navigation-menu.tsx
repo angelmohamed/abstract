@@ -5,15 +5,9 @@ import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-// 接口定义
+
 interface MenuItem {
   title: string;
-  subItems: SubItem[];
-}
-
-interface SubItem {
-  title: string;
-  description: string;
 }
 
 interface NavigationBarProps {
@@ -158,9 +152,6 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   menuItems,
   showLiveTag = true,
 }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] =
-    React.useState<boolean>(false);
-
   const categoryListRef = React.useRef<HTMLDivElement>(null);
   const [categoryScrollAtStart, setCategoryScrollAtStart] =
     React.useState(true);
@@ -223,7 +214,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             style={{ scrollBehavior: "smooth" }}
             onScroll={handleCategoryScroll}
           >
-            {menuItems.map((item) => (
+            {menuItems.length > 0 && menuItems.map((item) => (
               <div
                 key={item.title}
                 className="flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer"
@@ -247,98 +238,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             <ChevronRightIcon  height={24} width={24}/>
           </button>
         </div>
-        {/* Mobile Dropdown Button */}
-        {/* <div className="sm:hidden ml-auto pr-4">
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 focus:outline-none"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          </button>
-        </div> */}
-        {/* Navigation Menu - Hidden on mobile, shown on larger screens */}
-        {/* <div className="block backdrop-blur-md sm:hidden">
-          <div className="flex overflow-x-auto no-scrollbar py-2 space-x-4">
-            <div className="pt-1 pl-2 flex space-x-4">
-              {menuItems.map((item) => (
-                <div key={item.title} className="flex-shrink-0">
-                  <div className="text-sm font-semibold">{item.title}</div>
-                  <div className="text-xs"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div> */}
-        {/* Full Navigation Menu - Show on larger screens */}
-        {/* <div className="hidden sm:block backdrop-blur-md">
-          <NavigationMenu className="backdrop-blur-md">
-            <NavigationMenuList>
-              {menuItems.map((item) => (
-                <NavigationMenuItem key={item.title}>
-                  <NavigationMenuTrigger>{item.title}</NavigationMenuTrigger>
-                  <NavigationMenuContent>
-                    <ul className="grid w-[800px] gap-3 p-6 md:w-[600px] md:grid-cols-4 lg:w-[800px]">
-                      {item.subItems.map((subItem) => (
-                        <ListItem key={subItem.title} title={subItem.title}>
-                          {subItem.description}
-                        </ListItem>
-                      ))}
-                    </ul>
-                  </NavigationMenuContent>
-                </NavigationMenuItem>
-              ))}
-            </NavigationMenuList>
-          </NavigationMenu>
-        </div> */}
-        {/* Mobile Dropdown Menu - Shown when isMobileMenuOpen is true */}
-        {isMobileMenuOpen && (
-          <div className="sm:hidden absolute top-16 left-0 right-0 bg-black backdrop-blur-md p-4 z-50">
-            <ul className="space-y-2">
-              {menuItems
-                .flatMap((item) => item.subItems)
-                .map((subItem) => (
-                  <li key={subItem.title}>
-                    <button
-                      className="w-full text-left p-2 hover:bg-gray-800 rounded-md"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <div className="text-sm font-medium">{subItem.title}</div>
-                      <p className="text-xs text-gray-400">
-                        {subItem.description}
-                      </p>
-                    </button>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
       </div>
-    </div>
-  );
-};
-
-// Nav component for page headers
-export const Nav: React.FC<NavigationBarProps> = ({
-  menuItems = [],
-  showLiveTag = true,
-}) => {
-  return (
-    <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
-      {/* This assumes Header is imported where Nav is used */}
-      <NavigationBar menuItems={menuItems} showLiveTag={showLiveTag} />
     </div>
   );
 };

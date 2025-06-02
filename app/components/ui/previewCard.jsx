@@ -2,26 +2,13 @@
 import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
-import { TrendingUp } from "lucide-react";
 import { Comment } from "@/app/components/ui/comment";
 import MiniLineChart from "@/app/components/customComponents/MiniLineChart";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
-// import Polymarket from "/public/images/polymarket.png";
-
-import {
-  ChartConfig,
-  ChartContainer,
-} from "@/app/components/ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
-import { getSingleEvent } from "@/app/ApiAction/api";
+import { getEventById } from "@/services/market";
+import { ChartContainer } from "@/app/components/ui/chart";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card";
 
 const chartConfig = {
   desktop: {
@@ -32,15 +19,10 @@ const chartConfig = {
 
 export function PreviewCard({
   eventID,
-  backgroundImage,
   eventImageSrc,
   question,
   probability,
   totalPool,
-  yesPotential,
-  noPotential,
-  onYesClick,
-  onNoClick,
   endDate,
   className,
   style
@@ -62,19 +44,11 @@ export function PreviewCard({
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        // const response = await fetch(`/api/event-data/by-id?id=${eventID}`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/x-www-form-urlencoded",
-        //   },
-        // });
-        const response = await getSingleEvent({id: eventID});
-        // const data = await response.json();
+        const response = await getEventById({id: eventID});
         if(response.status) {
           setEvents(response.result);
           setMarkets(
             response.result?.marketId?.filter((market) => market.status === "active")
-              // .sort((a, b) => b.bestAsk - a.bestAsk)
           );
         }
         setLoadingGraph(false);

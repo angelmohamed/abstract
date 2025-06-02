@@ -1,50 +1,20 @@
 import React, { useEffect } from "react";
-import Ye from "/public/images/Ye.png";
-import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
-import { Progress } from "@/app/components/ui/progress";
-import { TrendingUp } from "lucide-react";
-import { Comment } from "@/app/components/ui/comment";
 import { Amount } from "@/app/components/ui/amount";
 import { SharesInput } from "@/app/components/ui/sharesInput";
-import { DropdownMenu, Switch, Dialog } from "radix-ui";
+import { DropdownMenu, Dialog } from "radix-ui";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { setHours, setMinutes } from "date-fns";
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
-import { Label } from "@/app/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/app/components/ui/tabs";
-
-import {
-  Options,
-  OptionsContent,
-  OptionsList,
-  OptionsTrigger,
-} from "@/app/components/ui/optionsToggle";
-import {
-  buyFunction,
-  decimalToPercentage,
-  sellFunction,
-  toTwoDecimal,
-} from "@/utils/helpers";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import { Options, OptionsContent, OptionsList, OptionsTrigger } from "@/app/components/ui/optionsToggle";
+import { toTwoDecimal } from "@/utils/helpers";
 import { ChevronDownIcon, Cross2Icon } from "@radix-ui/react-icons";
-import { getUserData, OrderPlace } from "@/app/ApiAction/api";
-import isEmpty from "is-empty";
 import { toastAlert } from "@/lib/toast";
+import { useSelector } from "@/store";
+import { placeOrder } from "@/services/market";
 
 export function TradingCard({
   market,
@@ -52,45 +22,16 @@ export function TradingCard({
   setActiveView,
   selectedOrderBookData,
 }) {
+  const { signedIn } = useSelector(state => state?.auth.session);
+  const user = useSelector(state => state?.auth.user);
+
   const [amount, setAmount] = React.useState(0);
   const [shares, setShares] = React.useState(0);
   const [errors, setErrors] = React.useState({});
-  const sortedYesAsks =
-    selectedOrderBookData &&
-    selectedOrderBookData[0] &&
-    selectedOrderBookData[0].asks.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-  const sortedNoAsks =
-    selectedOrderBookData &&
-    selectedOrderBookData[1] &&
-    selectedOrderBookData[1].asks.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-  const sortedYesBids =
-    selectedOrderBookData &&
-    selectedOrderBookData[0] &&
-    selectedOrderBookData[0].bids.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-  const sortedNoBids =
-    selectedOrderBookData &&
-    selectedOrderBookData[1] &&
-    selectedOrderBookData[1].bids.sort(
-      (a, b) => Number(b.price) - Number(a.price)
-    );
-  const lowestAskYes = sortedYesAsks?.[sortedYesAsks?.length - 1]?.price;
-  const lowestAskNo = sortedNoAsks?.[sortedNoAsks?.length - 1]?.price;
-  const lowestBidYes = sortedYesBids?.[0]?.price;
-  const lowestBidNo = sortedNoBids?.[0]?.price;
+  
   const onTabChange = (value) => {
     setActiveView(value);
   };
-
-  // const buyYes = buyFunction(selectedOrderBookData?.[0]?.asks, amount);
-  // const buyNo = buyFunction(selectedOrderBookData?.[1]?.asks, amount);
-  // const sellYes = sellFunction(selectedOrderBookData?.[0]?.bids, shares);
-  // const sellNo = sellFunction(selectedOrderBookData?.[1]?.bids, shares);
 
   const buyYes = selectedOrderBookData?.asks?.[0]?.reverse()?.[0] || [];
   const buyNo = selectedOrderBookData?.bids?.[0]?.reverse()?.[0] || [];
@@ -101,11 +42,8 @@ export function TradingCard({
   const [showCustomDialog, setShowCustomDialog] = React.useState(false);
   const [customDate, setCustomDate] = React.useState("");
   const [daysLeft, setDaysLeft] = React.useState(null);
-  const [startDate, setStartDate] = React.useState(
-    setHours(setMinutes(new Date(), 30), 17)
-  );
+  
   const [tab, setTab] = React.useState("buy");
-  const [user, setUser] = React.useState({});
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
@@ -187,11 +125,7 @@ export function TradingCard({
       console.log("Validation failed", errors);
       return;
     }
-    let userId = user?._id;
     let activeTab = activeView?.toLowerCase();
-    // if(action == "sell"){
-    //   return
-    // }
     let data = {
       price: action === "sell" ? 100 - amount : amount,
       side: action === "buy" ? activeTab : activeTab === "yes" ? "no" : "yes",
@@ -199,17 +133,17 @@ export function TradingCard({
       action: action,
       capped: action === "sell" ? true : false,
       marketId: market._id,
-      userId: userId,
+      userId: user?._id,
       quantity: shares,
       type: orderType,
     };
-    const response = await OrderPlace(data);
-    if (response.status) {
+    const { success, message } = await placeOrder(data);
+    if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
       setAmount(0);
       setShares(0);
     } else {
-      toastAlert("error", response.message, "order-failed");
+      toastAlert("error", message, "order-failed");
     }
     console.log("Placing order with data: ", market._id);
   };
@@ -220,20 +154,6 @@ export function TradingCard({
     setErrors({});
   }, [activeView, orderType, tab]);
 
-  const getUserInfo = async () => {
-    try {
-      let { status, result } = await getUserData();
-      if (status) {
-        setUser(result);
-      }
-    } catch (error) {
-      console.error("Error fetching user data: ", error);
-    }
-  };
-
-  useEffect(() => {
-    getUserInfo();
-  }, []);
   return (
     <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
@@ -643,7 +563,7 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
-                          {!isEmpty(user) ? (
+                          {signedIn ? (
                             <Button
                               className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
                               onClick={() => handlePlaceOrder("buy")}
@@ -736,7 +656,7 @@ export function TradingCard({
                           </Button>
                         </div>
                         <div className="pt-4">
-                          {!isEmpty(user) ? (
+                          {signedIn ? (
                             <Button
                               className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
                               onClick={() => handlePlaceOrder("buy")}
@@ -1005,7 +925,7 @@ export function TradingCard({
                           </div>
                         </div>
                         <div className="pt-4">
-                          {!isEmpty(user) ? (
+                          {signedIn ? (
                             <Button
                               className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
                               onClick={() => handlePlaceOrder("sell")}
@@ -1123,7 +1043,7 @@ export function TradingCard({
                           </Button>
                         </div>
                         <div className="pt-4">
-                          {!isEmpty(user) ? (
+                          {signedIn ? (
                             <Button
                               className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
                               onClick={() => handlePlaceOrder("sell")}

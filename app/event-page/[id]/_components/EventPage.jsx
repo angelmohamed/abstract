@@ -13,9 +13,9 @@ import {
 } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
 import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import { navigationItems } from "@/app/components/constants";
 import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
+import Chart from "@/app/components/customComponents/Chart";
 import {
   OrderbookAccordion,
   OrderbookAccordionContent,
@@ -35,12 +35,12 @@ import {
   DrawerHeader,
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
-import { getOrderBook, getSingleEvent } from "../../../ApiAction/api";
 import {
   SocketContext,
   subscribe,
   unsubscribe,
-} from "@/app/config/socketConnectivity";
+} from "@/config/socketConnectivity";
+import { getOrderBook, getEventById } from "@/services/market";
 
 export default function EventPage() {
   const param = useParams();
@@ -52,7 +52,7 @@ export default function EventPage() {
   const [books, setBooks] = useState([]);
   const [bookLabels, setBookLabels] = useState([]);
   const [activeView, setActiveView] = React.useState("Yes");
-  const [interval, setInterval] = useState("all");
+  const [interval, setInterval] = useState("max");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedOrderBookData, setSelectedOrderBookData] = useState([
     books[0],
@@ -94,25 +94,19 @@ export default function EventPage() {
 
   // Get Event Data
   useEffect(() => {
+    if (!id) {
+      return;
+    }
+
     const fetchEvents = async () => {
       try {
         setEventsLoading(true);
-        // const response = await fetch(`/api/event-data/by-id?id=${id}`, {
-        //   method: "GET",
-        //   headers: {
-        //     "Content-Type": "application/x-www-form-urlencoded",
-        //   },
-        // });
-        // const data = await response.json();
-        // console.log('market Data', data);
-        let response = await getSingleEvent({ id: id });
-        if (response.status) {
-          let data = response.result;
-          setEvents(data);
-          setMarkets(
-            data?.marketId?.filter((market) => market.status === "active")
-            // .sort((a, b) => b.bestAsk - a.bestAsk)
-          );
+        let { success, result } = await getEventById({ id: id });
+        if (success) {
+          setEvents(result);
+          if (result?.marketId && result?.marketId.length > 0) {
+            setMarkets(result.marketId.filter((market) => market.status === "active"));
+          }
         }
         setEventsLoading(false);
       } catch (error) {
@@ -120,27 +114,20 @@ export default function EventPage() {
         setEventsLoading(false);
       }
     };
-
     fetchEvents();
   }, [id]);
+  
   const fetchAllBooks = async () => {
     try {
-      // const response = await fetch(`/api/event-data/books`, {
-      //   method: "Post",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify(idsGroup),
-      // });
-      // setBooks(await response.json());
-      const response = await getOrderBook({ id: id });
-      if (response.result) {
-        setBooks(response.result);
+      const { success, orderbook } = await getOrderBook({ id: id });
+      if (success) {
+        setBooks(orderbook);
       }
     } catch (error) {
       console.error("Error fetching PriceHistory:", error);
     }
   };
+
   // Get Books Data
   useEffect(() => {
     if (markets.length > 0) {
@@ -167,7 +154,7 @@ export default function EventPage() {
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
-        <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
+        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
       <div className="container mx-auto px-4 max-w-full overflow-hidden">
         {eventsLoading ? (
@@ -182,7 +169,17 @@ export default function EventPage() {
               <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
                 {/* Main Content (Charts, Accordion, etc.) */}
                 <div className="w-full lg:w-[70%]">
-                  {markets.length < 2 ? (
+                  <Chart 
+                    id={id}
+                    title={events.title}
+                    volume={events.volume}
+                    image={events.image || "/images/logo.png"}
+                    endDate={events.endDate}
+                    market={markets}
+                    interval={interval}
+                    chance={markets[0]?.bestAsk}
+                  />
+                  {/* {markets.length < 2 ? (
                     <SingleLineChart
                       title={events.title}
                       volume={events.volume}
@@ -203,7 +200,7 @@ export default function EventPage() {
                       endDate={events.endDate}
                       interval={interval}
                     />
-                  )}
+                  )} */}
                   <div className="justify-center items-center">
                     <ChartIntervals
                       interval={interval}

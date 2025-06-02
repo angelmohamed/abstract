@@ -6,9 +6,7 @@ import Web3 from "web3";
 import { Multicall } from "ethereum-multicall";
 import { convert } from "../helper/convert";
 import { getFormatMulticall,getFormatMulticall1 } from "../helper/custommath";
-import { useWallet } from "@/app/walletconnect/walletContext.js";
-import { userDeposit } from "@/app/ApiAction/api"
-import { IconChevronsDownLeft } from "@tabler/icons-react";
+import { userDeposit } from "@/services/wallet";
 
 export async function getCoinAmt(address,amount,transport) {
   try {

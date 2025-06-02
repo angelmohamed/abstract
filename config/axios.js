@@ -3,12 +3,13 @@ import axios from "axios";
 
 // import lib
 import config from "./config";
+import { getCookie } from "cookies-next";
 
 axios.defaults.baseURL = config.baseUrl;
 
-let localtoken = localStorage.getItem("sonoTradeToken")
+const token = getCookie("user-token");
 
-axios.defaults.headers.common["Authorization"] = localtoken ? `Bearer ${localtoken}` : "";
+axios.defaults.headers.common["Authorization"] = token ? `Bearer ${token}` :"";
 
 export const setAuthorization = (token) => {
   axios.defaults.headers.common["Authorization"] = token;

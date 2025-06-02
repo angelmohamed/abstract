@@ -2,7 +2,6 @@ var key = {};
  if (process.env.NODE_ENV == "production") {
   key = {
     frontUrl: "https://sonotrade-frontend-2025.pages.dev",
-    baseUrl: "https://sonotradesdemo.wearedev.team/api/v1/user",
     backendURL: "https://sonotradesdemo.wearedev.team",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
@@ -17,7 +16,6 @@ var key = {};
 } else {
   key = {
     frontUrl: "http://localhost:3000",
-    baseUrl: "http://localhost:3001/api/v1/user",
     backendURL: "http://localhost:3001",
     txLink: "https://amoy.polygonscan.com/",
     rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",

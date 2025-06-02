@@ -1,7 +1,7 @@
 "use client";
 import Header from "@/app/Header";
 import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import { navigationItems } from "@/app/components/constants";
+// import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Avatar,
@@ -37,7 +37,6 @@ import {
   CheckIcon,
   CopyIcon,
 } from "@radix-ui/react-icons";
-import { getUserData, addressCheck } from "@/app/ApiAction/api";
 import { useRouter } from "next/navigation";
 import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
@@ -53,6 +52,7 @@ import {
 import { walletClientToSigner } from "../helper/ethersconnect";
 import { formatNumber } from "../helper/custommath";
 import tokenABI from "../ABI/TOKENABI.json";
+import { addressCheck } from "@/services/wallet";
 
 let initialValue = {
   currency: "",
@@ -352,7 +352,7 @@ export default function PortfolioPage() {
   const getUser = async () => {
     try {
       console.log("userrr");
-      let { status, result, wallet } = await getUserData();
+      let { status, result, wallet } = await getUser();
       if (status) {
         setData(result);
         setWalletData(wallet);
@@ -500,7 +500,7 @@ export default function PortfolioPage() {
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
         <Header />
-        <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
+        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
       <div className="container mx-auto py-10 px-4 container-sm">
         {!isEmpty(data) && data?.loginType !== "wallet" && (

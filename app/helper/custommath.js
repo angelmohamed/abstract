@@ -1,4 +1,3 @@
-import config from '../config/config';
 import {convert} from "./convert"
 
 

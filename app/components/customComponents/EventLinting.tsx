@@ -5,7 +5,7 @@ import { Loader } from "lucide-react";
 import EventCard from "@/app/components/ui/eventCard";
 import { MultipleOptionCard } from "@/app/components/ui/multipleOptionCard";
 import Link from "next/link";
-import { getEventData } from "@/app/ApiAction/api";
+import { getEvents } from "@/services/market";
 
 interface Market {
   id: string;
@@ -52,26 +52,12 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        let { status, result } = await getEventData({ id: selectCategory, page: pagination.page, limit: pagination.limit });
-        // const response = await fetch(
-        //   `http://localhost:3001/api/v1/events/paginate/${selectCategory}`,
-        //   {
-        //     method: "POST",
-        //     // headers: {
-        //     //   "Content-Type": "application/x-www-form-urlencoded",
-        //     // },
-        //   }
-        // );
-        if(status){
+        let { success, result } = await getEvents({ id: selectCategory, page: pagination.page, limit: pagination.limit });
+        if(success){
           setEvents(result?.data);
           setHasMore(result?.count > pagination.page * pagination.limit);
         }
-        // const data = await response.json();
-        // if(response.status){
-          // const data = response;
         console.log(result, "event-data");
-        
-        // }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -97,7 +83,7 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
               className="event-card w-full transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer"
             >
               {event.marketId?.length < 2 ? (
-                <Link href={`/event-page/${event._id}`} className="w-full block">
+                <Link href={`/event-page/${event.slug}`} className="w-full block">
                   <EventCard
                     imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
@@ -120,7 +106,7 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
                   />
                 </Link>
               ) : (
-                <Link href={`/event-page/${event._id}`} className="w-full block">
+                <Link href={`/event-page/${event.slug}`} className="w-full block">
                   <MultipleOptionCard
                     imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}

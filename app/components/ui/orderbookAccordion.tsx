@@ -210,130 +210,132 @@ const OrderbookAccordionContent = React.forwardRef<
             </TabsList>
 
             <div className="">
-              <div className="flex items-center h-[35px] w-full justify-between">
-                <div className="w-[30%]">
-                  {activeView === "Yes" ? "Trade Yes" : "Trade No"}
-                </div>
-                <div className="w-[20%] text-center">Price</div>
-                <div className="w-[25%] text-center">Shares</div>
-                <div className="w-[25%] text-center">Total</div>
-              </div>
-              <div className="w-full overflow-hidden h-[fit-content]">
-                <div
-                  className="h-[320px] w-full overflow-auto"
-                  ref={scrollContainerRef}
-                >
-                  <div className="h-full w-full relative">
-                    {/* asks */}
-                    {asks.length > 0 ? (
-                      asks.map((row: any, index: any) => {
-                        const orderBookLength = asks.length || 0;
-                        return (
-                          <div
-                            key={index}
-                            className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000]"
-                          >
-                            <div className="w-[30%]">
-                              <FillAsk
-                                value={
-                                  (getAccumalativeValueReverse(
-                                    asks || [],
-                                    orderBookLength - (index + 1)
-                                  ) /
-                                    100) *
-                                  100
-                                }
-                                className="w-full"
-                              />
-                            </div>
-                            <div className="text-center w-[20%] text-[#e64800]">
-                              {Number(row[0]).toFixed(1) + "¢"}
-                            </div>
-                            <div className="w-[25%] text-center">
-                              {Number(row[1]).toFixed(2)}
-                            </div>
-                            <div className="w-[25%] text-center">
-                              {"$" +
-                                Number(
-                                  getAccumalativeValueReverse(
-                                    asks || [],
-                                    orderBookLength - (index + 1)
-                                  ) / 100
-                                ).toFixed(2)}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="flex items-center h-[35px] w-full">
-                        <div className="w-full text-center">
-                          No contracts available
-                        </div>
-                      </div>
-                    )}
 
-                    <div className="absolute left-3 flex flex-col gap-10">
-                      <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
-                        Asks
-                      </Badge>
-                      <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
-                        Bids
-                      </Badge>
+              {
+                !asks.length && !bids.length ? (
+                  <div className="flex items-center h-[320px] w-full">
+                    <div className="w-full text-center">
+                      No contracts available
                     </div>
-                    <div className="flex items-center h-[35px] w-full">
-                      <div className="w-[30%]">Last: 38.5¢</div>
-                      <div className="w-[20%] text-center">Spread: 0.5¢</div>
-                      <div className="w-[25%]"></div>
-                      <div className="w-[25%]"></div>
-                    </div>
-
-                    {/* bids */}
-                    {bids.length > 0 ? (
-                      bids.map((row, index) => {
-                        const orderBookLength = bids.length || 0;
-                        return (
-                          <div
-                            key={index}
-                            className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202]"
-                          >
-                            <div className="w-[30%]">
-                              <FillBid
-                                value={
-                                  (getAccumalativeValue(bids || [], index) /
-                                    15) *
-                                  100
-                                }
-                                className="hover:bg-[#0a0a0a]"
-                              />
-                            </div>
-                            <div className="w-[20%] text-center text-[#27ae60]">
-                              {Number(row[0]).toFixed(1) + "¢"}
-                            </div>
-                            <div className="w-[25%] text-center">
-                              {Number(row[1]).toFixed(2)}
-                            </div>
-                            <div className="w-[25%] text-center">
-                              {"$" +
-                                Number(
-                                  getAccumalativeValueReverse(
-                                    bids || [],
-                                    orderBookLength - (index + 1)
-                                  ) / 100
-                                ).toFixed(2)}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="flex items-center h-[35px] w-full">
-                        <div className="w-full text-center">
-                          No contracts available
-                        </div>
-                      </div>
-                    )}
                   </div>
-                </div>
-              </div>
+                ) : (
+                  <>
+                    <div className="flex items-center h-[35px] w-full justify-between">
+                      <div className="w-[30%]">
+                        {activeView === "Yes" ? "Trade Yes" : "Trade No"}
+                      </div>
+                      <div className="w-[20%] text-center">Price</div>
+                      <div className="w-[25%] text-center">Shares</div>
+                      <div className="w-[25%] text-center">Total</div>
+                    </div>
+                    <div className="w-full overflow-hidden h-[fit-content]">
+                      <div
+                        className="h-[320px] w-full overflow-auto"
+                        ref={scrollContainerRef}
+                      >
+                        <div className="h-full w-full relative">
+                          {/* asks */}
+                          {asks.length > 0 && (
+                            asks.map((row: any, index: any) => {
+                              const orderBookLength = asks.length || 0;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000]"
+                                >
+                                  <div className="w-[30%]">
+                                    <FillAsk
+                                      value={
+                                        (getAccumalativeValueReverse(
+                                          asks || [],
+                                          orderBookLength - (index + 1)
+                                        ) /
+                                          100) *
+                                        100
+                                      }
+                                      className="w-full"
+                                    />
+                                  </div>
+                                  <div className="text-center w-[20%] text-[#e64800]">
+                                    {Number(row[0]).toFixed(1) + "¢"}
+                                  </div>
+                                  <div className="w-[25%] text-center">
+                                    {Number(row[1]).toFixed(2)}
+                                  </div>
+                                  <div className="w-[25%] text-center">
+                                    {"$" +
+                                      Number(
+                                        getAccumalativeValueReverse(
+                                          asks || [],
+                                          orderBookLength - (index + 1)
+                                        ) / 100
+                                      ).toFixed(2)}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+
+                          <div className="absolute left-3 flex flex-col gap-10">
+                            <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
+                              Asks
+                            </Badge>
+                            <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
+                              Bids
+                            </Badge>
+                          </div>
+                          <div className="flex items-center h-[35px] w-full">
+                            <div className="w-[30%]">Last: 38.5¢</div>
+                            <div className="w-[20%] text-center">Spread: 0.5¢</div>
+                            <div className="w-[25%]"></div>
+                            <div className="w-[25%]"></div>
+                          </div>
+
+                          {/* bids */}
+                          {bids.length > 0 && (
+                            bids.map((row, index) => {
+                              const orderBookLength = bids.length || 0;
+                              return (
+                                <div
+                                  key={index}
+                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202]"
+                                >
+                                  <div className="w-[30%]">
+                                    <FillBid
+                                      value={
+                                        (getAccumalativeValue(bids || [], index) /
+                                          15) *
+                                        100
+                                      }
+                                      className="hover:bg-[#0a0a0a]"
+                                    />
+                                  </div>
+                                  <div className="w-[20%] text-center text-[#27ae60]">
+                                    {Number(row[0]).toFixed(1) + "¢"}
+                                  </div>
+                                  <div className="w-[25%] text-center">
+                                    {Number(row[1]).toFixed(2)}
+                                  </div>
+                                  <div className="w-[25%] text-center">
+                                    {"$" +
+                                      Number(
+                                        getAccumalativeValueReverse(
+                                          bids || [],
+                                          orderBookLength - (index + 1)
+                                        ) / 100
+                                      ).toFixed(2)}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )
+              }
+
             </div>
           </Tabs>
         </div>
