@@ -42,8 +42,8 @@ export const googleLogin = async (reqBody: any, dispatch: any) => {
     console.log(error, "error");
     return {
       success: false,
-      message: error.response.data.message,
-      errors: error.response.data.errors,
+      message: error?.response?.data?.message,
+      errors: error?.response?.data?.errors,
     };
   }
 };
@@ -69,8 +69,8 @@ export const walletLogin = async (reqBody: any, dispatch: any) => {
     console.log(error, "error");
     return {
       success: false,
-      message: error.response.data.message,
-      errors: error.response.data.errors,
+      message: error?.response?.data?.message,
+      errors: error?.response?.data?.errors,
     };
   }
 };
@@ -96,8 +96,8 @@ export const verifyEmail = async (data: any, dispatch: any) => {
     console.log(error, "error");
     return {
       success: false,
-      message: error.response.data.message,
-      errors: error.response.data.errors,
+      message: error?.response?.data?.message,
+      errors: error?.response?.data?.errors,
     };
   }
 };

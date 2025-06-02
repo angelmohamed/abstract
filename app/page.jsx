@@ -69,7 +69,6 @@ export default function Home() {
   const fetchCategories = async () => {
     try {
       const { success, result } = await getCategories();
-      console.log('response: ',response)
       if (success) {
         setCategoryList(result);
       }

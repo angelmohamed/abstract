@@ -21,7 +21,7 @@ import {
 } from "@radix-ui/react-icons";
 import config from "../config/config.js";
 import { Button } from "./components/ui/button";
-import { useToast } from "./helper/toastAlert.js";
+import { toastAlert } from "../lib/toast.js"
 import {
   regInputValidate,
   regValidate,
@@ -51,6 +51,7 @@ export default function Authentication() {
   const router = useRouter();
   const dispatch = useDispatch();
 	const { signedIn } = useSelector((state) => state.auth?.session);
+  const data = useSelector(state => state?.auth?.user);
 
   const [connval, setconnval] = useState(null);
   const [open, setOpen] = useState(false);
@@ -61,7 +62,6 @@ export default function Authentication() {
   const [LoginHistory, setLoginHistory] = useState({});
   const [error, setError] = useState({});
   const [connect, setIsConnect] = useState(false);
-  const [data, setData] = useState({});
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
   const [account, setaccount] = useState("");
@@ -70,7 +70,6 @@ export default function Authentication() {
 
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
-  const toastAlert = useToast();
   let { email } = userData;
   let { otp } = otpData;
 
@@ -182,11 +181,11 @@ export default function Authentication() {
       var pos = error.search("Provider not set or invalid");
       var pos1 = error.search("User rejected");
       if (pos >= 0) {
-        toastAlert("error", "Please login into metamask");
+        toastAlert("error", "Please login into metamask","login");
       } else if (pos1 >= 0) {
-        toastAlert("error", "Confirmation is rejected");
+        toastAlert("error", "Confirmation is rejected","login");
       } else {
-        toastAlert("error", "Please try again later");
+        toastAlert("error", "Please try again later","login");
       }
     }
   }
@@ -218,9 +217,9 @@ export default function Authentication() {
     let { success, message } = await walletLogin(data, dispatch);
       if (success) {
         setOpen(false);
-        toastAlert("success", message);
+        toastAlert("success", message,"login");
       } else {
-        toastAlert("error", message);
+        toastAlert("error", message,"login");
       }
   };
 
@@ -257,9 +256,9 @@ export default function Authentication() {
       let { success, message } = await googleLogin(data, dispatch);
       if (success) {
         setOpen(false);
-        toastAlert("success", message);
+        toastAlert("success", message,"login");
       } else {
-        toastAlert("error", message);
+        toastAlert("error", message,"login");
       }
     } catch (error) {
       console.error("Google Login Error:", error);
@@ -274,9 +273,9 @@ export default function Authentication() {
         let { success, message, errors } = await register(userData);
         console.log(errors, "errorserrors");
         if (success) {
-          toastAlert("success", message);
+          toastAlert("success", message,"login");
           setVerifyStatus(true);
-          setExpireTime(180);
+          setExpireTime(10);
           setOtpOpen(true);
           setOpen(false);
           getTime();
@@ -284,7 +283,7 @@ export default function Authentication() {
           setError(errors);
           return;
         } else {
-          toastAlert("error", message);
+          toastAlert("error", message,"login");
         }
       }
     } catch (err) {
@@ -308,16 +307,16 @@ export default function Authentication() {
       setError(errMsg);
       if (isEmpty(errMsg)) {
         if (expireTime == 0) {
-          toastAlert("error", "OTP expired,Please resend", "otp");
+          toastAlert("error", "OTP expired,Please resend");
           setOtpData({});
         } else {
           let data = { otp, email, LoginHistory: LoginHistory };
           let { message, success } = await verifyEmail(data, dispatch);
           if (success) {
-            toastAlert("success", message);
+            toastAlert("success", message,"login");
             setOtpOpen(false);
           } else {
-            toastAlert("error", message);
+            toastAlert("error", message,"login");
           }
         }
       }
@@ -333,12 +332,12 @@ export default function Authentication() {
       };
       let { message, success } = await resendOTP(data);
       if (success) {
-        toastAlert("success", message, "otp");
+        toastAlert("success", message,"login");
         setExpireTime(180);
         getTime();
         setisLoad(false);
       } else {
-        toastAlert("error", message, "otp");
+        toastAlert("error", message,"login");
         setisLoad(false);
       }
     } catch (err) {
@@ -353,7 +352,7 @@ export default function Authentication() {
 		dispatch(signOut());
     window.location.href = "/";
   }
-
+console.log(signedIn,"signedInsignedIn")
   return (
     <>
       {signedIn && (
@@ -363,7 +362,8 @@ export default function Authentication() {
         {!signedIn && (
           <>
             <Dialog.Trigger asChild>
-              <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+              <Button variant="outline" size="sm" onClick={() => { setOpen(true)
+               setUserData({email : ""})}}>
                 Log In
               </Button>
             </Dialog.Trigger>
@@ -372,7 +372,8 @@ export default function Authentication() {
                 variant="outline"
                 size="sm"
                 className="bg-blue-500"
-                onClick={() => setOpen(true)}
+                onClick={() => { setOpen(true) 
+                  setUserData({email : ""})}}
               >
                 Sign Up
               </Button>

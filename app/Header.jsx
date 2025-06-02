@@ -14,7 +14,8 @@ import { useSelector } from "@/store";
 export default function Header() {
   const router = useRouter();
   const { signedIn } = useSelector(state => state?.auth?.session);
-  const [walletData, setWalletData] = useState({});
+  const walletData = useSelector(state => state?.wallet?.data);
+
   const [currentPosition, setCurrentPosition] = useState("$0.00");
 
   const navigateToPortfolioPage = () => {
@@ -23,7 +24,6 @@ export default function Header() {
   };
 
   const [isSearchActive, setIsSearchActive] = useState(false);
-
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 h-auto pt-2 container mx-auto">
       <div className="flex w-full md:w-auto items-center justify-between p-0 md:ml-6 ml-0 overflow-hidden">

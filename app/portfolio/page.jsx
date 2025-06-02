@@ -10,7 +10,7 @@ import {
 } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
 import Web3 from "web3";
-import config from "../config/config";
+import config from "../../config/config";
 import {
   Tabs,
   TabsList,
@@ -27,7 +27,7 @@ import Link from "next/link";
 import { IconWindowMaximize } from "@tabler/icons-react";
 import { Dialog, Accordion, Checkbox, Separator } from "radix-ui";
 import { shortText, numberFloatOnly } from "../helper/custommath";
-import { useToast } from "../helper/toastAlert";
+import { toastAlert } from "../../lib/toast"
 import isEmpty from "is-empty";
 import {
   Cross2Icon,
@@ -42,6 +42,9 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
 import { useWalletClient } from "wagmi";
+import { useSelector } from "@/store";
+import { useDispatch } from "react-redux";
+import { setWallet } from "@/store/slices/wallet/dataSlice";
 import {
   getCoinAmt,
   depsoitToken,
@@ -51,8 +54,10 @@ import {
 } from "./multicall";
 import { walletClientToSigner } from "../helper/ethersconnect";
 import { formatNumber } from "../helper/custommath";
-import tokenABI from "../ABI/TOKENABI.json";
+import tokenABI from "../../components/ABI/TOKENABI.json";
 import { addressCheck } from "@/services/wallet";
+import { reset } from "@/store/slices/auth/userSlice"
+import { signOut } from "@/store/slices/auth/sessionSlice";
 
 let initialValue = {
   currency: "",
@@ -62,8 +67,9 @@ let initialValue = {
 export default function PortfolioPage() {
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
-  const [account, setaccount] = useState(address);
-  const [data, setData] = useState(address);
+  const walletData = useSelector(state => state?.wallet?.data);
+  const data = useSelector(state => state?.auth?.user);
+
   const [open, setOpen] = useState(false);
   const [check, setCheck] = useState(false);
   const [step, setStep] = useState("");
@@ -72,21 +78,21 @@ export default function PortfolioPage() {
   const [tokenbalance, setTokenBalance] = useState(0);
   const [currentTab, setCurrentTab] = useState("positions");
   const [depositData, setDepositData] = useState(initialValue);
-  const [depsoitAmt, setDepositAmt] = useState();
+  const [depsoitAmt, setDepositAmt] = useState(0);
   const [loader, setloader] = useState(false);
   const [txopen, setTxOpen] = useState(false);
   const [showallowance, setshowallowance] = useState(false);
   const [transactionHash, settransactionHash] = useState("");
   const [connval, setconnval] = useState(null);
-  const [walletData, setWalletData] = useState({});
   const [tokenValue, setTokenValue] = useState({
     minDeposit: 0,
     tokenAmt: 0,
     allowance: 0,
     usdConvt: 0,
   });
-  const toastAlert = useToast();
+
   const router = useRouter();
+  const dispatch = useDispatch();
   const [profileData, setProfileData] = useState({
     username: "",
     avatar_url: "",
@@ -155,7 +161,6 @@ export default function PortfolioPage() {
     try {
       var { transport } = walletClientToSigner(walletClient);
       setconnval(transport);
-      setaccount(address);
     } catch (err) {}
   }, [address, walletClient]);
 
@@ -233,11 +238,11 @@ export default function PortfolioPage() {
       var pos = error.search("Provider not set or invalid");
       var pos1 = error.search("User rejected");
       if (pos >= 0) {
-        toastAlert("error", "Please login into metamask");
+        toastAlert("error", "Please login into metamask","wallet");
       } else if (pos1 >= 0) {
-        toastAlert("error", "Confirmation is rejected");
+        toastAlert("error", "Confirmation is rejected","wallet");
       } else {
-        toastAlert("error", "Please try again later");
+        toastAlert("error", "Please try again later","wallet");
       }
     }
   }
@@ -252,8 +257,9 @@ export default function PortfolioPage() {
       let { minDeposit, tokenAmt, allowance, usdConvt } = await getCoinAmt(
         address,
         amt,
-        connval
+        connval,
       );
+      console.log(usdConvt,"usdConvtusdConvt")
       setTokenValue({ minDeposit, tokenAmt, allowance, usdConvt });
 
       //gasCostValues
@@ -280,13 +286,14 @@ export default function PortfolioPage() {
         (isEmpty(data?.walletAddress) && result === true) ||
         (!isEmpty(data?.walletAddress) && result === true)
       ) {
-        disconnectWallet();
-        localStorage.removeItem("sonoTradeToken");
-        localStorage.removeItem("googlelogin");
         toastAlert(
           "error",
-          "You have been logged out. Please select the correct wallet address."
+          "You have been logged out. Please select the correct wallet address.","wallet"
         );
+        disconnectWallet();
+        document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        dispatch(reset());
+        dispatch(signOut());
         router.push("/");
         window.location.href = "/";
       } else if (
@@ -317,9 +324,10 @@ export default function PortfolioPage() {
   var step2Click = () => {
     if (!isEmpty(currency)) {
       setStep("2");
+      setDepositAmt()
       getCoinValue();
     } else {
-      toastAlert("error", "Please select a currency");
+      toastAlert("error", "Please select a currency","wallet");
     }
   };
 
@@ -330,37 +338,39 @@ export default function PortfolioPage() {
         if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(minDeposit)) {
           toastAlert(
             "error",
-            "Enter the amount must be greater than minimum deposit value"
+            "Enter the amount must be greater than minimum deposit value","deposit"
           );
         } else if (currency == "POL" && depsoitAmt < 0.001) {
           toastAlert(
             "error",
-            `Enter the amount must be greater than minimum deposit value`
+            `Enter the amount must be greater than minimum deposit value`,"deposit"
           );
+        } else if (depsoitAmt > depositBalance) {
+          toastAlert("error", "Insufficient Balance","deposit");
         } else if (depsoitAmt > 0) {
           setStep("3");
           getCoinValue();
         }
       } else if (depositBalance <= 0) {
-        toastAlert("error", "Insufficient Balance");
+        toastAlert("error", "Insufficient Balance","deposit");
       }
     } catch (err) {
       console.log(err, "ererrrr");
     }
   };
 
-  const getUser = async () => {
-    try {
-      console.log("userrr");
-      let { status, result, wallet } = await getUser();
-      if (status) {
-        setData(result);
-        setWalletData(wallet);
-      }
-    } catch (err) {
-      console.log(err, "errr");
-    }
-  };
+  // const getUser = async () => {
+  //   try {
+  //     console.log("userrr");
+  //     let { status, result, wallet } = await getUser();
+  //     if (status) {
+  //       setData(result);
+  //       setWalletData(wallet);
+  //     }
+  //   } catch (err) {
+  //     console.log(err, "errr");
+  //   }
+  // };
 
   const balanceChange = (value) => {
     if (currency == "USDT") {
@@ -382,13 +392,14 @@ export default function PortfolioPage() {
         var { status, txId, message } = await depsoitToken(
           address,
           depsoitAmt,
-          connval
+          connval,
+          dispatch
         );
         settransactionHash(txId);
         setloader(true);
         if (status) {
-          toastAlert("success", "Your transaction is successfully completed");
-          setDepositAmt();
+          toastAlert("success", "Your transaction is successfully completed","deposit");
+          setDepositAmt(0);
           setStep("");
           setTxOpen(true);
           const button = document.querySelector(".modal_close_brn");
@@ -397,7 +408,7 @@ export default function PortfolioPage() {
           }
           // await getUser();
         } else {
-          toastAlert("error", message);
+          toastAlert("error", message,"deposit");
           const button = document.querySelector(".modal_close_brn");
           if (button) {
             button.click();
@@ -408,13 +419,14 @@ export default function PortfolioPage() {
         var { status, txId, message } = await depsoitCoin(
           address,
           depsoitAmt,
-          connval
+          connval,
+          dispatch
         );
         settransactionHash(txId);
         setloader(true);
         if (status) {
-          toastAlert("success", "Your transaction is successfully completed");
-          setDepositAmt();
+          toastAlert("success", "Your transaction is successfully completed","deposit");
+          setDepositAmt(0);
           setStep("");
           setTxOpen(true);
           const button = document.querySelector(".modal_close_brn");
@@ -423,7 +435,7 @@ export default function PortfolioPage() {
           }
           // await getUser();
         } else {
-          toastAlert("error", message);
+          toastAlert("error", message,"deposit");
           const button = document.querySelector(".modal_close_brn");
           if (button) {
             button.click();
@@ -457,13 +469,13 @@ export default function PortfolioPage() {
       );
       if (isAllowed) {
         if (depsoitAmt > approvalAmt) {
-          toastAlert("error", "Insufficient approval amount");
+          toastAlert("error", "Insufficient approval amount","deposit");
         } else {
-          toastAlert("success", "Successfully approved");
+          toastAlert("success", "Successfully approved","deposit");
           setshowallowance(false);
         }
       } else {
-        toastAlert("error", error);
+        toastAlert("error", error,"deposit");
       }
       setloader(false);
     } catch (err) {
@@ -481,12 +493,12 @@ export default function PortfolioPage() {
   const iniDepsotClick = () => {
     if (isConnected == true) {
       setStep("1");
-      setDepositAmt();
+      setDepositAmt(0);
       getCoinValue();
       balanceData()
       setTxOpen(false);
     } else {
-      toastAlert("error", "Connect Your Wallet");
+      toastAlert("error", "Connect Your Wallet","deposit");
     }
   };
   // useEffect(() => {
@@ -495,7 +507,7 @@ export default function PortfolioPage() {
   //   }
   //   // getUser();
   // }, []);
-  console.log(data, data?.loginType, tokenAmt, "datadatadata");
+  console.log(data,walletData, tokenAmt, usdConvt,isConnected,"datadatadata");
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
@@ -503,7 +515,6 @@ export default function PortfolioPage() {
         {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
       <div className="container mx-auto py-10 px-4 container-sm">
-        {!isEmpty(data) && data?.loginType !== "wallet" && (
           <div className="flex justify-end mb-4">
             {isConnected ? (
               <>
@@ -514,8 +525,7 @@ export default function PortfolioPage() {
               <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
             )}
           </div>
-        )}
-
+    
         <br></br>
         {/* 2. Key metrics card area */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -578,10 +588,7 @@ export default function PortfolioPage() {
                             Available Balance: ${" "}
                             {currency === "USDT"
                               ? `${tokenbalance} ${currency}`
-                              : `${formatNumber(
-                                  balance * usdConvt,
-                                  4
-                                )} ${currency}`}
+                              : `${formatNumber(balance * usdConvt,4)} ${currency}`}
                           </p>
                         )}
                         {step == "1" && (

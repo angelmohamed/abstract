@@ -1,7 +1,7 @@
-import config from "../config/config";
-import DEPOSITABI from "../ABI/DEPOSITABI.json";
-import tokenABI from "../ABI/TOKENABI.json"
-import PRICEABI from "../ABI/PRICEABI.json"
+import config from "../../config/config";
+import DEPOSITABI from "../../components/ABI/DEPOSITABI.json";
+import tokenABI from "../../components/ABI/TOKENABI.json"
+import PRICEABI from "../../components/ABI/PRICEABI.json"
 import Web3 from "web3";
 import { Multicall } from "ethereum-multicall";
 import { convert } from "../helper/convert";
@@ -91,7 +91,7 @@ export async function getCoinAmt(address,amount,transport) {
 
 
 
-export async function depsoitToken(address,amount,transport) {
+export async function depsoitToken(address,amount,transport,dispatch) {
     try {
         console.log(address,amount,"depsoitToken")
         const web3 = new Web3(transport);
@@ -139,7 +139,7 @@ export async function depsoitToken(address,amount,transport) {
             amount : balance,
             symbol : "USDC"
          }
-        var { message ,status} = await userDeposit(depositdata)
+        var { message ,status} = await userDeposit(depositdata,dispatch)
         console.log( message ,status," message ,status")
         return {
             status: status,
@@ -235,7 +235,7 @@ console.log(address,"addressaddress")
 
 }
 
-export async function depsoitCoin(address,amount,transport) {
+export async function depsoitCoin(address,amount,transport,dispatch) {
     try {
         console.log("depsoitCoin")
         const web3 = new Web3(transport);
@@ -279,7 +279,7 @@ console.log(tkn,"tkntkntkntkn")
             amount : balance,
             symbol : "USDC"
          }
-        var { message ,status} = await userDeposit(depositdata)
+        var { message ,status} = await userDeposit(depositdata,dispatch)
         console.log( message ,status," message ,status")
         return {
             status: status,
