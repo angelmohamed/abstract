@@ -138,7 +138,8 @@ export default function PortfolioPage() {
   const balanceData = async () => {
     try {
       const web3 = new Web3(config.rpcUrl);
-      const balanceWei = await web3.eth.getBalance(address ? address : "");
+      if(address){
+      const balanceWei = await web3.eth.getBalance(address);
       const balancePOL = web3.utils.fromWei(balanceWei, "ether");
       const formattedBalance = parseFloat(balancePOL).toFixed(6);
       setBalance(formattedBalance);
@@ -149,6 +150,7 @@ export default function PortfolioPage() {
         4
       );
       setTokenBalance(formattedBalance1);
+      }
     } catch (err) {
       console.error("Error fetching POL balance:", err);
     }
@@ -295,7 +297,7 @@ export default function PortfolioPage() {
         dispatch(reset());
         dispatch(signOut());
         router.push("/");
-        window.location.href = "/";
+        // window.location.href = "/";
       } else if (
         (!isEmpty(data?.walletAddress) && result === false) ||
         (isEmpty(data?.walletAddress) && result === false)

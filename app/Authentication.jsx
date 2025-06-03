@@ -88,7 +88,7 @@ export default function Authentication() {
   };
   const navigateToPortfolioPage = () => {
     router.push("/portfolio");
-    window.location.href = "/portfolio";
+    // window.location.href = "/portfolio";
   };
 
   var chainId = config.chainId;
@@ -349,7 +349,8 @@ export default function Authentication() {
     document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 		dispatch(reset());
 		dispatch(signOut());
-    window.location.href = "/";
+    router.push("/profile");
+    // window.location.href = "/";
   }
 console.log(signedIn,"signedInsignedIn")
   return (
@@ -364,6 +365,7 @@ console.log(signedIn,"signedInsignedIn")
               <Button variant="outline" size="sm" onClick={() => { setOpen(true)
                setUserData({email : ""} )
                setExpireTime(0)
+               setError({})
                }}>
                 Log In
               </Button>
@@ -375,7 +377,9 @@ console.log(signedIn,"signedInsignedIn")
                 className="bg-blue-500"
                 onClick={() => { setOpen(true) 
                   setUserData({email : ""})
-                  setExpireTime(0)}}
+                  setExpireTime(0)
+                  setError({})}
+                }
               >
                 Sign Up
               </Button>
