@@ -1,5 +1,5 @@
 var key = {};
- if (process.env.NODE_ENV !== "production") {
+ if (process.env.NODE_ENV == "production") {
   key = {
     frontUrl: "https://sonotrade-frontend-2025.pages.dev",
     backendURL: "https://sonotradesdemo.wearedev.team",
