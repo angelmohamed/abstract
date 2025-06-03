@@ -336,10 +336,8 @@ export default function Authentication() {
         toastAlert("success", message,"login");
         setExpireTime(180);
         getTime();
-        setisLoad(false);
       } else {
         toastAlert("error", message,"login");
-        setisLoad(false);
       }
     } catch (err) {
       console.log(err, "err");
