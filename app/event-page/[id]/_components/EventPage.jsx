@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 import Chart from "@/app/components/customComponents/Chart";
@@ -366,7 +366,7 @@ export default function EventPage() {
                     )}
 
                     {/* Spotify Embed */}
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                       <iframe
                         style={{ borderRadius: "12px" }}
                         src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
@@ -376,7 +376,7 @@ export default function EventPage() {
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                         loading="lazy"
                       ></iframe>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>

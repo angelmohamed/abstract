@@ -11,7 +11,7 @@ import {
 } from "@/app/components/ui/avatar";
 import { Label } from "@/app/components/ui/label";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import Cropper from "react-easy-crop";
 import imageCompression from "browser-image-compression";
