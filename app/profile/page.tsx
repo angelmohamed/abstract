@@ -248,7 +248,7 @@ export default function PortfolioPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {transactions.map((tx) => {
+                    {transactions && transactions?.length > 0 && transactions?.map((tx) => {
                       const time = new Date(parseInt(tx.timeStamp) * 1000);
                       const diffMinutes = Math.floor(
                         (Date.now() - time.getTime()) / 60000

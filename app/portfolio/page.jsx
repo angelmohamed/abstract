@@ -1065,7 +1065,7 @@ export default function PortfolioPage() {
                       {transactionHash && (
                         <a
                           className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
-                          href={`${config.txLink}tx/${transactionHash}`}
+                          href={`${config?.txLink}tx/${transactionHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -1607,7 +1607,7 @@ export default function PortfolioPage() {
               Welcome to Sonotrade
             </Dialog.Title>
             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-              {connectors.map((connector, i) => {
+              {connectors && connectors?.length > 0 && connectors?.map((connector, i) => {
                 if (
                   connector.name == "MetaMask" ||
                   connector.name == "WalletConnect"

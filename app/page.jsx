@@ -34,7 +34,7 @@ const InfoCards = () => {
       <div className="w-full">
         {/* Desktop view */}
         <div className="hidden md:grid md:grid-cols-4 gap-4">
-          {cards.map((card, index) => (
+          {cards && cards?.length > 0 && cards?.map((card, index) => (
             <div key={index}>
               {renderInfoCard(card.emoji, card.title, card.footer)}
             </div>
@@ -45,7 +45,7 @@ const InfoCards = () => {
         <div className="md:hidden">
           <Carousel className="w-full">
             <CarouselContent>
-              {cards.map((card, index) => (
+              {cards && cards?.length > 0 && cards?.map((card, index) => (
                 <CarouselItem key={index} className="pl-4">
                   {renderInfoCard(card.emoji, card.title, card.footer)}
                 </CarouselItem>
