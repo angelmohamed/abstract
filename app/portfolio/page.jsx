@@ -138,7 +138,8 @@ export default function PortfolioPage() {
   const balanceData = async () => {
     try {
       const web3 = new Web3(config.rpcUrl);
-      const balanceWei = await web3.eth.getBalance(address ? address : "");
+      if(address){
+      const balanceWei = await web3.eth.getBalance(address);
       const balancePOL = web3.utils.fromWei(balanceWei, "ether");
       const formattedBalance = parseFloat(balancePOL).toFixed(6);
       setBalance(formattedBalance);
@@ -149,6 +150,7 @@ export default function PortfolioPage() {
         4
       );
       setTokenBalance(formattedBalance1);
+      }
     } catch (err) {
       console.error("Error fetching POL balance:", err);
     }
@@ -284,7 +286,8 @@ export default function PortfolioPage() {
       const { result } = await addressCheck({ address });
       if (
         (isEmpty(data?.walletAddress) && result === true) ||
-        (!isEmpty(data?.walletAddress) && result === true)
+        (!isEmpty(data?.walletAddress) && result === true) ||
+        data?.walletAddress.toString() != address?.toString() && isConnected
       ) {
         toastAlert(
           "error",
@@ -1065,7 +1068,7 @@ export default function PortfolioPage() {
                       {transactionHash && (
                         <a
                           className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
-                          href={`${config.txLink}tx/${transactionHash}`}
+                          href={`${config?.txLink}tx/${transactionHash}`}
                           target="_blank"
                           rel="noopener noreferrer"
                         >
@@ -1607,7 +1610,7 @@ export default function PortfolioPage() {
               Welcome to Sonotrade
             </Dialog.Title>
             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-              {connectors.map((connector, i) => {
+              {connectors && connectors?.length > 0 && connectors?.map((connector, i) => {
                 if (
                   connector.name == "MetaMask" ||
                   connector.name == "WalletConnect"

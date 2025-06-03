@@ -149,6 +149,7 @@ export default function EventPage() {
     }
   }, [id, markets, interval]);
   const [openItem, setOpenItem] = useState(null);
+  console.log(id,"idididid")
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -171,10 +172,10 @@ export default function EventPage() {
                 <div className="w-full lg:w-[70%]">
                   <Chart 
                     id={id}
-                    title={events.title}
-                    volume={events.volume}
-                    image={events.image || "/images/logo.png"}
-                    endDate={events.endDate}
+                    title={events?.title}
+                    volume={events?.volume}
+                    image={events?.image || "/images/logo.png"}
+                    endDate={events?.endDate}
                     market={markets}
                     interval={interval}
                     chance={markets[0]?.bestAsk}
@@ -222,7 +223,7 @@ export default function EventPage() {
                           </OrderbookAccordionTrigger>
                           <OrderbookAccordionContent
                             orderBook={
-                              books.find(
+                              books?.find(
                                 (book) =>
                                   book.marketId ==
                                   // JSON?.parse(market?.clobTokenIds)[0]
@@ -241,9 +242,8 @@ export default function EventPage() {
                     ) : (
                       <>
                         <Accordion type="single" collapsible>
-                          {markets
-                            .filter((market) => market.status === "active")
-                            ?.map((market, index) => (
+                          {markets && markets?.length > 0 && markets
+                            .filter((market) => market.status === "active")?.map((market, index) => (
                               <AccordionItem
                                 value={`market-${index + 1}`}
                                 key={index}
@@ -259,7 +259,7 @@ export default function EventPage() {
                                     setSelectedOrderBookData
                                   }
                                   orderBook={
-                                    books.find(
+                                    books?.find(
                                       (book) =>
                                         book.marketId ==
                                         // JSON?.parse(market?.clobTokenIds)[0]
@@ -283,7 +283,7 @@ export default function EventPage() {
                                 </AccordionTrigger>
                                 <OrderbookAccordionContent
                                   orderBook={
-                                    books.find(
+                                    books?.find(
                                       (book) =>
                                         book.marketId ==
                                         // JSON?.parse(market?.clobTokenIds)[0]
@@ -335,12 +335,12 @@ export default function EventPage() {
                 {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                 <div className="hidden lg:block lg:w-[30%] relative">
                   <div className="fixed top-[135px] z-60 w-[25%]">
-                    {markets.length < 2 ? (
+                    {markets && markets?.length < 2 ? (
                       <TradingCard
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          books.find(
+                          books?.find(
                             (book) =>
                               book.marketId ==
                               // JSON?.parse(market?.clobTokenIds)[0]
@@ -354,7 +354,7 @@ export default function EventPage() {
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          books.find(
+                          books?.find(
                             (book) =>
                               book.marketId ==
                               // JSON?.parse(market?.clobTokenIds)[0]
@@ -409,7 +409,7 @@ export default function EventPage() {
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={
-                          books.find(
+                          books?.find(
                             (book) =>
                               book.marketId ==
                               // JSON?.parse(market?.clobTokenIds)[0]
@@ -424,7 +424,7 @@ export default function EventPage() {
                         setActiveView={setActiveView}
                         selectedOrderBookData={
                           selectedOrderBookData ||
-                          books.find(
+                          books?.find(
                             (book) =>
                               book.marketId ==
                               // JSON?.parse(market?.clobTokenIds)[0]

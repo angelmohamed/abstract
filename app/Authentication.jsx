@@ -203,13 +203,14 @@ export default function Authentication() {
     if (expireTime > 0) {
       setTimeout(() => {
         if (expireTime != 0) {
-          setExpireTime(expireTime - 1);
+          setExpireTime(prev => (prev > 1 ? prev - 1 : 0));
         }
       }, 1000);
     }
   };
 
   const walletAdd = async (address) => {
+    if(isConnected){
     var data = {
       address: address,
       LoginHistory,
@@ -221,6 +222,7 @@ export default function Authentication() {
       } else {
         toastAlert("error", message,"login");
       }
+    }
   };
 
   useEffect(() => {
@@ -234,8 +236,9 @@ export default function Authentication() {
     handleWalletAdd();
   }, [isConnected]);
 
+
   useEffect(() => {
-    if (expireTime > 0) {
+    if (expireTime > 0 && expireTime != 0) {
       getTime();
     }
   }, [expireTime]);
@@ -275,10 +278,10 @@ export default function Authentication() {
         if (success) {
           toastAlert("success", message,"login");
           setVerifyStatus(true);
-          setExpireTime(10);
+          setExpireTime(180);
           setOtpOpen(true);
           setOpen(false);
-          getTime();
+          getTime(180);
         } else if (!isEmpty(errors)) {
           setError(errors);
           return;
@@ -335,10 +338,8 @@ export default function Authentication() {
         toastAlert("success", message,"login");
         setExpireTime(180);
         getTime();
-        setisLoad(false);
       } else {
         toastAlert("error", message,"login");
-        setisLoad(false);
       }
     } catch (err) {
       console.log(err, "err");
@@ -350,6 +351,7 @@ export default function Authentication() {
     document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 		dispatch(reset());
 		dispatch(signOut());
+    router.push("/profile");
     window.location.href = "/";
   }
 console.log(signedIn,"signedInsignedIn")
@@ -363,7 +365,10 @@ console.log(signedIn,"signedInsignedIn")
           <>
             <Dialog.Trigger asChild>
               <Button variant="outline" size="sm" onClick={() => { setOpen(true)
-               setUserData({email : ""})}}>
+               setUserData({email : ""} )
+               setExpireTime(0)
+               setError({})
+               }}>
                 Log In
               </Button>
             </Dialog.Trigger>
@@ -373,7 +378,10 @@ console.log(signedIn,"signedInsignedIn")
                 size="sm"
                 className="bg-blue-500"
                 onClick={() => { setOpen(true) 
-                  setUserData({email : ""})}}
+                  setUserData({email : ""})
+                  setExpireTime(0)
+                  setError({})}
+                }
               >
                 Sign Up
               </Button>
@@ -387,7 +395,7 @@ console.log(signedIn,"signedInsignedIn")
             <Dialog.Title className="DialogTitle mb-4">
               Welcome to Sonotrade
             </Dialog.Title>
-            <GoogleOAuthProvider clientId={config.clientId}>
+            <GoogleOAuthProvider clientId={config?.clientId}>
               <div className="google_login">
                 <GoogleLogin
                   theme="filled_black"
@@ -436,11 +444,11 @@ console.log(signedIn,"signedInsignedIn")
                 )}
               </Button>
             </div>
-            {error && error.email && (
-              <span style={{ color: "red" }}>{error.email}</span>
+            {error && error?.email && (
+              <span style={{ color: "red" }}>{error?.email}</span>
             )}
             <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-              {connectors.map((connector, i) => {
+              {connectors && connectors?.length > 0 && connectors.map((connector, i) => {
                 if (
                   connector.name == "MetaMask" ||
                   connector.name == "WalletConnect"
@@ -523,8 +531,8 @@ console.log(signedIn,"signedInsignedIn")
                 )}
                 {/* <Button>Continue</Button> */}
               </div>
-              {error && error.otp && (
-                <span style={{ color: "red" }}>{error.otp}</span>
+              {error && error?.otp && (
+                <span style={{ color: "red" }}>{error?.otp}</span>
               )}
               <br></br>
               <div className="text-center">

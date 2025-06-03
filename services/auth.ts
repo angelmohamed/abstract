@@ -56,11 +56,11 @@ export const walletLogin = async (reqBody: any, dispatch: any) => {
       data: reqBody,
     });
     const { message, result } = respData.data;
-    dispatch(signIn(result.token));
-    dispatch(setUser(result.user));
-    dispatch(setWallet(result.wallet));
-    setAuthorization(result.token);
-    setAuthToken(result.token);
+    dispatch(signIn(result?.token));
+    dispatch(setUser(result?.user));
+    dispatch(setWallet(result?.wallet));
+    setAuthorization(result?.token);
+    setAuthToken(result?.token);
     return {
       success: true,
       message,

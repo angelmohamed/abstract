@@ -134,7 +134,7 @@ export function TradingCard({
       userSide: activeTab,
       action: action,
       capped: action === "sell" ? true : false,
-      marketId: market._id,
+      marketId: market?._id,
       userId: user?._id,
       quantity: shares,
       type: orderType,
@@ -183,7 +183,7 @@ export function TradingCard({
                 className="text-[16px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
               >
-                {market.question}
+                {market?.question}
               </div>
             </div>
           </CardTitle>
