@@ -88,7 +88,7 @@ export default function Authentication() {
   };
   const navigateToPortfolioPage = () => {
     router.push("/portfolio");
-    // window.location.href = "/portfolio";
+    window.location.href = "/portfolio";
   };
 
   var chainId = config.chainId;
@@ -210,6 +210,7 @@ export default function Authentication() {
   };
 
   const walletAdd = async (address) => {
+    if(isConnected){
     var data = {
       address: address,
       LoginHistory,
@@ -221,6 +222,7 @@ export default function Authentication() {
       } else {
         toastAlert("error", message,"login");
       }
+    }
   };
 
   useEffect(() => {
@@ -350,7 +352,7 @@ export default function Authentication() {
 		dispatch(reset());
 		dispatch(signOut());
     router.push("/profile");
-    // window.location.href = "/";
+    window.location.href = "/";
   }
 console.log(signedIn,"signedInsignedIn")
   return (

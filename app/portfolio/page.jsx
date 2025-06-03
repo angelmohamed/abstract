@@ -286,7 +286,8 @@ export default function PortfolioPage() {
       const { result } = await addressCheck({ address });
       if (
         (isEmpty(data?.walletAddress) && result === true) ||
-        (!isEmpty(data?.walletAddress) && result === true)
+        (!isEmpty(data?.walletAddress) && result === true) ||
+        data?.walletAddress.toString() != address?.toString() && isConnected
       ) {
         toastAlert(
           "error",
@@ -297,7 +298,7 @@ export default function PortfolioPage() {
         dispatch(reset());
         dispatch(signOut());
         router.push("/");
-        // window.location.href = "/";
+        window.location.href = "/";
       } else if (
         (!isEmpty(data?.walletAddress) && result === false) ||
         (isEmpty(data?.walletAddress) && result === false)
