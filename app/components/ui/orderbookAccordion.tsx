@@ -136,6 +136,20 @@ const OrderbookAccordionContent = React.forwardRef<
     const [bids, setBids] = useState<any[]>([]);
     const [asks, setAsks] = useState<any[]>([]);
 
+    const calcSpread = (bids: any[][] = [], asks: any[][] = []): string => {
+      const highestBid = bids?.[0]?.[0];
+      const lowestAsk = asks?.[asks.length - 1]?.[0];
+    
+      const bid = typeof highestBid === 'string' ? parseFloat(highestBid) : highestBid;
+      const ask = typeof lowestAsk === 'string' ? parseFloat(lowestAsk) : lowestAsk;
+    
+      if (typeof bid === 'number' && !isNaN(bid) && typeof ask === 'number' && !isNaN(ask)) {
+        return `${toFixedDown(bid - ask, 2)}¢`;
+      }
+      return '--';
+    }
+
+
     useEffect(() => {
       if (activeView === "Yes") {
         setBids(orderBook?.bids?.[0] || []);
@@ -211,32 +225,37 @@ const OrderbookAccordionContent = React.forwardRef<
             </TabsList>
 
             <div className="">
-
-              {
-                !asks.length && !bids.length ? (
-                  <div className="flex items-center h-[320px] w-full">
-                    <div className="w-full text-center">
-                      No contracts available
-                    </div>
+              {!asks.length && !bids.length ? (
+                <div className="flex items-center h-[320px] w-full">
+                  <div className="w-full text-center">
+                    No contracts available
                   </div>
-                ) : (
-                  <>
-                    <div className="flex items-center h-[35px] w-full justify-between">
-                      <div className="w-[30%]">
-                        {activeView === "Yes" ? "Trade Yes" : "Trade No"}
-                      </div>
-                      <div className="w-[20%] text-center">Price</div>
-                      <div className="w-[25%] text-center">Shares</div>
-                      <div className="w-[25%] text-center">Total</div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center h-[35px] w-full justify-between">
+                    <div className="w-[30%]">
+                      {activeView === "Yes" ? "Trade Yes" : "Trade No"}
                     </div>
-                    <div className="w-full overflow-hidden h-[fit-content]">
+                    <div className="w-[20%] text-center">Price</div>
+                    <div className="w-[25%] text-center">Shares</div>
+                    <div className="w-[25%] text-center">Total</div>
+                  </div>
+                  <div className="w-full overflow-hidden h-[fit-content]">
+                    <div
+                      className="h-[320px] w-full overflow-auto"
+                      ref={scrollContainerRef}
+                    >
                       <div
-                        className="h-[320px] w-full overflow-auto"
-                        ref={scrollContainerRef}
+                        className={
+                          asks.length + bids.length <= 8
+                            ? "h-full w-full relative flex flex-col justify-center items-center"
+                            : "h-full w-full relative"
+                        }
                       >
-                        <div className="h-full w-full relative">
-                          {/* asks */}
-                          {asks.length > 0 && (
+                        {/* asks */}
+                        <div className="relative w-full">
+                          {asks.length > 0 &&
                             asks.map((row: any, index: any) => {
                               const orderBookLength = asks.length || 0;
                               return (
@@ -274,39 +293,40 @@ const OrderbookAccordionContent = React.forwardRef<
                                   </div>
                                 </div>
                               );
-                            })
+                            })}
+                          {/* Asks badge */}
+                          {asks.length > 0 && (
+                            <div className="flex w-full absolute bottom-0 left-0">
+                              <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1">
+                                Asks
+                              </Badge>
+                            </div>
+                          )}{" "}
+                        </div>
+
+                        {asks && bids && asks.length > 0 && bids.length > 0 && (
+                          <div className="flex items-center h-[35px] w-full p-3">
+                            <div className="w-[30%]">Last: 0¢</div>
+                            <div className="w-[20%] text-center">
+                              Spread: {calcSpread(bids, asks)}
+                            </div>
+                            <div className="w-[25%]"></div>
+                            <div className="w-[25%]"></div>
+                          </div>
+                        )}
+
+                        {/* Bids badge */}
+                        <div className="relative w-full">
+                          {bids.length > 0 && (
+                            <div className="flex w-full absolute top-0 left-0 z-10">
+                              <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1">
+                                Bids
+                              </Badge>
+                            </div>
                           )}
 
-                          <div className="absolute left-3 flex flex-col gap-10">
-                            {
-                              asks && asks.length > 0 && (
-                                <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
-                                  Asks
-                                </Badge>
-                              )
-                            }
-                            {
-                              bids && bids.length > 0 && (
-                                <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
-                                  Bids
-                                </Badge>
-                              )
-                            }
-                          </div>
-                          
-                          {
-                            asks && bids && asks.length > 0 && bids.length > 0 && (
-                              <div className="flex items-center h-[35px] w-full">
-                              <div className="w-[30%]">Last: {asks[0][0] - bids[0][0]}¢</div>
-                              <div className="w-[20%] text-center">Spread: 0.5¢</div>
-                              <div className="w-[25%]"></div>
-                              <div className="w-[25%]"></div>
-                            </div>
-                            )
-                          }
-
                           {/* bids */}
-                          {bids.length > 0 && (
+                          {bids.length > 0 &&
                             bids.map((row, index) => {
                               const orderBookLength = bids.length || 0;
                               return (
@@ -317,7 +337,10 @@ const OrderbookAccordionContent = React.forwardRef<
                                   <div className="w-[30%]">
                                     <FillBid
                                       value={
-                                        (getAccumalativeValue(bids || [], index) /
+                                        (getAccumalativeValue(
+                                          bids || [],
+                                          index
+                                        ) /
                                           15) *
                                         100
                                       }
@@ -341,15 +364,13 @@ const OrderbookAccordionContent = React.forwardRef<
                                   </div>
                                 </div>
                               );
-                            })
-                          )}
+                            })}
                         </div>
                       </div>
                     </div>
-                  </>
-                )
-              }
-
+                  </div>
+                </>
+              )}
             </div>
           </Tabs>
         </div>

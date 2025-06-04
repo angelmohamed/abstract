@@ -115,10 +115,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
 
 
   const handlePlaceOrder = async (action: any) => {
-    // if (orderType === "limit" && !limitOrderValidation()) {
-    //     console.log("Validation failed", errors);
-    //     return;
-    // }
     let activeTab = activeView?.toLowerCase();
     let data = {
       price: action === "sell" ? 100 - Number(price) : price,
@@ -134,7 +130,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     const { success, message } = await placeOrder(data);
     if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
-      setFormValue({ ...formValue, price: 0, amount: 0 });
+      setFormValue({ ...formValue, price: "", amount: "" });
     } else {
       toastAlert("error", message, "order-failed");
     }
@@ -336,7 +332,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         {signedIn ? (
           <Button
             className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-            onClick={() => handlePlaceOrder("buy")}
+            onClick={() => handlePlaceOrder(buyorsell)}
           >
             {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView}`}
           </Button>
