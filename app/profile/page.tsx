@@ -1,7 +1,7 @@
 "use client";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import { navigationItems } from "@/app/components/constants";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Avatar,
@@ -46,7 +46,7 @@ interface PolygonTx {
 export default function PortfolioPage() {
   const { address} = useWallet();
   const [account, setaccount] = useState(address);
-  const wallet = address?address:"";
+  const wallet: string = address?address:"";
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [currentTab, setCurrentTab] = useState("positions");
@@ -96,7 +96,7 @@ export default function PortfolioPage() {
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-full backdrop-blur-md">
         <Header />
-        <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
+        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
       <div className="container mx-auto py-10 px-4 container-sm">
         {/* 1. 用户信息区 */}
@@ -248,7 +248,7 @@ export default function PortfolioPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {transactions.map((tx) => {
+                    {transactions && transactions?.length > 0 && transactions?.map((tx) => {
                       const time = new Date(parseInt(tx.timeStamp) * 1000);
                       const diffMinutes = Math.floor(
                         (Date.now() - time.getTime()) / 60000

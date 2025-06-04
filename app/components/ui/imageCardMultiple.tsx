@@ -38,7 +38,7 @@ export function ImageCardMultiple({
   totalPool,
   onYesClick,
   onNoClick,
-  yesColor = "#7DFDFE",
+  yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
@@ -76,7 +76,7 @@ export function ImageCardMultiple({
 
       {/* Centered MultipleOptionCard */}
       <div  style={{ cursor: "pointer" }}
-          onClick={handleCardClick} className="absolute top-1/2 left-1/2 transform max-w-[350px] -translate-x-1/2 -translate-y-1/2 z-10 w-full">
+          onClick={handleCardClick} className="absolute top-1/2 left-1/2 transform max-w-[350px] w-full -translate-x-1/2 -translate-y-1/2 z-10 w-full">
         
         <MultipleOptionCard
           imageSrc={imageSrc}

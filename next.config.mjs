@@ -14,6 +14,15 @@ const nextConfig = {
         protocol: "https",
         hostname: "i.ibb.co",  // Add this line
       },
+      {
+        protocol: "http",
+        hostname: "localhost",  // Add this line
+        port: "3001",
+      },
+      {
+        protocol:"https",
+        hostname: "sonotradesdemo.wearedev.team",
+      }
     ],
   },
 };

@@ -41,29 +41,6 @@ export const chartPerformance = [
   },
 ];
 
-export const navigationItems = [
-  {
-    title: 'Markets',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Explore',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Chart Performance',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Awards',
-    subItems: chartPerformance
-  },
-  {
-    title: 'Latest News',
-    subItems: chartPerformance
-  }
-];
-
 export const infoCards = [
   {
     emoji: "🎬",

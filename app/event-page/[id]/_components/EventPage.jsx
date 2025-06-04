@@ -2,7 +2,7 @@
 import "@/app/globals.css";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use, useContext } from "react";
 import { Loader, TrendingUp } from "lucide-react";
 import Ye from "/public/images/Ye.png";
 import {
@@ -12,10 +12,10 @@ import {
   AccordionTrigger,
 } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import { navigationItems } from "@/app/components/constants";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
+import Chart from "@/app/components/customComponents/Chart";
 import {
   OrderbookAccordion,
   OrderbookAccordionContent,
@@ -35,18 +35,24 @@ import {
   DrawerHeader,
 } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
+import {
+  SocketContext,
+  subscribe,
+  unsubscribe,
+} from "@/config/socketConnectivity";
+import { getOrderBook, getEventById } from "@/services/market";
 
 export default function EventPage() {
   const param = useParams();
   const id = param.id;
-
+  const socketContext = useContext(SocketContext);
   const [events, setEvents] = useState([]);
   const [eventsLoading, setEventsLoading] = useState(true);
   const [markets, setMarkets] = useState([]);
   const [books, setBooks] = useState([]);
   const [bookLabels, setBookLabels] = useState([]);
   const [activeView, setActiveView] = React.useState("Yes");
-  const [interval, setInterval] = useState("all");
+  const [interval, setInterval] = useState("max");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedOrderBookData, setSelectedOrderBookData] = useState([
     books[0],
@@ -54,33 +60,75 @@ export default function EventPage() {
   ]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  useEffect(() => {
+    if (id) {
+      subscribe(id);
+    }
+    return () => {
+      unsubscribe(id);
+    };
+  }, [id]);
+
+  useEffect(() => {
+    // socket
+    if (socketContext?.socket) {
+      socketContext.socket.on("orderbook", (result) => {
+        console.log("socket: result", result);
+        fetchAllBooks();
+      });
+    }
+    // console.log(socketContext?.socket, "socketContext");
+    // socketContext?.socket?.on("orderbook", (result) => {
+    //   console.log('socket: result', result)
+    // });
+  }, [id, socketContext]);
+
+  // useEffect(() => {
+  //   socketContext.socket.emit("subscribe", "spot");
+  //   return () => {
+  //     socketContext.socket.off("orderbook");
+  //     // unsubscribe(id);
+  //     // socketContext.socket.emit("unsubscribe", "spot");
+  //   };
+  // }, []);
+
   // Get Event Data
   useEffect(() => {
+    if (!id) {
+      return;
+    }
+
     const fetchEvents = async () => {
       try {
         setEventsLoading(true);
-        const response = await fetch(`/api/event-data/by-id?id=${id}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        const data = await response.json();
-        setEvents(data);
-        setMarkets(
-          data?.markets
-            .filter((market) => market.active)
-            .sort((a, b) => b.bestAsk - a.bestAsk)
-        );
+        let { success, result } = await getEventById({ id: id });
+        if (success) {
+          setEvents(result);
+          if (result?.marketId && result?.marketId.length > 0) {
+            setMarkets(
+              result.marketId.filter((market) => market.status === "active")
+            );
+          }
+        }
         setEventsLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
         setEventsLoading(false);
       }
     };
-
     fetchEvents();
   }, [id]);
+
+  const fetchAllBooks = async () => {
+    try {
+      const { success, orderbook } = await getOrderBook({ id: id });
+      if (success) {
+        setBooks(orderbook);
+      }
+    } catch (error) {
+      console.error("Error fetching PriceHistory:", error);
+    }
+  };
 
   // Get Books Data
   useEffect(() => {
@@ -88,47 +136,28 @@ export default function EventPage() {
       const ids = [];
       const bookLabelsTemp = [];
       markets
-        .filter((market) => market.active)
-        .sort((a, b) => b.bestAsk - a.bestAsk)
+        .filter((market) => market.status === "active")
+        // .sort((a, b) => b.bestAsk - a.bestAsk)
         .forEach((market, index) => {
           if (market.clobTokenIds) {
-            const yes = JSON.parse(market.clobTokenIds)[0];
-            const no = JSON.parse(market.clobTokenIds)[1];
+            const yes = JSON.parse(market?.clobTokenIds)?.[0] || "";
+            const no = JSON.parse(market?.clobTokenIds)?.[1] || "";
             ids.push({ yes, no });
             bookLabelsTemp.push(market.groupItemTitle);
           }
         });
-
-      const fetchAllBooks = async () => {
-        const idsGroup = [];
-        ids.map((id) => {
-          return idsGroup.push({ token_id: id.yes }, { token_id: id.no });
-        });
-
-        try {
-          const response = await fetch(`/api/event-data/books`, {
-            method: "Post",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(idsGroup),
-          });
-          setBooks(await response.json());
-        } catch (error) {
-          console.error("Error fetching PriceHistory:", error);
-        }
-      };
       fetchAllBooks();
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
-
+  const [openItem, setOpenItem] = useState(null);
+  console.log(id, "idididid");
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
-        <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
+        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
       <div className="container mx-auto px-4 max-w-full overflow-hidden">
         {eventsLoading ? (
@@ -143,11 +172,21 @@ export default function EventPage() {
               <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
                 {/* Main Content (Charts, Accordion, etc.) */}
                 <div className="w-full lg:w-[70%]">
-                  {markets.length < 2 ? (
+                  <Chart
+                    id={id}
+                    title={events?.title}
+                    volume={events?.volume}
+                    image={events?.image || "/images/logo.png"}
+                    endDate={events?.endDate}
+                    market={markets}
+                    interval={interval}
+                    chance={markets[0]?.bestAsk}
+                  />
+                  {/* {markets.length < 2 ? (
                     <SingleLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.icon}
+                      image={events.image || "/images/logo.png"}
                       endDate={events.endDate}
                       market={markets}
                       interval={interval}
@@ -157,12 +196,14 @@ export default function EventPage() {
                     <MultiLineChart
                       title={events.title}
                       volume={events.volume}
-                      image={events.icon}
-                      markets={markets.filter((market) => market.active)}
+                      image={events.image || "/images/logo.png"}
+                      markets={markets.filter(
+                        (market) => market.status === "active"
+                      )}
                       endDate={events.endDate}
                       interval={interval}
                     />
-                  )}
+                  )} */}
                   <div className="justify-center items-center">
                     <ChartIntervals
                       interval={interval}
@@ -172,24 +213,26 @@ export default function EventPage() {
 
                   <div>
                     {markets?.length < 2 && books ? (
-                      <OrderbookAccordion type="single" collapsible>
-                        <OrderbookAccordionItem value="item-1">
+                      <OrderbookAccordion
+                        type="single"
+                        value={openItem}
+                        onValueChange={setOpenItem}
+                        collapsible
+                      >
+                        <OrderbookAccordionItem value="orderbook">
                           <OrderbookAccordionTrigger>
                             Orderbook
                           </OrderbookAccordionTrigger>
                           <OrderbookAccordionContent
-                            orderBook={[
-                              ...books.filter(
+                            orderBook={
+                              books?.find(
                                 (book) =>
-                                  book.asset_id ==
-                                  JSON?.parse(markets[0]?.clobTokenIds)[0]
-                              ),
-                              ...books.filter(
-                                (book) =>
-                                  book.asset_id ==
-                                  JSON?.parse(markets[0]?.clobTokenIds)[1]
-                              ),
-                            ]}
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[0]?._id
+                              ) || {}
+                            }
+                            isOpen={openItem === "orderbook"}
                             activeView={activeView}
                             setActiveView={setActiveView}
                             setSelectedOrderBookData={setSelectedOrderBookData}
@@ -201,73 +244,68 @@ export default function EventPage() {
                     ) : (
                       <>
                         <Accordion type="single" collapsible>
-                          {markets
-                            .filter((market) => market.active)
-                            ?.map((market, index) => (
-                              <AccordionItem
-                                value={`market-${index + 1}`}
-                                key={index}
-                              >
-                                <AccordionTrigger
-                                  marketId="market-1"
-                                  outcomePrice={
-                                    market.outcomePrices &&
-                                    JSON.parse(market.outcomePrices)[0]
-                                  }
-                                  className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
-                                  setSelectedOrderBookData={
-                                    setSelectedOrderBookData
-                                  }
-                                  orderBook={[
-                                    ...books.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[0]
-                                    ),
-                                    ...books.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[1]
-                                    ),
-                                  ]}
-                                  setSelectedIndex={setSelectedIndex}
-                                  index={index}
+                          {markets &&
+                            markets?.length > 0 &&
+                            markets
+                              .filter((market) => market.status === "active")
+                              ?.map((market, index) => (
+                                <AccordionItem
+                                  value={`market-${index + 1}`}
+                                  key={index}
                                 >
-                                  <div className="pr-2">
+                                  <AccordionTrigger
+                                    marketId="market-1"
+                                    outcomePrice={
+                                      market?.outcomePrices &&
+                                      JSON.parse(market.outcomePrices)[0]
+                                    }
+                                    className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
+                                    setSelectedOrderBookData={
+                                      setSelectedOrderBookData
+                                    }
+                                    orderBook={
+                                      books?.find(
+                                        (book) =>
+                                          book.marketId ==
+                                          // JSON?.parse(market?.clobTokenIds)[0]
+                                          market?._id
+                                      ) || {}
+                                    }
+                                    setSelectedIndex={setSelectedIndex}
+                                    index={index}
+                                  >
+                                    {/* <div className="pr-2">
                                     <Image
                                       src={market.icon}
                                       alt="Market 1"
                                       width={42}
                                       height={42}
                                     />
-                                  </div>
-                                  <span className="pt-1">
-                                    {market.groupItemTitle}
-                                  </span>
-                                </AccordionTrigger>
-                                <OrderbookAccordionContent
-                                  orderBook={[
-                                    ...books.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[0]
-                                    ),
-                                    ...books.filter(
-                                      (book) =>
-                                        book.asset_id ==
-                                        JSON?.parse(market?.clobTokenIds)[1]
-                                    ),
-                                  ]}
-                                  activeView={activeView}
-                                  setActiveView={setActiveView}
-                                  setSelectedOrderBookData={
-                                    setSelectedOrderBookData
-                                  }
-                                  setSelectedIndex={setSelectedIndex}
-                                  index={index}
-                                />
-                              </AccordionItem>
-                            ))}
+                                  </div> */}
+                                    <span className="pt-1">
+                                      {market.groupItemTitle}
+                                    </span>
+                                  </AccordionTrigger>
+                                  <OrderbookAccordionContent
+                                    orderBook={
+                                      books?.find(
+                                        (book) =>
+                                          book.marketId ==
+                                          // JSON?.parse(market?.clobTokenIds)[0]
+                                          market?._id
+                                      ) || {}
+                                    }
+                                    book={books}
+                                    activeView={activeView}
+                                    setActiveView={setActiveView}
+                                    setSelectedOrderBookData={
+                                      setSelectedOrderBookData
+                                    }
+                                    setSelectedIndex={setSelectedIndex}
+                                    index={index}
+                                  />
+                                </AccordionItem>
+                              ))}
                         </Accordion>
                       </>
                     )}
@@ -301,49 +339,16 @@ export default function EventPage() {
 
                 {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                 <div className="hidden lg:block lg:w-[30%] relative">
-                  <div className="fixed top-[180px] z-60 w-[25%]">
-                    {markets.length < 2 ? (
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={[
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[0]
-                          ),
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[1]
-                          ),
-                        ]}
-                        market={markets[selectedIndex]}
-                      />
-                    ) : (
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={
-                          selectedOrderBookData || [
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[0]
-                            ),
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[1]
-                            ),
-                          ]
-                        }
-                        market={markets[selectedIndex]}
-                      />
-                    )}
+                  <div className="fixed top-[135px] z-60 w-[25%]">
+                    <TradingCard
+                      activeView={activeView}
+                      setActiveView={setActiveView}
+                      selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
+                      market={markets[selectedIndex]}
+                    />
 
                     {/* Spotify Embed */}
-                    <div className="mt-6">
+                    {/* <div className="mt-6">
                       <iframe
                         style={{ borderRadius: "12px" }}
                         src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
@@ -353,7 +358,7 @@ export default function EventPage() {
                         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                         loading="lazy"
                       ></iframe>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -381,45 +386,21 @@ export default function EventPage() {
 
                   {/* Main Content */}
                   <div className="p-4">
-                    {markets.length < 2 ? (
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={[
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[0]
-                          ),
-                          ...books.filter(
-                            (book) =>
-                              book.asset_id ==
-                              JSON?.parse(markets[0]?.clobTokenIds)[1]
-                          ),
-                        ]}
-                        market={markets[selectedIndex]}
-                      />
-                    ) : (
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={
-                          selectedOrderBookData || [
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[0]
-                            ),
-                            ...books.filter(
-                              (book) =>
-                                book.asset_id ==
-                                JSON?.parse(markets[0]?.clobTokenIds)[1]
-                            ),
-                          ]
-                        }
-                        market={markets[selectedIndex]}
-                      />
-                    )}
+                    <TradingCard
+                      activeView={activeView}
+                      setActiveView={setActiveView}
+                      selectedOrderBookData={
+                        selectedOrderBookData ||
+                        books?.find(
+                          (book) =>
+                            book.marketId ==
+                            // JSON?.parse(market?.clobTokenIds)[0]
+                            markets[selectedIndex]?._id
+                        ) ||
+                        {}
+                      }
+                      market={markets[selectedIndex]}
+                    />
                   </div>
                 </DrawerContent>
               </Drawer>

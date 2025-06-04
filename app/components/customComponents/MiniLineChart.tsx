@@ -85,7 +85,7 @@ export default function MiniLineChart({
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     asset1: {
       label: "Yes",
-      color: "#7DFDFE",
+      color: "#27ae60",
     },
   });
 
@@ -93,45 +93,51 @@ export default function MiniLineChart({
     if (selectedYes) {
       setChartData(chartDataYes);
       setChartConfig({
-        asset1: { label: "Yes", color: "#7DFDFE" },
+        asset1: { label: "Yes", color: "#27ae60" },
       });
     } else {
       setChartData(chartDataNo);
-      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
+      setChartConfig({ asset1: { label: "No", color: "#e64800" } });
     }
   }, [selectedYes, chartDataYes, chartDataNo]);
 
   useEffect(() => {
     const fetchAllPriceHistories = async () => {
-      if (market.length > 0) {
-        const yes = JSON.parse(market?.[0]?.clobTokenIds)[0];
-        const no = JSON.parse(market?.[0]?.clobTokenIds)[1];
+      if (market?.length > 0) {
+        const yes = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds)[0] : "";
+        const no = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds)[1] : "";
         try {
-          const response = await fetch(
-            `/api/event-data/price-history?interval=${interval}&market=${yes}&fidelity=${30}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
-          const data = await response.json();
+          // const response = await fetch(
+          //   `/api/event-data/price-history?interval=${interval}&market=${yes}&fidelity=${30}`,
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //   }
+          // );
+          // const data = await response.json();
+          const data = {
+            history:[]
+          }
           setChartDataYes(processSingleChartData(data.history, interval) as unknown as ChartDataItem[]);
         } catch (error) {
           console.error("Error fetching PriceHistory:", error);
         }
         try {
-          const response = await fetch(
-            `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-            }
-          );
-          const data = await response.json();
+          // const response = await fetch(
+          //   `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
+          //   {
+          //     method: "GET",
+          //     headers: {
+          //       "Content-Type": "application/x-www-form-urlencoded",
+          //     },
+          //   }
+          // );
+          // const data = await response.json();
+          const data = {
+            history:[]
+          }
           setChartDataNo(processSingleChartData(data.history, interval) as unknown as ChartDataItem[]);
         } catch (error) {
           console.error("Error fetching PriceHistory:", error);
@@ -150,7 +156,7 @@ export default function MiniLineChart({
 
   // Calculate the current displayed chance value and color
   const displayChance = selectedYes ? title : 1 - title;
-  const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
+  const chanceColor = selectedYes ? "#27ae60" : "#e64800";
 
   return (
     <Card
@@ -223,8 +229,8 @@ export default function MiniLineChart({
                       name={chartConfig[asset].label}
                       stroke={
                         selectedYes
-                          ? "#7DFDFE"
-                          : "#EC4899"
+                          ? "#27ae60"
+                          : "#e64800"
                       }
                       strokeWidth={2}
                       dot={false}

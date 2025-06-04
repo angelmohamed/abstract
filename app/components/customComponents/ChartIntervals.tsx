@@ -52,8 +52,8 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval }
       </Button>
       <Button
         id="All"
-        variant={interval === "all" ? "default" : "outline"}
-        onClick={() => setInterval("all")}
+        variant={interval === "max" ? "default" : "outline"}
+        onClick={() => setInterval("max")}
         className="rounded-full px-3 py-1 text-sm"
       >
         ALL

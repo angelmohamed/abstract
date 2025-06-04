@@ -11,7 +11,6 @@ import {
 import { polygon, polygonAmoy } from 'wagmi/chains';
 import { metaMask, walletConnect } from 'wagmi/connectors';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import config from "../config/config"
 
 const queryClient = new QueryClient();
 
@@ -20,13 +19,13 @@ const walletconfig = createConfig({
   chains: [polygon, polygonAmoy],
   transports: {
     [polygon.id]: http('https://polygon-mainnet.g.alchemy.com/v2/demo'),
-    [polygonAmoy.id]: http('https://polygon-amoy.drpc.org'),
+    [polygonAmoy.id]: http('https://polygon-amoy-bor-rpc.publicnode.com'),
   },
   connectors: [
     metaMask({ chains: [polygon, polygonAmoy] }),
     walletConnect({
       projectId: 'cb89ebb21cdccb2e1b591e189e27706a',
-      chains: [config?.chainId],
+      chains: ['137'],
       showQrModal: true,
     }),
   ],
@@ -78,7 +77,7 @@ const WalletProviderInner = ({ children }) => {
 
 export const useWallet = () => {
   const context = useContext(WalletContext);
-  console.log(context,"contextcontextcontextcontext")
+  // console.log(context,"contextcontextcontextcontext")
   if (context === undefined) {
     throw new Error('useWallet must be used within a WalletProvider');
   }

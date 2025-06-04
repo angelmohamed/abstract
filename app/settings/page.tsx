@@ -11,8 +11,8 @@ import {
 } from "@/app/components/ui/avatar";
 import { Label } from "@/app/components/ui/label";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import { navigationItems } from "@/app/components/constants";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { navigationItems } from "@/constants";
 import Cropper from "react-easy-crop";
 import imageCompression from "browser-image-compression";
 import { supabase } from "@/utils/supabaseClient";
@@ -260,7 +260,7 @@ export default function ProfilePage() {
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
-        <NavigationComponent menuItems={navigationItems} showLiveTag={true} />
+        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
 
       <div className="container mx-auto py-10 px-4 container-sm">

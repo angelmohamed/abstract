@@ -2,25 +2,13 @@
 import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Progress } from "@/app/components/ui/progress";
-import { TrendingUp } from "lucide-react";
 import { Comment } from "@/app/components/ui/comment";
 import MiniLineChart from "@/app/components/customComponents/MiniLineChart";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from "next/navigation";
-// import Polymarket from "/public/images/polymarket.png";
-
-import {
-  ChartConfig,
-  ChartContainer,
-} from "@/app/components/ui/chart";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/ui/card";
+import { getEventById } from "@/services/market";
+import { ChartContainer } from "@/app/components/ui/chart";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/app/components/ui/card";
 
 const chartConfig = {
   desktop: {
@@ -31,15 +19,10 @@ const chartConfig = {
 
 export function PreviewCard({
   eventID,
-  backgroundImage,
   eventImageSrc,
   question,
   probability,
   totalPool,
-  yesPotential,
-  noPotential,
-  onYesClick,
-  onNoClick,
   endDate,
   className,
   style
@@ -61,19 +44,13 @@ export function PreviewCard({
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch(`/api/event-data/by-id?id=${eventID}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
-        const data = await response.json();
-        setEvents(data);
-        setMarkets(
-          data?.markets
-            .filter((market) => market.active)
-            .sort((a, b) => b.bestAsk - a.bestAsk)
-        );
+        const response = await getEventById({id: eventID});
+        if(response.status) {
+          setEvents(response.result);
+          setMarkets(
+            response.result?.marketId?.filter((market) => market.status === "active")
+          );
+        }
         setLoadingGraph(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -153,19 +130,19 @@ export function PreviewCard({
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <div className="text-[12px]" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '48%' }}>
               <Button
-                className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
+                className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                Yes 24.0¢
+                {markets?.[0]?.outcome?.[0]?.title || "Yes"} 24.0¢
               </Button>
             </div>
 
             <div className="text-[12px]" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '48%' }}>
               <Button
-                className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
+                className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                No 76.0¢
+                {markets?.[0]?.outcome?.[1]?.title || "No"} 76.0¢
               </Button>
             </div>
 

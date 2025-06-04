@@ -1,26 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Loader } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-  CarouselPagination
-} from "@/app/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext, CarouselPagination } from "@/app/components/ui/carousel";
 import { ImageCard } from "@/app/components/ui/imageCard";
-import { MultipleOptionCard } from "@/app/components/ui/multipleOptionCard";
 import { ImageCardMultiple } from "@/app/components/ui/imageCardMultiple";
 import { PreviewCard } from "@/app/components/ui/previewCard";
-// import Polymarket from "/public/images/polymarket.png";
-import Link from "next/link";
-import { Card } from "@/app/components/ui/card";
 
 import KanyePitchfork from "@/public/images/kanyepitchfork.png";
 import Oscars from "@/public/images/oscars.png";
 import Travis from "@/public/images/concert1.png";
 import AsapTrial from "@/public/images/asaptrial.png";
+import { getEvents } from "@/services/market";
 
 
 export default function EventCarousel() {
@@ -51,11 +41,10 @@ export default function EventCarousel() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/event-data/all?limit=20&offset=0&tag_slug=music&closed=false`
-        );
-        const data = await response.json();
-        setEvents(data.data);
+        const { success, result } = await getEvents({id:"all",limit:20,page:1})
+        if(success){
+          setEvents(result?.data || []);
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -79,7 +68,7 @@ export default function EventCarousel() {
       <Carousel autoPlayInterval={8000}>
         <CarouselContent>
           {events?.map((event, index) => {
-            const mainMarket = event.markets[0];
+            const mainMarket = event.marketId?.[0] || {};
             const outcomePrices = mainMarket?.outcomePrices
               ? JSON.parse(mainMarket.outcomePrices)
               : [50, 50];
@@ -93,25 +82,25 @@ export default function EventCarousel() {
             const backgroundImage = backgroundImages[index % 3];
 
             return (
-              <CarouselItem key={event.id}>
+              <CarouselItem key={event?._id}>
               {(() => {
                 const imageIndex = index % backgroundImages.length; // Ensure it cycles through 3 images
                 const backgroundImage = backgroundImages[imageIndex]?.src || "/images/travis.png";
             
-                return event.markets.length > 1 ? (
+                return event.marketId?.length > 1 ? (
                   <ImageCardMultiple
-                    eventID={event.id}
+                    eventID={event._id}
                     backgroundImage={backgroundImage}
-                    imageSrc={event.icon}
+                    imageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     totalPool={`$${event.volume?.toLocaleString() || "0"}`}
-                    options={event.markets}
+                    options={event.marketId}
                   />
                 ) : index % 3 === 2 ? (
                   <PreviewCard
                     endDate={event.endDate}
-                    eventID={event.id}
-                    eventImageSrc={event.icon || "/images/travis.png"}
+                    eventID={event._id}
+                    eventImageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     probability={outcomePrices[0]}
                     totalPool={`$${(
@@ -129,9 +118,9 @@ export default function EventCarousel() {
                   />
                 ) : (
                   <ImageCard
-                    eventID={event.id}
+                    eventID={event._id}
                     backgroundImage={backgroundImage}
-                    eventImageSrc={event.icon || "/images/travis.png"}
+                    eventImageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     probability={outcomePrices[0]}
                     totalPool={`$${(

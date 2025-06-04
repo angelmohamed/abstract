@@ -108,10 +108,13 @@ export default function MultiLineChart({
 
         try {
           const fetchPromises = ids.slice(0, idsLength).map(async (id) => {
-            const response = await fetch(
-              `/api/event-data/price-history?interval=${interval}&market=${id}&fidelity=30`
-            );
-            const data = await response.json();
+            // const response = await fetch(
+            //   `/api/event-data/price-history?interval=${interval}&market=${id}&fidelity=30`
+            // );
+            // const data = await response.json();
+            const data = {
+              history:[]
+            }
             return data.history;
           });
 
@@ -198,18 +201,18 @@ export default function MultiLineChart({
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: screenWidth < 640 ? "50px" : "75px",
-                  height: screenWidth < 640 ? "50px" : "75px",
+                  width: screenWidth < 640 ? "40px" : "40px",
+                  height: screenWidth < 640 ? "40px" : "40px",
                   overflow: "hidden",
-                  borderRadius: "10px",
+                  borderRadius: "4px",
                   flexShrink: 0,
                 }}
               >
                 <Image
                   src={image}
                   alt="Event"
-                  width={screenWidth < 640 ? 50 : 75}
-                  height={screenWidth < 640 ? 50 : 75}
+                  width={screenWidth < 640 ? 40 : 40}
+                  height={screenWidth < 640 ? 40 : 40}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -219,7 +222,7 @@ export default function MultiLineChart({
                 />
               </div>
               <div
-                className="text-[22px] lg:text-[26px] sm:text-[20px]"
+                className="text-[18px] lg:text-[24px] sm:text-[16px]"
                 style={{ paddingLeft: "15px", marginRight: "10px" }}
               >
                 {title}

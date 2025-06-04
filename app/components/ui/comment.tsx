@@ -400,14 +400,17 @@ export function CommentSection({ eventId }: CommentSectionProps) {
     const fetchComments = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/comments?eventId=${eventId}`);
+        // const response = await fetch(`/api/comments?eventId=${eventId}`);
         
-        if (!response.ok) {
-          throw new Error("Failed to fetch comments");
-        }
+        // if (!response.ok) {
+        //   // throw new Error("Failed to fetch comments");
+        //   console.error("Failed to fetch comments:", response.statusText);
+        // }else{
         
-        const data = await response.json();
-        setComments(data);
+        // const data = await response.json();
+        // setComments(data);
+        // }
+        setComments([])
       } catch (error) {
         console.error("Error loading comments:", error);
       } finally {

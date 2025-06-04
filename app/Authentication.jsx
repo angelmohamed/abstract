@@ -1,0 +1,800 @@
+"use client"; // Add this at the top of the file to enable client-side hooks
+import Link from "next/link";
+import Image from "next/image";
+
+import { useSelector } from "@/store";
+
+import SONOTRADE from "@/public/images/logo.png";
+import React, { useState, useEffect } from "react";
+import { client } from "@/app/client";
+import { useRouter } from "next/navigation";
+import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
+import { WalletClient, useWalletClient } from "wagmi";
+import { useWallet } from "@/app/walletconnect/walletContext.js";
+import { walletClientToSigner } from "./helper/ethersconnect.js";
+import Web3 from "web3";
+import {
+  ChevronDownIcon,
+  OpenInNewWindowIcon,
+  Cross2Icon,
+  BellIcon,
+} from "@radix-ui/react-icons";
+import config from "../config/config.js";
+import { Button } from "./components/ui/button";
+import { toastAlert } from "../lib/toast.js"
+import {
+  regInputValidate,
+  regValidate,
+  otpValidate,
+  otpInputValidate,
+} from "./validation/validation.js";
+import {
+  GoogleLogin,
+  GoogleOAuthProvider,
+  googleLogout,
+} from "@react-oauth/google";
+import isEmpty from "is-empty";
+import { formatNumber, shortText } from "../app/helper/custommath.js";
+import { getLocation, googleLogin, register, resendOTP, verifyEmail, walletLogin } from "@/services/auth";
+import { useDispatch } from "react-redux";
+import { reset } from "../store/slices/auth/userSlice"
+import { signOut } from "@/store/slices/auth/sessionSlice";
+
+let initialData = {
+  otp: "",
+};
+let initialValue = {
+  email: "",
+};
+
+export default function Authentication() {
+  const router = useRouter();
+  const dispatch = useDispatch();
+	const { signedIn } = useSelector((state) => state.auth?.session);
+  const data = useSelector(state => state?.auth?.user);
+
+  const [connval, setconnval] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [loader, setloader] = useState(false);
+  const [otpopen, setOtpOpen] = useState(false);
+  const [userData, setUserData] = useState(initialValue);
+  const [otpData, setOtpData] = useState(initialData);
+  const [LoginHistory, setLoginHistory] = useState({});
+  const [error, setError] = useState({});
+  const [connect, setIsConnect] = useState(false);
+  const [currentPosition, setCurrentPosition] = useState("$0.00");
+  const [verifystatus, setVerifyStatus] = useState(false);
+  const [account, setaccount] = useState("");
+  //const wallet = useWallet();
+  const [expireTime, setExpireTime] = useState(0);
+
+  const { connectors, address, isConnected, connectWallet, disconnectWallet } =
+    useWallet();
+  let { email } = userData;
+  let { otp } = otpData;
+
+  let registerChange = (e) => {
+    let { name, value } = e.target;
+    const resetData = { ...userData, [name]: value };
+    delete error[name];
+    setUserData(resetData);
+    let errMsg = regInputValidate(resetData, name);
+    setError({ ...error, ...errMsg });
+  };
+
+  // navigation handlers
+  const navigateToProfilePage = () => {
+    router.push("/profile");
+  };
+  const navigateToPortfolioPage = () => {
+    router.push("/portfolio");
+    window.location.href = "/portfolio";
+  };
+
+  var chainId = config.chainId;
+  const { data: walletClient } = useWalletClient({ chainId });
+
+  useEffect(() => {
+    if (!isConnected || !walletClient || !address) return;
+
+    try {
+      const { transport } = walletClientToSigner(walletClient);
+      setconnval(transport);
+      setaccount(address);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [address, walletClient, isConnected]);
+
+  const connectMetamaskMobile = () => {
+    const currentUrl = window.location.href;
+
+    // Split the URL to get the dapp URL
+    const urlParts = currentUrl.split("//");
+    if (urlParts.length > 1) {
+      const dappUrl = urlParts[1].split("/")[0];
+      const metamaskAppDeepLink = "https://metamask.app.link/dapp/" + dappUrl;
+      window.open(metamaskAppDeepLink, "_self");
+    } else {
+      console.error("Invalid URL format");
+    }
+  };
+
+  function isMobile() {
+    let check = false;
+    (function (a) {
+      if (
+        /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
+          a
+        ) ||
+        /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
+          a.substr(0, 4)
+        )
+      )
+        check = true;
+    })(navigator.userAgent || navigator.vendor || window.opera);
+    return check;
+  }
+
+  async function handleConnect(connector) {
+    disconnectWallet();
+
+    try {
+      var network = config.chainId;
+
+      let check = isMobile();
+      var isType = connector && connector.id ? connector.id : "";
+
+      if (check && !window.ethereum && isType == "MetaMask") {
+        connectMetamaskMobile();
+        return;
+      } else {
+        var web3 = null;
+        if (isType == "injected") {
+          web3 = new Web3(window.BinanceChain);
+        } else if (isType !== "walletConnect") {
+          web3 = new Web3(window.ethereum);
+        } else {
+          var rpcUrl = config.rpcUrl;
+          web3 = new Web3(rpcUrl);
+        }
+        var currnetwork = await web3.eth.net.getId();
+
+        if (
+          parseInt(currnetwork) !== parseInt(network) &&
+          isType !== "walletConnect"
+        ) {
+          await window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: Web3.utils.toHex(network) }],
+          });
+          currnetwork = network;
+        }
+        let connect = await connectWallet(connector);
+        setIsConnect(true);
+        setOpen(false);
+        walletAdd();
+      }
+    } catch (err) {
+      console.log(err, "errerr");
+      var error = err && err.message ? err.message.toString() : err.toString();
+      var pos = error.search("Provider not set or invalid");
+      var pos1 = error.search("User rejected");
+      if (pos >= 0) {
+        toastAlert("error", "Please login into metamask","login");
+      } else if (pos1 >= 0) {
+        toastAlert("error", "Confirmation is rejected","login");
+      } else {
+        toastAlert("error", "Please try again later","login");
+      }
+    }
+  }
+
+  const getUserLogindetails = async () => {
+    try {
+      let result = await getLocation();
+      setLoginHistory(result);
+    } catch (err) {
+      console.error("Failed to get user location", err);
+    }
+  };
+
+  let getTime = async () => {
+    if (expireTime > 0) {
+      setTimeout(() => {
+        if (expireTime != 0) {
+          setExpireTime(prev => (prev > 1 ? prev - 1 : 0));
+        }
+      }, 1000);
+    }
+  };
+
+  const walletAdd = async (address) => {
+    if(isConnected){
+    var data = {
+      address: address,
+      LoginHistory,
+    };
+    let { success, message } = await walletLogin(data, dispatch);
+      if (success) {
+        setOpen(false);
+        toastAlert("success", message,"login");
+      } else {
+        toastAlert("error", message,"login");
+      }
+    }
+  };
+
+  useEffect(() => {
+    const handleWalletAdd = async () => {
+      if (isConnected && connect) {
+        console.log(address, "connecttt");
+        await walletAdd(address);
+      }
+    };
+
+    handleWalletAdd();
+  }, [isConnected]);
+
+
+  useEffect(() => {
+    if (expireTime > 0 && expireTime != 0) {
+      getTime();
+    }
+  }, [expireTime]);
+
+  useEffect(() => {
+    getUserLogindetails();
+  }, []);
+
+  const handleGoogleLogin = async (credentialResponse) => {
+    const token = credentialResponse.credential;
+    console.log("Google Token:", token);
+
+    try {
+      let data = {
+        token,
+        LoginHistory: LoginHistory,
+      };
+      let { success, message } = await googleLogin(data, dispatch);
+      if (success) {
+        setOpen(false);
+        toastAlert("success", message,"login");
+      } else {
+        toastAlert("error", message,"login");
+      }
+    } catch (error) {
+      console.error("Google Login Error:", error);
+    }
+  };
+
+  let handleClick = async () => {
+    try {
+      let errMsg = await regValidate(userData);
+      setError(errMsg);
+      if (isEmpty(errMsg)) {
+        let { success, message, errors } = await register(userData);
+        console.log(errors, "errorserrors");
+        if (success) {
+          toastAlert("success", message,"login");
+          setVerifyStatus(true);
+          setExpireTime(180);
+          setOtpOpen(true);
+          setOpen(false);
+          getTime(180);
+        } else if (!isEmpty(errors)) {
+          setError(errors);
+          return;
+        } else {
+          toastAlert("error", message,"login");
+        }
+      }
+    } catch (err) {
+      console.log(err, "errr");
+    }
+  };
+
+  let handleOtpChange = (e) => {
+    let { name, value } = e.target;
+    var resetData = { ...otpData, ...{ [name]: value } };
+    delete error[name];
+    setOtpData(resetData);
+    let errMsg = otpInputValidate(resetData, name);
+    setError({ ...error, ...errMsg });
+  };
+
+  let handleOtpClick = async () => {
+    try {
+      console.log("onCLick");
+      let errMsg = await otpValidate(otpData);
+      setError(errMsg);
+      if (isEmpty(errMsg)) {
+        if (expireTime == 0) {
+          toastAlert("error", "OTP expired,Please resend");
+          setOtpData({});
+        } else {
+          let data = { otp, email, LoginHistory: LoginHistory };
+          let { message, success } = await verifyEmail(data, dispatch);
+          if (success) {
+            toastAlert("success", message,"login");
+            setOtpOpen(false);
+          } else {
+            toastAlert("error", message,"login");
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err, "err");
+    }
+  };
+
+  let resendCode = async () => {
+    try {
+      let data = {
+        email,
+      };
+      let { message, success } = await resendOTP(data);
+      if (success) {
+        toastAlert("success", message,"login");
+        setExpireTime(180);
+        getTime();
+      } else {
+        toastAlert("error", message,"login");
+      }
+    } catch (err) {
+      console.log(err, "err");
+    }
+  };
+
+  async function logout() {
+    disconnectWallet();
+    document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+		dispatch(reset());
+		dispatch(signOut());
+    router.push("/profile");
+    window.location.href = "/";
+  }
+console.log(signedIn,"signedInsignedIn")
+  return (
+    <>
+      {signedIn && (
+        <Button onClick={() => navigateToPortfolioPage()}>Deposit</Button>
+      )}
+      <Dialog.Root open={open} onOpenChange={setOpen}>
+        {!signedIn && (
+          <>
+            <Dialog.Trigger asChild>
+              <Button variant="outline" size="sm" onClick={() => { setOpen(true)
+               setUserData({email : ""} )
+               setExpireTime(0)
+               setError({})
+               }}>
+                Log In
+              </Button>
+            </Dialog.Trigger>
+            <Dialog.Trigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-blue-500"
+                onClick={() => { setOpen(true) 
+                  setUserData({email : ""})
+                  setExpireTime(0)
+                  setError({})}
+                }
+              >
+                Sign Up
+              </Button>
+            </Dialog.Trigger>
+          </>
+        )}
+
+        <Dialog.Portal>
+          <Dialog.Overlay className="DialogOverlay" />
+          <Dialog.Content className="DialogContent">
+            <Dialog.Title className="DialogTitle mb-4">
+              Welcome to Sonotrade
+            </Dialog.Title>
+            <GoogleOAuthProvider clientId={config?.clientId}>
+              <div className="google_login">
+                <GoogleLogin
+                  theme="filled_black"
+                  onSuccess={handleGoogleLogin}
+                  onError={() => console.log("Login Failed")}
+                />
+              </div>
+            </GoogleOAuthProvider>
+            {/* <Button className="mt-4 w-full google_btn">
+                <Image
+                  src="/images/google_icon.png"
+                  alt="Profile Icon"
+                  width={24}
+                  height={27}
+                  className="rounded-full"
+                />
+                <span>Continue with Google</span>
+              </Button> */}
+            <div className="custom_seperator">
+              <Separator.Root
+                className="SeparatorRoot"
+                style={{ margin: "15px 0" }}
+              />
+              or
+              <Separator.Root
+                className="SeparatorRoot"
+                style={{ margin: "15px 0" }}
+              />
+            </div>
+            <div className="custom_grpinp">
+              <input
+                className="Input"
+                type="email"
+                name="email"
+                value={email}
+                onChange={registerChange}
+                placeholder="Enter Email"
+              />
+              <Button onClick={handleClick} disabled={loader}>
+                Continue{" "}
+                {loader && (
+                  <i
+                    className="fas fa-spinner fa-spin ml-2"
+                    style={{ color: "black" }}
+                  ></i>
+                )}
+              </Button>
+            </div>
+            {error && error?.email && (
+              <span style={{ color: "red" }}>{error?.email}</span>
+            )}
+            <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
+              {connectors && connectors?.length > 0 && connectors.map((connector, i) => {
+                if (
+                  connector.name == "MetaMask" ||
+                  connector.name == "WalletConnect"
+                ) {
+                  return (
+                    <Button
+                      key={i}
+                      onClick={() => handleConnect(connector)}
+                      className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]"
+                    >
+                      <Image
+                        src={
+                          connector.name == "MetaMask"
+                            ? "/images/wallet_icon_01.png"
+                            : "/images/wallet_icon_05.png"
+                        }
+                        alt="Icon"
+                        width={40}
+                        height={40}
+                      />
+                    </Button>
+                  );
+                }
+              })}
+              {/* <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_02.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_03.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <Button className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]">
+                  <Image
+                    src="/images/wallet_icon_04.png"
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+
+                </Button> */}
+            </div>
+            <Dialog.Close asChild>
+              <button className="modal_close_brn" aria-label="Close">
+                <Cross2Icon />
+              </button>
+            </Dialog.Close>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+      {verifystatus == true && (
+        <Dialog.Root open={otpopen} onOpenChange={setOtpOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <Dialog.Content className="DialogContent">
+              <Dialog.Title className="DialogTitle">
+                Verify Your Email
+              </Dialog.Title>
+              <div className="custom_grpinp">
+                <input
+                  className="Input"
+                  type="otp"
+                  name="otp"
+                  value={otp}
+                  onChange={handleOtpChange}
+                  placeholder="Enter OTP"
+                />
+                {expireTime == 0 ? (
+                  <Button onClick={resendCode}>Resend OTP</Button>
+                ) : (
+                  <Button>{`${expireTime}`}</Button>
+                )}
+                {/* <Button>Continue</Button> */}
+              </div>
+              {error && error?.otp && (
+                <span style={{ color: "red" }}>{error?.otp}</span>
+              )}
+              <br></br>
+              <div className="text-center">
+                <Button onClick={() => handleOtpClick()} disabled={loader}>
+                  Submit{" "}
+                  {loader && (
+                    <i
+                      className="fas fa-spinner fa-spin ml-2"
+                      style={{ color: "black" }}
+                    ></i>
+                  )}
+                </Button>
+              </div>
+              <Dialog.Close asChild>
+                <button className="modal_close_brn" aria-label="Close">
+                  <Cross2Icon />
+                </button>
+              </Dialog.Close>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
+      {signedIn ? (
+        <>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button
+                className="rounded p-2 hover:bg-[#333333] relative"
+                aria-label="Customise options"
+              >
+                <BellIcon className="w-6 h-6 " />
+                <span className="absolute top-[8px] right-[8px] w-2 h-2 bg-red-500 rounded-full block"></span>
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <div className="notification_dropdown_portal">
+                <DropdownMenu.Content
+                  className="notification_menu"
+                  sideOffset={5}
+                >
+                  <DropdownMenu.Label className="text-[18px] font-medium text-gray-100 px-4 py-3 border-b border-gray-700">
+                    Notifications
+                  </DropdownMenu.Label>
+                  <div className="flex flex-col gap-2">
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+
+                    <Link
+                      href="/notifications"
+                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
+                    >
+                      <Image
+                        src="/images/album.png"
+                        alt="Profile Icon"
+                        width={48}
+                        height={48}
+                        className="rounded"
+                      />
+                      <div>
+                        <h5 className="text-[16px] font-semibold text-gray-100">
+                          New market
+                        </h5>
+                        <p className="text-sm text-gray-300">
+                          Will Alex Albon win the 2025 Spanish Grand Prix?
+                        </p>
+                        <p className="text-[12px] text-gray-400 mb-0">
+                          19h ago
+                        </p>
+                      </div>
+                    </Link>
+                  </div>
+                </DropdownMenu.Content>
+              </div>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button className="profile_button" aria-label="Customise options">
+                <Image
+                  src="/images/Ye.png"
+                  alt="Profile Icon"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
+                <ChevronDownIcon className="w-4 h-4" />
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <div className="custom_dropdown_portal">
+                <DropdownMenu.Content className="profile_menu" sideOffset={5}>
+                  <div className="flex items-center space-x-3">
+                    <Image
+                      src="/images/Ye.png"
+                      alt="Profile Icon"
+                      width={40}
+                      height={40}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <span className="text-sm text-gray-100">
+                        {data?.name ? data?.name : ""}
+                      </span>
+                      <div className="text-sm text-gray-100 flex items-center space-x-2">
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <button className="IconButton bg-[#131212] px-2 py-1 rounded">
+                                <span className="text-[12px]">
+                                  {address ? shortText(address) : ""}
+                                </span>
+                              </button>
+                            </Tooltip.Trigger>
+                            <Tooltip.Portal>
+                              <div className="custom_tooltip_content">
+                                <Tooltip.Content
+                                  className="TooltipContent"
+                                  sideOffset={5}
+                                >
+                                  Copy Address
+                                  <Tooltip.Arrow className="TooltipArrow" />
+                                </Tooltip.Content>
+                              </div>
+                            </Tooltip.Portal>
+                          </Tooltip.Root>
+                        </Tooltip.Provider>
+                        <Link href="#" target="_blank">
+                          <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/settings">Settings</Link>
+                  </DropdownMenu.Item>
+                  {/* <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Watchlist</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Rewards</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Learn</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Documentation</Link>
+                  </DropdownMenu.Item> */}
+                  <DropdownMenu.Item className="DropdownMenuItem" disabled>
+                    <Link href="/">Terms of Use</Link>
+                  </DropdownMenu.Item>
+                  <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  <DropdownMenu.Item className="DropdownMenuItem">
+                    <Link href="/" onClick={logout}>
+                      Logout
+                    </Link>
+                  </DropdownMenu.Item>
+                </DropdownMenu.Content>
+              </div>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+        </>
+      ) : (
+        ""
+      )}
+    </>
+  );
+}

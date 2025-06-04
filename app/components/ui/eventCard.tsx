@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/app/components/ui/card";
 import { decimalToPercentage, toTwoDecimal } from "@/utils/helpers";
+import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
 
 interface EventCardProps {
   imageSrc: string;
@@ -44,15 +45,16 @@ const EventCard: React.FC<EventCardProps> = ({
   noButtonLabel = "No 76.0¢",
   yesPotential,
   noPotential,
-  yesColor = "#7dfdfe",
+  yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
   onYesClick,
   onNoClick,
-  id
+  id,
 }) => {
   const router = useRouter();
+  const [bookmarked, setBookmarked] = React.useState(false);
 
   const handleYesClick = () => {
     if (onYesClick) {
@@ -70,35 +72,43 @@ const EventCard: React.FC<EventCardProps> = ({
     }
   };
 
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBookmarked((prev) => !prev);
+  };
+
   return (
-    <Card className="flex flex-col justify-between w-full h-[200px] sm:h-[230px]" style={{ backgroundColor: "#161616" }}>
-      <CardHeader className="sm:pt-5 sm:pl-5 pl-3 s:pr-5 pr-3 pt-3 pb-0">
+    <Card
+      className="flex flex-col justify-between w-full h-[200px] sm:h-[200px]"
+      style={{ backgroundColor: "#161616" }}
+    >
+      <CardHeader className="sm:pt-3 sm:pl-3 pl-3 sm:pr-3 pr-3 pt-3 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
           <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-            <div 
-              style={{ 
-                width: "55px", 
-                height: "55px", 
-                overflow: "hidden", 
-                borderRadius: "8px", 
-                flexShrink: 0 
+            <div
+              style={{
+                width: "38px",
+                height: "38px",
+                overflow: "hidden",
+                borderRadius: "4px",
+                flexShrink: 0,
               }}
             >
-              <Image 
-                src={imageSrc} 
-                alt="Event" 
-                width={55} 
-                height={55} 
-                style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+              <Image
+                src={imageSrc}
+                alt="Event"
+                width={38}
+                height={38}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
 
-            <div 
-              className="pl-1 text-[13px]" 
-              style={{ 
-                paddingLeft: "5px", 
-                marginRight: "10px", 
-                flexGrow: 1 // Push probability to the end
+            <div
+              className="pl-1 text-[14px]"
+              style={{
+                paddingLeft: "8px",
+                marginRight: "10px",
+                flexGrow: 1, // Push probability to the end
               }}
             >
               {question}
@@ -108,46 +118,86 @@ const EventCard: React.FC<EventCardProps> = ({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-5 pl-3 s:pr-5 pr-3 pt-4 sm:pt-4">
+      <CardContent className="pb-0 sm:pl-3 pl-3 sm:pr-3 pr-3">
         <div className="pb-4 pt-1">
-          <Progress value={probability && decimalToPercentage(probability)} className="w-[100%]" />
+          <Progress
+            value={probability && decimalToPercentage(probability)}
+            className="w-[100%]"
+          />
         </div>
-        <div className="pb-0" style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+        <div
+          className="pb-0"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+          }}
+        >
           {/* Yes Button */}
           <div
             className="text-[12px]"
-            style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "48%" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "48%",
+            }}
           >
-<Button
-  onClick={handleYesClick}
-  className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
->
-  {yesButtonLabel}
-</Button>
-</div>
+            <Button
+              onClick={handleYesClick}
+              className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] transition-colors duration-300 rounded-full uppercase"
+            >
+              {yesButtonLabel}
+            </Button>
+          </div>
 
-{/* No Button */}
-<div
-  className="text-[12px]"
-  style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "48%" }}
->
-  <Button
-    onClick={handleNoClick}
-    className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
-  >
-    {noButtonLabel}
-  </Button>
-
-
+          {/* No Button */}
+          <div
+            className="text-[12px]"
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "48%",
+            }}
+          >
+            <Button
+              onClick={handleNoClick}
+              className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] transition-colors duration-300 rounded-full uppercase"
+            >
+              {noButtonLabel}
+            </Button>
           </div>
         </div>
       </CardContent>
-      <CardFooter className="sm:pl-5 pl-3 s:pr-5 pr-3 pb-2 px-3 overflow-hidden">  
-        <div className="pt-2 sm:pt-4 pb-0 w-full" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-          <span style={{ fontSize: '12px', maxWidth: '50%', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <CardFooter className="sm:pl-3 pl-3 sm:pr-3 pr-3 pb-2 overflow-hidden">
+        <div
+          className="pb-0 w-full"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+            position: "relative",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "12px",
+              maxWidth: "50%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+            }}
+          >
             {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
           </span>
-
+          <Button
+            className="p-1 h-6 w-6  z-10 rounded"
+            variant="ghost"
+            onClick={handleBookmarkClick}
+          >
+            {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
+          </Button>
         </div>
       </CardFooter>
     </Card>
