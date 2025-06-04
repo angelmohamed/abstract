@@ -278,19 +278,32 @@ const OrderbookAccordionContent = React.forwardRef<
                           )}
 
                           <div className="absolute left-3 flex flex-col gap-10">
-                            <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
-                              Asks
-                            </Badge>
-                            <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
-                              Bids
-                            </Badge>
+                            {
+                              asks && asks.length > 0 && (
+                                <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
+                                  Asks
+                                </Badge>
+                              )
+                            }
+                            {
+                              bids && bids.length > 0 && (
+                                <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
+                                  Bids
+                                </Badge>
+                              )
+                            }
                           </div>
-                          <div className="flex items-center h-[35px] w-full">
-                            <div className="w-[30%]">Last: 38.5¢</div>
-                            <div className="w-[20%] text-center">Spread: 0.5¢</div>
-                            <div className="w-[25%]"></div>
-                            <div className="w-[25%]"></div>
-                          </div>
+                          
+                          {
+                            asks && bids && asks.length > 0 && bids.length > 0 && (
+                              <div className="flex items-center h-[35px] w-full">
+                              <div className="w-[30%]">Last: 38.5¢</div>
+                              <div className="w-[20%] text-center">Spread: 0.5¢</div>
+                              <div className="w-[25%]"></div>
+                              <div className="w-[25%]"></div>
+                            </div>
+                            )
+                          }
 
                           {/* bids */}
                           {bids.length > 0 && (
