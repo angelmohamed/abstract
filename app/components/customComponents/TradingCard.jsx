@@ -49,6 +49,9 @@ export function TradingCard({
 
   const handleAmountChange = (e) => {
     const value = e.target.value;
+    if (value.split(".")[1] && value.split(".")[1].length > 1) {
+      return
+    }
     if (value < 100) {
       setAmount(value);
     } else if (value < 0) {
