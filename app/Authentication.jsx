@@ -36,9 +36,11 @@ import {
 import isEmpty from "is-empty";
 import { formatNumber, shortText } from "../app/helper/custommath.js";
 import { getLocation, googleLogin, register, resendOTP, verifyEmail, walletLogin } from "@/services/auth";
+import { saveWalletEmail, verifyWalletEmail,walletResend } from "@/services/wallet"
 import { useDispatch } from "react-redux";
 import { reset } from "../store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
+import local from "next/font/local/index.js";
 
 let initialData = {
   otp: "",
@@ -50,13 +52,14 @@ let initialValue = {
 export default function Authentication() {
   const router = useRouter();
   const dispatch = useDispatch();
-	const { signedIn } = useSelector((state) => state.auth?.session);
+  const { signedIn } = useSelector((state) => state.auth?.session);
   const data = useSelector(state => state?.auth?.user);
 
   const [connval, setconnval] = useState(null);
   const [open, setOpen] = useState(false);
   const [loader, setloader] = useState(false);
   const [otpopen, setOtpOpen] = useState(false);
+  const [otpEmailOpen, setOtpEmailOpen] = useState(false);
   const [userData, setUserData] = useState(initialValue);
   const [otpData, setOtpData] = useState(initialData);
   const [LoginHistory, setLoginHistory] = useState({});
@@ -64,7 +67,13 @@ export default function Authentication() {
   const [connect, setIsConnect] = useState(false);
   const [currentPosition, setCurrentPosition] = useState("$0.00");
   const [verifystatus, setVerifyStatus] = useState(false);
+  const [verifyemail, setVerifyEmail] = useState(false);
   const [account, setaccount] = useState("");
+  const [walletEmail, setWalletEmail] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+
+
+
   //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
@@ -159,7 +168,6 @@ export default function Authentication() {
           web3 = new Web3(rpcUrl);
         }
         var currnetwork = await web3.eth.net.getId();
-
         if (
           parseInt(currnetwork) !== parseInt(network) &&
           isType !== "walletConnect"
@@ -171,6 +179,7 @@ export default function Authentication() {
           currnetwork = network;
         }
         let connect = await connectWallet(connector);
+        console.log(connect, "connect")
         setIsConnect(true);
         setOpen(false);
         walletAdd();
@@ -181,11 +190,11 @@ export default function Authentication() {
       var pos = error.search("Provider not set or invalid");
       var pos1 = error.search("User rejected");
       if (pos >= 0) {
-        toastAlert("error", "Please login into metamask","login");
+        toastAlert("error", "Please login into metamask", "login");
       } else if (pos1 >= 0) {
-        toastAlert("error", "Confirmation is rejected","login");
+        toastAlert("error", "Confirmation is rejected", "login");
       } else {
-        toastAlert("error", "Please try again later","login");
+        toastAlert("error", "Please try again later", "login");
       }
     }
   }
@@ -210,17 +219,29 @@ export default function Authentication() {
   };
 
   const walletAdd = async (address) => {
-    if(isConnected){
-    var data = {
-      address: address,
-      LoginHistory,
-    };
-    let { success, message } = await walletLogin(data, dispatch);
+    if (isConnected) {
+      var valuedata = {
+        address: address,
+        LoginHistory,
+      };
+      let { success, message, result } = await walletLogin(valuedata, dispatch);
       if (success) {
+        // if(type !== "walletConnect"){
+        // const web3 = new Web3(connval)
+        // const signature = await web3.eth.personal.sign("Welcome To SonoTrade", address, "SONOTRADE");
+        // console.log("Signature:", signature);
+        // }
         setOpen(false);
-        toastAlert("success", message,"login");
+        toastAlert("success", message, "login");
+        if (isEmpty(result?.user?.email)) {
+          setWalletEmail(true)
+          setEmailOpen(true)
+          localStorage.setItem("emailmodal",true)
+          setUserData({})
+          setExpireTime(0)
+        }
       } else {
-        toastAlert("error", message,"login");
+        toastAlert("error", message, "login");
       }
     }
   };
@@ -235,7 +256,6 @@ export default function Authentication() {
 
     handleWalletAdd();
   }, [isConnected]);
-
 
   useEffect(() => {
     if (expireTime > 0 && expireTime != 0) {
@@ -257,11 +277,12 @@ export default function Authentication() {
         LoginHistory: LoginHistory,
       };
       let { success, message } = await googleLogin(data, dispatch);
+      console.log(message, success, "message")
       if (success) {
         setOpen(false);
-        toastAlert("success", message,"login");
+        toastAlert("success", message, "login");
       } else {
-        toastAlert("error", message,"login");
+        toastAlert("error", message, "login");
       }
     } catch (error) {
       console.error("Google Login Error:", error);
@@ -276,17 +297,18 @@ export default function Authentication() {
         let { success, message, errors } = await register(userData);
         console.log(errors, "errorserrors");
         if (success) {
-          toastAlert("success", message,"login");
+          toastAlert("success", message, "login");
           setVerifyStatus(true);
           setExpireTime(180);
           setOtpOpen(true);
           setOpen(false);
-          getTime(180);
+          getTime();
+          setOtpData(initialData)
         } else if (!isEmpty(errors)) {
           setError(errors);
           return;
         } else {
-          toastAlert("error", message,"login");
+          toastAlert("error", message, "login");
         }
       }
     } catch (err) {
@@ -316,10 +338,11 @@ export default function Authentication() {
           let data = { otp, email, LoginHistory: LoginHistory };
           let { message, success } = await verifyEmail(data, dispatch);
           if (success) {
-            toastAlert("success", message,"login");
+            toastAlert("success", message, "login");
             setOtpOpen(false);
+            setOtpData({});
           } else {
-            toastAlert("error", message,"login");
+            toastAlert("error", message, "login");
           }
         }
       }
@@ -335,11 +358,79 @@ export default function Authentication() {
       };
       let { message, success } = await resendOTP(data);
       if (success) {
-        toastAlert("success", message,"login");
+        toastAlert("success", message, "login");
         setExpireTime(180);
         getTime();
       } else {
-        toastAlert("error", message,"login");
+        toastAlert("error", message, "login");
+      }
+    } catch (err) {
+      console.log(err, "err");
+    }
+  };
+
+
+  let walletEmailClick = async () => {
+    try {
+      let errMsg = await regValidate(userData);
+      setError(errMsg);
+      if (isEmpty(errMsg)) {
+        let { success, message } = await saveWalletEmail(userData);
+        if (success) {
+          toastAlert("success", message, "login");
+          setVerifyEmail(true);
+          setExpireTime(180);
+          setOtpEmailOpen(true);
+          setEmailOpen(false);
+          getTime();
+        } else {
+          toastAlert("error", message, "login");
+          setUserData({ email: "" })
+        }
+      }
+    } catch (err) {
+      console.log(err, "errr");
+    }
+  };
+  
+  let VerifyWalletEmail = async () => {
+    try {
+      console.log("onCLick");
+      let errMsg = await otpValidate(otpData);
+      setError(errMsg);
+      if (isEmpty(errMsg)) {
+        if (expireTime == 0) {
+          toastAlert("error", "OTP expired,Please resend");
+          setOtpData({});
+        } else {
+          let data = { otp, email };
+          let { message, success } = await verifyWalletEmail(data, dispatch);
+          if (success) {
+            localStorage.setItem("emailmodal",'')
+            toastAlert("success", message, "login");
+            setOtpEmailOpen(false);
+          } else {
+            toastAlert("error", message, "login");
+          }
+        }
+      }
+    } catch (err) {
+      console.log(err, "err");
+    }
+  };
+
+  let walletResendCode = async () => {
+    try {
+      let data = {
+        email,
+      };
+      let { message, success } = await walletResend(data);
+      if (success) {
+        toastAlert("success", message, "login");
+        setExpireTime(180);
+        getTime();
+      } else {
+        toastAlert("error", message, "login");
       }
     } catch (err) {
       console.log(err, "err");
@@ -349,12 +440,23 @@ export default function Authentication() {
   async function logout() {
     disconnectWallet();
     document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-		dispatch(reset());
-		dispatch(signOut());
-    router.push("/profile");
-    window.location.href = "/";
+    dispatch(reset());
+    dispatch(signOut());
+    router.push("/");
+    // window.location.href = "/";
   }
-console.log(signedIn,"signedInsignedIn")
+
+  useEffect(() => {
+    if(signedIn && localStorage.getItem("emailmodal") == 'true'){
+    if(isEmpty(data?.email)){
+      setWalletEmail(true)
+      setEmailOpen(true)
+      setUserData({})
+      setExpireTime(0)
+    }
+   }
+  },[])
+  console.log(signedIn,"signedInsignedIn")
   return (
     <>
       {signedIn && (
@@ -364,11 +466,12 @@ console.log(signedIn,"signedInsignedIn")
         {!signedIn && (
           <>
             <Dialog.Trigger asChild>
-              <Button variant="outline" size="sm" onClick={() => { setOpen(true)
-               setUserData({email : ""} )
-               setExpireTime(0)
-               setError({})
-               }}>
+              <Button variant="outline" size="sm" onClick={() => {
+                setOpen(true)
+                setUserData({ email: "" })
+                setExpireTime(0)
+                setError({})
+              }}>
                 Log In
               </Button>
             </Dialog.Trigger>
@@ -377,10 +480,12 @@ console.log(signedIn,"signedInsignedIn")
                 variant="outline"
                 size="sm"
                 className="bg-blue-500"
-                onClick={() => { setOpen(true) 
-                  setUserData({email : ""})
+                onClick={() => {
+                  setOpen(true)
+                  setUserData({ email: "" })
                   setExpireTime(0)
-                  setError({})}
+                  setError({})
+                }
                 }
               >
                 Sign Up
@@ -507,20 +612,30 @@ console.log(signedIn,"signedInsignedIn")
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
       {verifystatus == true && (
         <Dialog.Root open={otpopen} onOpenChange={setOtpOpen}>
           <Dialog.Portal>
             <Dialog.Overlay className="DialogOverlay" />
             <Dialog.Content className="DialogContent">
+              <div className="text-center">
+                <Image
+                  src={SONOTRADE}
+                  alt="Profile Icon"
+                  width={200}
+                  height={200}
+                  className="mx-auto rounded-full"
+                />
+              </div><br />
               <Dialog.Title className="DialogTitle">
                 Verify Your Email
-              </Dialog.Title>
+              </Dialog.Title><br />
               <div className="custom_grpinp">
                 <input
                   className="Input"
                   type="otp"
                   name="otp"
-                  value={otp}
+                  value={otp ? otp : ""}
                   onChange={handleOtpChange}
                   placeholder="Enter OTP"
                 />
@@ -555,6 +670,120 @@ console.log(signedIn,"signedInsignedIn")
           </Dialog.Portal>
         </Dialog.Root>
       )}
+
+      {walletEmail == true && (
+        <Dialog.Root open={emailOpen} onOpenChange={setEmailOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <Dialog.Content
+              className="DialogContent"
+              onPointerDownOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}
+            >
+              <div className="text-center">
+                <Image
+                  src={SONOTRADE}
+                  alt="Profile Icon"
+                  width={200}
+                  height={200}
+                  className="mx-auto rounded-full"
+                />
+              </div>
+              <br />
+              <Dialog.Title className="DialogTitle">Welcome to Sonotrade</Dialog.Title>
+              <br />
+              <div className="custom_grpinp">
+                <input
+                  className="Input"
+                  type="email"
+                  name="email"
+                  value={email ? email : ""}
+                  onChange={registerChange}
+                  placeholder="Enter Email"
+                />
+                <Button onClick={walletEmailClick} disabled={loader}>
+                  Continue{" "}
+                  {loader && (
+                    <i
+                      className="fas fa-spinner fa-spin ml-2"
+                      style={{ color: "black" }}
+                    ></i>
+                  )}
+                </Button>
+              </div>
+              {error?.email && (
+                <span style={{ color: "red" }}>{error.email}</span>
+              )}
+              <br />
+              {/* <Dialog.Close asChild>
+          <button className="modal_close_brn" aria-label="Close">
+            <Cross2Icon />
+          </button>
+        </Dialog.Close> */}
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
+      {verifyemail == true && (
+        <Dialog.Root open={otpEmailOpen} onOpenChange={setOtpEmailOpen}>
+          <Dialog.Portal>
+            <Dialog.Overlay className="DialogOverlay" />
+            <Dialog.Content className="DialogContent"
+              onPointerDownOutside={(e) => e.preventDefault()}
+              onEscapeKeyDown={(e) => e.preventDefault()}>
+              <div className="text-center">
+                <Image
+                  src={SONOTRADE}
+                  alt="Profile Icon"
+                  width={200}
+                  height={200}
+                  className="mx-auto rounded-full"
+                />
+              </div><br />
+              <Dialog.Title className="DialogTitle">
+                Verify Your Email
+              </Dialog.Title><br />
+              <div className="custom_grpinp">
+                <input
+                  className="Input"
+                  type="otp"
+                  name="otp"
+                  value={otp ? otp : ""}
+                  onChange={handleOtpChange}
+                  placeholder="Enter OTP"
+                />
+                {expireTime == 0 ? (
+                  <Button onClick={walletResendCode}>Resend OTP</Button>
+                ) : (
+                  <Button>{`${expireTime}`}</Button>
+                )}
+                {/* <Button>Continue</Button> */}
+              </div>
+              {error && error?.otp && (
+                <span style={{ color: "red" }}>{error?.otp}</span>
+              )}
+              <br></br>
+              <div className="text-center">
+                <Button onClick={() => VerifyWalletEmail()} disabled={loader}>
+                  Submit{" "}
+                  {loader && (
+                    <i
+                      className="fas fa-spinner fa-spin ml-2"
+                      style={{ color: "black" }}
+                    ></i>
+                  )}
+                </Button>
+              </div>
+              {/* <Dialog.Close asChild>
+                <button className="modal_close_brn" aria-label="Close">
+                  <Cross2Icon />
+                </button>
+              </Dialog.Close> */}
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+      )}
+
       {signedIn ? (
         <>
           <DropdownMenu.Root>

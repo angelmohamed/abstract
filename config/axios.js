@@ -12,7 +12,7 @@ const token = getCookie("user-token");
 axios.defaults.headers.common["Authorization"] = token ? `Bearer ${token}` :"";
 
 export const setAuthorization = (token) => {
-  axios.defaults.headers.common["Authorization"] = token;
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 
 export const removeAuthorization = () => {
