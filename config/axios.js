@@ -53,6 +53,8 @@ export const handleResp = (respData, type = 'success', doc) => {
       return { data: respData.data }
     }
     if (type == 'success' && respData && respData.data) {
+      console.log('respData.data: ', respData.data);
+
       return respData.data
     } else if (type == 'error' && respData && respData.response && respData.response.data) {
       return respData.response.data

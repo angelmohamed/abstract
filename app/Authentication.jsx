@@ -68,6 +68,9 @@ export default function Authentication() {
   //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
+  //get proileImg from redux
+  const { profileImg } = useSelector(state => state.auth.user);
+  console.log("profileImg",profileImg)
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
   let { email } = userData;
@@ -354,7 +357,6 @@ export default function Authentication() {
     router.push("/profile");
     window.location.href = "/";
   }
-console.log(signedIn,"signedInsignedIn")
   return (
     <>
       {signedIn && (
@@ -706,7 +708,7 @@ console.log(signedIn,"signedInsignedIn")
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
                 <Image
-                  src="/images/Ye.png"
+                  src={profileImg||"/images/Ye.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}
