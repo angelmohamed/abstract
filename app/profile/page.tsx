@@ -21,6 +21,7 @@ import { useWallet } from "@/app/walletconnect/walletContext.js";
 import { useDispatch, useSelector } from "react-redux";
 import { getPositions, getUserData } from "@/services/user";
 import ActivityTable from "./activity";
+import Positions from "../portfolio/Positions";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -230,7 +231,7 @@ export default function PortfolioPage() {
             </select>
           </div>
           <TabsContent value="positions">
-           //call position component here
+           <Positions />
           </TabsContent>
           <TabsContent value="activity">
             <ActivityTable />

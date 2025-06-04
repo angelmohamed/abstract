@@ -1,46 +1,22 @@
 "use client";
 import "@/app/globals.css";
-import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useState, useEffect, use, useContext } from "react";
-import { Loader, TrendingUp } from "lucide-react";
-import Ye from "/public/images/Ye.png";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/app/components/ui/accordion";
+import React, { useState, useEffect, useContext } from "react";
+import { Loader } from "lucide-react";
+import { Accordion, AccordionItem, AccordionTrigger } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
-// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
-import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
-import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 import Chart from "@/app/components/customComponents/Chart";
-import {
-  OrderbookAccordion,
-  OrderbookAccordionContent,
-  OrderbookAccordionItem,
-  OrderbookAccordionTrigger,
-} from "@/app/components/ui/orderbookAccordion";
+import { OrderbookAccordion, OrderbookAccordionContent, OrderbookAccordionItem, OrderbookAccordionTrigger } from "@/app/components/ui/orderbookAccordion";
 import ExpandableTextView from "@/app/components/customComponents/ExpandableTextView";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
 import { SelectSeparator } from "@/app/components/ui/select";
 import Link from "next/link";
 import { TradingCard } from "@/app/components/customComponents/TradingCard";
-import {
-  Drawer,
-  DrawerTrigger,
-  DrawerContent,
-  DrawerTitle,
-  DrawerHeader,
-} from "@/app/components/ui/drawer";
+import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerHeader } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
-import {
-  SocketContext,
-  subscribe,
-  unsubscribe,
-} from "@/config/socketConnectivity";
+import { SocketContext, subscribe, unsubscribe } from "@/config/socketConnectivity";
 import { getOrderBook, getEventById } from "@/services/market";
+import { isEmpty } from "@/lib/isEmpty";
 
 export default function EventPage() {
   const param = useParams();
@@ -59,40 +35,42 @@ export default function EventPage() {
     books[1],
   ]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [openItem, setOpenItem] = useState(null);
 
   useEffect(() => {
-    if (id) {
-      subscribe(id);
+    const eventId = events?._id;
+    if (!isEmpty(eventId)) {
+      subscribe(events._id);
+      return () => {
+        unsubscribe(events?._id);
+      };
     }
-    return () => {
-      unsubscribe(id);
+  }, [events?._id]);
+
+  useEffect(() => {
+    const socket = socketContext?.socket;
+    if (!socket) return;
+
+    const handleOrderbook = (result) => {
+      const orderbook = JSON.parse(result);
+      console.log("socket: orderbook result", orderbook);
+      setBooks(prev => 
+        prev.map(item => 
+          item.marketId === orderbook.marketId
+            ? { ...item, bids: orderbook.bids, asks: orderbook.asks }
+            : item
+        )
+      );
     };
-  }, [id]);
 
-  useEffect(() => {
-    // socket
-    if (socketContext?.socket) {
-      socketContext.socket.on("orderbook", (result) => {
-        console.log("socket: result", result);
-        fetchAllBooks();
-      });
-    }
-    // console.log(socketContext?.socket, "socketContext");
-    // socketContext?.socket?.on("orderbook", (result) => {
-    //   console.log('socket: result', result)
-    // });
-  }, [id, socketContext]);
+    socket.on("orderbook", handleOrderbook);
 
-  // useEffect(() => {
-  //   socketContext.socket.emit("subscribe", "spot");
-  //   return () => {
-  //     socketContext.socket.off("orderbook");
-  //     // unsubscribe(id);
-  //     // socketContext.socket.emit("unsubscribe", "spot");
-  //   };
-  // }, []);
+    return () => {
+      socket.off("orderbook");
+    };
+  
+  }, [socketContext?.socket]);
 
-  // Get Event Data
   useEffect(() => {
     if (!id) {
       return;
@@ -150,8 +128,7 @@ export default function EventPage() {
       setBookLabels(bookLabelsTemp);
     }
   }, [id, markets, interval]);
-  const [openItem, setOpenItem] = useState(null);
-  console.log(id, "idididid");
+
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">

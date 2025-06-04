@@ -3,6 +3,7 @@ import { Button } from "@/app/components/ui/button";
 import { Dialog } from "radix-ui";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { firstLetterCase } from "@/lib/stringCase";
 
 import {
   Card,
@@ -94,10 +95,11 @@ export function TradingCard({
               >
                 <OptionsList className="grid w-full grid-cols-2 gap-2">
                   <OptionsTrigger
-                    className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#1f3e2c] data-[state=active]:text-[#27ae60] data-[state=active]:border-[#1f3e2c] uppercase"
+                    className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#1f3e2c] data-[state=active]:text-[#27ae60] data-[state=active]:border-[#1f3e2c]"
                     value="Yes"
                   >
-                    {market?.outcome?.[0]?.title || "Yes"}{" "}
+                    
+                    {firstLetterCase(market?.outcome?.[0]?.title) || "Yes"}{" "}
                     {tab == "buy"
                       ? buyYes?.length > 0 &&
                         `${toFixedDown(100 - buyYes?.[0], 2)}¢`
@@ -105,10 +107,10 @@ export function TradingCard({
                         `${toFixedDown(sellYes?.[0], 2)}¢`}
                   </OptionsTrigger>
                   <OptionsTrigger
-                    className="hover:bg-[#282828] data-[state=active]:border-[#362020] data-[state=active]:text-[#e64800] data-[state=active]:bg-[#362020] uppercase"
+                    className="hover:bg-[#282828] data-[state=active]:border-[#362020] data-[state=active]:text-[#e64800] data-[state=active]:bg-[#362020]"
                     value="No"
                   >
-                    {market?.outcome?.[1]?.title || "No"}{" "}
+                    {firstLetterCase(market?.outcome?.[1]?.title) || "No"}{" "}
                     {tab == "buy"
                       ? buyNo?.length > 0 &&
                         `${toFixedDown(100 - buyNo?.[0], 2)}¢`
