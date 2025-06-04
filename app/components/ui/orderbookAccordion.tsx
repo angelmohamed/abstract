@@ -102,6 +102,9 @@ interface OrderbookAccordionContentProps
   setSelectedOrderBookData?: (data: any) => void;
   index?: number;
   isOpen?: boolean;
+  selectedMarket: {
+    last: number | null;
+  }
 }
 
 // Accordion Content Component
@@ -120,6 +123,7 @@ const OrderbookAccordionContent = React.forwardRef<
       setSelectedOrderBookData,
       isOpen = true,
       index,
+      selectedMarket,
       ...props
     },
     ref
@@ -144,11 +148,10 @@ const OrderbookAccordionContent = React.forwardRef<
       const ask = typeof lowestAsk === 'string' ? parseFloat(lowestAsk) : lowestAsk;
     
       if (typeof bid === 'number' && !isNaN(bid) && typeof ask === 'number' && !isNaN(ask)) {
-        return `${toFixedDown(bid - ask, 2)}¢`;
+        return `${toFixedDown(ask - bid, 2)}¢`;
       }
       return '--';
     }
-
 
     useEffect(() => {
       if (activeView === "Yes") {
@@ -306,7 +309,11 @@ const OrderbookAccordionContent = React.forwardRef<
 
                         {asks && bids && asks.length > 0 && bids.length > 0 && (
                           <div className="flex items-center h-[35px] w-full p-3">
-                            <div className="w-[30%]">Last: 0¢</div>
+                            <div className="w-[30%]">Last: 
+                              {selectedMarket?.last ? (
+                                activeView == "Yes" ? selectedMarket?.last || 0 : 100 - +selectedMarket?.last
+                              ) : 0}
+                            ¢</div>
                             <div className="w-[20%] text-center">
                               Spread: {calcSpread(bids, asks)}
                             </div>
