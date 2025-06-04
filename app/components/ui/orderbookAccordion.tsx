@@ -13,6 +13,7 @@ import {
   toTwoDecimal,
 } from "@/utils/helpers";
 import { useEffect, useState } from "react";
+import { toFixedDown } from "@/lib/roundOf";
 
 interface OrderBookItem {
   price: string;
@@ -257,10 +258,10 @@ const OrderbookAccordionContent = React.forwardRef<
                                     />
                                   </div>
                                   <div className="text-center w-[20%] text-[#e64800]">
-                                    {Number(row[0]).toFixed(1) + "¢"}
+                                    {toFixedDown(Number(row[0]), 2) + "¢"}
                                   </div>
                                   <div className="w-[25%] text-center">
-                                    {Number(row[1]).toFixed(2)}
+                                    {toFixedDown(Number(row[1]), 2)}
                                   </div>
                                   <div className="w-[25%] text-center">
                                     {"$" +
@@ -311,10 +312,10 @@ const OrderbookAccordionContent = React.forwardRef<
                                     />
                                   </div>
                                   <div className="w-[20%] text-center text-[#27ae60]">
-                                    {Number(row[0]).toFixed(1) + "¢"}
+                                    {toFixedDown(Number(row[0]), 2) + "¢"}
                                   </div>
                                   <div className="w-[25%] text-center">
-                                    {Number(row[1]).toFixed(2)}
+                                    {toFixedDown(Number(row[1]), 2)}
                                   </div>
                                   <div className="w-[25%] text-center">
                                     {"$" +
