@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useActiveAccount } from "thirdweb/react";
+// import { useActiveAccount } from "thirdweb/react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -33,7 +33,7 @@ async function createImage(src: string): Promise<HTMLImageElement> {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const account = useActiveAccount();
+
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -51,32 +51,32 @@ export default function ProfilePage() {
   const [submitError, setSubmitError] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (!account) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!account) {
+  //     return;
+  //   }
 
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/profile?wallet=${account.address}`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Fetched profile data:", data);
-          setUsername(data.username || "");
-          setName(data.name || "");
-          setAvatarUrl(data.avatar_url || "");
-          setBio(data.bio || "");
-        }
-      } catch (error: any) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //   const fetchProfile = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const response = await fetch(`/api/profile?wallet=${account.address}`);
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         console.log("Fetched profile data:", data);
+  //         setUsername(data.username || "");
+  //         setName(data.name || "");
+  //         setAvatarUrl(data.avatar_url || "");
+  //         setBio(data.bio || "");
+  //       }
+  //     } catch (error: any) {
+  //       console.error("Error fetching profile:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchProfile();
-  }, [account]);
+  //   fetchProfile();
+  // }, [account]);
 
   const validateUsername = (value) => {
     if (!value.trim()) {
@@ -151,10 +151,10 @@ export default function ProfilePage() {
       croppedAreaPixels,
     });
     if (!selectedFile) return;
-    if (!account) {
-      setUploading(false);
-      return;
-    }
+    // if (!false) {
+    //   setUploading(false);
+    //   return;
+    // }
     // store previous avatar URL to delete later upon success
     const prevUrl = avatarUrl;
     setUploading(true);
@@ -172,47 +172,47 @@ export default function ProfilePage() {
       console.log("Compressed blob size:", finalBlob.size);
     }
     const fileExt = "jpg";
-    const fileName = `avatars/${account.address}_${Date.now()}.${fileExt}`;
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from("user-profile-avatar")
-      .upload(fileName, finalBlob, { upsert: true });
-    console.log("Supabase upload result:", { uploadData, uploadError });
-    if (uploadError) {
-      console.error(uploadError);
-      alert("Upload failed");
-      setUploading(false);
-      return;
-    }
-    const { data: urlData } = supabase.storage
-      .from("user-profile-avatar")
-      .getPublicUrl(fileName);
-    console.log("Public URL:", urlData?.publicUrl);
-    // delete old avatar file now that new upload succeeded
-    if (prevUrl) {
-      try {
-        const oldPath = prevUrl.split(
-          "/storage/v1/object/public/user-profile-avatar/"
-        )[1];
-        if (oldPath) {
-          const { error: deleteError } = await supabase.storage
-            .from("user-profile-avatar")
-            .remove([oldPath]);
-          console.log("Deleted old avatar file:", { oldPath, deleteError });
-        }
-      } catch (err) {
-        console.error("Error deleting previous avatar:", err);
-      }
-    }
-    setAvatarUrl(urlData.publicUrl);
-    setShowCrop(false);
-    setUploading(false);
+    // const fileName = `avatars/${account.address}_${Date.now()}.${fileExt}`;
+    // const { data: uploadData, error: uploadError } = await supabase.storage
+    //   .from("user-profile-avatar")
+    //   .upload(fileName, finalBlob, { upsert: true });
+    // console.log("Supabase upload result:", { uploadData, uploadError });
+    // if (uploadError) {
+    //   console.error(uploadError);
+    //   alert("Upload failed");
+    //   setUploading(false);
+    //   return;
+    // }
+    // const { data: urlData } = supabase.storage
+    //   .from("user-profile-avatar")
+    //   .getPublicUrl(fileName);
+    // console.log("Public URL:", urlData?.publicUrl);
+    // // delete old avatar file now that new upload succeeded
+    // if (prevUrl) {
+    //   try {
+    //     const oldPath = prevUrl.split(
+    //       "/storage/v1/object/public/user-profile-avatar/"
+    //     )[1];
+    //     if (oldPath) {
+    //       const { error: deleteError } = await supabase.storage
+    //         .from("user-profile-avatar")
+    //         .remove([oldPath]);
+    //       console.log("Deleted old avatar file:", { oldPath, deleteError });
+    //     }
+    //   } catch (err) {
+    //     console.error("Error deleting previous avatar:", err);
+    //   }
+    // }
+    // setAvatarUrl(urlData.publicUrl);
+    // setShowCrop(false);
+    // setUploading(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!account) {
-      return;
-    }
+    // if (!account) {
+    //   return;
+    // }
 
     if (!validateUsername(username)) {
       return;
@@ -227,7 +227,7 @@ export default function ProfilePage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          wallet: account.address,
+          wallet: "account.address",
           username,
           name,
           avatar_url: avatarUrl,
@@ -280,7 +280,7 @@ export default function ProfilePage() {
               <Tabs.Content value="tab1">
                 <h1 className="text-2xl font-bold mb-8">Profile Settings</h1>
 
-                {!account ? (
+                {false ? (
                   <div className="text-center p-8 bg-[#131212] rounded-lg">
                     <p className="mb-4">
                       Please connect your wallet to set up your profile
@@ -292,7 +292,7 @@ export default function ProfilePage() {
                       Back to Home
                     </Button>
                   </div>
-                ) : loading ? (
+                ) : false ? (
                   <div className="text-center p-8">
                     <p>Loading...</p>
                   </div>
@@ -320,7 +320,7 @@ export default function ProfilePage() {
                           <AvatarFallback className="bg-blue-500 text-lg">
                             {username
                               ? username.charAt(0).toUpperCase()
-                              : account.address.slice(0, 2)}
+                              : "--"}
                           </AvatarFallback>
                         )}
                       </Avatar>
