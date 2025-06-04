@@ -297,7 +297,7 @@ const OrderbookAccordionContent = React.forwardRef<
                           {
                             asks && bids && asks.length > 0 && bids.length > 0 && (
                               <div className="flex items-center h-[35px] w-full">
-                              <div className="w-[30%]">Last: 38.5¢</div>
+                              <div className="w-[30%]">Last: {asks[0][0] - bids[0][0]}¢</div>
                               <div className="w-[20%] text-center">Spread: 0.5¢</div>
                               <div className="w-[25%]"></div>
                               <div className="w-[25%]"></div>

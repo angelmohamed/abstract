@@ -35,7 +35,7 @@ export default function EventPage() {
     books[1],
   ]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [openItem, setOpenItem] = useState(null);
+  const [openItem, setOpenItem] = useState("orderbook");
 
   useEffect(() => {
     const eventId = events?._id;
@@ -194,6 +194,7 @@ export default function EventPage() {
                         type="single"
                         value={openItem}
                         onValueChange={setOpenItem}
+                        defaultValue="orderbook"
                         collapsible
                       >
                         <OrderbookAccordionItem value="orderbook">
