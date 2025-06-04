@@ -75,7 +75,7 @@ const OpenOrders = () => {
                                 <td>{data.price}</td>
                                 <td>{data.filledQuantity ?? 0}</td>
                                 <td>{data.quantity}</td>
-                                <td>Good 'til canceled</td>
+                                <td>Good &apos;til canceled</td>
                             </tr>
                         ))}
                     </>
