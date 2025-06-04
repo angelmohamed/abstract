@@ -12,6 +12,7 @@ import {
 import { getPositionHistory } from '@/services/portfolio'
 import { toFixedDown } from '../helper/roundOf'
 import {capitalize} from '../helper/string'
+import { useRouter } from 'next/navigation'
 
 const Positions = () => {
   const [positionHistory, setPositionHistory] = useState([])
@@ -85,11 +86,12 @@ useEffect(() => {
                                                 alt="Icon"
                                                 width={42}
                                                 height={42}
-                                                className="mb-2"
+                                                className="mb-2 cursor-pointer"
+                                                onClick={()=>route.push(`/event-page/${item?.eventSlug}`)}
                                               />
                                         </span>
                                         <div className="flex flex-col gap-1">
-                                        <Link className="text-sm font-normal" href="/">
+                                        <Link className="text-sm font-normal" href={`/event-page/${item?.eventSlug}`}>
                                             <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
                                             {capitalize(data.side)}
                                             </Badge> {data.marketGroupTitle}

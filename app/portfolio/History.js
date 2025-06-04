@@ -13,26 +13,25 @@ import { truncateString } from '../helper/string';
 import { useRouter } from 'next/navigation';
 
 const History = () => {
-    const [dateRange, setDateRange] = useState([null, null]);
-    const [startDate, endDate] = dateRange;
-    const router = useRouter()
-
-    const [ClosedPnL, setClosedPnL] = useState([])
-    
-    const getUserClosedPnL = async () => {
-        try {
-            const res = await getClosedPnL({})
-            if(res.success){
-                setClosedPnL(res.result)
-            }
-        } catch (error) {
-            console.error("Error fetching Position History:", error);
-        }
-    }
-    
-    useEffect(() => {
-        getUserClosedPnL()
-    }, [])
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
+  const router = useRouter()
+  const [ClosedPnL, setClosedPnL] = useState([])
+  
+  const getUserClosedPnL = async () => {
+      try {
+          const res = await getClosedPnL({})
+          if(res.success){
+              setClosedPnL(res.result)
+          }
+      } catch (error) {
+          console.error("Error fetching Position History:", error);
+      }
+  }
+  
+  useEffect(() => {
+      getUserClosedPnL()
+  }, [])
   return (
     <>
       <div className="flex space-x-4 mb-3">
