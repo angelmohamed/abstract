@@ -76,7 +76,7 @@ export default function Header() {
             <div className="absolute left-0 right-0 bg-[#070707] z-[156] rounded-b-lg border border-[#262626] border-t-0">
               <div className="flex flex-col gap-2 p-3">
                 <div className="flex flex-col p-0 pb-2 lg:p-2 gap-2">
-                  <p class="text-sm font-medium uppercase">Browse</p>
+                  <p className="text-sm font-medium uppercase">Browse</p>
                   <div className="flex gap-2 flex-wrap">
                     <Link
                       href="/"

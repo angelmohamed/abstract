@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -58,12 +58,16 @@ import tokenABI from "../../components/ABI/TOKENABI.json";
 import { addressCheck } from "@/services/wallet";
 import { reset } from "@/store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
+import OpenOrders from "./OpenOrders"
+import Positions from "./Positions"
+import History from "./History"
 
 let initialValue = {
   currency: "",
   amount: "",
   walletAddress: "",
 };
+
 export default function PortfolioPage() {
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
@@ -290,16 +294,16 @@ export default function PortfolioPage() {
         (!isEmpty(data?.walletAddress) && result === true) ||
         data?.walletAddress.toString() != address?.toString() && isConnected
       ) {
-        toastAlert(
-          "error",
-          "You have been logged out. Please select the correct wallet address.","wallet"
-        );
-        disconnectWallet();
-        document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-        dispatch(reset());
-        dispatch(signOut());
-        router.push("/");
-        window.location.href = "/";
+        // toastAlert(
+        //   "error",
+        //   "You have been logged out. Please select the correct wallet address.","wallet"
+        // );
+        // disconnectWallet();
+        // document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        // dispatch(reset());
+        // dispatch(signOut());
+        // router.push("/");
+        // window.location.href = "/";
       } else if (
         (!isEmpty(data?.walletAddress) && result === false) ||
         (isEmpty(data?.walletAddress) && result === false)
@@ -1221,7 +1225,7 @@ export default function PortfolioPage() {
             </TabsList>
           </div>
           <TabsContent value="positions">
-            <div className="flex space-x-4 mb-3">
+            {/* <div className="flex space-x-4 mb-3">
               <SearchBar placeholder="Search" />
               <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
                 <option>Current value</option>
@@ -1452,10 +1456,11 @@ export default function PortfolioPage() {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> */}
+            <Positions/>
           </TabsContent>
           <TabsContent value="openorders">
-            <div className="flex space-x-4 mb-3">
+            {/* <div className="flex space-x-4 mb-3">
               <SearchBar placeholder="Search" />
               <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
                 <option>Market</option>
@@ -1485,10 +1490,11 @@ export default function PortfolioPage() {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> */}
+            <OpenOrders/>
           </TabsContent>
           <TabsContent value="history">
-            <div className="flex space-x-4 mb-3">
+            {/* <div className="flex space-x-4 mb-3">
               <SearchBar placeholder="Search" />
               <DatePicker
                 placeholderText="Select date"
@@ -1599,7 +1605,8 @@ export default function PortfolioPage() {
                   </tr>
                 </tbody>
               </table>
-            </div>
+            </div> */}
+            <History/>
           </TabsContent>
         </Tabs>
       </div>

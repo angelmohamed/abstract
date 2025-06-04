@@ -77,6 +77,9 @@ export default function Authentication() {
   //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
 
+  //get proileImg from redux
+  const { profileImg } = useSelector(state => state.auth.user);
+  console.log("profileImg",profileImg)
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
   let { email } = userData;
@@ -443,7 +446,7 @@ export default function Authentication() {
     dispatch(reset());
     dispatch(signOut());
     router.push("/");
-    // window.location.href = "/";
+    window.location.href = "/";
   }
 
   useEffect(() => {
@@ -935,7 +938,7 @@ export default function Authentication() {
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
                 <Image
-                  src="/images/Ye.png"
+                  src={profileImg||"/images/Ye.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}

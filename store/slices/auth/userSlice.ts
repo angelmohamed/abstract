@@ -21,6 +21,7 @@ export interface UserSliceState {
 	uniqueId: string,
 	status: string,
 	walletAddress: string,
+	profileImg: string,
 	loginType: string,
 	userId: string,
 }

@@ -1,6 +1,6 @@
 "use client";
 import Header from "@/app/Header";
-import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
+// import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
 import {
@@ -18,6 +18,10 @@ import {
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
+import { useDispatch, useSelector } from "react-redux";
+import { getPositions, getUserData } from "@/services/user";
+import ActivityTable from "./activity";
+import Positions from "../portfolio/Positions";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -44,6 +48,10 @@ interface PolygonTx {
 }
 
 export default function PortfolioPage() {
+
+  //get profile data from redux
+  const dispatch = useDispatch();
+  const { profileImg } = useSelector(state => state.auth.user);
   const { address} = useWallet();
   const [account, setaccount] = useState(address);
   const wallet: string = address?address:"";
@@ -51,6 +59,7 @@ export default function PortfolioPage() {
   const [loadingTx, setLoadingTx] = useState(true);
   const [currentTab, setCurrentTab] = useState("positions");
   const [amountFilter, setAmountFilter] = useState("All");
+  const [positions, setPositions] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<{
     username: string;
     avatar_url: string;
@@ -69,21 +78,30 @@ export default function PortfolioPage() {
     fetchTx();
   }, [wallet]);
 
-  useEffect(() => {
-    if (!wallet) return;
-    const fetchProfile = async () => {
-      try {
-        const res = await fetch(`/api/profile?wallet=${wallet}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProfileData(data);
-        }
-      } catch (err) {
-        console.error("Error fetching profile in portfolio:", err);
+  const fetchProfile = async () => {
+    try {
+      const { status, result } = await getUserData(dispatch);
+      if (status ) {
+        setProfileData(result);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } 
+  };
+
+  //get positions
+  const fetchPositions = async () => {
+    const { status, result } = await getPositions();
+    if (status ) {
+      setPositions(result);
+    }
+  };
+
+
+  useEffect(() => {
     fetchProfile();
-  }, [wallet]);
+    fetchPositions()
+  }, []);
 
   const router = useRouter();
 
@@ -104,9 +122,9 @@ export default function PortfolioPage() {
         <div className="flex items-center justify-between space-x-4 mb-6 profile_top">
           <div className="flex items-center space-x-4">
             <Avatar className="w-16 h-16">
-              {profileData?.avatar_url ? (
+              {profileData?.profileImg ? (
                 <AvatarImage
-                  src={profileData.avatar_url}
+                  src={profileData.profileImg||profileImg}
                   alt={profileData.username || wallet}
                 />
               ) : (
@@ -213,28 +231,11 @@ export default function PortfolioPage() {
             </select>
           </div>
           <TabsContent value="positions">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left custom_table">
-                <thead>
-                  <tr>
-                    <th>Market</th>
-                    <th>Avg</th>
-                    <th className="text-right">Current</th>
-                    <th className="text-right">Value</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td colSpan={4}>
-                        <p className="text-center">No positions found</p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+           <Positions />
           </TabsContent>
           <TabsContent value="activity">
-            {loadingTx ? (
+            <ActivityTable />
+            {/* {loadingTx ? (
               <p>Loading transactions...</p>
             ) : (
               <div className="overflow-x-auto">
@@ -273,7 +274,7 @@ export default function PortfolioPage() {
                   </tbody>
                 </table>
               </div>
-            )}
+            )} */}
           </TabsContent>
         </Tabs>
       </div>
