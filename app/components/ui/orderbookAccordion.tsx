@@ -136,6 +136,20 @@ const OrderbookAccordionContent = React.forwardRef<
     const [bids, setBids] = useState<any[]>([]);
     const [asks, setAsks] = useState<any[]>([]);
 
+    const calcSpread = (bids: any[][] = [], asks: any[][] = []): string => {
+      const highestBid = bids?.[0]?.[0];
+      const lowestAsk = asks?.[asks.length - 1]?.[0];
+    
+      const bid = typeof highestBid === 'string' ? parseFloat(highestBid) : highestBid;
+      const ask = typeof lowestAsk === 'string' ? parseFloat(lowestAsk) : lowestAsk;
+    
+      if (typeof bid === 'number' && !isNaN(bid) && typeof ask === 'number' && !isNaN(ask)) {
+        return `${toFixedDown(bid - ask, 2)}¢`;
+      }
+      return '--';
+    }
+
+
     useEffect(() => {
       if (activeView === "Yes") {
         setBids(orderBook?.bids?.[0] || []);
@@ -292,9 +306,9 @@ const OrderbookAccordionContent = React.forwardRef<
 
                         {asks && bids && asks.length > 0 && bids.length > 0 && (
                           <div className="flex items-center h-[35px] w-full p-3">
-                            <div className="w-[30%]">Last: 38.5¢</div>
+                            <div className="w-[30%]">Last: 0¢</div>
                             <div className="w-[20%] text-center">
-                              Spread: 0.5¢
+                              Spread: {calcSpread(bids, asks)}
                             </div>
                             <div className="w-[25%]"></div>
                             <div className="w-[25%]"></div>

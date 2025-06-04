@@ -52,17 +52,18 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   const [isExpirationEnabled, setIsExpirationEnabled] = useState(false);
   const [customDate, setCustomDate] = useState<any>("");
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  const [userPosition, setUserPosition] = useState<number>(0);
 
   const { price, amount } = formValue;
 
   // function
-  const handleChangeBtn = (op: "+" | "-", key: string) => {
+  const handleChangeBtn = (op: "+" | "-", key: string, increment: number) => {
     if (op === "+") {
-      setFormValue((prev) => ({ ...prev, [key]: Number(prev[key]) + 1 }));
+      setFormValue((prev) => ({ ...prev, [key]: Number(prev[key]) + increment }));
     } else if (op === "-") {
       setFormValue((prev) => {
-        if (Number(prev[key]) - 1 > 0) {
-          return { ...prev, [key]: Number(prev[key]) - 1 };
+        if (Number(prev[key]) - increment > 0) {
+          return { ...prev, [key]: Number(prev[key]) - increment };
         } else {
           return { ...prev, [key]: 0 };
         }
@@ -72,21 +73,48 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
     setFormValue((prev: any) => {
-      if (+value < 100) {
-        return { ...prev, [name]: value };
-      } else if (+value < 0) {
-        return { ...prev, [name]: 0 };
+      if (name === "price") {
+        const numericValue = value.replace(/[^0-9]/g, '');
+        const priceNum = parseInt(numericValue);
+        
+        if (numericValue === '') {
+          return { ...prev, [name]: '' };
+        } else if (priceNum >= 1 && priceNum <= 99) {
+          return { ...prev, [name]: numericValue };
+        } else {
+          return prev;
+        }
+      } else if (name === "amount") {
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        
+        const parts = numericValue.split('.');
+        if (parts.length > 2) {
+          return prev;
+        }
+        
+        if (parts[1] && parts[1].length > 2) {
+          return prev;
+        }
+        
+        const amountNum = parseFloat(numericValue);
+        
+        if (numericValue === '' || numericValue === '.') {
+          return { ...prev, [name]: numericValue };
+        } else if (amountNum >= 0 && amountNum <= 100000) {
+          return { ...prev, [name]: numericValue };
+        } else {
+          return prev;
+        }
+      } else {
+        return prev;
       }
-      return prev;
     });
   };
 
-  const handlePlaceOrder = async (action) => {
-    // if (orderType === "limit" && !limitOrderValidation()) {
-    //     console.log("Validation failed", errors);
-    //     return;
-    // }
+
+  const handlePlaceOrder = async (action: any) => {
     let activeTab = activeView?.toLowerCase();
     let data = {
       price: action === "sell" ? 100 - Number(price) : price,
@@ -102,11 +130,30 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     const { success, message } = await placeOrder(data);
     if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
-      setFormValue({ ...formValue, price: 0, amount: 0 });
+      setFormValue({ ...formValue, price: "", amount: "" });
     } else {
       toastAlert("error", message, "order-failed");
     }
     // console.log("Placing order with data: ", market._id);
+  };
+
+  const handlePercentageClick = (percentage: number) => {
+    if (userPosition <= 0) {
+      toastAlert("error", "You don't have any shares to sell", "no-position");
+      return;
+    }
+
+    let amount = 0;
+    if (percentage === 100) {
+      amount = userPosition;
+    } else {
+      amount = Math.floor((userPosition * percentage) / 100);
+    }
+
+    setFormValue(prev => ({
+      ...prev,
+      amount
+    }));
   };
 
   useEffect(() => {
@@ -132,7 +179,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
           <span
             className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("-", "price")}
+            onClick={() => handleChangeBtn("-", "price", 1)}
           >
             -
           </span>
@@ -146,7 +193,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
           />
           <span
             className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "price")}
+            onClick={() => handleChangeBtn("+", "price", 1)}
           >
             +
           </span>
@@ -157,7 +204,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       <div className="flex justify-between mt-3">
         <div className="flex flex-col">
           <span className="text-[#fff] text-[16px]">Shares</span>
-          <p className="text-muted-foreground text-sm cursor-pointer">Max</p>
+          {/* <p className="text-muted-foreground text-sm cursor-pointer">{userPosition} Shares</p> */}
         </div>
         <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
           <Input
@@ -173,13 +220,13 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       <span className="text-red-500">{errors?.amount}</span>
       {buyorsell == "sell" ? (
         <div className="flex gap-2 pt-2 justify-end">
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(25)}>
             25%
           </Button>
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(50)}>
             50%
           </Button>
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]">
+          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(100)}>
             Max
           </Button>
         </div>
@@ -187,15 +234,15 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         <div className="flex gap-2 pt-2 justify-end">
           <Button
             className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("-", "amount")}
+            onClick={() => handleChangeBtn("-", "amount", 10)}
           >
-            -$10
+            -10
           </Button>
           <Button
             className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "amount")}
+            onClick={() => handleChangeBtn("+", "amount", 10)}
           >
-            +$10
+            +10
           </Button>
         </div>
       )}
@@ -244,30 +291,48 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         </div>
       )}
 
-      <div className="pt-1 pb-1 mt-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Total</span>
-          <span className="text-foreground">
-            {/* You can add logic for limit order shares */}
-            {amount}
-          </span>
-        </div>
-      </div>
+      {
+        buyorsell == "buy" ? (
+          <>
+            <div className="pt-1 pb-1 mt-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-foreground">
+                  {/* You can add logic for limit order shares */}
+                  ${" "}{Number(price) * Number(amount) / 100}
+                </span>
+              </div>
+            </div>
 
-      <div className="pt-1 pb-1">
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">To Win</span>
-          <span className="text-foreground">
-            {/* You can add logic for limit order shares */}$
-            {Number(amount) / 100}
-          </span>
-        </div>
-      </div>
+            <div className="pt-1 pb-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">To Win</span>
+                <span className="text-foreground">
+                  {/* You can add logic for limit order shares */}
+                  ${" "}{Number(amount)}
+                </span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="pt-1 pb-1 mt-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                You&apos;ll receive
+              </span>
+              <span className="text-foreground">
+                ${" "}{Number(amount)}
+              </span>
+            </div>
+          </div>
+        )
+      }
+
       <div className="pt-4">
         {signedIn ? (
           <Button
             className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-            onClick={() => handlePlaceOrder("buy")}
+            onClick={() => handlePlaceOrder(buyorsell)}
           >
             {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView}`}
           </Button>
@@ -277,8 +342,8 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
           </Button>
         )}
       </div>
-      <CustomDateComponent 
-        showCustomDialog={showCustomDialog} 
+      <CustomDateComponent
+        showCustomDialog={showCustomDialog}
         setShowCustomDialog={setShowCustomDialog}
         customDate={customDate}
         setCustomDate={setCustomDate}
