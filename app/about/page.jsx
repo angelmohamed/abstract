@@ -112,7 +112,7 @@ function FeatureItem({ feature, reverse }) {
 export default function Home() {
   const [currentText, setCurrentText] = useState(HERO_TEXTS[0]);
   const [isTextVisible, setIsTextVisible] = useState(true);
-  console.log("About page");
+  // console.log("About page");
   useEffect(() => {
     let index = 1;
     let timeoutId;

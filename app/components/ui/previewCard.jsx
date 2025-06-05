@@ -63,9 +63,9 @@ export function PreviewCard({
     }
   }, [eventID]);
 
-  if (!events) {
-    return <div>Loading...</div>;
-  }
+  // if (!events) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <Card 
@@ -125,7 +125,7 @@ export function PreviewCard({
 
           <CardContent>
             <div className="pb-5">
-              <Progress value={probability*100} className="w-[100%]" />
+              <Progress value={probability} className="w-[100%]" />
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <div className="text-[12px]" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '48%' }}>

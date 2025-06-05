@@ -113,7 +113,8 @@ const EventCard: React.FC<EventCardProps> = ({
             >
               {question}
             </div>
-            <div>{probability && decimalToPercentage(probability)}%</div>
+            {/* <div>{probability && decimalToPercentage(probability)}%</div> */}
+            <div>{probability}%</div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -121,7 +122,8 @@ const EventCard: React.FC<EventCardProps> = ({
       <CardContent className="pb-0 sm:pl-3 pl-3 sm:pr-3 pr-3">
         <div className="pb-4 pt-1">
           <Progress
-            value={probability && decimalToPercentage(probability)}
+            // value={probability && decimalToPercentage(probability)}
+            value={probability}
             className="w-[100%]"
           />
         </div>

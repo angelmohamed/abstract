@@ -166,7 +166,7 @@ export default function MiniLineChart({
       <div>
         <CardHeader className="pt-0 pb-0">
           <CardTitle className="text-4xl" style={{ color: chanceColor }}>
-            <span>{(displayChance * 100).toFixed(1)}%</span>
+            <span>{(displayChance).toFixed(1)}%</span>
             <span className="text-2xl font-light">  chance</span>
           </CardTitle>
 

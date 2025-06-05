@@ -140,8 +140,10 @@ const Chart: React.FC<ChartProps> = ({
                     fidelity: 30
                 }
                 const { success, result } = await getPriceHistory(id, data);
+                // console.log("result of chart", result);
                 if (success) {
                     setChartDataYes(processSingleChartData(result["yes"], interval));
+                    // console.log("chartDataYes in chart", processSingleChartData(result["yes"], interval));
                 }
             } catch (error) {
                 console.log(error);
@@ -324,7 +326,7 @@ const Chart: React.FC<ChartProps> = ({
                                     onMouseMove={(e) => {
                                         if (e && e.activePayload && e.activePayload.length > 0) {
                                             const hoveredValue = e.activePayload[0].value;
-                                            setHoveredChance(hoveredValue / 100); // Convert to percentage
+                                            setHoveredChance(hoveredValue); // Convert to percentage
                                         }
                                     }}
                                     onMouseLeave={() => setHoveredChance(undefined)}

@@ -79,7 +79,7 @@ export default function Authentication() {
 
   //get proileImg from redux
   const { profileImg } = useSelector(state => state.auth.user);
-  console.log("profileImg",profileImg)
+  // console.log("profileImg",profileImg)
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
   let { email } = userData;
@@ -272,7 +272,7 @@ export default function Authentication() {
 
   const handleGoogleLogin = async (credentialResponse) => {
     const token = credentialResponse.credential;
-    console.log("Google Token:", token);
+    // console.log("Google Token:", token);
 
     try {
       let data = {
@@ -315,7 +315,7 @@ export default function Authentication() {
         }
       }
     } catch (err) {
-      console.log(err, "errr");
+      // console.log(err, "errr");
     }
   };
 
@@ -330,7 +330,7 @@ export default function Authentication() {
 
   let handleOtpClick = async () => {
     try {
-      console.log("onCLick");
+      // console.log("onCLick");
       let errMsg = await otpValidate(otpData);
       setError(errMsg);
       if (isEmpty(errMsg)) {
@@ -459,7 +459,7 @@ export default function Authentication() {
     }
    }
   },[])
-  console.log(signedIn,"signedInsignedIn")
+  // console.log(signedIn,"signedInsignedIn")
   return (
     <>
       {signedIn && (
@@ -938,7 +938,7 @@ export default function Authentication() {
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
                 <Image
-                  src={profileImg||"/images/Ye.png"}
+                  src={"/images/Ye.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}
