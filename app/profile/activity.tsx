@@ -8,7 +8,7 @@ import { getTradeHistory } from '@/services/user';
 
 interface Trade {
   time: string;
-  execUserId: string;
+  execUserId: any;
   price: number;
   quantity: number;
   side: string;
