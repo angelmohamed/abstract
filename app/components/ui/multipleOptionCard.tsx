@@ -149,10 +149,11 @@ export function MultipleOptionCard({
 
                     <div className="flex justify-center items-center align-middle gap-1">
                       <p>
-                        {option.outcomePrices &&
-                          decimalToPercentage(
-                            JSON.parse(option.outcomePrices)[0]
-                          ) + "%"}
+                        {option.last &&
+                          // decimalToPercentage(
+                          //   JSON.parse(option.outcomePrices)[0]
+                          // ) + "%"
+                          `${option.last}%`}
                       </p>
                       {/* Yes Button */}
                       {/* Yes Button */}
@@ -167,7 +168,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleYesClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] text-[10px] transition-colors duration-300 rounded-full uppercase"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] text-[10px] transition-colors duration-300 rounded-full capitalize"
                         >
                           {(option.outcome && option.outcome?.[0]?.title) ||
                             "Yes"}
@@ -186,7 +187,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleNoClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] text-[10px] transition-colors duration-300 rounded-full uppercase"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] text-[10px] transition-colors duration-300 rounded-full capitalize"
                         >
                           {(option.outcome && option.outcome?.[1]?.title) ||
                             "No"}

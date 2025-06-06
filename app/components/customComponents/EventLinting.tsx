@@ -88,12 +88,14 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
                     imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
                     probability={
-                      (event.marketId[0]?.outcomePrices &&
-                      JSON.parse(event.marketId[0]?.outcomePrices)[0] ) || 50
+                      // (event.marketId[0]?.outcomePrices &&
+                      // JSON.parse(event.marketId[0]?.outcomePrices)[0] ) || 50
+                      event.marketId[0]?.last
                     }
+
                     totalPool={`$${(event.volume ? event.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
-                    yesButtonLabel = {`${event.marketId[0]?.outcome?.[0]?.title || "Yes"} 24.0¢`}
-                    noButtonLabel = {`${event.marketId[0]?.outcome?.[1]?.title || "No"} 74.0¢`}
+                    yesButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[0]?.title || "Yes"}`}
+                    noButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[1]?.title || "No"}`}
                     yesPotential={
                       event.marketId[0]?.outcomePrices &&
                       JSON.parse(event.marketId[0]?.outcomePrices)[0] || 50

@@ -65,7 +65,8 @@ export default function ProfilePage() {
   const [submitError, setSubmitError] = useState("");
   const inputFileRef = useRef<HTMLInputElement>(null);
   const [updateImage, setUpdateImage] = useState(null);
-
+  const [emailNotification, setEmailNotification] = useState(false);
+  const [orderFill, setOrderFill] = useState(false)
   useEffect(() => {
     let isMounted = true;
 
@@ -211,6 +212,29 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEmailNotificationToggle = async (enabled: boolean) => {
+    try {
+      console.log("enabled", enabled);
+      // let respData = await emailNotificationToggle({status: enabled});
+      // if(respData.success){
+        setEmailNotification(enabled);
+      // }
+    } catch (error) {
+      console.error("Error updating email notification:", error);
+    }
+  }
+
+  const handleOrderFillToggle = async (enabled: boolean) => {
+    try {
+      console.log("enabled", enabled);
+      // let respData = await emailNotificationToggle({status: enabled});
+      // if(respData.success){
+        setOrderFill(enabled);
+      // }
+    } catch (error) {
+      console.error("Error updating email notification:", error);
+    }
+  }
   // Add wallet settings handlers
   const handleGasPreferenceChange = async (preference: string) => {
     try {
@@ -397,7 +421,12 @@ export default function ProfilePage() {
                     >
                       Resolutions
                     </label>
-                    <Switch.Root className="SwitchRoot" id="airplane-mode">
+                    <Switch.Root
+                      className="SwitchRoot"
+                      id="airplane-mode"
+                      checked={emailNotification}
+                      onCheckedChange={handleEmailNotificationToggle}
+                    >
                       <Switch.Thumb className="SwitchThumb" />
                     </Switch.Root>
                   </div>
@@ -421,10 +450,15 @@ export default function ProfilePage() {
                       className="Label"
                       htmlFor="airplane-mode"
                       style={{ paddingRight: 15 }}
-                    >
+                    > 
                       Order Fills
                     </label>
-                    <Switch.Root className="SwitchRoot" id="airplane-mode">
+                    <Switch.Root 
+                      className="SwitchRoot"
+                      id="airplane-mode"
+                      checked={orderFill}
+                      onCheckedChange={handleOrderFillToggle}
+                    >
                       <Switch.Thumb className="SwitchThumb" />
                     </Switch.Root>
                   </div>

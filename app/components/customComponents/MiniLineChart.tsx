@@ -155,7 +155,7 @@ export default function MiniLineChart({
   };
 
   // Calculate the current displayed chance value and color
-  const displayChance = selectedYes ? title : 1 - title;
+  const displayChance = selectedYes ? title : 100 - title;
   const chanceColor = selectedYes ? "#27ae60" : "#e64800";
 
   return (

@@ -151,7 +151,7 @@ const Positions = () => {
                                     <td>${toFixedDown(data?.filled?.[0]?.price,1)}</td>
                                     <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity)/100,2)}</td>
                                     <td>
-                                    $1.93 <span className="text-red-500">(-3.22%)</span>
+                                    ${data?.last || 0} <span className={data?.last > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({(((data?.last || data.filled?.[0]?.price) - data.filled?.[0]?.price)/data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
                                     </td>
                                     <td>${data?.quantity?.toFixed(2)}</td>
                                     {/* <td>
@@ -292,12 +292,16 @@ const Positions = () => {
               <Dialog.Title className="DialogTitle">
                 Shill Your Bag
               </Dialog.Title>
-              <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
-                {shareData?.positions?.length > 1 && 
-                shareData?.positions?.map((item, index) => (
-                  <Button variant={selectedMarketData?.marketGroupSlug === item?.marketGroupSlug ? "default" : "outline"} key={index} onClick={()=>setSelectedMarketData(item)}>{item.marketGroupTitle}</Button>
-                )) 
+              {shareData?.positions?.length > 1 ? (
+                <div className='flex gap-2 overflow-x-scroll mt-4'>
+                  {shareData?.positions?.map((item, index) => (
+                    <Button variant={selectedMarketData?._id === item?._id ? "default" : "outline"} key={index} onClick={()=>setSelectedMarketData(item)}>{item.marketGroupTitle}</Button>
+                  ))}
+                </div>
+                ) : null
               }
+              <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
+                
                 
                 <div className="flex gap-3 mb-4 items-center">
                   <Image

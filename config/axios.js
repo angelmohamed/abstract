@@ -4,6 +4,8 @@ import { getCookie } from "cookies-next";
 
 // import lib
 import config from "./config";
+import store from "../store";
+import { signOut } from "@/store/slices/auth/sessionSlice";
 
 const isClient = typeof window !== "undefined";
 
@@ -49,11 +51,27 @@ export const removeAuthorization = () => {
 
 export const handleResp = (respData, type = 'success', doc) => {
   try {
+    const { signedIn } = store.getState()?.auth?.session;
+    // console.log(signedIn, "signedIn");
+    // console.log(respData, "respData");
+    if (
+      signedIn &&
+      type === "error" &&
+      respData &&
+      respData.response &&
+      respData.response.status === 401
+    ) {
+      // store.dispatch(clearUser());
+      // store.dispatch(clearWallet());
+      store.dispatch(signOut());
+      window.location.replace("/");
+      return true;
+    }
     if (doc === true && type == 'success' && respData && respData.data) {
       return { data: respData.data }
     }
     if (type == 'success' && respData && respData.data) {
-      console.log('respData.data: ', respData.data);
+      // console.log('respData.data: ', respData.data);
 
       return respData.data
     } else if (type == 'error' && respData && respData.response && respData.response.data) {

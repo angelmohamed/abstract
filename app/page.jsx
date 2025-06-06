@@ -9,11 +9,28 @@ import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/app/components/ui/carousel";
 import EventLinting from "@/app/components/customComponents/EventLinting";
 import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting";
-import { infoCards } from "@/app/components/constants";
+// import { infoCards } from "@/app/components/constants";
 import { getCategories } from "@/services/market";
+import { getInfoCards } from "@/services/user";
 
 const InfoCards = () => {
-  const cards = infoCards;
+  const [cards, setCards] = useState([]);
+
+  const fetchInfoCards = async () => {
+    try {
+      const { success, result } = await getInfoCards();
+      console.log(result, "result info cards");
+      if (success) {
+        setCards(result);
+      }
+    } catch (error) {
+      console.error("Error fetching info cards:", error);
+    }
+  }
+
+  useEffect(() => {
+    fetchInfoCards();
+  }, []);
 
   const renderInfoCard = (emoji, title, footer) => {
     return (
@@ -23,7 +40,7 @@ const InfoCards = () => {
           <p className="text-sm font-extrabold pl-2">{title}</p>
         </div>
         <div>
-          <p className="text-sm pt-3">{footer}</p>
+          <p className="text-sm pt-3" dangerouslySetInnerHTML={{ __html: footer }}></p>
         </div>
       </div>
     );
@@ -36,7 +53,7 @@ const InfoCards = () => {
         <div className="hidden md:grid md:grid-cols-4 gap-4">
           {cards && cards?.length > 0 && cards?.map((card, index) => (
             <div key={index}>
-              {renderInfoCard(card.emoji, card.title, card.footer)}
+              {renderInfoCard(card.emoji, card.title, card?.content)}
             </div>
           ))}
         </div>
@@ -47,7 +64,7 @@ const InfoCards = () => {
             <CarouselContent>
               {cards && cards?.length > 0 && cards?.map((card, index) => (
                 <CarouselItem key={index} className="pl-4">
-                  {renderInfoCard(card.emoji, card.title, card.footer)}
+                  {renderInfoCard(card.emoji, card.title, card?.content)}
                 </CarouselItem>
               ))}
             </CarouselContent>

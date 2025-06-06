@@ -68,3 +68,15 @@ export const getUserTradeHistory = async (data:any) => {
     return handleResp(error, "error");
   }
 };
+
+export const getInfoCards = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/info-cards`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

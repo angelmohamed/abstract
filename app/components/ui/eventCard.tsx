@@ -41,8 +41,8 @@ const EventCard: React.FC<EventCardProps> = ({
   question,
   probability,
   totalPool,
-  yesButtonLabel = "Yes 24.0¢",
-  noButtonLabel = "No 76.0¢",
+  yesButtonLabel = "Buy Yes",
+  noButtonLabel = "Buy No",
   yesPotential,
   noPotential,
   yesColor = "#27ae60",
@@ -114,18 +114,20 @@ const EventCard: React.FC<EventCardProps> = ({
               {question}
             </div>
             {/* <div>{probability && decimalToPercentage(probability)}%</div> */}
-            <div>{probability}%</div>
+            <div>{probability ? `${probability}%` : ""}</div>
           </div>
         </CardTitle>
       </CardHeader>
 
       <CardContent className="pb-0 sm:pl-3 pl-3 sm:pr-3 pr-3">
         <div className="pb-4 pt-1">
-          <Progress
-            // value={probability && decimalToPercentage(probability)}
-            value={probability}
-            className="w-[100%]"
-          />
+          {(probability && probability != 0) ? (
+            <Progress
+              // value={probability && decimalToPercentage(probability)}
+              value={probability}
+              className="w-[100%]"
+            />
+           ) : null} 
         </div>
         <div
           className="pb-0"
@@ -147,7 +149,7 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             <Button
               onClick={handleYesClick}
-              className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] transition-colors duration-300 rounded-full uppercase"
+              className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] transition-colors duration-300 rounded-full capitalize"
             >
               {yesButtonLabel}
             </Button>
@@ -165,7 +167,7 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             <Button
               onClick={handleNoClick}
-              className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] transition-colors duration-300 rounded-full uppercase"
+              className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] transition-colors duration-300 rounded-full capitalize"
             >
               {noButtonLabel}
             </Button>
