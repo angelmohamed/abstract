@@ -79,7 +79,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
       capped: action === "sell" ? true : false,
       marketId,
       userId: user?._id,
-      ordVal: Number(ordVal) / 100,
+      ordVal: action === "buy" ? Number(ordVal) * 100: 0,
       type: "market",
     };
     const { success, message } = await placeOrder(data);
