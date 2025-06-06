@@ -808,7 +808,7 @@ export default function Authentication() {
                   <DropdownMenu.Label className="text-[18px] font-medium text-gray-100 px-4 py-3 border-b border-gray-700">
                     Notifications
                   </DropdownMenu.Label>
-                  <div className="flex flex-col gap-2">
+                  {/* <div className="flex flex-col gap-2">
                     <Link
                       href="/notifications"
                       className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
@@ -928,6 +928,9 @@ export default function Authentication() {
                         </p>
                       </div>
                     </Link>
+                  </div> */}
+                  <div className="text-center text-gray-100 text-sm min-h-[200px] flex items-center justify-center">
+                    No notifications yet
                   </div>
                 </DropdownMenu.Content>
               </div>

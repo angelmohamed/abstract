@@ -133,7 +133,7 @@ export function PreviewCard({
                 className="w-full mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                {markets?.[0]?.outcome?.[0]?.title || "Yes"} 24.0¢
+                Buy {markets?.[0]?.outcome?.[0]?.title || "Yes"}
               </Button>
             </div>
 
@@ -142,7 +142,7 @@ export function PreviewCard({
                 className="w-full mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
-                {markets?.[0]?.outcome?.[1]?.title || "No"} 76.0¢
+                Buy {markets?.[0]?.outcome?.[1]?.title || "No"} 
               </Button>
             </div>
 
