@@ -140,23 +140,24 @@ const OrderbookAccordionContent = React.forwardRef<
     const [bids, setBids] = useState<any[]>([]);
     const [asks, setAsks] = useState<any[]>([]);
 
-    const calcSpread = (bids: any[][] = [], asks: any[][] = []): string => {
-      const highestBid = bids?.[0]?.[0];
-      const lowestAsk = asks?.[asks.length - 1]?.[0];
-    
-      const bid = typeof highestBid === 'string' ? parseFloat(highestBid) : highestBid;
-      const ask = typeof lowestAsk === 'string' ? parseFloat(lowestAsk) : lowestAsk;
-    
-      if (typeof bid === 'number' && !isNaN(bid) && typeof ask === 'number' && !isNaN(ask)) {
-        return `${toFixedDown(ask - bid, 2)}¢`;
+    const calcSpread = React.useCallback((bids: any[][] = [], asks: any[][] = []): string => {
+      const b = bids.map((b) => parseFloat(b[0])).filter((n) => !isNaN(n));
+      const a = asks.map((a) => parseFloat(a[0])).filter((n) => !isNaN(n));
+
+      const highestBid = b.length ? Math.max(...b) : null;
+      const lowestAsk = a.length ? Math.min(...a) : null;
+      
+      if (highestBid !== null && lowestAsk !== null) {
+        return `${toFixedDown(lowestAsk - highestBid, 2)}¢`;
       }
+    
       return '--';
-    }
+    }, [bids, asks]);
 
     useEffect(() => {
       const descending = (a: any, b: any) => Number(b[0]) - Number(a[0]);
       const ascending = (a: any, b: any) => Number(a[0]) - Number(b[0]);
-      console.log(orderBook, "orderBook");
+      // console.log(orderBook, "orderBook");
       
       if (activeView === "Yes") {
         const sortedBids = (orderBook?.bids?.[0] || []).sort(descending);
