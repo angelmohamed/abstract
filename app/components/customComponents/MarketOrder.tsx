@@ -99,7 +99,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
         </p>
         <div className="flex justify-between mt-3">
           <div className="flex flex-col">
-            <span className="text-[#fff] text-[16px]">Amount</span>
+            <span className="text-[#fff] text-[16px]">{buyorsell == "buy" ? "Amount" : "Shares"}</span>
             {/* <p className="text-muted-foreground text-sm cursor-pointer">{userPosition} Shares</p> */}
           </div>
           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
