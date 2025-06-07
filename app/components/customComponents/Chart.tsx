@@ -215,7 +215,7 @@ const Chart: React.FC<ChartProps> = ({
                                     flexShrink: 0,
                                 }}
                             >
-                                <Image
+                                <img
                                     src={image}
                                     alt="Event"
                                     width={screenWidth < 640 ? 40 : 40}

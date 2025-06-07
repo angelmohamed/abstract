@@ -445,8 +445,12 @@ export default function Authentication() {
     document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     dispatch(reset());
     dispatch(signOut());
-    router.push("/");
-    window.location.href = "/";
+    // store.dispatch(signOut());
+    // router.push("/");
+    toastAlert("success","Logged out successfully");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 1000);
   }
 
   useEffect(() => {
@@ -459,7 +463,6 @@ export default function Authentication() {
     }
    }
   },[])
-  // console.log(signedIn,"signedInsignedIn")
   return (
     <>
       {signedIn && (
@@ -796,7 +799,7 @@ export default function Authentication() {
                 aria-label="Customise options"
               >
                 <BellIcon className="w-6 h-6 " />
-                <span className="absolute top-[8px] right-[8px] w-2 h-2 bg-red-500 rounded-full block"></span>
+                {/* <span className="absolute top-[8px] right-[8px] w-2 h-2 bg-red-500 rounded-full block"></span> */}
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
@@ -940,8 +943,8 @@ export default function Authentication() {
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
-                <Image
-                  src={"/images/Ye.png"}
+                <img
+                  src={data?.profileImg ? data?.profileImg : "/images/Ye.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}
@@ -954,8 +957,8 @@ export default function Authentication() {
               <div className="custom_dropdown_portal">
                 <DropdownMenu.Content className="profile_menu" sideOffset={5}>
                   <div className="flex items-center space-x-3">
-                    <Image
-                      src="/images/Ye.png"
+                    <img
+                      src={data?.profileImg ? data?.profileImg : "/images/Ye.png"}
                       alt="Profile Icon"
                       width={40}
                       height={40}
@@ -963,15 +966,18 @@ export default function Authentication() {
                     />
                     <div>
                       <span className="text-sm text-gray-100">
-                        {data?.name ? data?.name : ""}
+                        {data?.name ? data?.name : "--"}
                       </span>
                       <div className="text-sm text-gray-100 flex items-center space-x-2">
                         <Tooltip.Provider>
                           <Tooltip.Root>
                             <Tooltip.Trigger asChild>
-                              <button className="IconButton bg-[#131212] px-2 py-1 rounded">
+                              <button className="IconButton bg-[#131212] px-2 py-1 rounded" onClick={() => {
+                                navigator.clipboard.writeText(address ? address : data?.email);
+                                toastAlert("success","Address copied to clipboard");
+                              }}>
                                 <span className="text-[12px]">
-                                  {address ? shortText(address) : ""}
+                                  {address ? shortText(address) : data?.email}
                                 </span>
                               </button>
                             </Tooltip.Trigger>
@@ -988,9 +994,9 @@ export default function Authentication() {
                             </Tooltip.Portal>
                           </Tooltip.Root>
                         </Tooltip.Provider>
-                        <Link href="#" target="_blank">
+                        {/* <Link href="#" target="_blank">
                           <OpenInNewWindowIcon className="h-[16px] w-[16px]" />
-                        </Link>
+                        </Link> */}
                       </div>
                     </div>
                   </div>
@@ -1018,9 +1024,7 @@ export default function Authentication() {
                   </DropdownMenu.Item>
                   <DropdownMenu.Separator className="DropdownMenuSeparator" />
                   <DropdownMenu.Item className="DropdownMenuItem">
-                    <Link href="/" onClick={logout}>
-                      Logout
-                    </Link>
+                    <Link href="#" onClick={logout}>Logout</Link>
                   </DropdownMenu.Item>
                 </DropdownMenu.Content>
               </div>

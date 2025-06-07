@@ -25,6 +25,7 @@ const Positions = () => {
   const [shareOpen, setShareOpen] = useState(false)
   const [shareData, setShareData] = useState({})
   const [selectedMarketData, setSelectedMarketData] = useState({})
+  const router = useRouter()
 
   const getUserPositionHistory = async () => {
       try {
@@ -101,7 +102,7 @@ const Positions = () => {
                             <tr>
                               <td colSpan={6}>
                                 <div className="flex items-center justify-between">
-                                  {item.eventTitle}
+                                  <Link href={`/event-page/${item?.eventSlug}`} className="cursor-pointer">{item.eventTitle}</Link>
                                   <button className="text-blue-500" onClick={() => handleShareOpen(item)}>
                                     <ShareIcon />
                                   </button>
@@ -121,14 +122,14 @@ const Positions = () => {
                                             height={42}
                                         /> */}
                                         {/* {item.eventImage} */}
-                                         <Image
+                                         <img
                                               //  priority={true}
                                                 src={item.eventImage}
                                                 alt="Icon"
                                                 width={42}
                                                 height={42}
                                                 className="mb-2 cursor-pointer"
-                                                onClick={()=>route.push(`/event-page/${item?.eventSlug}`)}
+                                                onClick={()=>router.push(`/event-page/${item?.eventSlug}`)}
                                               />
                                         </span>
                                         <div className="flex flex-col gap-1">
@@ -304,7 +305,7 @@ const Positions = () => {
                 
                 
                 <div className="flex gap-3 mb-4 items-center">
-                  <Image
+                  <img
                     src={shareData?.eventImage}
                     alt="Icon"
                     width={60}

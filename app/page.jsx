@@ -114,7 +114,7 @@ export default function Home() {
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
-        {/* <NavigationBar menuItems={navigationItems} showLiveTag={true} /> */}
+        <NavigationBar menuItems={navigationItems} showLiveTag={true} setSelectedCategory={setSelectedCategory} selectedCategory={selectCategory}/>
       </div>
 
       <div className="container mx-auto px-4 max-w-full overflow-hidden">

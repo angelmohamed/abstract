@@ -8,11 +8,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 
 interface MenuItem {
   title: string;
+  slug: string;
 }
 
 interface NavigationBarProps {
   menuItems: MenuItem[];
   showLiveTag?: boolean;
+  setSelectedCategory: (category: string) => void;
+  selectedCategory: string;
 }
 
 interface ListItemProps {
@@ -151,6 +154,8 @@ const ListItem: React.FC<ListItemProps> = ({ title, children }) => {
 export const NavigationBar: React.FC<NavigationBarProps> = ({
   menuItems,
   showLiveTag = true,
+  setSelectedCategory,
+  selectedCategory
 }) => {
   const categoryListRef = React.useRef<HTMLDivElement>(null);
   const [categoryScrollAtStart, setCategoryScrollAtStart] =
@@ -169,6 +174,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   React.useEffect(() => {
     handleCategoryScroll();
   }, []);
+
+  const handleCategoryClick = (category: string) => {
+    setSelectedCategory(category);
+    console.log("category: ", category);
+  };
 
   return (
     <div className="container mx-auto px-4 max-w-full overflow-hidden">
@@ -214,10 +224,17 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             style={{ scrollBehavior: "smooth" }}
             onScroll={handleCategoryScroll}
           >
+            <div
+              className="flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer"
+              onClick={() => handleCategoryClick("all")}
+            >
+              Trending
+            </div>
             {menuItems.length > 0 && menuItems.map((item) => (
               <div
                 key={item.title}
                 className="flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer"
+                onClick={() => handleCategoryClick(item.slug)}
               >
                 {item.title}
               </div>

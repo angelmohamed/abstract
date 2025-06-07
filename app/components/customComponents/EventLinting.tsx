@@ -120,11 +120,19 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
             </div>
           ))}
       </div>
-      <PaginationComp
-        pagination={pagination}
-        setPagination={setPagination}
-        hasMore={hasMore}
-      />
+      {events && events.length === 0 &&
+        <div className="text-center text-gray-500">No events found</div>
+      }
+      {
+        ( events && events.length === 0 && pagination.page === 1) 
+        ? null
+        :
+        <PaginationComp
+          pagination={pagination}
+          setPagination={setPagination}
+          hasMore={hasMore}
+        />
+      }   
     </div>
   );
 }
