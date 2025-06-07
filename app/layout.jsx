@@ -6,6 +6,7 @@ import SnackbarClient from "@/app/helper/SnackbarClient";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { ToastContainer } from "react-toastify";
 import { StoreProvider } from "@/providers/store-provider";
+import ClientLayoutEffect from "./ClientLayoutEffect";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,6 +42,7 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>
           <SnackbarClient>
+        <ClientLayoutEffect />
             <WalletProvider>{children}</WalletProvider>
           </SnackbarClient>
         </StoreProvider>

@@ -6,6 +6,7 @@ import { getCookie } from "cookies-next";
 import config from "./config";
 import store from "../store";
 import { signOut } from "@/store/slices/auth/sessionSlice";
+import { toastAlert } from "@/lib/toast";
 
 const isClient = typeof window !== "undefined";
 
@@ -64,7 +65,10 @@ export const handleResp = (respData, type = 'success', doc) => {
       // store.dispatch(clearUser());
       // store.dispatch(clearWallet());
       store.dispatch(signOut());
-      window.location.replace("/");
+      toastAlert("error", "Your session has expired, please login again", "session-expired");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
       return true;
     }
     if (doc === true && type == 'success' && respData && respData.data) {

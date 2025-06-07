@@ -9,7 +9,12 @@ const dataSlice = createSlice({
 		locked: 0,
 	},
 	reducers: {
-		setWallet: (_, action) => action.payload,
+		setWallet: (_, action) => ({
+			balance: action.payload.balance ?? 0,
+			inOrder: action.payload.inOrder ?? 0,
+			locked: action.payload.locked ?? 0,
+		  }),
+		  
 	},
 });
 

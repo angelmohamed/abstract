@@ -2,7 +2,7 @@
 import { createContext } from "react";
 import io from "socket.io-client";
 import config from "./config";
-// import store from "../store/index";
+import store from "../store/index";
 // import { useSelector } from "react-redux";
 // import lib
 let connectionOptions = {
@@ -26,10 +26,10 @@ const unsubscribe = event => {
   socket.emit("unsubscribe", event);
 };
 
-// socket.on("disconnect", reason => {
-//   const { user } = store.getState().auth;
-//   if (user && user._id) createSocketUser(user._id);
-// });
+socket.on("disconnect", reason => {
+  const { user } = store.getState().auth;
+  if (user) subscribe(user._id);
+});
 
 const SocketContext = createContext({
   socket: socket,
