@@ -72,7 +72,7 @@ const OpenOrders = () => {
                             <td colSpan={8}>
                                 <div className="flex items-center space-x-2 cursor-pointer" onClick={()=>route.push(`/event-page/${item?.eventSlug}`)}>
                                 <span className="text-2xl">
-                                  <Image
+                                  <img
                                     src={item?.eventImage}
                                     alt="Icon"
                                     width={42}

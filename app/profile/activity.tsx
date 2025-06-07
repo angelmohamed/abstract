@@ -12,6 +12,7 @@ interface Trade {
   price: number;
   quantity: number;
   side: string;
+  action: string;
 }
 
 const ActivityTable = () => {
@@ -44,12 +45,13 @@ const ActivityTable = () => {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm text-left text-gray-100">
-        <thead className="text-xs uppercase bg-[#1A1A1A]">
+        <thead className="text-xs capitalize bg-[#1A1A1A]">
           <tr>
             <th className="px-6 py-3">Time</th>
-            <th className="px-6 py-3">User</th>
+            {/* <th className="px-6 py-3">User</th> */}
             <th className="px-6 py-3">Price</th>
             <th className="px-6 py-3">Quantity</th>
+            <th className="px-6 py-3">Action</th>
             <th className="px-6 py-3">Side</th>
           </tr>
         </thead>
@@ -59,16 +61,19 @@ const ActivityTable = () => {
               <td className="px-6 py-4">
                 {new Date(trade.time).toLocaleString()}
               </td>
-              <td className="px-6 py-4">
+              {/* <td className="px-6 py-4">
                 {trade.execUserId?.uniqueId}
-              </td>
+              </td> */}
               <td className="px-6 py-4">
                 ${formatNumber(trade.price)}
               </td>
               <td className="px-6 py-4">
                 {formatNumber(trade.quantity)}
               </td>
-              <td className={`px-6 py-4 ${trade.side === 'yes' ? 'text-green-500' : 'text-red-500'}`}>
+              <td className={`px-6 py-4 ${trade.action === 'buy' ? 'text-green-500' : 'text-red-500'} capitalize`}>
+                {trade.action}
+              </td>
+              <td className={`px-6 py-4 ${trade.side === 'yes' ? 'text-green-500' : 'text-red-500'} capitalize`}>
                 {trade.side}
               </td>
             </tr>

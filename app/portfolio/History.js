@@ -84,7 +84,7 @@ const History = () => {
                             <td>
                               <div className="flex items-center space-x-2 cursor-pointer" onClick={()=>router.push(`/event-page/${item?.marketId?.eventId?.slug}`)}>
                                 <span className="text-2xl">
-                                  <Image
+                                  <img
                                     src={item?.marketId?.eventId?.image}
                                     alt="Icon"
                                     width={42}
