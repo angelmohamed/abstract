@@ -154,20 +154,28 @@ const OrderbookAccordionContent = React.forwardRef<
     }
 
     useEffect(() => {
+      const descending = (a: any, b: any) => Number(b[0]) - Number(a[0]);
+      const ascending = (a: any, b: any) => Number(a[0]) - Number(b[0]);
+      console.log(orderBook, "orderBook");
+      
       if (activeView === "Yes") {
-        setBids(orderBook?.bids?.[0] || []);
+        const sortedBids = (orderBook?.bids?.[0] || []).sort(descending);
+        setBids(sortedBids);
         let asks =
           orderBook?.asks?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
-        setAsks(asks ? asks.reverse() : []);
+        const sortedAsks = asks.sort(ascending);
+        setAsks(sortedAsks ? sortedAsks.reverse(): []);
       } else if (activeView === "No") {
-        setBids(orderBook?.asks?.[0] || []);
+        const sortedBids = (orderBook?.asks?.[0] || []).sort(descending);
+        setBids(sortedBids);
         let asks =
           orderBook?.bids?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
-        setAsks(asks ? asks.reverse() : []);
+        const sortedAsks = asks.sort(ascending);
+        setAsks(sortedAsks ? sortedAsks.reverse() : []);
       }
     }, [activeView, orderBook]);
 
