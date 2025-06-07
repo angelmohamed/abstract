@@ -99,7 +99,7 @@ export default function Authentication() {
     router.push("/profile");
   };
   const navigateToPortfolioPage = () => {
-    router.push("/portfolio");
+    // router.push("/portfolio");
     window.location.href = "/portfolio";
   };
 
