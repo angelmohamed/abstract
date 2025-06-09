@@ -49,6 +49,26 @@ export default function EventPage() {
 
   useEffect(() => {
     const socket = socketContext?.socket;
+    const eventId = events?._id;
+  
+    if (!socket || !eventId) return;
+  
+    const handleDisconnect = () => {
+      console.log("socket disconnected", eventId);
+      subscribe(eventId);
+    };
+  
+    socket.on("disconnect", handleDisconnect);
+  
+    // Cleanup function
+    return () => {
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, [socketContext?.socket, events?._id]);
+  
+
+  useEffect(() => {
+    const socket = socketContext?.socket;
     if (!socket) return;
 
     const handleOrderbook = (result) => {

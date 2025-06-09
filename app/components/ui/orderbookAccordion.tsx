@@ -301,7 +301,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           asks || [],
                                           orderBookLength - (index + 1)
                                         ) / 100
-                                      ).toFixed(2)}
+                                      )?.toFixed(2)}
                                   </div>
                                 </div>
                               );
@@ -376,7 +376,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           bids || [],
                                           orderBookLength - (index + 1)
                                         ) / 100
-                                      ).toFixed(2)}
+                                      )?.toFixed(2)}
                                   </div>
                                 </div>
                               );
