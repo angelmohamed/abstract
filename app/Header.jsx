@@ -10,11 +10,13 @@ import { Cross2Icon } from "@radix-ui/react-icons";
 import { formatNumber } from "../app/helper/custommath.js";
 import Authentication from "./Authentication.jsx";
 import { useSelector } from "@/store";
+import { availableBalance } from "@/lib/utils";
 
 export default function Header() {
   const router = useRouter();
   const { signedIn } = useSelector(state => state?.auth?.session);
   const walletData = useSelector(state => state?.wallet?.data);
+  
 
   const [currentPosition, setCurrentPosition] = useState("$0.00");
 
@@ -199,7 +201,8 @@ export default function Header() {
             onClick={navigateToPortfolioPage}
           >
             <div className="text-l" style={{ color: "#33ff4c" }}>
-              {walletData?.balance ? formatNumber(walletData?.balance, 4) : 0}
+              {/* {walletData?.balance ? formatNumber(walletData?.balance, 4) : 0} */}
+              {availableBalance(walletData)}
             </div>
             <div className="text-xs text-grey">Portfolio</div>
           </button>

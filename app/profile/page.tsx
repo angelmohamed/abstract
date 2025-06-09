@@ -57,7 +57,7 @@ export default function PortfolioPage() {
 
   //get profile data from redux
   const dispatch = useDispatch();
-  const { profileImg } = useSelector(state => state.auth.user);
+  const { profileImg } = useSelector((state: any) => state?.auth?.user);
   const { address} = useWallet();
   const [account, setaccount] = useState(address);
   const wallet: string = address?address:"";
@@ -73,7 +73,7 @@ export default function PortfolioPage() {
     username: string;
     avatar_url: string;
     bio: string;
-  } | null>(null);
+  } | any>(null);
 
   useEffect(() => {
     if (!wallet) return;

@@ -4,7 +4,7 @@ import axios, { handleResp } from "@/config/axios";
 export const getEvents = async (data: any) => {
     try {
       let respData = await axios({
-        url: `${config.backendURL}/api/v1/events/paginate/${data.id}?page=${data.page}&limit=${data.limit}`,
+        url: `${config.backendURL}/api/v1/events/paginate/${data.id}?page=${data.page}&limit=${data.limit}&banner=${data.banner}`,
         method: "get",
         data,
       });

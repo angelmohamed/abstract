@@ -155,7 +155,7 @@ export default function MiniLineChart({
   };
 
   // Calculate the current displayed chance value and color
-  const displayChance = selectedYes ? title : 1 - title;
+  const displayChance = selectedYes ? title : 100 - title;
   const chanceColor = selectedYes ? "#27ae60" : "#e64800";
 
   return (
@@ -166,7 +166,7 @@ export default function MiniLineChart({
       <div>
         <CardHeader className="pt-0 pb-0">
           <CardTitle className="text-4xl" style={{ color: chanceColor }}>
-            <span>{(displayChance * 100).toFixed(1)}%</span>
+            <span>{(displayChance).toFixed(1)}%</span>
             <span className="text-2xl font-light">  chance</span>
           </CardTitle>
 

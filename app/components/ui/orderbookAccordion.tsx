@@ -102,6 +102,9 @@ interface OrderbookAccordionContentProps
   setSelectedOrderBookData?: (data: any) => void;
   index?: number;
   isOpen?: boolean;
+  selectedMarket: {
+    last: number | null;
+  }
 }
 
 // Accordion Content Component
@@ -120,6 +123,7 @@ const OrderbookAccordionContent = React.forwardRef<
       setSelectedOrderBookData,
       isOpen = true,
       index,
+      selectedMarket,
       ...props
     },
     ref
@@ -136,35 +140,43 @@ const OrderbookAccordionContent = React.forwardRef<
     const [bids, setBids] = useState<any[]>([]);
     const [asks, setAsks] = useState<any[]>([]);
 
-    const calcSpread = (bids: any[][] = [], asks: any[][] = []): string => {
-      const highestBid = bids?.[0]?.[0];
-      const lowestAsk = asks?.[asks.length - 1]?.[0];
-    
-      const bid = typeof highestBid === 'string' ? parseFloat(highestBid) : highestBid;
-      const ask = typeof lowestAsk === 'string' ? parseFloat(lowestAsk) : lowestAsk;
-    
-      if (typeof bid === 'number' && !isNaN(bid) && typeof ask === 'number' && !isNaN(ask)) {
-        return `${toFixedDown(bid - ask, 2)}¢`;
-      }
-      return '--';
-    }
+    const calcSpread = React.useCallback((bids: any[][] = [], asks: any[][] = []): string => {
+      const b = bids.map((b) => parseFloat(b[0])).filter((n) => !isNaN(n));
+      const a = asks.map((a) => parseFloat(a[0])).filter((n) => !isNaN(n));
 
+      const highestBid = b.length ? Math.max(...b) : null;
+      const lowestAsk = a.length ? Math.min(...a) : null;
+      
+      if (highestBid !== null && lowestAsk !== null) {
+        return `${toFixedDown(lowestAsk - highestBid, 2)}¢`;
+      }
+    
+      return '--';
+    }, [bids, asks]);
 
     useEffect(() => {
+      const descending = (a: any, b: any) => Number(b[0]) - Number(a[0]);
+      const ascending = (a: any, b: any) => Number(a[0]) - Number(b[0]);
+      // console.log(orderBook, "orderBook");
+      
       if (activeView === "Yes") {
-        setBids(orderBook?.bids?.[0] || []);
+        const sortedBids = (orderBook?.bids?.[0] || []).sort(descending);
+        setBids(sortedBids);
         let asks =
           orderBook?.asks?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
-        setAsks(asks ? asks.reverse() : []);
+        const sortedAsks = asks.sort(ascending);
+        setAsks(sortedAsks ? sortedAsks.reverse(): []);
       } else if (activeView === "No") {
-        setBids(orderBook?.asks?.[0] || []);
+        const sortedBids = (orderBook?.asks?.[0] || []).sort(descending);
+        setBids(sortedBids);
         let asks =
           orderBook?.bids?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
-        setAsks(asks ? asks.reverse() : []);
+        const sortedAsks = asks.sort(ascending);
+        setAsks(sortedAsks ? sortedAsks.reverse() : []);
       }
     }, [activeView, orderBook]);
 
@@ -306,7 +318,11 @@ const OrderbookAccordionContent = React.forwardRef<
 
                         {asks && bids && asks.length > 0 && bids.length > 0 && (
                           <div className="flex items-center h-[35px] w-full p-3">
-                            <div className="w-[30%]">Last: 0¢</div>
+                            <div className="w-[30%]">Last: 
+                              {selectedMarket?.last ? (
+                                activeView == "Yes" ? selectedMarket?.last || 0 : 100 - +selectedMarket?.last
+                              ) : 0}
+                            ¢</div>
                             <div className="w-[20%] text-center">
                               Spread: {calcSpread(bids, asks)}
                             </div>

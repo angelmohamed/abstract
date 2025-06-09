@@ -43,7 +43,7 @@ export function TradingCard({ title, volume, image, activeView, setActiveView })
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div style={{ marginRight: "10px" }}>
-                <Image src={image||Ye} alt="Ye" width={60} height={60} />
+                <img src={image||Ye} alt="Ye" width={60} height={60} />
               </div>
               <div className="text-[16px]" style={{ marginRight: "0px" }}>
                 {title}

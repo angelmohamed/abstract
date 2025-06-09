@@ -93,7 +93,6 @@ export function toFixedWithoutRound(number, decimalPlaces = 2) {
   
       return returnNum;
     } catch (err) {
-      console.log(err, 'errerrerrerr')
       return 0;
     }
   

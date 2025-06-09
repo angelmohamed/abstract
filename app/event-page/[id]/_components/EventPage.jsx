@@ -62,7 +62,7 @@ export default function EventPage() {
         )
       );
     };
-
+    
     socket.on("orderbook", handleOrderbook);
 
     return () => {
@@ -85,8 +85,7 @@ export default function EventPage() {
           if (result?.marketId && result?.marketId.length > 0) {
             setMarkets(
               result.marketId.filter((market) => market.status === "active")
-            );
-          }
+            );          }
         }
         setEventsLoading(false);
       } catch (error) {
@@ -157,7 +156,7 @@ export default function EventPage() {
                     endDate={events?.endDate}
                     market={markets}
                     interval={interval}
-                    chance={markets[0]?.bestAsk}
+                    chance={100}
                   />
                   {/* {markets.length < 2 ? (
                     <SingleLineChart
@@ -216,6 +215,7 @@ export default function EventPage() {
                             setSelectedOrderBookData={setSelectedOrderBookData}
                             setSelectedIndex={setSelectedIndex}
                             index={0}
+                            selectedMarket={markets[0]}
                           />
                         </OrderbookAccordionItem>
                       </OrderbookAccordion>
@@ -281,6 +281,7 @@ export default function EventPage() {
                                     }
                                     setSelectedIndex={setSelectedIndex}
                                     index={index}
+                                    selectedMarket={market}
                                   />
                                 </AccordionItem>
                               ))}

@@ -41,7 +41,7 @@ export default function EventCarousel() {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const { success, result } = await getEvents({id:"all",limit:20,page:1})
+        const { success, result } = await getEvents({id:"all",limit:10,page:1,banner:"active"})
         if(success){
           setEvents(result?.data || []);
         }
@@ -89,40 +89,40 @@ export default function EventCarousel() {
             
                 return event.marketId?.length > 1 ? (
                   <ImageCardMultiple
-                    eventID={event._id}
-                    backgroundImage={backgroundImage}
+                    eventID={event.slug}
+                    backgroundImage={event.bannerImage || "/images/travis.png"}
                     imageSrc={event.image || "/images/travis.png"}
                     question={event.title}
                     totalPool={`$${event.volume?.toLocaleString() || "0"}`}
                     options={event.marketId}
                   />
-                ) : index % 3 === 2 ? (
-                  <PreviewCard
-                    endDate={event.endDate}
-                    eventID={event._id}
-                    eventImageSrc={event.image || "/images/travis.png"}
-                    question={event.title}
-                    probability={outcomePrices[0]}
-                    totalPool={`$${(
-                      event.volume
-                        ? event.volume.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })
-                        : "0.00"
-                    )}`}
-                    yesPotential={outcomePrices[0]}
-                    noPotential={outcomePrices[1]}
-                    className="max-w-7xl mx-auto" // 添加容器样式
-                    style={{ height: "510px" }} // 与其他卡片背景容器保持一致的高度
-                  />
+                // ) : index % 3 === 2 ? (
+                //   <PreviewCard
+                //     endDate={event.endDate}
+                //     eventID={event.slug}
+                //     eventImageSrc={event.bannerImage || "/images/travis.png"}
+                //     question={event.title}
+                //     probability={event.marketId[0]?.last}
+                //     totalPool={`$${(
+                //       event.volume
+                //         ? event.volume.toLocaleString(undefined, {
+                //             minimumFractionDigits: 2,
+                //             maximumFractionDigits: 2,
+                //           })
+                //         : "0.00"
+                //     )}`}
+                //     yesPotential={outcomePrices[0] || 50}
+                //     noPotential={outcomePrices[1] || 50}
+                //     className="max-w-7xl mx-auto" // 添加容器样式
+                //     style={{ height: "510px" }} // 与其他卡片背景容器保持一致的高度
+                //   />
                 ) : (
                   <ImageCard
-                    eventID={event._id}
-                    backgroundImage={backgroundImage}
+                    eventID={event.slug}
+                    backgroundImage={event.bannerImage || event.image}
                     eventImageSrc={event.image || "/images/travis.png"}
                     question={event.title}
-                    probability={outcomePrices[0]}
+                    probability={event.marketId[0]?.last}
                     totalPool={`$${(
                       event.volume
                         ? event.volume.toLocaleString(undefined, {
@@ -131,8 +131,8 @@ export default function EventCarousel() {
                           })
                         : "0.00"
                     )}`}
-                    yesPotential={outcomePrices[0]}
-                    noPotential={outcomePrices[1]}
+                    yesPotential={outcomePrices[0] || 50}
+                    noPotential={outcomePrices[1] || 50}
                   />
                 );
               })()}

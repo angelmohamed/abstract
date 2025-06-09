@@ -287,6 +287,7 @@ export default function PortfolioPage() {
 
   const getAddress = async (address) => {
     try {
+      
       const { result } = await addressCheck({ address });
       if (
         (isEmpty(data?.walletAddress) && result === true) ||

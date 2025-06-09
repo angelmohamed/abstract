@@ -10,12 +10,12 @@ import { userDeposit } from "@/services/wallet";
 
 export async function getCoinAmt(address,amount,transport) {
   try {
-    console.log(address,"addressaddressaddressaddress")
+    // console.log(address,"addressaddressaddressaddress")
     const POLAddress = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"; 
     let amt = convert(amount.toString())
     const web3 = new Web3(transport);
     const multicall = new Multicall({ web3Instance: web3 });
-      console.log(amt,"amtamtamtamt")
+    //   console.log(amt,"amtamtamtamt")
       
     const Contract = [
         {

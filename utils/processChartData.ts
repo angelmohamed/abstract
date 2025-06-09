@@ -91,7 +91,8 @@ export function processSingleChartData(
       return {
         timestamp: timestampString,
         asset1:
-          decimalToPercentage(data1.find((d) => d.t === timestamp)?.p) ?? null,
+          // decimalToPercentage(data1.find((d) => d.t === timestamp)?.p) ?? null,
+          data1.find((d) => d.t === timestamp)?.p ?? null,
       };
     });
 }

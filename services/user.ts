@@ -57,10 +57,29 @@ export const getTradeHistory = async (data:any) => {
   }
 };
 
+<<<<<<< HEAD
 export const getTradeOverview = async () => {
   try {
     let respData = await axios({
       url: `${config.backendURL}/api/v1/user/user-trade-overview`,
+=======
+export const getUserTradeHistory = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/trade-history/${data?.id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const getInfoCards = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/info-cards`,
+>>>>>>> 0c110fb02c3842e5d867e223e4228345c53aa1f0
       method: "get",
     });
     return handleResp(respData, "success");

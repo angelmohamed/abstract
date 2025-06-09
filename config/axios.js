@@ -4,6 +4,9 @@ import { getCookie } from "cookies-next";
 
 // import lib
 import config from "./config";
+import store from "../store";
+import { signOut } from "@/store/slices/auth/sessionSlice";
+import { toastAlert } from "@/lib/toast";
 
 const isClient = typeof window !== "undefined";
 
@@ -40,7 +43,7 @@ axios.interceptors.request.use(
 );
 
 export const setAuthorization = (token) => {
-  axios.defaults.headers.common["Authorization"] = token;
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 
 export const removeAuthorization = () => {
@@ -49,10 +52,34 @@ export const removeAuthorization = () => {
 
 export const handleResp = (respData, type = 'success', doc) => {
   try {
+    const { signedIn } = store.getState()?.auth?.session;
+    // console.log(signedIn, "signedIn");
+    // console.log(respData, "respData");
+    if (
+      signedIn &&
+      type === "error" &&
+      respData &&
+      respData.response &&
+      respData.response.status === 401
+    ) {
+      // store.dispatch(clearUser());
+      // store.dispatch(clearWallet());
+      store.dispatch(signOut());
+      toastAlert("error", "Your session has expired, please login again", "session-expired");
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
+      return true;
+    }
     if (doc === true && type == 'success' && respData && respData.data) {
       return { data: respData.data }
     }
     if (type == 'success' && respData && respData.data) {
+<<<<<<< HEAD
+=======
+      // console.log('respData.data: ', respData.data);
+
+>>>>>>> 0c110fb02c3842e5d867e223e4228345c53aa1f0
       return respData.data
     } else if (type == 'error' && respData && respData.response && respData.response.data) {
       return respData.response.data

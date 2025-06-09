@@ -64,6 +64,7 @@ export const walletLogin = async (reqBody: any, dispatch: any) => {
     return {
       success: true,
       message,
+      result
     };
   } catch (error: any) {
     console.log(error, "error");
@@ -156,3 +157,5 @@ export const getUser = async () => {
     return handleResp(error, "error");
   }
 };
+
+
