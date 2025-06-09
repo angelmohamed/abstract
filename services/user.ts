@@ -56,3 +56,15 @@ export const getTradeHistory = async (data:any) => {
     return handleResp(error, "error");
   }
 };
+
+export const getTradeOverview = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/user-trade-overview`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

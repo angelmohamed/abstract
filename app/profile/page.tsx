@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
 import { useDispatch, useSelector } from "react-redux";
-import { getPositions, getUserData } from "@/services/user";
+import { getPositions, getTradeOverview, getUserData } from "@/services/user";
 import ActivityTable from "./activity";
 import Positions from "../portfolio/Positions";
 
@@ -46,6 +46,12 @@ interface PolygonTx {
   methodId: string;
   functionName: string;
 }
+const initialTradeOverview = {
+  total_value: 0,
+  total_profit_loss: 0,
+  total_volume_traded: 0,
+  total_events_traded: 0,
+}
 
 export default function PortfolioPage() {
 
@@ -60,6 +66,9 @@ export default function PortfolioPage() {
   const [currentTab, setCurrentTab] = useState("positions");
   const [amountFilter, setAmountFilter] = useState("All");
   const [positions, setPositions] = useState<any[]>([]);
+  const [tradeOverview, setTradeOverview] = useState<any>(initialTradeOverview);
+  console.log("tradeOverview",tradeOverview)
+  const [tradeOverviewLoading, setTradeOverviewLoading] = useState(true);
   const [profileData, setProfileData] = useState<{
     username: string;
     avatar_url: string;
@@ -97,10 +106,32 @@ export default function PortfolioPage() {
     }
   };
 
+  const fetchTradeOverview = async () => {
+    setTradeOverviewLoading(true);
+    try {
+    const { success, result } = await getTradeOverview();
+    console.log("tradeOverview result",result)
+    if (success ) {
+        setTradeOverview({
+          total_value: result.totalPositionValue.toFixed(2),
+          total_profit_loss: result.totalTradeProfitLoss.toFixed(2),
+          total_volume_traded: result.totalTradeVolume.toFixed(2),
+          total_events_traded: result.totalTradeEventTraded,
+        });
+        setTradeOverviewLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching trade overview:", error);
+    } finally {
+      setTradeOverviewLoading(false);
+    }
+  };
+
 
   useEffect(() => {
     fetchProfile();
     fetchPositions()
+    fetchTradeOverview()
   }, []);
 
   const router = useRouter();
@@ -166,7 +197,7 @@ export default function PortfolioPage() {
                 height={42}
               />
             </span>
-            <span className="mt-2 text-lg font-semibold">$0.01</span>
+            {tradeOverviewLoading ? <span className="mt-2 text-sm text-gray-500">Loading...</span> : <span className="mt-2 text-lg font-semibold">${tradeOverview?.total_value}</span>}
             <span className="text-sm text-gray-500 mt-1">Positions value</span>
           </div>
           <div className="bg-[#131212] p-4 rounded-lg flex flex-col items-center">
@@ -178,7 +209,7 @@ export default function PortfolioPage() {
                 height={42}
               />
             </span>
-            <span className="mt-2 text-lg font-semibold">-$1.07</span>
+            {tradeOverviewLoading ? <span className="mt-2 text-sm text-gray-500">Loading...</span> : <span className="mt-2 text-lg font-semibold">${tradeOverview?.total_profit_loss}</span>}
             <span className="text-sm text-gray-500 mt-1">Profit / loss</span>
           </div>
           <div className="bg-[#131212] p-4 rounded-lg flex flex-col items-center">
@@ -190,7 +221,7 @@ export default function PortfolioPage() {
                 height={42}
               />
             </span>
-            <span className="mt-2 text-lg font-semibold">$9.25</span>
+            {tradeOverviewLoading ? <span className="mt-2 text-sm text-gray-500">Loading...</span> : <span className="mt-2 text-lg font-semibold">${tradeOverview?.total_volume_traded}</span>}
             <span className="text-sm text-gray-500 mt-1">Volume traded</span>
           </div>
           <div className="bg-[#131212] p-4 rounded-lg flex flex-col items-center">
@@ -202,7 +233,7 @@ export default function PortfolioPage() {
                 height={42}
               />
             </span>
-            <span className="mt-2 text-lg font-semibold">3</span>
+            {tradeOverviewLoading ? <span className="mt-2 text-sm text-gray-500">Loading...</span> : <span className="mt-2 text-lg font-semibold">{tradeOverview?.total_events_traded}</span>}
             <span className="text-sm text-gray-500 mt-1">Event traded</span>
           </div>
         </div>
