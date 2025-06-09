@@ -297,7 +297,7 @@ export default function EventPage() {
                       <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
                         {markets?.[selectedIndex]?.description}
                       </p>
-                      <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
+                      {/* <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
                         Resolver:{" "}
                         <Link
                           href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
@@ -306,7 +306,7 @@ export default function EventPage() {
                         >
                           {markets?.[selectedIndex]?.resolvedBy}
                         </Link>
-                      </p>
+                      </p> */}
                     </ExpandableTextView>
                   </div>
 
