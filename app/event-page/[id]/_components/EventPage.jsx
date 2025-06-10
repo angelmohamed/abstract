@@ -105,7 +105,8 @@ export default function EventPage() {
           if (result?.marketId && result?.marketId.length > 0) {
             setMarkets(
               result.marketId.filter((market) => market.status === "active")
-            );          }
+            );
+          }
         }
         setEventsLoading(false);
       } catch (error) {
