@@ -1,5 +1,6 @@
 import axios from "axios";
 import browser from "browser-detect";
+import isEmpty from "@/app/helper/isEmpty";
 
 import config from "@/config/config";
 import { handleResp, setAuthorization } from "@/config/axios";
@@ -56,11 +57,13 @@ export const walletLogin = async (reqBody: any, dispatch: any) => {
       data: reqBody,
     });
     const { message, result } = respData.data;
-    dispatch(signIn(result?.token));
-    dispatch(setUser(result?.user));
-    dispatch(setWallet(result?.wallet));
-    setAuthorization(result?.token);
-    setAuthToken(result?.token);
+    if(!isEmpty(result?.user?.email) && result?.user?.status == "verified" ){
+      dispatch(signIn(result?.token));
+      dispatch(setUser(result?.user));
+      dispatch(setWallet(result?.wallet));
+      setAuthorization(result?.token);
+      setAuthToken(result?.token);
+    }
     return {
       success: true,
       message,

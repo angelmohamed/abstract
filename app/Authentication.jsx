@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { useSelector } from "@/store";
-
 import SONOTRADE from "@/public/images/logo.png";
 import React, { useState, useEffect } from "react";
 import { client } from "@/app/client";
@@ -36,7 +35,7 @@ import {
 import isEmpty from "is-empty";
 import { formatNumber, shortText } from "../app/helper/custommath.js";
 import { getLocation, googleLogin, register, resendOTP, verifyEmail, walletLogin } from "@/services/auth";
-import { saveWalletEmail, verifyWalletEmail,walletResend } from "@/services/wallet"
+import { saveWalletEmail, verifyWalletEmail, walletResend } from "@/services/wallet"
 import { useDispatch } from "react-redux";
 import { reset } from "../store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
@@ -71,8 +70,6 @@ export default function Authentication() {
   const [account, setaccount] = useState("");
   const [walletEmail, setWalletEmail] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
-
-
 
   //const wallet = useWallet();
   const [expireTime, setExpireTime] = useState(0);
@@ -234,14 +231,14 @@ export default function Authentication() {
         // const signature = await web3.eth.personal.sign("Welcome To SonoTrade", address, "SONOTRADE");
         // console.log("Signature:", signature);
         // }
-        setOpen(false);
-        toastAlert("success", message, "login");
-        if (isEmpty(result?.user?.email)) {
+        if (isEmpty(result?.user?.email) && address || result?.user?.status == "unverified") {
           setWalletEmail(true)
           setEmailOpen(true)
-          localStorage.setItem("emailmodal",true)
           setUserData({})
           setExpireTime(0)
+        } else {
+          setOpen(false);
+          toastAlert("success", message, "login");
         }
       } else {
         toastAlert("error", message, "login");
@@ -378,14 +375,23 @@ export default function Authentication() {
       let errMsg = await regValidate(userData);
       setError(errMsg);
       if (isEmpty(errMsg)) {
+        userData.address = address
         let { success, message } = await saveWalletEmail(userData);
         if (success) {
-          toastAlert("success", message, "login");
-          setVerifyEmail(true);
+          // toastAlert("success", message, "login");
+          // setVerifyEmail(true);
+          // setExpireTime(180);
+          // setOtpEmailOpen(true);
+          // setEmailOpen(false);
+          // getTime();
+          setVerifyStatus(true);
+          setWalletEmail(false)
+          setEmailOpen(false)
           setExpireTime(180);
-          setOtpEmailOpen(true);
-          setEmailOpen(false);
+          setOtpOpen(true);
+          setOpen(false);
           getTime();
+          setOtpData(initialData)
         } else {
           toastAlert("error", message, "login");
           setUserData({ email: "" })
@@ -395,74 +401,99 @@ export default function Authentication() {
       console.log(err, "errr");
     }
   };
-  
-  let VerifyWalletEmail = async () => {
-    try {
-      console.log("onCLick");
-      let errMsg = await otpValidate(otpData);
-      setError(errMsg);
-      if (isEmpty(errMsg)) {
-        if (expireTime == 0) {
-          toastAlert("error", "OTP expired,Please resend");
-          setOtpData({});
-        } else {
-          let data = { otp, email };
-          let { message, success } = await verifyWalletEmail(data, dispatch);
-          if (success) {
-            localStorage.setItem("emailmodal",'')
-            toastAlert("success", message, "login");
-            setOtpEmailOpen(false);
-          } else {
-            toastAlert("error", message, "login");
-          }
-        }
-      }
-    } catch (err) {
-      console.log(err, "err");
-    }
-  };
 
-  let walletResendCode = async () => {
-    try {
-      let data = {
-        email,
-      };
-      let { message, success } = await walletResend(data);
-      if (success) {
-        toastAlert("success", message, "login");
-        setExpireTime(180);
-        getTime();
-      } else {
-        toastAlert("error", message, "login");
-      }
-    } catch (err) {
-      console.log(err, "err");
-    }
-  };
+  // let VerifyWalletEmail = async () => {
+  //   try {
+  //     console.log("onCLick");
+  //     let errMsg = await otpValidate(otpData);
+  //     setError(errMsg);
+  //     if (isEmpty(errMsg)) {
+  //       if (expireTime == 0) {
+  //         toastAlert("error", "OTP expired,Please resend");
+  //         setOtpData({});
+  //       } else {
+  //         let data = { otp, email };
+  //         let { message, success } = await verifyWalletEmail(data, dispatch);
+  //         if (success) {
+  //           localStorage.setItem("emailmodal",'')
+  //           toastAlert("success", message, "login");
+  //           setOtpEmailOpen(false);
+  //         } else {
+  //           toastAlert("error", message, "login");
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.log(err, "err");
+  //   }
+  // };
+
+  // let walletResendCode = async () => {
+  //   try {
+  //     let data = {
+  //       email,
+  //     };
+  //     let { message, success } = await walletResend(data);
+  //     if (success) {
+  //       toastAlert("success", message, "login");
+  //       setExpireTime(180);
+  //       getTime();
+  //     } else {
+  //       toastAlert("error", message, "login");
+  //     }
+  //   } catch (err) {
+  //     console.log(err, "err");
+  //   }
+  // };
 
   async function logout() {
     disconnectWallet();
     document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     dispatch(reset());
     dispatch(signOut());
-    // store.dispatch(signOut());
-    // router.push("/");
-    toastAlert("success","Logged out successfully");
+    toastAlert("success", "Logged out successfully", "logout");
     setTimeout(() => {
       window.location.href = "/";
     }, 1000);
   }
 
   useEffect(() => {
-    if(signedIn && localStorage.getItem("emailmodal") == 'true'){
-    if(isEmpty(data?.email)){
-      setWalletEmail(true)
-      setEmailOpen(true)
-      setUserData({})
-      setExpireTime(0)
+    const handleAccountsChanged = async (accounts) => {
+      if (accounts.length === 0) {
+        console.log("Wallet disconnected.");
+        return;
+      }
+
+      const newAddress = accounts[0].toLowerCase();
+      const savedAddress = data?.walletAddress?.toLowerCase();
+
+      if (newAddress == savedAddress && !isEmpty(savedAddress)) {
+        return;
+      }
+      if(isConnected){
+        disconnectWallet();
+        document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        dispatch(reset());
+        dispatch(signOut());
+        toastAlert("error", `Logged out successfully,Please connect your wallet address ${data?.walletAddress}`, "logout");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1000);
+      }
+    
     }
-   }
-  },[])
+    if (typeof window.ethereum !== "undefined") {
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+    }
+
+    return () => {
+      if (typeof window.ethereum !== "undefined") {
+        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
+      }
+    };
+  }, [address]);
+
+  console.log(address, "addresss")
   return (
     <>
       {signedIn && (
@@ -477,6 +508,7 @@ export default function Authentication() {
                 setUserData({ email: "" })
                 setExpireTime(0)
                 setError({})
+                disconnectWallet()
               }}>
                 Log In
               </Button>
@@ -491,6 +523,7 @@ export default function Authentication() {
                   setUserData({ email: "" })
                   setExpireTime(0)
                   setError({})
+                  disconnectWallet()
                 }
                 }
               >
@@ -721,16 +754,16 @@ export default function Authentication() {
                 <span style={{ color: "red" }}>{error.email}</span>
               )}
               <br />
-              {/* <Dialog.Close asChild>
-          <button className="modal_close_brn" aria-label="Close">
-            <Cross2Icon />
-          </button>
-        </Dialog.Close> */}
+              <Dialog.Close asChild>
+                <button className="modal_close_brn" aria-label="Close">
+                  <Cross2Icon />
+                </button>
+              </Dialog.Close>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
       )}
-      {verifyemail == true && (
+      {/* {verifyemail == true && (
         <Dialog.Root open={otpEmailOpen} onOpenChange={setOtpEmailOpen}>
           <Dialog.Portal>
             <Dialog.Overlay className="DialogOverlay" />
@@ -763,7 +796,7 @@ export default function Authentication() {
                 ) : (
                   <Button>{`${expireTime}`}</Button>
                 )}
-                {/* <Button>Continue</Button> */}
+       
               </div>
               {error && error?.otp && (
                 <span style={{ color: "red" }}>{error?.otp}</span>
@@ -780,15 +813,15 @@ export default function Authentication() {
                   )}
                 </Button>
               </div>
-              {/* <Dialog.Close asChild>
+              <Dialog.Close asChild>
                 <button className="modal_close_brn" aria-label="Close">
                   <Cross2Icon />
                 </button>
-              </Dialog.Close> */}
+              </Dialog.Close>
             </Dialog.Content>
           </Dialog.Portal>
         </Dialog.Root>
-      )}
+      )} */}
 
       {signedIn ? (
         <>
@@ -974,7 +1007,7 @@ export default function Authentication() {
                             <Tooltip.Trigger asChild>
                               <button className="IconButton bg-[#131212] px-2 py-1 rounded" onClick={() => {
                                 navigator.clipboard.writeText(address ? address : data?.email);
-                                toastAlert("success","Address copied to clipboard");
+                                toastAlert("success", "Address copied to clipboard");
                               }}>
                                 <span className="text-[12px]">
                                   {address ? shortText(address) : data?.email}
