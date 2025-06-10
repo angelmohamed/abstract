@@ -143,7 +143,7 @@ const Positions = () => {
                                             {data.side}
                                             </Badge> */}
                                             <span className="text-xs font-normal">
-                                            {data?.quantity} Shares
+                                            {data?.quantity?.toFixed(2)} Shares
                                             </span>
                                         </div>
                                         </div>

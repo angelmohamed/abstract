@@ -8,23 +8,9 @@ import { formatDistanceToNow } from 'date-fns';
 
 import { Trash2, Reply } from "lucide-react";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
-
-interface CommentProps extends React.HTMLAttributes<HTMLDivElement> {
-  comment?: {
-    id: string;
-    content: string;
-    created_at: string;
-    username: string;
-    avatar_url?: string;
-    wallet_address?: string;
-    parent_id?: string | null;
-    reply_count?: number;
-  };
-  onReply?: (commentId: string) => void;
-  onDelete?: (commentId: string) => void;
-  isReplyOpen?: boolean;
-  currentUserWallet?: string;
-}
+import CommentForm from "./CommentForm";
+import { CommentProps } from "@/types/comments";
+import CommentList from "./CommentList";
 
 export function Comment({ 
   className, 
@@ -192,199 +178,6 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   );
 }
 
-interface CommentListProps {
-  comments: CommentProps["comment"][];
-  isLoading?: boolean;
-  onReply: (commentId: string) => void;
-  onDelete: (commentId: string) => void;
-  replyingTo: string | null;
-  eventId: string;
-  onReplyAdded: (newReply: CommentProps["comment"]) => void;
-  currentUserWallet?: string;
-}
-
-export function CommentList({ 
-  comments, 
-  isLoading, 
-  onReply, 
-  onDelete, 
-  replyingTo, 
-  eventId, 
-  onReplyAdded,
-  currentUserWallet
-}: CommentListProps) {
-  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
-
-  if (isLoading) {
-    return <div className="text-center py-4">Loading comments...</div>;
-  }
-
-  if (!comments || comments.length === 0) {
-    return <div className="text-center py-4 text-gray-400">No comments yet</div>;
-  }
-
-  // Separate main comments and replies
-  const mainComments = comments.filter(comment => !comment?.parent_id);
-  const repliesByParentId = comments.reduce((acc, comment) => {
-    if (comment?.parent_id) {
-      if (!acc[comment.parent_id]) {
-        acc[comment.parent_id] = [];
-      }
-      acc[comment.parent_id].push(comment);
-    }
-    return acc;
-  }, {} as Record<string, CommentProps["comment"][]>);
-
-  // Toggle replies visibility
-  const toggleReplies = (commentId: string) => {
-    setExpandedComments(prev => ({
-      ...prev,
-      [commentId]: !prev[commentId]
-    }));
-  };
-
-  return (
-    <div className="space-y-1">
-      {mainComments.map((comment) => (
-        <div key={comment?.id}>
-          {comment && (
-            <>
-              <Comment 
-                comment={comment} 
-                onReply={onReply} 
-                onDelete={onDelete} 
-                isReplyOpen={replyingTo === comment.id}
-                currentUserWallet={currentUserWallet}
-              />
-              
-              {/* Reply form */}
-              {replyingTo === comment.id && (
-                <ReplyForm 
-                  parentId={comment.id} 
-                  eventId={eventId} 
-                  onReplyAdded={onReplyAdded} 
-                  onCancel={() => onReply("")}
-                />
-              )}
-              
-              {/* Display replies to this comment */}
-              {repliesByParentId[comment.id] && repliesByParentId[comment.id].length > 0 && (
-                <>
-                  <button
-                    onClick={() => toggleReplies(comment.id)}
-                    className="text-xs text-gray-400 hover:text-white ml-10 mt-1 flex items-center"
-                  >
-                    {expandedComments[comment.id] ? 'Hide' : 'Show'} {repliesByParentId[comment.id].length} {repliesByParentId[comment.id].length === 1 ? 'reply' : 'replies'}
-                  </button>
-                  
-                  {expandedComments[comment.id] && (
-                    <div className="ml-10 border-l-2 border-gray-800 pl-4 mt-2">
-                      {repliesByParentId[comment.id].map(reply => (
-                        reply && (
-                        <Comment 
-                          key={reply.id} 
-                          comment={reply} 
-                          onDelete={onDelete}
-                          currentUserWallet={currentUserWallet}
-                        />
-                        )
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-interface CommentFormProps {
-  eventId: string;
-  onCommentAdded: (newComment: CommentProps["comment"]) => void;
-}
-
-export function CommentForm({ eventId, onCommentAdded }: CommentFormProps) {
-  
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const {address} = useWallet();
-  const [account, setaccount] = useState(address);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!account || !comment.trim()) {
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-      
-      const response = await fetch("/api/comments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          wallet: account,
-          eventId,
-          comment: comment.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit comment");
-      }
-
-      const newComment = await response.json();
-      
-      // Add new comment to the list
-      onCommentAdded(newComment);
-      
-      // Clear comment box
-      setComment("");
-    } catch (error) {
-      console.error("Comment submission error:", error);
-      alert("Failed to post comment. Please try again later.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!account) {
-    return (
-      <div className="text-center my-4">
-        <p className="text-sm text-gray-300 mb-2">Please connect your wallet to comment</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="mt-4 mb-6">
-      <textarea
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-        placeholder="Write your comment..."
-        className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white mb-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
-        disabled={isSubmitting}
-      />
-      <div className="flex justify-end">
-        <Button 
-          type="submit" 
-          disabled={isSubmitting || !comment.trim()}
-          className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-        >
-          {isSubmitting ? "Posting..." : "Post Comment"}
-        </Button>
-      </div>
-    </form>
-  );
-}
-
 interface CommentSectionProps {
   eventId: string;
 }
@@ -410,7 +203,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
         // const data = await response.json();
         // setComments(data);
         // }
-        setComments([])
+        // setComments([])
       } catch (error) {
         console.error("Error loading comments:", error);
       } finally {
@@ -462,13 +255,13 @@ export function CommentSection({ eventId }: CommentSectionProps) {
     }
 
     try {
-      const response = await fetch(`/api/comments?commentId=${commentId}`, {
-        method: "DELETE",
-      });
+      // const response = await fetch(`/api/comments?commentId=${commentId}`, {
+      //   method: "DELETE",
+      // });
 
-      if (!response.ok) {
-        throw new Error("Failed to delete comment");
-      }
+      // if (!response.ok) {
+      //   throw new Error("Failed to delete comment");
+      // }
 
       // Remove the comment from the UI
       setComments(prev => {
