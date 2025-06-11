@@ -333,7 +333,7 @@ export default function EventPage() {
 
                   {/* 评论区 Comment Section */}
                   <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 mt-6">
-                    <CommentSection eventId={id} />
+                    <CommentSection eventId={events?._id} />
                   </div>
                 </div>
 

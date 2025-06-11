@@ -1,12 +1,16 @@
 export interface CommentProps extends React.HTMLAttributes<HTMLDivElement> {
   comment?: {
-    id: string;
+    _id: string;
     content: string;
     created_at: string;
-    username: string;
+    userId?: {
+      profileImg?: string;
+      name?: string;
+      _id?: string;
+    };
     avatar_url?: string;
     wallet_address?: string;
-    parent_id?: string | null;
+    parentId?: string | null;
     reply_count?: number;
   };
   onReply?: (commentId: string) => void;
@@ -24,4 +28,12 @@ export interface CommentListProps {
   eventId: string;
   onReplyAdded: (newReply: CommentProps["comment"]) => void;
   currentUserWallet?: string;
+}
+
+//post request data type
+export interface PostCommentRequestData {
+  userId: string;
+  eventId: string;
+  content: string;
+  parentId: string | null;
 }
