@@ -23,6 +23,8 @@ export function Comment({
   currentUserWallet, 
   ...props 
 }: CommentProps) {
+  const user = useSelector((state: any) => state?.auth?.user || {});
+
   if (!comment) {
     return null;
   }
@@ -34,7 +36,6 @@ export function Comment({
     
   // Check if the current user is the author of this comment
   const isAuthor = currentUserWallet && comment.wallet_address === currentUserWallet;
-  const {_id} = useSelector((state) => state?.auth?.user || {});
 
   return (
     <div className={cn("w-full pt-4 pb-4 flex items-start space-x-3", className)} {...props}>
@@ -73,7 +74,7 @@ export function Comment({
             </button>
           )}
           
-          {_id && onDelete && _id===comment?.userId?._id && (
+          {user._id && onDelete && user._id===comment?.userId?._id && (
             <button 
               onClick={() => onDelete(comment._id)} 
               className="flex items-center text-xs text-gray-400 hover:text-red-500"
@@ -101,7 +102,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [account, setaccount] = useState("");
-  const {_id} = useSelector((state) => state?.auth?.user || {});
+  const user = useSelector((state: any) => state?.auth?.user || {});
 
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
     try {
       setIsSubmitting(true);
       const reqData = {
-        userId: _id,
+        userId: user._id,
         eventId: eventId,
         content: reply,
         parentId:parentId,

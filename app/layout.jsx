@@ -1,6 +1,5 @@
 import localFont from "next/font/local";
 import "./globals.css";
-import { Footer } from "@/app/components/customComponents/Footer";
 import { WalletProvider } from "@/app/walletconnect/walletContext";
 import SnackbarClient from "@/app/helper/SnackbarClient";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -46,7 +45,6 @@ export default function RootLayout({ children }) {
             <WalletProvider>{children}</WalletProvider>
           </SnackbarClient>
         </StoreProvider>
-        <Footer />
         <ToastContainer />
       </body>
     </html>

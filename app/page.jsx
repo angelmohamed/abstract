@@ -18,6 +18,7 @@ import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting
 // import { infoCards } from "@/app/components/constants";
 import { getCategories } from "@/services/market";
 import { getInfoCards } from "@/services/user";
+import { Footer } from "./components/customComponents/Footer";
 
 const InfoCards = () => {
   const [cards, setCards] = useState([]);
@@ -170,6 +171,7 @@ export default function Home() {
   ]);
 
   return (
+    <>
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
@@ -238,5 +240,7 @@ export default function Home() {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }
