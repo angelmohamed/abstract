@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 
 import { Button } from "@/app/components/ui/button";
 import { Input } from "@/app/components/ui/input";
@@ -25,6 +25,14 @@ interface FormState {
     amount: string | number;
 }
 
+interface ErrorState {
+  ordVal?: string;
+}
+
+interface ErrorState {
+  ordVal?: string;
+}
+
 const MarketOrder: React.FC<MarketOrderProps> = (props) => {
   const { activeView, marketId, buyorsell } = props;
   const { signedIn } = useSelector((state) => state?.auth.session);
@@ -34,6 +42,8 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
   // state
   const [formValue, setFormValue] = useState<FormState>(initialFormValue);
   const { ordVal, amount } = formValue;
+  const [errors, setErrors] = useState<ErrorState>({});
+
 
   // function
   const handleChangeBtn = (op: "+" | "-" | "max", key: string, increment: number) => {
@@ -94,8 +104,31 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     });
   };
 
+  const marketOrderValidation = () => {
+    let errors: any = {};
+    if (!ordVal) {
+      errors.ordVal = "Amount field is required";
+    }
+    if (Number(ordVal) <= 0) {
+      errors.ordVal = "Amount must be greater than 0";
+    }
+    // if (customDate && customDate <= new Date()) {
+    //   errors.customDate = "Custom date must be in the future";
+    // }
+    setErrors(errors);
+    return Object.keys(errors).length > 0 ? false : true;
+  };
+
+  useEffect(() => {
+    setFormValue(initialFormValue);
+    setErrors({});
+  }, [activeView, buyorsell]);
+
   const handlePlaceOrder = async (action: any) => {
     let activeTab = activeView?.toLowerCase();
+    if (!marketOrderValidation()) {
+      return;
+    }
     let data = {
       price: 0,
       side: action === "buy" ? activeTab : activeTab === "yes" ? "no" : "yes",
@@ -139,6 +172,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
             />
           </div>
         </div>
+        {errors.ordVal && <p className="text-red-500 text-sm">{errors.ordVal}</p>}
         <div className="flex gap-2 pt-2 justify-between">
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"

@@ -114,9 +114,33 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     });
   };
 
+  const limitOrderValidation = () => {
+    let errors: any = {};
+    if (!price) {
+      errors.price = "Amount field is required";
+    }
+    if (Number(price) <= 0) {
+      errors.price = "Amount must be greater than 0";
+    }
+    if (!amount) {
+      errors.amount = "Shares field is required";
+    }
+    if (Number(amount) <= 0) {
+      errors.amount = "Shares must be greater than 0";
+    }
+    // if (customDate && customDate <= new Date()) {
+    //   errors.customDate = "Custom date must be in the future";
+    // }
+    setErrors(errors);
+    return Object.keys(errors).length > 0 ? false : true;
+  };
+
 
   const handlePlaceOrder = async (action: any) => {
     let activeTab = activeView?.toLowerCase();
+    if (!limitOrderValidation()) {
+      return;
+    }
     let data = {
       price: action === "sell" ? 100 - Number(price) : price,
       side: action === "buy" ? activeTab : activeTab === "yes" ? "no" : "yes",
@@ -132,7 +156,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     if (isExpirationEnabled) {
       data["expiration"] = expirationSeconds;
     }
-    console.log(customDate, "customDate", isExpirationEnabled, expirationSeconds);
     const { success, message } = await placeOrder(data);
     if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
@@ -140,7 +163,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     } else {
       toastAlert("error", message, "order-failed");
     }
-    // console.log("Placing order with data: ", market._id);
   };
 
   const handlePercentageClick = (percentage: number) => {
@@ -178,6 +200,11 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       setExpirationSeconds(seconds);
     }
   }, [customDate]);
+
+  useEffect(() => {
+    setFormValue(initialFormValue);
+    setErrors({});
+  }, [activeView, buyorsell]);
 
   return (
     <>

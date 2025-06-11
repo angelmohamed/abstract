@@ -316,7 +316,7 @@ export default function EventPage() {
                       </h3>
                       <SelectSeparator className="my-4" />
                       <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
-                        {markets?.[selectedIndex]?.description}
+                        {events?.description}
                       </p>
                       {/* <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
                         Resolver:{" "}

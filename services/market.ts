@@ -52,6 +52,18 @@ export const placeOrder = async (data: any) => {
     }
 };
 
+export const cancelOrder = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/order/cancel/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
 export const getOrderBook = async (data: any) => {
     try {
       let respData = await axios({

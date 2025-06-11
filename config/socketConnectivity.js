@@ -7,6 +7,7 @@ import store from "../store/index";
 // import lib
 let connectionOptions = {
   transports: ["polling"],
+  // transports: ["websocket"],
   cookie: false,
   forceNew: true,
   reconnection: true,
