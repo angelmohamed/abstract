@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import SearchBar from '../components/ui/SearchBar'
 import { getOpenOrders } from '@/services/portfolio'
-import Image from 'next/image'
-import Link from 'next/link'
+import { cancelOrder } from '@/services/market'
 import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import { toastAlert } from '@/lib/toast'
@@ -30,13 +29,13 @@ const OpenOrders = () => {
     const handleCancelOrder = async(orderId) => {
         console.log("orderId", orderId);
         try {
-            // const res = await cancelOrder(orderId)
-            // if(res.success){
-            //     getUserOpenOrders()
-            // }
-            toastAlert("success","Order canceled successfully","order")
-        } catch (error) {
-            console.error("Error canceling order:", error);
+            const { success, message } = await cancelOrder(orderId)
+            if(success) {
+                toastAlert("success", message, "order")
+            } else {
+                toastAlert("error", message, "orderCancel")
+            }
+        } catch {
         }
     }
   return (

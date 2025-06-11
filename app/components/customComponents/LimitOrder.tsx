@@ -156,7 +156,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     if (isExpirationEnabled) {
       data["expiration"] = expirationSeconds;
     }
-    console.log(customDate, "customDate", isExpirationEnabled, expirationSeconds);
     const { success, message } = await placeOrder(data);
     if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
@@ -164,7 +163,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     } else {
       toastAlert("error", message, "order-failed");
     }
-    // console.log("Placing order with data: ", market._id);
   };
 
   const handlePercentageClick = (percentage: number) => {
