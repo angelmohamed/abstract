@@ -201,8 +201,8 @@ export default function PortfolioPage() {
   }
 
   async function handleConnect(connector) {
-    disconnectWallet();
     try {
+      disconnectWallet()
       var network = config.chainId;
 
       let check = isMobile();
@@ -233,9 +233,29 @@ export default function PortfolioPage() {
           });
           currnetwork = network;
         }
-        let connect = await connectWallet(connector);
+
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const connectedAddress = accounts?.[0];
+
+        const { result } = await addressCheck({ address : connectedAddress });
+    
+        if((isEmpty(data?.walletAddress) && result === true)){
+          toastAlert(
+            "error",
+            `This address is already exists. Please connect another new address.`,"wallet"
+          )
+          setOpen(false);
+          disconnectWallet()
+          return;
+        }else if (!isEmpty(data?.walletAddress) && connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()) {
+          toastAlert("error", `Please connect your wallet address ${data?.walletAddress}`, "logout");
+          setOpen(false);
+          disconnectWallet()
+          return;
+        }
+    
+        await connectWallet(connector);
         setOpen(false);
-        // getUser();
         getAddress();
       }
     } catch (err) {
@@ -287,23 +307,22 @@ export default function PortfolioPage() {
 
   const getAddress = async (address) => {
     try {
-      
       const { result } = await addressCheck({ address });
-      if (
-        (isEmpty(data?.walletAddress) && result === true) ||
+      if((isEmpty(data?.walletAddress) && result === true)){
+        toastAlert(
+          "error",
+          `This address is already exists. Please connect another address.`,"wallet"
+        );
+        disconnect()
+      }else if (
         (!isEmpty(data?.walletAddress) && result === true) ||
-        data?.walletAddress.toString() != address?.toString() && isConnected
+        !isEmpty(data?.walletAddress) && data?.walletAddress.toString() != address?.toString() && isConnected
       ) {
-        // toastAlert(
-        //   "error",
-        //   "You have been logged out. Please select the correct wallet address.","wallet"
-        // );
-        // disconnectWallet();
-        // document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-        // dispatch(reset());
-        // dispatch(signOut());
-        // router.push("/");
-        // window.location.href = "/";
+        toastAlert(
+          "error",
+          `Please connect your wallet address ${data?.walletAddress}`,"wallet"
+        );
+        disconnect()
       } else if (
         (!isEmpty(data?.walletAddress) && result === false) ||
         (isEmpty(data?.walletAddress) && result === false)
@@ -315,11 +334,11 @@ export default function PortfolioPage() {
     }
   };
 
-  useEffect(() => {
-    if (isConnected == true) {
-      getAddress(address);
-    }
-  }, [isConnected]);
+  // useEffect(() => {
+  //   if (isConnected == true) {
+  //     getAddress(address);
+  //   }
+  // }, [isConnected]);
 
   // useEffect(() => {
   //   getCoinValue()
@@ -366,19 +385,6 @@ export default function PortfolioPage() {
       console.log(err, "ererrrr");
     }
   };
-
-  // const getUser = async () => {
-  //   try {
-  //     console.log("userrr");
-  //     let { status, result, wallet } = await getUser();
-  //     if (status) {
-  //       setData(result);
-  //       setWalletData(wallet);
-  //     }
-  //   } catch (err) {
-  //     console.log(err, "errr");
-  //   }
-  // };
 
   const balanceChange = (value) => {
     if (currency == "USDT") {
@@ -505,6 +511,12 @@ export default function PortfolioPage() {
       getCoinValue();
       balanceData()
       setTxOpen(false);
+    }else if(!isEmpty(data?.walletAddress) && 
+    data?.walletAddress.toString() != address?.toString() && isConnected){
+      toastAlert(
+        "error",
+        `Please connect your wallet address ${data?.walletAddress}`,"wallet"
+      );
     } else {
       toastAlert("error", "Connect Your Wallet","deposit");
     }
@@ -533,7 +545,7 @@ export default function PortfolioPage() {
               <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
             )}
           </div>
-    
+          {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
         <br></br>
         {/* 2. Key metrics card area */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

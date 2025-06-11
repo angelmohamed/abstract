@@ -52,7 +52,7 @@ export function TradingCard({
   // Calculate days left when customDate changes
 
   return (
-    <Card className="w-[100%] h-auto" style={{ backgroundColor: "#161616" }}>
+    <Card className="w-[100%] trading_card" style={{ backgroundColor: "#161616" }}>
       <div className="w-[100%]">
         <CardHeader className="pb-3">
           <CardTitle style={{ lineHeight: "1.5" }}>

@@ -53,6 +53,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   const [customDate, setCustomDate] = useState<any>("");
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [userPosition, setUserPosition] = useState<number>(0);
+  const [expirationSeconds, setExpirationSeconds] = useState<number | null>(null);
 
   const { price, amount } = formValue;
 
@@ -126,7 +127,12 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       userId: user?._id,
       quantity: amount,
       type: "limit",
+      timeInForce: isExpirationEnabled ? "GTD" : "GTC",
     };
+    if (isExpirationEnabled) {
+      data["expiration"] = expirationSeconds;
+    }
+    console.log(customDate, "customDate", isExpirationEnabled, expirationSeconds);
     const { success, message } = await placeOrder(data);
     if (success) {
       toastAlert("success", "Order placed successfully!", "order-success");
@@ -157,13 +163,19 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   };
 
   useEffect(() => {
+    const now = new Date();
     if (customDate) {
-      const now = new Date();
       const diff = Number(customDate) - Number(now);
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
       setDaysLeft(days > 0 ? days : 0);
+      const seconds = Math.floor(diff / 1000);
+      setExpirationSeconds(seconds);
     } else {
       setDaysLeft(null);
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      const seconds = Math.floor((endOfDay.getTime() - Number(now)) / 1000);
+      setExpirationSeconds(seconds);
     }
   }, [customDate]);
 

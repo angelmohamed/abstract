@@ -80,3 +80,54 @@ export const getInfoCards = async () => {
     return handleResp(error, "error");
   }
 };
+
+export const setUserEmailNotification = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/set-user-email-notification`,
+      method: "post",
+      data: data
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const setInAppNotification = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/set-in-app-notification`,
+      method: "post",
+      data: data
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const setWalletSettings = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/set-wallet-settings`,
+      method: "post",
+      data: data
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const getWalletSettings = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/get-wallet-settings`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

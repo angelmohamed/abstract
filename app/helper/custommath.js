@@ -97,3 +97,14 @@ export function toFixedWithoutRound(number, decimalPlaces = 2) {
     }
   
   }
+
+  export function shortValue(address) {
+    try {
+        var addr = address.substring(0, 6);
+        var addr1 = address.substring(34, 42);
+        var concat = addr + "...." + addr1;
+        return concat;
+    } catch (err) {
+        return "";
+    }
+}
