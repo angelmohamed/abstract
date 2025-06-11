@@ -1,7 +1,6 @@
 "use client";
 import React, { useState,useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar";
-import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
@@ -9,8 +8,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { Trash2, Reply } from "lucide-react";
 import { useWallet } from "@/app/walletconnect/walletContext.js";
 import CommentForm from "./CommentForm";
-import { CommentProps } from "@/types/comments";
+import { CommentProps,PostCommentRequestData } from "@/types/comments";
 import CommentList from "./CommentList";
+import { getComments, postComment } from "@/services/market";
+import { toastAlert } from "@/lib/toast";
+import { useSelector } from "react-redux";
 
 export function Comment({ 
   className, 
@@ -32,17 +34,18 @@ export function Comment({
     
   // Check if the current user is the author of this comment
   const isAuthor = currentUserWallet && comment.wallet_address === currentUserWallet;
+  const {_id} = useSelector((state) => state?.auth?.user || {});
 
   return (
     <div className={cn("w-full pt-4 pb-4 flex items-start space-x-3", className)} {...props}>
       {/* Avatar */}
       <div className="flex-shrink-0">
         <Avatar>
-          {comment.avatar_url ? (
-            <AvatarImage src={comment.avatar_url} alt={comment.username} />
+          {comment?.userId?.profileImg ? (
+            <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.name} />
           ) : (
             <AvatarFallback className="bg-blue-500">
-              {comment.username.charAt(0).toUpperCase()}
+              {comment?.userId?.name?comment?.userId?.name.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
             </AvatarFallback>
           )}
         </Avatar>
@@ -51,7 +54,7 @@ export function Comment({
       <div className="flex-1 min-w-0">
         {/* Username and time */}
         <div className="flex items-center mb-1 flex-wrap gap-2">
-          <span className="font-medium text-white truncate">{comment.username}</span>
+          <span className="font-medium text-white truncate">{comment?.userId?.name||"Unknown user"}</span>
           <span className="text-xs text-gray-400">{timeAgo}</span>
         </div>
 
@@ -60,9 +63,9 @@ export function Comment({
         
         {/* Comment actions */}
         <div className="flex mt-2 space-x-4">
-          {onReply && !comment.parent_id && (
+          {onReply && !comment.parentId && (
             <button 
-              onClick={() => onReply(comment.id)} 
+              onClick={() => onReply(comment._id)} 
               className="flex items-center text-xs text-gray-400 hover:text-white"
             >
               <Reply size={14} className="mr-1" />
@@ -70,9 +73,9 @@ export function Comment({
             </button>
           )}
           
-          {isAuthor && onDelete && (
+          {_id && onDelete && _id===comment?.userId?._id && (
             <button 
-              onClick={() => onDelete(comment.id)} 
+              onClick={() => onDelete(comment._id)} 
               className="flex items-center text-xs text-gray-400 hover:text-red-500"
             >
               <Trash2 size={14} className="mr-1" />
@@ -98,6 +101,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [account, setaccount] = useState("");
+  const {_id} = useSelector((state) => state?.auth?.user || {});
 
 
   useEffect(() => {
@@ -109,36 +113,26 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!account || !reply.trim()) {
-      return;
-    }
+    // if (!account || !reply.trim()) {
+    //   return;
+    // }
 
     try {
       setIsSubmitting(true);
-      
-      const response = await fetch("/api/comments", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          wallet: account,
-          eventId,
-          comment: reply.trim(),
-          parent_id: parentId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to submit reply");
+      const reqData = {
+        userId: _id,
+        eventId: eventId,
+        content: reply,
+        parentId:parentId,
       }
+      const {success, comment} = await postComment(reqData);
+      if (!success) {
+        toastAlert("error", "Failed to post comment. Please try again later.");
+        return
+      }
+      toastAlert("success", "Comment posted successfully!");      
+      onReplyAdded(comment);
 
-      const newReply = await response.json();
-      
-      // Add new reply and update UI
-      onReplyAdded(newReply);
-      
-      // Clear reply box
       setReply("");
       onCancel();
     } catch (error) {
@@ -169,6 +163,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
         <Button 
           type="submit" 
           disabled={isSubmitting || !reply.trim()}
+          onClick={handleSubmit}
           className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
         >
           {isSubmitting ? "Posting..." : "Post Reply"}
@@ -193,17 +188,11 @@ export function CommentSection({ eventId }: CommentSectionProps) {
     const fetchComments = async () => {
       try {
         setIsLoading(true);
-        // const response = await fetch(`/api/comments?eventId=${eventId}`);
-        
-        // if (!response.ok) {
-        //   // throw new Error("Failed to fetch comments");
-        //   console.error("Failed to fetch comments:", response.statusText);
-        // }else{
-        
-        // const data = await response.json();
-        // setComments(data);
-        // }
-        // setComments([])
+        const response = await getComments(eventId)
+        if (!response.success) {
+          toastAlert("error", "Failed to load comments. Please try again later.");
+        } 
+        setComments(response.comments || []);
       } catch (error) {
         console.error("Error loading comments:", error);
       } finally {
@@ -219,14 +208,14 @@ export function CommentSection({ eventId }: CommentSectionProps) {
   const handleCommentAdded = (newComment: CommentProps["comment"]) => {
     if (newComment) {
       // If it's a reply, we need to update the parent's reply count
-      if (!newComment.parent_id) {
+      if (!newComment.parentId) {
         // It's a top-level comment
         setComments(prev => [newComment, ...prev]);
       } else {
         // It's a reply, add to the list and update parent
         setComments(prev => {
           const updated = [...prev];
-          const parentIndex = updated.findIndex(c => c?.id === newComment.parent_id);
+          const parentIndex = updated.findIndex(c => c?._id === newComment.parentId);
           
           if (parentIndex !== -1 && updated[parentIndex]) {
             // Update parent's reply count
@@ -248,7 +237,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
   };
 
   const handleDelete = async (commentId: string) => {
-    if (!account || !commentId) return;
+    // if (!account || !commentId) return;
 
     if (!confirm("Are you sure you want to delete this comment?")) {
       return;
@@ -265,12 +254,12 @@ export function CommentSection({ eventId }: CommentSectionProps) {
 
       // Remove the comment from the UI
       setComments(prev => {
-        const deletedComment = prev.find(c => c?.id === commentId);
-        const newComments = prev.filter(c => c?.id !== commentId);
+        const deletedComment = prev.find(c => c?._id === commentId);
+        const newComments = prev.filter(c => c?._id !== commentId);
         
         // If it's a reply, update the reply count of the parent comment
-        if (deletedComment?.parent_id) {
-          const parentIndex = newComments.findIndex(c => c?.id === deletedComment.parent_id);
+        if (deletedComment?.parentId) {
+          const parentIndex = newComments.findIndex(c => c?._id === deletedComment.parentId);
           if (parentIndex !== -1 && newComments[parentIndex]?.reply_count) {
             newComments[parentIndex] = {
               ...newComments[parentIndex]!,
@@ -280,7 +269,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
         }
         
         // If it's a main comment, also delete all its replies
-        return newComments.filter(c => c?.parent_id !== commentId);
+        return newComments.filter(c => c?.parentId !== commentId);
       });
     } catch (error) {
       console.error("Error deleting comment:", error);
