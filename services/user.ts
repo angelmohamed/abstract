@@ -131,3 +131,28 @@ export const getWalletSettings = async () => {
     return handleResp(error, "error");
   }
 };
+
+export const getPositionsByEvtId = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/positions/event/${data?.id}`,
+      method: "get",
+    });
+    console.log("respData of position", respData);
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "positionerror");
+  }
+};
+
+export const getOpenOrdersByEvtId = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/open-orders/event/${data?.id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

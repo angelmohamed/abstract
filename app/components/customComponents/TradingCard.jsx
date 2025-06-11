@@ -29,6 +29,9 @@ import LimitOrder from "./LimitOrder";
 import MarketOrder from "./MarketOrder";
 import OrderTypeDropdown from "./OrderTypeDropdown";
 import { toFixedDown } from "@/lib/roundOf";
+import { getPositionsByEvtId } from "@/services/user";
+import { capitalize } from "@/app/helper/string";
+import { isEmptyObject } from "@/app/helper/isEmpty";
 
 export function TradingCard({
   market,
@@ -49,7 +52,27 @@ export function TradingCard({
   const [showCustomDialog, setShowCustomDialog] = React.useState(false);
 
   const [tab, setTab] = React.useState("buy");
+  const [positions, setPositions] = React.useState({});
   // Calculate days left when customDate changes
+
+  const fetchPositions = async () => {
+    try {
+      const { success, result } = await getPositionsByEvtId({ id: market?._id });
+      if (success) {
+        setPositions(result[0] || {});
+      } else {
+        setPositions({});
+      }
+    } catch (error) {
+      console.error("Error fetching positions:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (market) {
+      fetchPositions();
+    }
+  }, [market]);
 
   return (
     <Card className="w-[100%] trading_card" style={{ backgroundColor: "#161616" }}>
@@ -86,7 +109,8 @@ export function TradingCard({
             </div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
-            <div className="pt-4">
+            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} . {positions?.quantity}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned ⓘ</h1>}
+            <div className="pt-2">
               <Options
                 defaultValue={activeView}
                 value={activeView}
