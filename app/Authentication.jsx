@@ -79,10 +79,7 @@ export default function Authentication() {
 
   //get proileImg from redux
   const { profileImg } = useSelector(state => state.auth.user);
-<<<<<<< HEAD
-=======
   // console.log("profileImg",profileImg)
->>>>>>> 0c110fb02c3842e5d867e223e4228345c53aa1f0
   const { connectors, address, isConnected, connectWallet, disconnectWallet } =
     useWallet();
   let { email } = userData;

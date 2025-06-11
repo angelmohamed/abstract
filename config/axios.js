@@ -75,11 +75,6 @@ export const handleResp = (respData, type = 'success', doc) => {
       return { data: respData.data }
     }
     if (type == 'success' && respData && respData.data) {
-<<<<<<< HEAD
-=======
-      // console.log('respData.data: ', respData.data);
-
->>>>>>> 0c110fb02c3842e5d867e223e4228345c53aa1f0
       return respData.data
     } else if (type == 'error' && respData && respData.response && respData.response.data) {
       return respData.response.data
