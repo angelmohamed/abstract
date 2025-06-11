@@ -664,6 +664,11 @@ input[type="number"]::-webkit-outer-spin-button {
 .cursor-pointer {
   cursor: pointer !important;
 }
+.trading_card {
+  max-height: calc(-150px + 100vh);
+  height: fit-content;
+  overflow: auto;
+}
 
 /* Media queries */
 @media screen and (max-width: 1023px) {

@@ -14,7 +14,6 @@ let connectionOptions = {
   reconnectionDelayMax: 600,
   reconnectionAttempts: "Infinity",
   timeout: 10000,
-  // parser,
 };
 const socket = io(config.backendURL, connectionOptions);
 

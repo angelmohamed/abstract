@@ -16,11 +16,17 @@ interface MarketOrderProps {
 const initialFormValue = {
     price: "",
     ordVal: "",
+    amount: "",
 }
 
 interface FormState {
     price: string | number;
     ordVal: string | number;
+    amount: string | number;
+}
+
+interface ErrorState {
+  ordVal?: string;
 }
 
 interface ErrorState {
@@ -35,8 +41,9 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
 
   // state
   const [formValue, setFormValue] = useState<FormState>(initialFormValue);
+  const { ordVal, amount } = formValue;
   const [errors, setErrors] = useState<ErrorState>({});
-  const { ordVal } = formValue;
+
 
   // function
   const handleChangeBtn = (op: "+" | "-" | "max", key: string, increment: number) => {
@@ -51,25 +58,48 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     const { name, value } = e.target;
     
     setFormValue((prev: any) => {
-      const numericValue = value.replace(/[^0-9.]/g, '');
+      if (name === "ordVal") {
+        const numericValue = value.replace(/[^0-9.]/g, '');
+          
+        const parts = numericValue.split('.');
+        if (parts.length > 2) {
+          return prev;
+        }
         
-      const parts = numericValue.split('.');
-      if (parts.length > 2) {
-        return prev;
-      }
-      
-      if (parts[1] && parts[1].length > 2) {
-        return prev;
-      }
-      
-      const ordValNum = parseFloat(numericValue);
-      
-      if (numericValue === '' || numericValue === '.') {
-        return { ...prev, [name]: numericValue };
-      } else if (ordValNum >= 0 && ordValNum <= 100000) {
-        return { ...prev, [name]: numericValue };
-      } else {
-        return prev;
+        if (parts[1] && parts[1].length > 2) {
+          return prev;
+        }
+        
+        const ordValNum = parseFloat(numericValue);
+        
+        if (numericValue === '' || numericValue === '.') {
+          return { ...prev, [name]: numericValue };
+        } else if (ordValNum >= 0 && ordValNum <= 100000) {
+          return { ...prev, [name]: numericValue };
+        } else {
+          return prev;
+        }
+      } else if (name === "amount") {
+        const numericValue = value.replace(/[^0-9.]/g, '');
+        
+        const parts = numericValue.split('.');
+        if (parts.length > 2) {
+          return prev;
+        }
+        
+        if (parts[1] && parts[1].length > 2) {
+          return prev;
+        }
+        
+        const amountNum = parseFloat(numericValue);
+        
+        if (numericValue === '' || numericValue === '.') {
+          return { ...prev, [name]: numericValue };
+        } else if (amountNum >= 0 && amountNum <= 100000) {
+          return { ...prev, [name]: numericValue };
+        } else {
+          return prev;
+        }
       }
     });
   };
@@ -108,6 +138,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
       marketId,
       userId: user?._id,
       ordVal: action === "buy" ? Number(ordVal) * 100: 0,
+      quantity: action === "sell" ? Number(amount): 0,
       type: "market",
     };
     const { success, message } = await placeOrder(data);
@@ -133,9 +164,9 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
           <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
             <Input 
               type="text" 
-              value={ordVal}
-              name="ordVal"
-              placeholder="0 $"
+              value={buyorsell == "buy" ? ordVal: amount}
+              name={buyorsell == "buy" ? "ordVal": "amount"}
+              placeholder={buyorsell == "buy"  ? "0 $": "0"}
               onChange={handleChange}
               className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
             />
