@@ -6,12 +6,19 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import Header from "./Header";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/app/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/app/components/ui/carousel";
 import EventLinting from "@/app/components/customComponents/EventLinting";
 import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting";
 // import { infoCards } from "@/app/components/constants";
 import { getCategories } from "@/services/market";
 import { getInfoCards } from "@/services/user";
+import { Footer } from "./components/customComponents/Footer";
 
 const InfoCards = () => {
   const [cards, setCards] = useState([]);
@@ -26,7 +33,7 @@ const InfoCards = () => {
     } catch (error) {
       console.error("Error fetching info cards:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchInfoCards();
@@ -40,7 +47,10 @@ const InfoCards = () => {
           <p className="text-sm font-extrabold pl-2">{title}</p>
         </div>
         <div>
-          <p className="text-sm pt-3" dangerouslySetInnerHTML={{ __html: footer }}></p>
+          <p
+            className="text-sm pt-3"
+            dangerouslySetInnerHTML={{ __html: footer }}
+          ></p>
         </div>
       </div>
     );
@@ -51,22 +61,26 @@ const InfoCards = () => {
       <div className="w-full">
         {/* Desktop view */}
         <div className="hidden md:grid md:grid-cols-4 gap-4">
-          {cards && cards?.length > 0 && cards?.map((card, index) => (
-            <div key={index}>
-              {renderInfoCard(card.emoji, card.title, card?.content)}
-            </div>
-          ))}
+          {cards &&
+            cards?.length > 0 &&
+            cards?.map((card, index) => (
+              <div key={index}>
+                {renderInfoCard(card.emoji, card.title, card?.content)}
+              </div>
+            ))}
         </div>
 
         {/* Mobile view with carousel */}
         <div className="md:hidden">
           <Carousel className="w-full">
             <CarouselContent>
-              {cards && cards?.length > 0 && cards?.map((card, index) => (
-                <CarouselItem key={index} className="pl-4">
-                  {renderInfoCard(card.emoji, card.title, card?.content)}
-                </CarouselItem>
-              ))}
+              {cards &&
+                cards?.length > 0 &&
+                cards?.map((card, index) => (
+                  <CarouselItem key={index} className="pl-4">
+                    {renderInfoCard(card.emoji, card.title, card?.content)}
+                  </CarouselItem>
+                ))}
             </CarouselContent>
             <CarouselPrevious className="text-white" />
             <CarouselNext className="text-white" />
@@ -76,6 +90,42 @@ const InfoCards = () => {
     </div>
   );
 };
+
+const SubcategoryBar = ({
+  subcategories,
+  selectedSubcategory,
+  setSelectedSubcategory,
+}) => (
+  <div className="flex justify-center pb-4 pt-2 items-center">
+    <div className="w-full">
+      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap scrollbar-hide">
+        <Button
+          className={cn(
+            selectedSubcategory === "all"
+              ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
+              : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+          )}
+          onClick={() => setSelectedSubcategory("all")}
+        >
+          For You
+        </Button>
+        {subcategories?.map((subcategory) => (
+          <Button
+            key={subcategory.slug}
+            className={cn(
+              selectedSubcategory === subcategory.slug
+                ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
+                : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+            )}
+            onClick={() => setSelectedSubcategory(subcategory.slug)}
+          >
+            {subcategory.title}
+          </Button>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 export default function Home() {
   const [selectCategory, setSelectedCategory] = useState("all");
@@ -92,7 +142,7 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
-  }
+  };
 
   const fetchMenuItems = async () => {
     try {
@@ -103,21 +153,42 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching menu items:", error);
     }
-  }
+  };
 
   useEffect(() => {
     fetchCategories();
     fetchMenuItems();
   }, []);
 
+  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+  const [subcategoryList, setSubcategoryList] = useState([
+    { slug: "sub1", title: "Hockey Finals" },
+    { slug: "sub2", title: "Basketball Finals" },
+    { slug: "sub3", title: "BET Awards" },
+    { slug: "sub4", title: "Musk vs Trump" },
+    { slug: "sub5", title: "Sabrina Carpenter" },
+    { slug: "sub6", title: "How to Train Your Dragon" },
+  ]);
+
   return (
+    <>
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
-        <NavigationBar menuItems={navigationItems} showLiveTag={true} setSelectedCategory={setSelectedCategory} selectedCategory={selectCategory}/>
+        <NavigationBar
+          menuItems={navigationItems}
+          showLiveTag={true}
+          setSelectedCategory={setSelectedCategory}
+          selectedCategory={selectCategory}
+        />
       </div>
 
       <div className="container mx-auto px-4 max-w-full overflow-hidden">
+        <SubcategoryBar
+          subcategories={subcategoryList}
+          selectedSubcategory={selectedSubcategory}
+          setSelectedSubcategory={setSelectedSubcategory}
+        />
         <SlideshowLinting />
 
         {/* Info Cards Section */}
@@ -169,5 +240,7 @@ export default function Home() {
         </div>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }

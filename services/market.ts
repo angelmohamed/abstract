@@ -52,6 +52,18 @@ export const placeOrder = async (data: any) => {
     }
 };
 
+export const cancelOrder = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/order/cancel/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
 export const getOrderBook = async (data: any) => {
     try {
       let respData = await axios({
@@ -71,6 +83,32 @@ export const getPriceHistory = async (id: string, params: any) => {
       url: `${config.backendURL}/api/v1/events/price-history/${id}`,
       method: "get",
       params,
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+//get comments
+export const getComments = async (eventId: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/comments/event/${eventId}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const postComment = async (data: any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/comments`,
+      method: "post",
+      data,
     });
     return handleResp(respData, "success");
   } catch (error: any) {

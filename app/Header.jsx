@@ -14,6 +14,8 @@ import { availableBalance } from "@/lib/utils";
 
 export default function Header() {
   const router = useRouter();
+  const [filterEvent, setFilterEvent] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const { signedIn } = useSelector(state => state?.auth?.session);
   const walletData = useSelector(state => state?.wallet?.data);
   

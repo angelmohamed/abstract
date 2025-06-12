@@ -15,13 +15,13 @@ const CommentList: React.FC<CommentListProps> = (props) => {
     }
 
     // Separate main comments and replies
-    const mainComments = comments.filter(comment => !comment?.parent_id);
+    const mainComments = comments.filter(comment => !comment?.parentId);
     const repliesByParentId = comments.reduce((acc, comment) => {
-        if (comment?.parent_id) {
-            if (!acc[comment.parent_id]) {
-                acc[comment.parent_id] = [];
+        if (comment?.parentId) {
+            if (!acc[comment.parentId]) {
+                acc[comment.parentId] = [];
             }
-            acc[comment.parent_id].push(comment);
+            acc[comment.parentId].push(comment);
         }
         return acc;
     }, {} as Record<string, CommentProps["comment"][]>);
@@ -37,21 +37,21 @@ const CommentList: React.FC<CommentListProps> = (props) => {
     return (
         <div className="space-y-1">
             {mainComments.map((comment) => (
-                <div key={comment?.id}>
+                <div key={comment?._id}>
                     {comment && (
                         <>
                             <Comment
                                 comment={comment}
                                 onReply={onReply}
                                 onDelete={onDelete}
-                                isReplyOpen={replyingTo === comment.id}
+                                isReplyOpen={replyingTo === comment._id}
                                 currentUserWallet={currentUserWallet}
                             />
 
                             {/* Reply form */}
-                            {replyingTo === comment.id && (
+                            {replyingTo === comment._id && (
                                 <ReplyForm
-                                    parentId={comment.id}
+                                    parentId={comment._id}
                                     eventId={eventId}
                                     onReplyAdded={onReplyAdded}
                                     onCancel={() => onReply("")}
@@ -59,21 +59,21 @@ const CommentList: React.FC<CommentListProps> = (props) => {
                             )}
 
                             {/* Display replies to this comment */}
-                            {repliesByParentId[comment.id] && repliesByParentId[comment.id].length > 0 && (
+                            {repliesByParentId[comment._id] && repliesByParentId[comment._id].length > 0 && (
                                 <>
                                     <button
-                                        onClick={() => toggleReplies(comment.id)}
+                                        onClick={() => toggleReplies(comment._id)}
                                         className="text-xs text-gray-400 hover:text-white ml-10 mt-1 flex items-center"
                                     >
-                                        {expandedComments[comment.id] ? 'Hide' : 'Show'} {repliesByParentId[comment.id].length} {repliesByParentId[comment.id].length === 1 ? 'reply' : 'replies'}
+                                        {expandedComments[comment._id] ? 'Hide' : 'Show'} {repliesByParentId[comment._id].length} {repliesByParentId[comment._id].length === 1 ? 'reply' : 'replies'}
                                     </button>
 
-                                    {expandedComments[comment.id] && (
+                                    {expandedComments[comment._id] && (
                                         <div className="ml-10 border-l-2 border-gray-800 pl-4 mt-2">
-                                            {repliesByParentId[comment.id].map(reply => (
+                                            {repliesByParentId[comment._id].map(reply => (
                                                 reply && (
                                                     <Comment
-                                                        key={reply.id}
+                                                        key={reply._id}
                                                         comment={reply}
                                                         onDelete={onDelete}
                                                         currentUserWallet={currentUserWallet}
