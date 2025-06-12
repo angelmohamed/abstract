@@ -137,7 +137,7 @@ export async function depsoitToken(address,amount,transport,dispatch) {
             hash : transactionHash,
             address: address,
             amount : balance,
-            symbol : "USDC"
+            symbol : "USDT"
          }
         var { message ,status} = await userDeposit(depositdata,dispatch)
         console.log( message ,status," message ,status")
@@ -277,7 +277,7 @@ console.log(tkn,"tkntkntkntkn")
             hash : transactionHash,
             address: address,
             amount : balance,
-            symbol : "USDC"
+            symbol : "POL"
          }
         var { message ,status} = await userDeposit(depositdata,dispatch)
         console.log( message ,status," message ,status")
