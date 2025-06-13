@@ -16,7 +16,7 @@ import {
 import EventLinting from "@/app/components/customComponents/EventLinting";
 import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting";
 // import { infoCards } from "@/app/components/constants";
-import { getCategories } from "@/services/market";
+import { getCategories, getTagsByCategory } from "@/services/market";
 import { getInfoCards } from "@/services/user";
 
 const InfoCards = () => {
@@ -131,6 +131,8 @@ export default function Home() {
   const [categoryList, setCategoryList] = useState([]);
   const [showClosed, setShowClosed] = useState(false);
   const [navigationItems, setNavigationItems] = useState([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
+  const [subcategoryList, setSubcategoryList] = useState([]);
 
   const fetchCategories = async () => {
     try {
@@ -159,15 +161,21 @@ export default function Home() {
     fetchMenuItems();
   }, []);
 
-  const [selectedSubcategory, setSelectedSubcategory] = useState("all");
-  const [subcategoryList, setSubcategoryList] = useState([
-    { slug: "sub1", title: "Hockey Finals" },
-    { slug: "sub2", title: "Basketball Finals" },
-    { slug: "sub3", title: "BET Awards" },
-    { slug: "sub4", title: "Musk vs Trump" },
-    { slug: "sub5", title: "Sabrina Carpenter" },
-    { slug: "sub6", title: "How to Train Your Dragon" },
-  ]);
+  const fetchTags = async () => {
+    try {
+      const { success, result } = await getTagsByCategory(selectCategory);
+      if (success) {
+        setSubcategoryList(result);
+        setSelectedSubcategory("all");
+      }
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    }
+  }
+
+  useEffect(()=>{
+    fetchTags()
+  },[selectCategory])
 
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -233,6 +241,7 @@ export default function Home() {
             <EventLinting
               selectCategory={selectCategory}
               showClosed={showClosed}
+              selectedSubcategory={selectedSubcategory}
             />
           </div>
         </div>

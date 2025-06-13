@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDown, HistoryIcon, X } from "lucide-react";
+import { ChevronDown, ClockIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { FillAsk } from "@/app/components/ui/fillAsk";
@@ -12,15 +12,11 @@ import {
   getAccumalativeValueReverse,
   toTwoDecimal,
 } from "@/utils/helpers";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toFixedDown } from "@/lib/roundOf";
 import { getOpenOrdersByEvtId } from "@/services/user";
-import { Dialog, Separator } from 'radix-ui'
-import { momentFormat } from "@/app/helper/date";
-import {
-  Cross2Icon,
-  CopyIcon,
-} from "@radix-ui/react-icons";
+import { OpenOrderDialog } from "../customComponents/OpenOrderDialog";
+import { SocketContext } from "@/config/socketConnectivity";
 
 interface OrderBookItem {
   price: string;
@@ -150,6 +146,7 @@ const OrderbookAccordionContent = React.forwardRef<
     const [openOrders, setOpenOrders] = useState<any[]>([]);
     const [openOrderDialog, setOpenOrderDialog] = useState<boolean>(false);
     const [selectedOpenOrder, setSelectedOpenOrder] = useState<any>(null);
+    const socketContext = useContext(SocketContext);
     const calcSpread = React.useCallback((bids: any[][] = [], asks: any[][] = []): string => {
       const b = bids.map((b) => parseFloat(b[0])).filter((n) => !isNaN(n));
       const a = asks.map((a) => parseFloat(a[0])).filter((n) => !isNaN(n));
@@ -226,6 +223,44 @@ const OrderbookAccordionContent = React.forwardRef<
     useEffect(() => {
       getOpenOrders();
     }, [selectedMarket]);
+
+    const onOrderCancel = async (orderId: any,success: any) => {
+      try {
+        if(success) {
+          let orderIndex = openOrders.findIndex((order: any) => order._id == orderId);
+          if(orderIndex != -1) {
+            let newOpenOrders = [...openOrders];
+            newOpenOrders.splice(orderIndex, 1);
+            setOpenOrders(newOpenOrders);
+            let selOpenOrderData = selectedOpenOrder.filter((order: any) => order._id != orderId);
+            if(selOpenOrderData.length > 0) {
+              setSelectedOpenOrder(selOpenOrderData)
+            } else {
+              setSelectedOpenOrder(null)
+              setOpenOrderDialog(false)
+            }
+          }
+        } 
+      } catch (error) {
+        console.log(error, "error");
+      }
+    }
+    useEffect(() => {
+      const socket = socketContext?.socket;
+      if (!socket) return;
+  
+      const handleOpenOrders = (result: any) => {
+        getOpenOrders();
+      };
+      
+      socket.on("open-orders", handleOpenOrders);
+  
+      return () => {
+        socket.off("open-orders");
+      };
+    
+    }, [socketContext?.socket]);
+  
 
     return (
       <AccordionPrimitive.Content
@@ -325,10 +360,8 @@ const OrderbookAccordionContent = React.forwardRef<
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
                                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
-                                        <HistoryIcon className="w-4 h-4" />
-                                        <span className="text-xs mb-0">
-                                          {openOrder.length}
-                                        </span>
+                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + curr.quantity, 0), 2)}
+                                        <ClockIcon className="w-4 h-4" />
                                       </div>
                                     )}
                                   </div>
@@ -408,11 +441,9 @@ const OrderbookAccordionContent = React.forwardRef<
                                   <div className="w-[25%] text-center flex items-center justify-center gap-2">
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
-                                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
-                                        <HistoryIcon className="w-4 h-4" />
-                                        <span className="text-xs mb-0">
-                                          {openOrder.length}
-                                        </span>
+                                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
+                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + curr.quantity, 0), 2)}
+                                        <ClockIcon className="w-4 h-4" />
                                       </div>
                                     )}
                                   </div>
@@ -435,57 +466,12 @@ const OrderbookAccordionContent = React.forwardRef<
                 </>
               )}
             </div>
-            <Dialog.Root open={openOrderDialog} onOpenChange={setOpenOrderDialog}>
-              <Dialog.Overlay className="DialogOverlay" />
-              <Dialog.Content className="DialogContent w-100" style={{maxWidth: '900px'}}>
-                <Dialog.Title className="DialogTitle mb-4">Resting Orders</Dialog.Title>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left custom_table">
-                        <thead>
-                        <tr>
-                            <th>Market</th>
-                            {/* <th>Side</th> */}
-                            {/* <th>Outcome</th> */}
-                            <th>Price</th>
-                            <th>Filled</th>
-                            <th>Total</th>
-                            <th>Expiration</th>
-                            <th>Placed</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                      {selectedOpenOrder?.length>0 && selectedOpenOrder.map((item)=>(
-                            <React.Fragment key={item._id}>
-                                    <tr key={index}>
-                                        <td>{item?.marketId?.groupItemTitle} <span style={{color: item.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{item.action} {item.userSide}</span></td>
-                                        {/* <td>{item.side}</td> */}
-                                        {/* <td>{item.side}</td> */}
-                                        <td>{item.price}</td>
-                                        <td>{item.execQty ?? 0}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>Good &apos;til canceled</td>
-                                        <td>{momentFormat(item.createdAt,"DD/MM/YYYY HH:mm")}</td>
-                                        <td>
-                                            <button className="text-red-500">
-                                                <X size={20} />
-                                            </button> 
-                                        </td>
-                                    </tr>
-
-                            </React.Fragment>
-                        )
-                      )}
-                        </tbody>
-                    </table>
-                </div>
-                <Dialog.Close asChild>
-              <button className="modal_close_brn" aria-label="Close">
-                <Cross2Icon />
-              </button>
-            </Dialog.Close>
-              </Dialog.Content>
-            </Dialog.Root>
+            <OpenOrderDialog 
+              openOrderDialog={openOrderDialog} 
+              setOpenOrderDialog={setOpenOrderDialog} 
+              openOrderData={selectedOpenOrder} 
+              onOrderCancel={onOrderCancel}
+            />
           </Tabs>
         </div>
       </AccordionPrimitive.Content>

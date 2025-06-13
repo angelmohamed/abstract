@@ -2,7 +2,7 @@
 import "@/app/globals.css";
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useContext } from "react";
-import { Loader } from "lucide-react";
+import { ClockIcon, Loader } from "lucide-react";
 import { Accordion, AccordionItem, AccordionTrigger } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
 import Chart from "@/app/components/customComponents/Chart";
@@ -17,6 +17,10 @@ import { CommentSection } from "@/app/components/ui/comment";
 import { SocketContext, subscribe, unsubscribe } from "@/config/socketConnectivity";
 import { getOrderBook, getEventById } from "@/services/market";
 import { isEmpty } from "@/lib/isEmpty";
+import { getOpenOrdersByEvtId } from "@/services/user";
+import { OpenOrderDialog } from "@/app/components/customComponents/OpenOrderDialog";
+import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
+import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 
 export default function EventPage() {
   const param = useParams();
@@ -36,7 +40,8 @@ export default function EventPage() {
   ]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [openItem, setOpenItem] = useState("orderbook");
-
+  const [openOrders, setOpenOrders] = useState([]);
+  const [openOrderDialog, setOpenOrderDialog] = useState(false); 
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -90,6 +95,11 @@ export default function EventPage() {
     };
   
   }, [socketContext?.socket]);
+
+  const handleOpenOrderDialog = (id) => {
+    getOpenOrders(id);
+    setOpenOrderDialog(true);
+  }
 
   useEffect(() => {
     if (!id) {
@@ -149,6 +159,19 @@ export default function EventPage() {
     }
   }, [id, markets, interval]);
 
+  const getOpenOrders = async (id) => {
+    try {
+      const { success, result } = await getOpenOrdersByEvtId({ id: id });
+      if (success) {
+        setOpenOrders(result);
+      }else{
+        setOpenOrders([]);
+      }
+    } catch (error) {
+      console.error("Error fetching open orders:", error);
+    }
+  }
+
   return (
     // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
     <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -177,7 +200,7 @@ export default function EventPage() {
                     endDate={events?.endDate}
                     market={markets}
                     interval={interval}
-                    chance={100}
+                    chance={markets[0]?.last}
                   />
                   {/* {markets.length < 2 ? (
                     <SingleLineChart
@@ -200,7 +223,18 @@ export default function EventPage() {
                       endDate={events.endDate}
                       interval={interval}
                     />
-                  )} */}
+                  )}
+                  Check */}
+                   {/* <MultiLineChart
+                      title={events.title}
+                      volume={events.volume}
+                      image={events.image || "/images/logo.png"}
+                      markets={markets.filter(
+                        (market) => market.status === "active"
+                      )}
+                      endDate={events.endDate}
+                      interval={interval}
+                    /> */}
                   <div className="justify-center items-center">
                     <ChartIntervals
                       interval={interval}
@@ -220,6 +254,10 @@ export default function EventPage() {
                         <OrderbookAccordionItem value="orderbook">
                           <OrderbookAccordionTrigger>
                             Orderbook
+                            {/* <ClockIcon className="w-4 h-4" onClick={(e)=>{
+                              e.stopPropagation();
+                              handleOpenOrderDialog( markets[0]?._id)
+                            }}/> */}
                           </OrderbookAccordionTrigger>
                           <OrderbookAccordionContent
                             orderBook={
@@ -411,6 +449,7 @@ export default function EventPage() {
           {" "}
           {/* This makes the left part wider */}
         </div>
+        <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
       </div>
     </div>
   );
