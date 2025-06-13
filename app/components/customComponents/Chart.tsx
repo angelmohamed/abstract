@@ -24,6 +24,7 @@ import { HoverCard } from "radix-ui";
 import { CountdownTimerIcon } from "@radix-ui/react-icons";
 import { getPriceHistory } from "@/services/market";
 import { capitalize } from "@/lib/stringCase";
+import * as Popover from "@radix-ui/react-popover";
 
 interface MarketData {
     clobTokenIds: string;
@@ -65,7 +66,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
                     (entry, index) =>
                         entry.value !== null && (
                             <p key={index} style={{ color: entry.color }} className="text-sm">
-                                {entry.name} {entry.value?.toFixed(1)}¢
+                                {entry.name} 
                             </p>
                         )
                 )}
@@ -101,7 +102,25 @@ const Chart: React.FC<ChartProps> = ({
     const [screenWidth, setScreenWidth] = useState<number>(
         typeof window !== "undefined" ? window.innerWidth : 1024
     );
-
+    const ChartColors = [
+        "hsl(var(--chart-1))",
+        "hsl(var(--chart-2))",
+        "hsl(var(--chart-3))",
+        "hsl(var(--chart-4))",
+        "hsl(var(--chart-1))",
+        "hsl(var(--chart-2))",
+        "hsl(var(--chart-3))",
+        "hsl(var(--chart-4))",
+        "hsl(var(--chart-1))",
+        "hsl(var(--chart-2))",
+        "hsl(var(--chart-3))",
+        "hsl(var(--chart-4))",
+        "hsl(var(--chart-1))",
+        "hsl(var(--chart-2))",
+        "hsl(var(--chart-3))",
+        "hsl(var(--chart-4))",
+    ]
+    
     // Update screen width on resize
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -133,7 +152,7 @@ const Chart: React.FC<ChartProps> = ({
         const fetchData = async () => {
             try {
                 const data = {
-                    market: "yes",
+                    market: selectedYes ? "yes" : "no",
                     interval,
                     fidelity: 30
                 }
@@ -150,14 +169,33 @@ const Chart: React.FC<ChartProps> = ({
                     let assetKeysData = result.map((item: any,index: any) => 
                         {
                             return {
-                                label: capitalize(item._id),
-                                color: item._id == "yes" ? "#27ae60" : "#e64800",
-                                asset: `asset${index+1}`
+                                label: item.groupItemTitle,
+                                color: ChartColors[index],
+                                asset: `asset${index+1}`,
                             }
                         }
                     );
-                    setChartConfig(assetKeysData);
-                    setChartDataYes(processSingleChartData(result, interval));
+                    if (market.length > 1){
+                        market.forEach((item: any) => {
+                            const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
+                            if(asset){
+                                asset.last = item.last
+                            }
+                        })
+                        setChartConfig(assetKeysData);
+                    }else{
+                        setChartConfig([{
+                            label: capitalize(selectedYes ? "yes" : "no"),
+                            color: selectedYes ? "#27ae60" : "#e64800",
+                            asset: "asset1"
+                        }]);
+                    }
+                    let processedData = processSingleChartData(result, interval);
+                    if(selectedYes){
+                        setChartDataYes(processedData);
+                    } else {
+                        setChartDataNo(processedData);
+                    }
                 }
             } catch (error) {
                 console.log(error);
@@ -198,7 +236,7 @@ const Chart: React.FC<ChartProps> = ({
             //   }
         };
         fetchData();
-    }, [market, interval]);
+    }, [market, interval, selectedYes]);
 
     // Calculate the current displayed chance value and color
     const displayChance =
@@ -207,7 +245,7 @@ const Chart: React.FC<ChartProps> = ({
             : selectedYes
                 ? chance
                 : chance !== undefined
-                    ? 1 - chance
+                    ? 100 - chance
                     : undefined;
     const chanceColor = selectedYes ? "#27ae60" : "#e64800";
     const [activeDate, setActiveDate] = useState("Jun 18");
@@ -217,17 +255,17 @@ const Chart: React.FC<ChartProps> = ({
             if(multiHoveredChance.length > 0){
                 setMultiDisplayChance(market.map((item: any,index: any) => {
                     return {
-                        label: capitalize(item._id),
-                        color: item._id == "yes" ? "#27ae60" : "#e64800",
+                        label: item.groupItemTitle,
+                        color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: multiHoveredChance[index]
+                        last: multiHoveredChance[index] || item.last
                     }
                 }));
             } else {
                 setMultiDisplayChance(market.map((item: any,index: any) => {
                     return {
-                        label: capitalize(item._id),
-                        color: item._id == "yes" ? "#27ae60" : "#e64800",
+                        label: item.groupItemTitle,
+                        color: ChartColors[index],
                         asset: `asset${index+1}`,
                         last: item.last
                     }
@@ -306,22 +344,20 @@ const Chart: React.FC<ChartProps> = ({
                             </Button>
                         </div>
                         <div className="flex items-center gap-2 mt-3">
-                            <HoverCard.Root>
-                                <HoverCard.Trigger asChild>
-                                    <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
-                                        <CountdownTimerIcon />
+                            <Popover.Root>
+                                <Popover.Trigger asChild>
+                                    <Button className="...">
+                                    <CountdownTimerIcon />
                                     </Button>
-                                </HoverCard.Trigger>
-                                <HoverCard.Portal>
-                                    <HoverCard.Content className="history_card" sideOffset={5}>
-                                        <ul className="history_card_list">
-                                            <li>Ended: May 7, 2025</li>
-                                            <li>Ended: March 19, 2025</li>
-                                        </ul>
-                                        <HoverCard.Arrow className="HoverCardArrow" />
-                                    </HoverCard.Content>
-                                </HoverCard.Portal>
-                            </HoverCard.Root>
+                                </Popover.Trigger>
+                                <Popover.Content className="history_card" sideOffset={5}>
+                                    <ul className="history_card_list">
+                                    <li>Ended: May 7, 2025</li>
+                                    <li>Ended: March 19, 2025</li>
+                                    </ul>
+                                    <Popover.Arrow className="HoverCardArrow" />
+                                </Popover.Content>
+                            </Popover.Root>
                             <Button
                                 // className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]"
                                 className={`w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] ${activeDate === "Jun 18"
@@ -358,19 +394,19 @@ const Chart: React.FC<ChartProps> = ({
                                     
                                 </div>
                             )}
-                            {multiDisplayChance.length > 0 && (
+                            {/* {multiDisplayChance.length > 0 && (
                                 <div className="flex justify-start mb-4">
                                     {market?.length > 1 && multiDisplayChance.map((item: any) => (
                                         <CardTitle
                                             className="text-4xl"
-                                            style={{ color: chanceColor }}
+                                            style={{ color: item.color }}
                                         >
                                             <span>{(item.last)?.toFixed(1)}%</span>
                                             <span className="text-2xl font-light"> chance</span>
                                         </CardTitle>
                                     ))}
                                 </div>
-                            )}
+                            )} */}
                         </CardHeader>
                         <CardContent className="p-0">
                             <ChartContainer
@@ -381,15 +417,23 @@ const Chart: React.FC<ChartProps> = ({
                                     data={chartData}
                                     onMouseMove={(e) => {
                                         if (e && e.activePayload && e.activePayload.length > 0) {
-                                            const hoveredValue = e.activePayload[0].payload.asset1;
-                                            setHoveredChance(hoveredValue); // Convert to percentage
                                             if(market?.length > 1){
                                                 const multiHoveredValue = e.activePayload.map((item: any) => item.value);
                                                 setMultiHoveredChance(multiHoveredValue);
+                                            } else {
+                                                const hoveredValue = e.activePayload[0].payload.asset1 ;
+                                                if(hoveredValue){
+                                                    setHoveredChance(hoveredValue); // Convert to percentage
+                                                }else{
+                                                    setHoveredChance(undefined);
+                                                }
                                             }
                                         }
                                     }}
-                                    onMouseLeave={() => setHoveredChance(undefined)}
+                                    onMouseLeave={() => {
+                                        setHoveredChance(undefined)
+                                        setMultiHoveredChance([])
+                                    }}
                                 >
                                     <XAxis
                                         dataKey="timestamp"
@@ -414,18 +458,21 @@ const Chart: React.FC<ChartProps> = ({
                                         wrapperStyle={{ top: "-10px" }}
                                     />
                                     {chartConfig.map((asset: any, idx: any) => (
-    <Line
-      key={asset.asset}
-      type="natural"
-      dataKey={asset.asset}
-      name={asset.label}
-      stroke={asset.color} // Use different colors for each line
-      strokeWidth={2}
-      dot={false}
-      label={false}
-      connectNulls
-    />
-  ))}
+                                        <Line
+                                            key={asset.asset}
+                                            type="natural"
+                                            dataKey={asset.asset}
+                                            name={asset.label + (
+                                                multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label) ? 
+                                                " " + multiDisplayChance.find((item: any) => item.label === asset.label)?.last + "%" 
+                                                : " " + displayChance?.toFixed(1) + "%")}
+                                            stroke={asset.color} // Use different colors for each line
+                                            strokeWidth={2}
+                                            dot={false}
+                                            label={false}
+                                            connectNulls
+                                        />
+                                    ))}
                                 </LineChart>
                             </ChartContainer>
                         </CardContent>
