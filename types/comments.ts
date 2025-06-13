@@ -6,6 +6,7 @@ export interface CommentProps extends React.HTMLAttributes<HTMLDivElement> {
     userId?: {
       profileImg?: string;
       name?: string;
+      userName?: string;
       _id?: string;
     };
     avatar_url?: string;

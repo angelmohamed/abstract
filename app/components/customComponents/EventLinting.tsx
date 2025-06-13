@@ -6,6 +6,7 @@ import EventCard from "@/app/components/ui/eventCard";
 import { MultipleOptionCard } from "@/app/components/ui/multipleOptionCard";
 import Link from "next/link";
 import { getEvents } from "@/services/market";
+import { useSearchParams } from "next/navigation";
 
 interface Market {
   id: string;
@@ -34,6 +35,9 @@ interface EventLintingProps {
 }
 
 export default function EventLinting({ selectCategory, showClosed }: EventLintingProps) {
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
+
   const [events, setEvents] = useState<Event[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,12 +56,12 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        let { success, result } = await getEvents({ id: selectCategory, page: pagination.page, limit: pagination.limit });
+        const finCategory = categoryParam ? categoryParam : selectCategory;
+        let { success, result } = await getEvents({ id: finCategory, page: pagination.page, limit: pagination.limit });
         if(success){
           setEvents(result?.data);
           setHasMore(result?.count > pagination.page * pagination.limit);
         }
-        console.log(result, "event-data");
         setLoading(false);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -66,7 +70,7 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
     };
 
     fetchEvents();
-  }, [pagination, selectCategory, showClosed]);
+  }, [pagination, selectCategory, showClosed, categoryParam]);
 
   return (
     <div className="flex flex-col items-center justify-center gap-9 w-full">

@@ -84,7 +84,7 @@ export function TradingCard({
                 className="text-[16px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
               >
-                {market.question}
+                {market?.question}
               </div>
             </div>
           </CardTitle>
@@ -149,7 +149,7 @@ export function TradingCard({
                 {orderType === "market" && (
                   <MarketOrder
                     activeView={activeView}
-                    marketId={market._id}
+                    marketId={market?._id}
                     buyorsell={tab}
                   />
                 )}
@@ -157,7 +157,7 @@ export function TradingCard({
                 {orderType === "limit" && (
                   <LimitOrder
                     activeView={activeView}
-                    marketId={market._id}
+                    marketId={market?._id}
                     buyorsell={tab}
                   />
                 )}
