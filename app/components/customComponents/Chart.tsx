@@ -396,8 +396,9 @@ const Chart: React.FC<ChartProps> = ({
                             )}
                             {/* {multiDisplayChance.length > 0 && (
                                 <div className="flex justify-start mb-4">
-                                    {market?.length > 1 && multiDisplayChance.map((item: any) => (
+                                    {market?.length > 1 && multiDisplayChance.map((item: any, i: number) => (
                                         <CardTitle
+                                            key={i}
                                             className="text-4xl"
                                             style={{ color: item.color }}
                                         >

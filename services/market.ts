@@ -14,6 +14,18 @@ export const getEvents = async (data: any) => {
     }
 };
 
+export const getEventsByRegex = async (data: any) => {
+    try {
+      let respData = await axios({
+        url: `${config.backendURL}/api/v1/events/search?regex=${data.regex}&page=${data.page}&limit=${data.limit}`,
+        method: "get",
+      });
+      return handleResp(respData, "success");
+    } catch (error: any) {
+      return handleResp(error, "error");
+    }
+};
+
 export const getCategories = async () => {
     try {
       let respData = await axios({
