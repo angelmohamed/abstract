@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDown, HistoryIcon, X } from "lucide-react";
+import { ChevronDown, Clock5, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
 import { FillAsk } from "@/app/components/ui/fillAsk";
@@ -325,7 +325,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
                                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
-                                        <HistoryIcon className="w-4 h-4" />
+                                        <Clock5 className="w-4 h-4" />
                                         <span className="text-xs mb-0">
                                           {openOrder.length}
                                         </span>
@@ -409,7 +409,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
                                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
-                                        <HistoryIcon className="w-4 h-4" />
+                                        <Clock5 className="w-4 h-4" />
                                         <span className="text-xs mb-0">
                                           {openOrder.length}
                                         </span>
