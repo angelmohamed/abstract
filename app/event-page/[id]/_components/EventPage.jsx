@@ -21,6 +21,7 @@ import { getOpenOrdersByEvtId } from "@/services/user";
 import { OpenOrderDialog } from "@/app/components/customComponents/OpenOrderDialog";
 import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
+import { Footer } from "@/app/components/customComponents/Footer";
 
 export default function EventPage() {
   const param = useParams();
@@ -173,284 +174,287 @@ export default function EventPage() {
   }
 
   return (
-    // <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0">
-    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
-      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
-        <Header />
-        {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
-      </div>
-      <div className="container mx-auto px-4 max-w-full overflow-hidden">
-        {eventsLoading ? (
-          <div className="flex justify-center items-center h-[80vh] w-[80vw]">
-            <Loader className="w-26 h-26 animate-spin bg-blend-overlay" />
-            Loading...
-          </div>
-        ) : (
-          <div className="sm:mx-auto mx-0 sm:px-4 px-0 sm:pt-4 pt-0">
-            {/* Preview Card Section */}
-            <div className="flex justify-center items-center">
-              <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
-                {/* Main Content (Charts, Accordion, etc.) */}
-                <div className="w-full lg:w-[70%]">
-                  <Chart
-                    id={id}
-                    title={events?.title}
-                    volume={events?.volume}
-                    image={events?.image || "/images/logo.png"}
-                    endDate={events?.endDate}
-                    market={markets}
-                    interval={interval}
-                    chance={markets[0]?.last}
-                  />
-                  {/* {markets.length < 2 ? (
-                    <SingleLineChart
-                      title={events.title}
-                      volume={events.volume}
-                      image={events.image || "/images/logo.png"}
-                      endDate={events.endDate}
+    <>
+      {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0"> */}
+      <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+          <Header />
+          {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
+        </div>
+        <div className="container mx-auto px-4 max-w-full overflow-hidden">
+          {eventsLoading ? (
+            <div className="flex justify-center items-center h-[80vh] w-[80vw]">
+              <Loader className="w-26 h-26 animate-spin bg-blend-overlay" />
+              Loading...
+            </div>
+          ) : (
+            <div className="sm:mx-auto mx-0 sm:px-4 px-0 sm:pt-4 pt-0">
+              {/* Preview Card Section */}
+              <div className="flex justify-center items-center">
+                <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
+                  {/* Main Content (Charts, Accordion, etc.) */}
+                  <div className="w-full lg:w-[70%]">
+                    <Chart
+                      id={id}
+                      title={events?.title}
+                      volume={events?.volume}
+                      image={events?.image || "/images/logo.png"}
+                      endDate={events?.endDate}
                       market={markets}
                       interval={interval}
-                      chance={markets[0]?.bestAsk} // 添加 chance 属性，使用市场的 bestAsk 值
+                      chance={markets[0]?.last}
                     />
-                  ) : (
-                    <MultiLineChart
-                      title={events.title}
-                      volume={events.volume}
-                      image={events.image || "/images/logo.png"}
-                      markets={markets.filter(
-                        (market) => market.status === "active"
-                      )}
-                      endDate={events.endDate}
-                      interval={interval}
-                    />
-                  )}
-                  Check */}
-                   {/* <MultiLineChart
-                      title={events.title}
-                      volume={events.volume}
-                      image={events.image || "/images/logo.png"}
-                      markets={markets.filter(
-                        (market) => market.status === "active"
-                      )}
-                      endDate={events.endDate}
-                      interval={interval}
-                    /> */}
-                  <div className="justify-center items-center">
-                    <ChartIntervals
-                      interval={interval}
-                      setInterval={setInterval}
-                    />
-                  </div>
-
-                  <div>
-                    {markets?.length < 2 && books ? (
-                      <OrderbookAccordion
-                        type="single"
-                        value={openItem}
-                        onValueChange={setOpenItem}
-                        defaultValue="orderbook"
-                        collapsible
-                      >
-                        <OrderbookAccordionItem value="orderbook">
-                          <OrderbookAccordionTrigger>
-                            Orderbook
-                            {/* <ClockIcon className="w-4 h-4" onClick={(e)=>{
-                              e.stopPropagation();
-                              handleOpenOrderDialog( markets[0]?._id)
-                            }}/> */}
-                          </OrderbookAccordionTrigger>
-                          <OrderbookAccordionContent
-                            orderBook={
-                              books?.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[0]?._id
-                              ) || {}
-                            }
-                            isOpen={openItem === "orderbook"}
-                            activeView={activeView}
-                            setActiveView={setActiveView}
-                            setSelectedOrderBookData={setSelectedOrderBookData}
-                            setSelectedIndex={setSelectedIndex}
-                            index={0}
-                            selectedMarket={markets[0]}
-                          />
-                        </OrderbookAccordionItem>
-                      </OrderbookAccordion>
+                    {/* {markets.length < 2 ? (
+                      <SingleLineChart
+                        title={events.title}
+                        volume={events.volume}
+                        image={events.image || "/images/logo.png"}
+                        endDate={events.endDate}
+                        market={markets}
+                        interval={interval}
+                        chance={markets[0]?.bestAsk} // 添加 chance 属性，使用市场的 bestAsk 值
+                      />
                     ) : (
-                      <>
-                        <Accordion type="single" collapsible>
-                          {markets &&
-                            markets?.length > 0 &&
-                            markets
-                              .filter((market) => market.status === "active")
-                              ?.map((market, index) => (
-                                <AccordionItem
-                                  value={`market-${index + 1}`}
-                                  key={index}
-                                >
-                                  <AccordionTrigger
-                                    marketId="market-1"
-                                    outcomePrice={
-                                      market?.outcomePrices &&
-                                      JSON.parse(market.outcomePrices)[0]
-                                    }
-                                    className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
-                                    setSelectedOrderBookData={
-                                      setSelectedOrderBookData
-                                    }
-                                    orderBook={
-                                      books?.find(
-                                        (book) =>
-                                          book.marketId ==
-                                          // JSON?.parse(market?.clobTokenIds)[0]
-                                          market?._id
-                                      ) || {}
-                                    }
-                                    setSelectedIndex={setSelectedIndex}
-                                    index={index}
-                                  >
-                                    {/* <div className="pr-2">
-                                    <Image
-                                      src={market.icon}
-                                      alt="Market 1"
-                                      width={42}
-                                      height={42}
-                                    />
-                                  </div> */}
-                                    <span className="pt-1">
-                                      {market.groupItemTitle}
-                                    </span>
-                                  </AccordionTrigger>
-                                  <OrderbookAccordionContent
-                                    orderBook={
-                                      books?.find(
-                                        (book) =>
-                                          book.marketId ==
-                                          // JSON?.parse(market?.clobTokenIds)[0]
-                                          market?._id
-                                      ) || {}
-                                    }
-                                    book={books}
-                                    activeView={activeView}
-                                    setActiveView={setActiveView}
-                                    setSelectedOrderBookData={
-                                      setSelectedOrderBookData
-                                    }
-                                    setSelectedIndex={setSelectedIndex}
-                                    index={index}
-                                    selectedMarket={market}
-                                  />
-                                </AccordionItem>
-                              ))}
-                        </Accordion>
-                      </>
+                      <MultiLineChart
+                        title={events.title}
+                        volume={events.volume}
+                        image={events.image || "/images/logo.png"}
+                        markets={markets.filter(
+                          (market) => market.status === "active"
+                        )}
+                        endDate={events.endDate}
+                        interval={interval}
+                      />
                     )}
+                    Check */}
+                    {/* <MultiLineChart
+                        title={events.title}
+                        volume={events.volume}
+                        image={events.image || "/images/logo.png"}
+                        markets={markets.filter(
+                          (market) => market.status === "active"
+                        )}
+                        endDate={events.endDate}
+                        interval={interval}
+                      /> */}
+                    <div className="justify-center items-center">
+                      <ChartIntervals
+                        interval={interval}
+                        setInterval={setInterval}
+                      />
+                    </div>
 
-                    <ExpandableTextView>
-                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
-                        Rules
-                      </h3>
-                      <SelectSeparator className="my-4" />
-                      <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
-                        {events?.description}
-                      </p>
-                      {/* <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
-                        Resolver:{" "}
-                        <Link
-                          href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
-                          target="_blank"
-                          className="text-blue-500"
+                    <div>
+                      {markets?.length < 2 && books ? (
+                        <OrderbookAccordion
+                          type="single"
+                          value={openItem}
+                          onValueChange={setOpenItem}
+                          defaultValue="orderbook"
+                          collapsible
                         >
-                          {markets?.[selectedIndex]?.resolvedBy}
-                        </Link>
-                      </p> */}
-                    </ExpandableTextView>
+                          <OrderbookAccordionItem value="orderbook">
+                            <OrderbookAccordionTrigger>
+                              Orderbook
+                              {/* <ClockIcon className="w-4 h-4" onClick={(e)=>{
+                                e.stopPropagation();
+                                handleOpenOrderDialog( markets[0]?._id)
+                              }}/> */}
+                            </OrderbookAccordionTrigger>
+                            <OrderbookAccordionContent
+                              orderBook={
+                                books?.find(
+                                  (book) =>
+                                    book.marketId ==
+                                    // JSON?.parse(market?.clobTokenIds)[0]
+                                    markets[0]?._id
+                                ) || {}
+                              }
+                              isOpen={openItem === "orderbook"}
+                              activeView={activeView}
+                              setActiveView={setActiveView}
+                              setSelectedOrderBookData={setSelectedOrderBookData}
+                              setSelectedIndex={setSelectedIndex}
+                              index={0}
+                              selectedMarket={markets[0]}
+                            />
+                          </OrderbookAccordionItem>
+                        </OrderbookAccordion>
+                      ) : (
+                        <>
+                          <Accordion type="single" collapsible>
+                            {markets &&
+                              markets?.length > 0 &&
+                              markets
+                                .filter((market) => market.status === "active")
+                                ?.map((market, index) => (
+                                  <AccordionItem
+                                    value={`market-${index + 1}`}
+                                    key={index}
+                                  >
+                                    <AccordionTrigger
+                                      marketId="market-1"
+                                      outcomePrice={
+                                        market?.outcomePrices &&
+                                        JSON.parse(market.outcomePrices)[0]
+                                      }
+                                      className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
+                                      setSelectedOrderBookData={
+                                        setSelectedOrderBookData
+                                      }
+                                      orderBook={
+                                        books?.find(
+                                          (book) =>
+                                            book.marketId ==
+                                            // JSON?.parse(market?.clobTokenIds)[0]
+                                            market?._id
+                                        ) || {}
+                                      }
+                                      setSelectedIndex={setSelectedIndex}
+                                      index={index}
+                                    >
+                                      {/* <div className="pr-2">
+                                      <Image
+                                        src={market.icon}
+                                        alt="Market 1"
+                                        width={42}
+                                        height={42}
+                                      />
+                                    </div> */}
+                                      <span className="pt-1">
+                                        {market.groupItemTitle}
+                                      </span>
+                                    </AccordionTrigger>
+                                    <OrderbookAccordionContent
+                                      orderBook={
+                                        books?.find(
+                                          (book) =>
+                                            book.marketId ==
+                                            // JSON?.parse(market?.clobTokenIds)[0]
+                                            market?._id
+                                        ) || {}
+                                      }
+                                      book={books}
+                                      activeView={activeView}
+                                      setActiveView={setActiveView}
+                                      setSelectedOrderBookData={
+                                        setSelectedOrderBookData
+                                      }
+                                      setSelectedIndex={setSelectedIndex}
+                                      index={index}
+                                      selectedMarket={market}
+                                    />
+                                  </AccordionItem>
+                                ))}
+                          </Accordion>
+                        </>
+                      )}
+
+                      <ExpandableTextView>
+                        <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                          Rules
+                        </h3>
+                        <SelectSeparator className="my-4" />
+                        <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
+                          {events?.description}
+                        </p>
+                        {/* <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
+                          Resolver:{" "}
+                          <Link
+                            href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
+                            target="_blank"
+                            className="text-blue-500"
+                          >
+                            {markets?.[selectedIndex]?.resolvedBy}
+                          </Link>
+                        </p> */}
+                      </ExpandableTextView>
+                    </div>
+
+                    {/* 评论区 Comment Section */}
+                    <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 mt-6">
+                      <CommentSection eventId={events?._id} />
+                    </div>
                   </div>
 
-                  {/* 评论区 Comment Section */}
-                  <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 mt-6">
-                    <CommentSection eventId={events?._id} />
-                  </div>
-                </div>
+                  {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
+                  <div className="hidden lg:block lg:w-[30%] relative">
+                    <div className="fixed top-[135px] z-60 w-[25%]">
+                      <TradingCard
+                        activeView={activeView}
+                        setActiveView={setActiveView}
+                        selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
+                        market={markets[selectedIndex]}
+                      />
 
-                {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
-                <div className="hidden lg:block lg:w-[30%] relative">
-                  <div className="fixed top-[135px] z-60 w-[25%]">
-                    <TradingCard
-                      activeView={activeView}
-                      setActiveView={setActiveView}
-                      selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
-                      market={markets[selectedIndex]}
-                    />
-
-                    {/* Spotify Embed */}
-                    {/* <div className="mt-6">
-                      <iframe
-                        style={{ borderRadius: "12px" }}
-                        src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
-                        width="100%"
-                        height="146"
-                        frameBorder="0"
-                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                        loading="lazy"
-                      ></iframe>
-                    </div> */}
+                      {/* Spotify Embed */}
+                      {/* <div className="mt-6">
+                        <iframe
+                          style={{ borderRadius: "12px" }}
+                          src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
+                          width="100%"
+                          height="146"
+                          frameBorder="0"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                        ></iframe>
+                      </div> */}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Trading Card Drawer for Mobile */}
-            <div className="lg:hidden w-[100%] justify-center pr-20 pl-20 pt-5 pb-10 items-center mt-0">
-              {isDrawerOpen && (
-                <div
-                  className="fixed inset-0 bg-black bg-opacity-50 z-40"
-                  onClick={() => setIsDrawerOpen(false)}
-                ></div>
-              )}
-              <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
-                  Trade
-                </DrawerTrigger>
-                <DrawerContent className="h-[80vh] z-50">
-                  {/* Hidden DrawerTitle to satisfy component requirements */}
-                  <div hidden>
-                    <DrawerHeader>
-                      <DrawerTitle>Hidden Title</DrawerTitle>
-                    </DrawerHeader>
-                  </div>
+              {/* Trading Card Drawer for Mobile */}
+              <div className="lg:hidden w-[100%] justify-center pr-20 pl-20 pt-5 pb-10 items-center mt-0">
+                {isDrawerOpen && (
+                  <div
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    onClick={() => setIsDrawerOpen(false)}
+                  ></div>
+                )}
+                <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                  <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
+                    Trade
+                  </DrawerTrigger>
+                  <DrawerContent className="h-[80vh] z-50">
+                    {/* Hidden DrawerTitle to satisfy component requirements */}
+                    <div hidden>
+                      <DrawerHeader>
+                        <DrawerTitle>Hidden Title</DrawerTitle>
+                      </DrawerHeader>
+                    </div>
 
-                  {/* Main Content */}
-                  <div className="p-4">
-                    <TradingCard
-                      activeView={activeView}
-                      setActiveView={setActiveView}
-                      selectedOrderBookData={
-                        selectedOrderBookData ||
-                        books?.find(
-                          (book) =>
-                            book.marketId ==
-                            // JSON?.parse(market?.clobTokenIds)[0]
-                            markets[selectedIndex]?._id
-                        ) ||
-                        {}
-                      }
-                      market={markets[selectedIndex]}
-                    />
-                  </div>
-                </DrawerContent>
-              </Drawer>
+                    {/* Main Content */}
+                    <div className="p-4">
+                      <TradingCard
+                        activeView={activeView}
+                        setActiveView={setActiveView}
+                        selectedOrderBookData={
+                          selectedOrderBookData ||
+                          books?.find(
+                            (book) =>
+                              book.marketId ==
+                              // JSON?.parse(market?.clobTokenIds)[0]
+                              markets[selectedIndex]?._id
+                          ) ||
+                          {}
+                        }
+                        market={markets[selectedIndex]}
+                      />
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+              </div>
             </div>
+          )}
+          <div className="flex-1 pl-0 pr-0 sm:pl-[18%] sm:pr-[0%]">
+            {" "}
+            {/* This makes the left part wider */}
           </div>
-        )}
-        <div className="flex-1 pl-0 pr-0 sm:pl-[18%] sm:pr-[0%]">
-          {" "}
-          {/* This makes the left part wider */}
+          <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
         </div>
-        <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
       </div>
-    </div>
+      <Footer/>
+    </>
   );
 }
