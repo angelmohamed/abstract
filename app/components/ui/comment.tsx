@@ -1,5 +1,5 @@
 "use client";
-import React, { useState,useEffect } from "react";
+import React, { useState,useEffect, useContext } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,21 @@ import CommentList from "./CommentList";
 import { getComments, postComment } from "@/services/market";
 import { toastAlert } from "@/lib/toast";
 import { useSelector } from "react-redux";
+import { SocketContext } from "@/config/socketConnectivity";
+import { deleteComment } from "@/services/user";
+
+const avatarColors = [
+  'bg-blue-500',
+  'bg-green-500',
+  'bg-purple-500',
+  'bg-red-500',
+  'bg-yellow-500',
+  'bg-pink-500',
+  'bg-indigo-500',
+  'bg-teal-500',
+  'bg-orange-500',
+  'bg-cyan-500'
+];
 
 export function Comment({ 
   className, 
@@ -43,10 +58,10 @@ export function Comment({
       <div className="flex-shrink-0">
         <Avatar>
           {comment?.userId?.profileImg ? (
-            <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.name} />
+            <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.userName} />
           ) : (
-            <AvatarFallback className="bg-blue-500">
-              {comment?.userId?.name?comment?.userId?.name.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
+            <AvatarFallback className={avatarColors[Math.floor(Math.random() * avatarColors.length)]}>
+              {comment?.userId?.userName?comment?.userId?.userName.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
             </AvatarFallback>
           )}
         </Avatar>
@@ -55,7 +70,7 @@ export function Comment({
       <div className="flex-1 min-w-0">
         {/* Username and time */}
         <div className="flex items-center mb-1 flex-wrap gap-2">
-          <span className="font-medium text-white truncate">{comment?.userId?.name||"Unknown user"}</span>
+          <span className="font-medium text-white truncate">{comment?.userId?.userName||"Unknown user"}</span>
           <span className="text-xs text-gray-400">{timeAgo}</span>
         </div>
 
@@ -132,7 +147,7 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
         return
       }
       toastAlert("success", "Comment posted successfully!");      
-      onReplyAdded(comment);
+      // onReplyAdded(comment);
 
       setReply("");
       onCancel();
@@ -185,13 +200,15 @@ export function CommentSection({ eventId }: CommentSectionProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
+  const socketContext = useContext(SocketContext);
+
   React.useEffect(() => {
     const fetchComments = async () => {
       try {
         setIsLoading(true);
         const response = await getComments(eventId)
         if (!response.success) {
-          toastAlert("error", "Failed to load comments. Please try again later.");
+          return
         } 
         setComments(response.comments || []);
       } catch (error) {
@@ -238,27 +255,24 @@ export function CommentSection({ eventId }: CommentSectionProps) {
   };
 
   const handleDelete = async (commentId: string) => {
-    // if (!account || !commentId) return;
 
     if (!confirm("Are you sure you want to delete this comment?")) {
       return;
     }
 
     try {
-      // const response = await fetch(`/api/comments?commentId=${commentId}`, {
-      //   method: "DELETE",
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to delete comment");
-      // }
-
-      // Remove the comment from the UI
+      const {success,message} = await deleteComment({id:commentId});
+      if (!success) {
+        toastAlert("error", message || "Failed to delete comment. Please try again later.");
+        return;
+      }
+      toastAlert("success", "Comment deleted successfully!");
+      
       setComments(prev => {
-        const deletedComment = prev.find(c => c?._id === commentId);
+        const deletedComment = prev.find(c => c?._id === commentId);  
         const newComments = prev.filter(c => c?._id !== commentId);
         
-        // If it's a reply, update the reply count of the parent comment
+        // // If it's a reply, update the reply count of the parent comment
         if (deletedComment?.parentId) {
           const parentIndex = newComments.findIndex(c => c?._id === deletedComment.parentId);
           if (parentIndex !== -1 && newComments[parentIndex]?.reply_count) {
@@ -280,6 +294,31 @@ export function CommentSection({ eventId }: CommentSectionProps) {
 
   // Calculate total comments count (main comments + replies)
   const totalCommentsCount = comments.length;
+
+  useEffect(() => {
+    const socket = socketContext?.socket;
+    if (!socket){
+      return;
+    }
+
+    const handleCommentAdded = (result: any) => {
+    const parsedData = JSON.parse(result);
+    console.log('cmt socket Data: ', parsedData);
+    const { type, data } = parsedData;
+      if (type === "add" && data?.eventId === eventId) {
+        setComments(prev => [data, ...prev]);
+        }else if(type==="delete" && data?.eventId === eventId) {
+        setComments(prev => prev.filter(comment => comment?._id !== data.id));
+        }
+      }
+    
+    socket.on("comment", handleCommentAdded);
+
+    return () => {
+      socket.off("comment", handleCommentAdded)
+    };
+  
+  }, [socketContext?.socket]);
 
   return (
     <div className="mt-6">

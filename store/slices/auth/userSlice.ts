@@ -17,6 +17,7 @@ export const userSlice = createSlice({
 // Types
 export interface UserSliceState {
 	name: string,
+	userName: string,
 	email: string,
 	uniqueId: string,
 	status: string,

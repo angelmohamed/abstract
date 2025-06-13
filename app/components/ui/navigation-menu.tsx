@@ -5,6 +5,9 @@ import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+
 
 interface MenuItem {
   title: string;
@@ -161,6 +164,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   const [categoryScrollAtStart, setCategoryScrollAtStart] =
     React.useState(true);
   const [categoryScrollAtEnd, setCategoryScrollAtEnd] = React.useState(false);
+  const router = useRouter();
 
   const handleCategoryScroll = () => {
     const el = categoryListRef.current;
@@ -177,7 +181,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(category);
-    console.log("category: ", category);
+    router.replace(window.location.pathname);
+
   };
 
   return (

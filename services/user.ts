@@ -168,3 +168,28 @@ export const getOpenOrdersByEvtId = async (data:any) => {
     return handleResp(error, "error");
   }
 };
+
+export const addUserName = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/add-user-name`,
+      method: "post",
+      data: data
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
+export const deleteComment = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/comments/${data?.id}`,
+      method: "delete",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
