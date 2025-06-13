@@ -23,6 +23,7 @@ import { toTwoDecimal } from "@/utils/helpers";
 import { HoverCard } from "radix-ui";
 import { CountdownTimerIcon } from "@radix-ui/react-icons";
 import { getPriceHistory } from "@/services/market";
+import { capitalize } from "@/lib/stringCase";
 
 interface MarketData {
     clobTokenIds: string;
@@ -88,16 +89,13 @@ const Chart: React.FC<ChartProps> = ({
     const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
     const [selectedYes, setSelectedYes] = useState<boolean>(true);
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-    const [chartConfig, setChartConfig] = useState<ChartConfig>({
-        asset1: {
-            label: "Yes",
-            color: "#27ae60",
-        },
-    });
+    const [chartConfig, setChartConfig] = useState<any>([]);
+    const [assetKeys, setAssetKeys] = useState<any>([]);
 
     const [hoveredChance, setHoveredChance] = useState<number | undefined>(
         undefined
     );
+    const [multiHoveredChance, setMultiHoveredChance] = useState<any>([]);
 
     // State to track screen width
     const [screenWidth, setScreenWidth] = useState<number>(
@@ -122,12 +120,12 @@ const Chart: React.FC<ChartProps> = ({
     useEffect(() => {
         if (selectedYes) {
             setChartData(chartDataYes);
-            setChartConfig({
-                asset1: { label: "Yes", color: "#27ae60" },
-            });
+            // setChartConfig({
+            //     asset1: { label: "Yes", color: "#27ae60" },
+            // });
         } else {
             setChartData(chartDataNo);
-            setChartConfig({ asset1: { label: "No", color: "#e64800" } });
+            // setChartConfig({ asset1: { label: "No", color: "#e64800" } });
         }
     }, [selectedYes, chartDataYes, chartDataNo]);
 
@@ -140,14 +138,31 @@ const Chart: React.FC<ChartProps> = ({
                     fidelity: 30
                 }
                 const { success, result } = await getPriceHistory(id, data);
-                // console.log("result of chart", result);
                 if (success) {
-                    setChartDataYes(processSingleChartData(result["yes"], interval));
-                    // console.log("chartDataYes in chart", processSingleChartData(result["yes"], interval));
+                    // result["no"] = result["yes"].map((item: any) => ({
+                    //     ...item,
+                    //     p: 100 - item.p
+                    // }));
+                    // result["bids"] = result["no"].map((item: any) => ({
+                    //     ...item,
+                    //     p: 5 + item.p
+                    // }));
+                    let assetKeysData = result.map((item: any,index: any) => 
+                        {
+                            return {
+                                label: capitalize(item._id),
+                                color: item._id == "yes" ? "#27ae60" : "#e64800",
+                                asset: `asset${index+1}`
+                            }
+                        }
+                    );
+                    setChartConfig(assetKeysData);
+                    setChartDataYes(processSingleChartData(result, interval));
                 }
             } catch (error) {
                 console.log(error);
             }
+          
             //   if (market && market.length > 0) {
             //     const yes = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds || "")[0] : "";
             //     const no = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds || "")[1] : "";
@@ -196,6 +211,31 @@ const Chart: React.FC<ChartProps> = ({
                     : undefined;
     const chanceColor = selectedYes ? "#27ae60" : "#e64800";
     const [activeDate, setActiveDate] = useState("Jun 18");
+    const [multiDisplayChance, setMultiDisplayChance] = useState<any>([]);
+    useEffect(() => {
+        if (market?.length > 1) {
+            if(multiHoveredChance.length > 0){
+                setMultiDisplayChance(market.map((item: any,index: any) => {
+                    return {
+                        label: capitalize(item._id),
+                        color: item._id == "yes" ? "#27ae60" : "#e64800",
+                        asset: `asset${index+1}`,
+                        last: multiHoveredChance[index]
+                    }
+                }));
+            } else {
+                setMultiDisplayChance(market.map((item: any,index: any) => {
+                    return {
+                        label: capitalize(item._id),
+                        color: item._id == "yes" ? "#27ae60" : "#e64800",
+                        asset: `asset${index+1}`,
+                        last: item.last
+                    }
+                }));
+            }
+        }
+    }, [market,multiHoveredChance]);
+
     return (
         <Card
             className="h-auto" // Wider on mobile
@@ -306,27 +346,48 @@ const Chart: React.FC<ChartProps> = ({
                                 <div className="flex justify-start mb-4">
                                     {" "}
                                     {/* Changed from justify-center to justify-start */}
+                                    {market?.length <= 1 && (
                                     <CardTitle
                                         className="text-4xl"
                                         style={{ color: chanceColor }}
                                     >
-                                        <span>{(displayChance).toFixed(1)}%</span>
+                                        <span>{(displayChance)?.toFixed(1)}%</span>
                                         <span className="text-2xl font-light"> chance</span>
                                     </CardTitle>
+                                    )}
+                                    
+                                </div>
+                            )}
+                            {multiDisplayChance.length > 0 && (
+                                <div className="flex justify-start mb-4">
+                                    {market?.length > 1 && multiDisplayChance.map((item: any, i: number) => (
+                                        <CardTitle
+                                            key={i}
+                                            className="text-4xl"
+                                            style={{ color: chanceColor }}
+                                        >
+                                            <span>{(item.last)?.toFixed(1)}%</span>
+                                            <span className="text-2xl font-light"> chance</span>
+                                        </CardTitle>
+                                    ))}
                                 </div>
                             )}
                         </CardHeader>
                         <CardContent className="p-0">
                             <ChartContainer
-                                className="h-[350px] lg:h-[300px] sm:h-[200px] w-full" // Shorter on mobile
+                                className="h-[550px] lg:h-[350px] sm:h-[400px] w-full" // Shorter on mobile
                                 config={chartConfig}
                             >
                                 <LineChart
                                     data={chartData}
                                     onMouseMove={(e) => {
                                         if (e && e.activePayload && e.activePayload.length > 0) {
-                                            const hoveredValue = e.activePayload[0].value;
+                                            const hoveredValue = e.activePayload[0].payload.asset1;
                                             setHoveredChance(hoveredValue); // Convert to percentage
+                                            if(market?.length > 1){
+                                                const multiHoveredValue = e.activePayload.map((item: any) => item.value);
+                                                setMultiHoveredChance(multiHoveredValue);
+                                            }
                                         }
                                     }}
                                     onMouseLeave={() => setHoveredChance(undefined)}
@@ -353,19 +414,19 @@ const Chart: React.FC<ChartProps> = ({
                                         iconType="circle"
                                         wrapperStyle={{ top: "-10px" }}
                                     />
-                                    {["asset1"].map((asset, _) => (
-                                        <Line
-                                            key={asset}
-                                            type="natural"
-                                            dataKey={asset}
-                                            name={chartConfig[asset].label}
-                                            stroke={selectedYes ? "#27ae60" : "#e64800"}
-                                            strokeWidth={2}
-                                            dot={false}
-                                            label={false}
-                                            connectNulls
-                                        />
-                                    ))}
+                                    {chartConfig.map((asset: any, idx: any) => (
+    <Line
+      key={asset.asset}
+      type="natural"
+      dataKey={asset.asset}
+      name={asset.label}
+      stroke={asset.color} // Use different colors for each line
+      strokeWidth={2}
+      dot={false}
+      label={false}
+      connectNulls
+    />
+  ))}
                                 </LineChart>
                             </ChartContainer>
                         </CardContent>

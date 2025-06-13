@@ -303,6 +303,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
 
     const handleCommentAdded = (result: any) => {
     const parsedData = JSON.parse(result);
+    console.log('cmt socket Data: ', parsedData);
     const { type, data } = parsedData;
       if (type === "add" && data?.eventId === eventId) {
         setComments(prev => [data, ...prev]);

@@ -5,7 +5,7 @@ import EventLinting from "../components/customComponents/EventLinting";
 const Tst = () => {
   return (
     <div>
-      <EventLinting selectCategory={"music"} showClosed={false}/>
+      <EventLinting selectedSubcategory={"all"} selectCategory={"music"} showClosed={false}/>
     </div>
   );
 };

@@ -32,12 +32,12 @@ interface PaginationState {
 interface EventLintingProps {
   selectCategory: string;
   showClosed: boolean;
+  selectedSubcategory: string;
 }
 
-export default function EventLinting({ selectCategory, showClosed }: EventLintingProps) {
+export default function EventLinting({ selectCategory, showClosed, selectedSubcategory }: EventLintingProps) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get('category');
-
   const [events, setEvents] = useState<Event[]>([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -50,14 +50,14 @@ export default function EventLinting({ selectCategory, showClosed }: EventLintin
   useEffect(() => {
     // Reset pagination when category or showClosed changes
     setPagination({ page: 1, limit: 8, offset: 0 });
-  }, [selectCategory, showClosed]);
+  }, [selectCategory, showClosed, selectedSubcategory]);
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
         const finCategory = categoryParam ? categoryParam : selectCategory;
-        let { success, result } = await getEvents({ id: finCategory, page: pagination.page, limit: pagination.limit });
+        let { success, result } = await getEvents({ id: finCategory, page: pagination.page, limit: pagination.limit, tag: selectedSubcategory  });
         if(success){
           setEvents(result?.data);
           setHasMore(result?.count > pagination.page * pagination.limit);

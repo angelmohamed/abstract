@@ -16,8 +16,7 @@ export interface ChartDataItem {
 // 添加 ChartDataPoint 接口定义
 export interface ChartDataPoint {
   timestamp: string;
-  asset1: number | null;
-  [key: string]: any;
+  [market: string]: string | number | null;
 }
 
 export function processMultiChartData(
@@ -66,17 +65,22 @@ export function processMultiChartData(
 }
 
 export function processSingleChartData(
-  data1: DataPoint[] = [],
+  data: any,
   interval: string
 ): ChartDataPoint[] {
-  const allTimestamps = new Set([...data1.map((d) => d.t)]);
+  // Collect all unique timestamps from all market series
+  const allTimestamps = new Set<number>();
+  data.forEach((marketData) => {
+    marketData.data.forEach((point) => allTimestamps.add(point.t));
+  });
 
   return Array.from(allTimestamps)
-    .sort((a, b) => a - b)
+    // .sort((a, b) => a - b)
     .map((timestamp) => {
-      const date = new Date(timestamp * 1000);
+      const date = new Date(timestamp);
       let timestampString = "";
-      if (interval === "max" || interval === "1m" || interval === "1w") {
+
+      if (["max", "1m", "1w"].includes(interval)) {
         timestampString = date.toLocaleString("en-US", {
           day: "numeric",
           month: "short",
@@ -88,11 +92,26 @@ export function processSingleChartData(
         });
       }
 
-      return {
+      const result: ChartDataPoint = {
         timestamp: timestampString,
-        asset1:
-          // decimalToPercentage(data1.find((d) => d.t === timestamp)?.p) ?? null,
-          data1.find((d) => d.t === timestamp)?.p ?? null,
       };
+
+      // Add price per market
+      // const marketKeys = Object.keys(data);
+      // let previousPrice = {
+      //   asset1: 0,
+      //   asset2: 0,
+      //   asset3: 0,
+      //   asset4: 0,
+      // };
+      for (const market of data) {
+        // let previous = previousPrice[`asset${data.indexOf(market) + 1}`]
+        const match = market.data.find((d) => d.t === timestamp);
+        result[`asset${data.indexOf(market) + 1}`] = match?.p ?? null;
+        //previous price is the price of the current market here
+        // previousPrice[`asset${data.indexOf(market) + 1}`] = match?.p ?? previousPrice[`asset${data.indexOf(market) + 1}`];
+      }
+      
+      return result;
     });
 }
