@@ -146,14 +146,14 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
         toastAlert("error", "Failed to post comment. Please try again later.");
         return
       }
-      toastAlert("success", "Comment posted successfully!");      
+      // toastAlert("success", "Comment posted successfully!");      
       // onReplyAdded(comment);
 
       setReply("");
       onCancel();
     } catch (error) {
       console.error("Reply submission error:", error);
-      alert("Failed to post reply. Please try again later.");
+      // alert("Failed to post reply. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
@@ -256,9 +256,9 @@ export function CommentSection({ eventId }: CommentSectionProps) {
 
   const handleDelete = async (commentId: string) => {
 
-    if (!confirm("Are you sure you want to delete this comment?")) {
-      return;
-    }
+    // if (!confirm("Are you sure you want to delete this comment?")) {
+    //   return;
+    // }
 
     try {
       const {success,message} = await deleteComment({id:commentId});
@@ -266,7 +266,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
         toastAlert("error", message || "Failed to delete comment. Please try again later.");
         return;
       }
-      toastAlert("success", "Comment deleted successfully!");
+      // toastAlert("success", "Comment deleted successfully!");
       
       setComments(prev => {
         const deletedComment = prev.find(c => c?._id === commentId);  
@@ -288,7 +288,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
       });
     } catch (error) {
       console.error("Error deleting comment:", error);
-      alert("Failed to delete comment. Please try again later.");
+      // alert("Failed to delete comment. Please try again later.");
     }
   };
 
