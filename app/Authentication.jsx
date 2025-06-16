@@ -40,6 +40,7 @@ import { useDispatch } from "react-redux";
 import { reset } from "../store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
 import local from "next/font/local/index.js";
+import { availableBalance } from "@/lib/utils.js";
 
 let initialData = {
   otp: "",
@@ -53,6 +54,7 @@ export default function Authentication() {
   const dispatch = useDispatch();
   const { signedIn } = useSelector((state) => state.auth?.session);
   const data = useSelector(state => state?.auth?.user);
+  const walletData = useSelector((state) => state?.wallet?.data);
 
   const [connval, setconnval] = useState(null);
   const [open, setOpen] = useState(false);
@@ -496,8 +498,17 @@ export default function Authentication() {
   console.log(address, "addresss")
   return (
     <>
-      {signedIn && (
+      {/* {signedIn && (
         <Button onClick={() => navigateToPortfolioPage()}>Deposit</Button>
+      )} */}
+      {signedIn && (
+        <button
+          className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+          onClick={() => navigateToPortfolioPage()}
+        >
+          <div className="text-l text-[#33ff4c]">${availableBalance(walletData)}</div>
+          <div className="text-xs text-grey">Portfolio</div>
+        </button>
       )}
       <Dialog.Root open={open} onOpenChange={setOpen}>
         {!signedIn && (
