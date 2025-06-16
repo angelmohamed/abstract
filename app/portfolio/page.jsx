@@ -1147,7 +1147,7 @@ export default function PortfolioPage() {
                           <Input
                             type="text"
                             placeholder="0x..."
-                            className="Input h-12"
+                            className="Input h-12 focus-visible:outline-none"
                             id="Address"
                           />
                         </fieldset>
@@ -1172,7 +1172,7 @@ export default function PortfolioPage() {
                           <Input
                             type="text"
                             placeholder="$0.00"
-                            className="Input h-12"
+                            className="Input h-12 focus-visible:outline-none"
                             id="Amount"
                           />
                         </fieldset>

@@ -6,8 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from 'react';
-
+import { useEffect, useState } from "react";
 
 interface MenuItem {
   title: string;
@@ -158,7 +157,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   menuItems,
   showLiveTag = true,
   setSelectedCategory,
-  selectedCategory
+  selectedCategory,
 }) => {
   const categoryListRef = React.useRef<HTMLDivElement>(null);
   const [categoryScrollAtStart, setCategoryScrollAtStart] =
@@ -182,7 +181,6 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   const handleCategoryClick = (category: string) => {
     setSelectedCategory(category);
     router.replace(window.location.pathname);
-
   };
 
   return (
@@ -221,7 +219,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             disabled={categoryScrollAtStart}
             type="button"
           >
-            <ChevronLeftIcon height={24} width={24}/>
+            <ChevronLeftIcon height={24} width={24} />
           </button>
           <div
             ref={categoryListRef}
@@ -230,20 +228,27 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             onScroll={handleCategoryScroll}
           >
             <div
-              className="flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer"
+              className={cn(
+                "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
+                selectedCategory === "all" && "text-white bg-slate-700"
+              )}
               onClick={() => handleCategoryClick("all")}
             >
               Trending
             </div>
-            {menuItems.length > 0 && menuItems.map((item) => (
-              <div
-                key={item.title}
-                className="flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer"
-                onClick={() => handleCategoryClick(item.slug)}
-              >
-                {item.title}
-              </div>
-            ))}
+            {menuItems.length > 0 &&
+              menuItems.map((item) => (
+                <div
+                  key={item.title}
+                  className={cn(
+                    "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
+                    selectedCategory === item.slug && "text-white bg-slate-700"
+                  )}
+                  onClick={() => handleCategoryClick(item.slug)}
+                >
+                  {item.title}
+                </div>
+              ))}
           </div>
           <button
             className="p-2 text-white bg-[transparent] ml-2 disabled:opacity-0"
@@ -257,7 +262,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             disabled={categoryScrollAtEnd}
             type="button"
           >
-            <ChevronRightIcon  height={24} width={24}/>
+            <ChevronRightIcon height={24} width={24} />
           </button>
         </div>
       </div>

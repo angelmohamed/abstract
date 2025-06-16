@@ -168,7 +168,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
               name={buyorsell == "buy" ? "ordVal": "amount"}
               placeholder={buyorsell == "buy"  ? "0 $": "0"}
               onChange={handleChange}
-              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
             />
           </div>
         </div>

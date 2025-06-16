@@ -228,7 +228,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
             name="price"
             placeholder="0 ¢"
             onChange={handleChange}
-            className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
           <span
             className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]"
@@ -252,7 +252,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
             placeholder="0"
             value={amount}
             onChange={handleChange}
-            className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         </div>
       </div>

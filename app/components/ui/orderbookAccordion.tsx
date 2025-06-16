@@ -338,7 +338,7 @@ const OrderbookAccordionContent = React.forwardRef<
                               return (
                                 <div
                                   key={index}
-                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000]"
+                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative"
                                 >
                                   <div className="w-[30%]">
                                     <FillAsk
@@ -420,7 +420,7 @@ const OrderbookAccordionContent = React.forwardRef<
                               return (
                                 <div
                                   key={index}
-                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202]"
+                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative"
                                 >
                                   <div className="w-[30%]">
                                     <FillBid
