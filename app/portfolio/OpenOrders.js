@@ -8,6 +8,7 @@ import { toastAlert } from '@/lib/toast'
 import { momentFormat } from '../helper/date'
 import { SocketContext } from '@/config/socketConnectivity'
 import store from "@/store/index";
+import { toFixedDown } from '@/lib/roundOf'
 
 const OpenOrders = () => {
      const [openOrders, setOpenOrders] = useState([])
@@ -61,6 +62,9 @@ const OpenOrders = () => {
                             findOrder.createdAt = resData.createdAt
                             findOrder.userSide = resData.userSide
                             findOrder.status = resData.status
+                            findOrder.currentPrice = resData.marketId.last
+                            findOrder.timeInForce = resData.timeInForce
+                            findOrder.expiration = resData.expiration
                             return [...prev, findOrder];
                         } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
                             const updatedMarket = {
@@ -78,12 +82,18 @@ const OpenOrders = () => {
                         return [...prev, findMarket]
                     }
                 } else {
+                    let orderData = {
+                        ...resData,
+                        currentPrice: resData.marketId.last,
+                        timeInForce: resData.timeInForce,
+                        expiration: resData.expiration
+                    }
                     const newMarket = {
                         eventId: resData.marketId.eventId._id,
                         eventSlug: resData.marketId.eventId.slug,
                         eventImage: resData.marketId.eventId.image,
                         eventTitle: resData.marketId.eventId.title, 
-                        orders: [resData]
+                        orders: [orderData]
                     }
                     return [newMarket,...prev]
                 }
@@ -96,7 +106,7 @@ const OpenOrders = () => {
     }, [socketContext])
   return (
     <>
-        <div className="flex space-x-4 mb-3">
+        {/* <div className="flex space-x-4 mb-3">
             <SearchBar placeholder="Search" />
             <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
                 <option>Market</option>
@@ -104,7 +114,7 @@ const OpenOrders = () => {
                 <option>Total Quantity</option>
                 <option>Order Date</option>
             </select>
-        </div>
+        </div> */}
         <div className="overflow-x-auto">
             <table className="w-full text-left custom_table">
                 <thead>
@@ -112,12 +122,14 @@ const OpenOrders = () => {
                     <th>Market</th>
                     {/* <th>Side</th> */}
                     {/* <th>Outcome</th> */}
-                    <th>Price</th>
                     <th>Filled</th>
-                    <th>Total</th>
-                    <th>Expiration</th>
+                    <th>Contracts</th>
+                    <th>Limit Price</th>
+                    <th>Current Price</th>
+                    <th>Cash</th>
                     <th>Placed</th>
-                    <th>Action</th>
+                    <th>Expiration</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -147,11 +159,13 @@ const OpenOrders = () => {
                                 <td>{data.marketGroupTitle} <span style={{color: data.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{data.action} {data.userSide}</span></td>
                                 {/* <td>{data.side}</td> */}
                                 {/* <td>{data.side}</td> */}
-                                <td>{data.price}</td>
                                 <td>{data.filledQuantity ?? 0}</td>
                                 <td>{data.quantity}</td>
-                                <td>Good &apos;til canceled</td>
+                                <td>{data.price}</td>
+                                <td>{data.currentPrice}</td>
+                                <td>${toFixedDown((data.price * data.quantity)/100, 2)}</td>
                                 <td>{momentFormat(data.createdAt,"DD/MM/YYYY HH:mm")}</td>
+                                <td>{data.timeInForce == "GTC" ? "Good 'til canceled" : momentFormat(data.expiration,"DD/MM/YYYY HH:mm")}</td>
                                 <td>
                                     <button className="text-red-500" onClick={()=>handleCancelOrder(data._id)}>
                                         <X size={20} />

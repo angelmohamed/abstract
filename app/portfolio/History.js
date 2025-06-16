@@ -34,32 +34,32 @@ const History = () => {
   }, [])
   return (
     <>
-      <div className="flex space-x-4 mb-3">
-                    <SearchBar placeholder="Search" />
-                    <DatePicker
-                      placeholderText="Select date"
-                      selectsRange={true}
-                      startDate={startDate}
-                      endDate={endDate}
-                      onChange={(update) => {
-                        setDateRange(update);
-                      }}
-                      className="custom_datepicker"
-                    />
-                    <select className="border border-[#262626] bg-black rounded p-1 text-sm">
-                      <option>All</option>
-                      <option>All Trades</option>
-                      <option>Buy</option>
-                      <option>Sell</option>
-                      <option>Reward</option>
-                    </select>
-                    <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
-                      <option>Newest</option>
-                      <option>Oldest</option>
-                      <option>Value</option>
-                      <option>Shares</option>
-                    </select>
-                  </div>
+      {/* <div className="flex space-x-4 mb-3">
+        <SearchBar placeholder="Search" />
+        <DatePicker
+          placeholderText="Select date"
+          selectsRange={true}
+          startDate={startDate}
+          endDate={endDate}
+          onChange={(update) => {
+            setDateRange(update);
+          }}
+          className="custom_datepicker"
+        />
+        <select className="border border-[#262626] bg-black rounded p-1 text-sm">
+          <option>All</option>
+          <option>All Trades</option>
+          <option>Buy</option>
+          <option>Sell</option>
+          <option>Reward</option>
+        </select>
+        <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
+          <option>Newest</option>
+          <option>Oldest</option>
+          <option>Value</option>
+          <option>Shares</option>
+        </select>
+      </div> */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-left custom_table table table-responsive">
                       <thead>

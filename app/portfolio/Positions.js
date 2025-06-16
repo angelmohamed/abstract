@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import SearchBar from '../components/ui/SearchBar'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -17,6 +17,7 @@ import { getUserTradeHistory } from '@/services/user'
 import { HistoryIcon, ShareIcon, X } from 'lucide-react'
 import { momentFormat } from '../helper/date'
 import { TabsList, TabsTrigger } from '@radix-ui/react-tabs'
+import { SocketContext } from '@/config/socketConnectivity'
 
 const Positions = () => {
   const [positionHistory, setPositionHistory] = useState([])
@@ -26,6 +27,7 @@ const Positions = () => {
   const [shareData, setShareData] = useState({})
   const [selectedMarketData, setSelectedMarketData] = useState({})
   const router = useRouter()
+  const socketContext = useContext(SocketContext)
 
   const getUserPositionHistory = async () => {
       try {
@@ -66,9 +68,21 @@ const Positions = () => {
     setShareOpen(true)
   }
 
+  useEffect(() => {
+    let socket = socketContext?.socket
+    if (!socket) return
+    const handlePositions = (result) => {
+      console.log("resData of pos-update", result);
+    }
+    socket.on("pos-update", handlePositions)
+    return () => {
+      socket.off("pos-update", handlePositions)
+    }
+  }, [socketContext])
+
   return (
     <>
-        <div className="flex space-x-4 mb-3">
+        {/* <div className="flex space-x-4 mb-3">
             <SearchBar placeholder="Search" />
             <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
                 <option>Current value</option>
@@ -81,7 +95,7 @@ const Positions = () => {
                 <option>Live</option>
                 <option>Ended</option>
             </select>
-        </div>
+        </div> */}
         <div className="overflow-x-auto">
             <table className="w-full text-left custom_table">
                 <thead>
