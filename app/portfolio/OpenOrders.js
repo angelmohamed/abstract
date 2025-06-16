@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import SearchBar from '../components/ui/SearchBar'
 import { getOpenOrders } from '@/services/portfolio'
 import { cancelOrder } from '@/services/market'
@@ -6,10 +6,14 @@ import { useRouter } from 'next/navigation'
 import { X } from 'lucide-react'
 import { toastAlert } from '@/lib/toast'
 import { momentFormat } from '../helper/date'
+import { SocketContext } from '@/config/socketConnectivity'
+import store from "@/store/index";
 
 const OpenOrders = () => {
      const [openOrders, setOpenOrders] = useState([])
      const route = useRouter()
+     const socketContext = useContext(SocketContext)
+     const { user } = store.getState().auth;
     
     const getUserOpenOrders = async () => {
         try {
@@ -38,6 +42,58 @@ const OpenOrders = () => {
         } catch {
         }
     }
+
+    useEffect(() => {
+        let socket = socketContext?.socket
+        if (!socket) return
+        const handleOrders = (result) => {
+            const resData = JSON.parse(result)
+            console.log("resData of order-update", resData);
+            setOpenOrders(prev => {
+                const findMarket = prev.find(market => market.eventId === resData.marketId.eventId._id)
+                if(findMarket){
+                    const findOrder = findMarket.orders.find(order => order._id === resData._id)
+                    if(findOrder){
+                        if (["open", "pending"].includes(resData.status)) {
+                            findOrder.filledQuantity = resData.execQty
+                            findOrder.price = resData.price
+                            findOrder.quantity = resData.quantity
+                            findOrder.createdAt = resData.createdAt
+                            findOrder.userSide = resData.userSide
+                            findOrder.status = resData.status
+                            return [...prev, findOrder];
+                        } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
+                            const updatedMarket = {
+                              ...findMarket,
+                              orders: findMarket.orders?.filter(order => order._id !== resData._id) || [],
+                            };
+                            if(updatedMarket.orders.length === 0){
+                                return prev.filter(market => market.eventId !== resData.marketId.eventId._id)
+                            }
+                            const updatedData = prev.map(market => market.eventId === resData.marketId.eventId._id ? updatedMarket : market)
+                            return updatedData
+                        }
+                    } else {
+                        findMarket.orders.push(resData)
+                        return [...prev, findMarket]
+                    }
+                } else {
+                    const newMarket = {
+                        eventId: resData.marketId.eventId._id,
+                        eventSlug: resData.marketId.eventId.slug,
+                        eventImage: resData.marketId.eventId.image,
+                        eventTitle: resData.marketId.eventId.title, 
+                        orders: [resData]
+                    }
+                    return [newMarket,...prev]
+                }
+            })
+        }
+        socket.on("order-update", handleOrders)
+        return () => {
+            socket.off("order-update", handleOrders)
+        }
+    }, [socketContext])
   return (
     <>
         <div className="flex space-x-4 mb-3">
