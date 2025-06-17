@@ -9,6 +9,7 @@ import { momentFormat } from '../helper/date'
 import { SocketContext } from '@/config/socketConnectivity'
 import store from "@/store/index";
 import { toFixedDown } from '@/lib/roundOf'
+import { isEmpty } from '@/lib/isEmpty'
 
 const OpenOrders = () => {
      const [openOrders, setOpenOrders] = useState([])
@@ -49,9 +50,10 @@ const OpenOrders = () => {
         if (!socket) return
         const handleOrders = (result) => {
             const resData = JSON.parse(result)
-            console.log("resData of order-update", resData);
+            if(resData.userId !== user._id) return
             setOpenOrders(prev => {
                 const findMarket = prev.find(market => market.eventId === resData.marketId.eventId._id)
+                const marketIndex = prev.findIndex(market => market.eventId === resData.marketId.eventId._id);
                 if(findMarket){
                     const findOrder = findMarket.orders.find(order => order._id === resData._id)
                     if(findOrder){
@@ -65,7 +67,8 @@ const OpenOrders = () => {
                             findOrder.currentPrice = resData.marketId.last
                             findOrder.timeInForce = resData.timeInForce
                             findOrder.expiration = resData.expiration
-                            return [...prev, findOrder];
+                            findOrder.action = resData.action
+                            return prev;
                         } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
                             const updatedMarket = {
                               ...findMarket,
@@ -78,15 +81,33 @@ const OpenOrders = () => {
                             return updatedData
                         }
                     } else {
-                        findMarket.orders.push(resData)
-                        return [...prev, findMarket]
+                        const newOrder = {
+                            ...resData,
+                            currentPrice: resData.marketId.last,
+                            timeInForce: resData.timeInForce,
+                            expiration: resData.expiration,
+                            action: resData.action
+                          };
+                    
+                          const updatedMarket = {
+                            ...findMarket,
+                            orders: [...findMarket.orders, newOrder],
+                          };
+                    
+                          const updatedMarkets = [...prev];
+                          updatedMarkets[marketIndex] = updatedMarket;
+                    
+                          return updatedMarkets;
+                        // findMarket.orders.push(resData)
+                        // return [...prev, findMarket]
                     }
                 } else {
                     let orderData = {
                         ...resData,
                         currentPrice: resData.marketId.last,
                         timeInForce: resData.timeInForce,
-                        expiration: resData.expiration
+                        expiration: resData.expiration,
+                        action: resData.action
                     }
                     const newMarket = {
                         eventId: resData.marketId.eventId._id,
@@ -98,6 +119,7 @@ const OpenOrders = () => {
                     return [newMarket,...prev]
                 }
             })
+
         }
         socket.on("order-update", handleOrders)
         return () => {
@@ -161,8 +183,15 @@ const OpenOrders = () => {
                                 {/* <td>{data.side}</td> */}
                                 <td>{data.filledQuantity ?? 0}</td>
                                 <td>{data.quantity}</td>
-                                <td>{data.price}</td>
-                                <td>{data.currentPrice}</td>
+                                <td>{data.action == "sell" ? (100 - data.price) : data.price}¢</td>
+                                <td>
+                                    { !isEmpty(data.currentPrice)
+                                        ? data.userSide === "no"
+                                            ? `${100 - data.currentPrice}¢`
+                                            : `${data.currentPrice}¢`
+                                        : '-'}
+                                    
+                                </td>
                                 <td>${toFixedDown((data.price * data.quantity)/100, 2)}</td>
                                 <td>{momentFormat(data.createdAt,"DD/MM/YYYY HH:mm")}</td>
                                 <td>{data.timeInForce == "GTC" ? "Good 'til canceled" : momentFormat(data.expiration,"DD/MM/YYYY HH:mm")}</td>

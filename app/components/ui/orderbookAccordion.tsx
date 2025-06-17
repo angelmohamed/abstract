@@ -253,10 +253,10 @@ const OrderbookAccordionContent = React.forwardRef<
         getOpenOrders();
       };
       
-      socket.on("open-orders", handleOpenOrders);
+      socket.on("order-update", handleOpenOrders);
   
       return () => {
-        socket.off("open-orders");
+        socket.off("order-update");
       };
     
     }, [socketContext?.socket]);

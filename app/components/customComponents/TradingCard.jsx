@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Dialog } from "radix-ui";
 import DatePicker from "react-datepicker";
@@ -32,6 +32,7 @@ import { toFixedDown } from "@/lib/roundOf";
 import { getPositionsByEvtId } from "@/services/user";
 import { capitalize } from "@/app/helper/string";
 import { isEmptyObject } from "@/app/helper/isEmpty";
+import { SocketContext } from "@/config/socketConnectivity";
 
 export function TradingCard({
   market,
@@ -47,6 +48,7 @@ export function TradingCard({
   const buyNo = selectedOrderBookData?.bids?.[0]?.reverse()?.[0] || [];
   const sellYes = selectedOrderBookData?.bids?.[0]?.[0] || [];
   const sellNo = selectedOrderBookData?.asks?.[0]?.[0] || [];
+  const socketContext = useContext(SocketContext)
 
   const [orderType, setOrderType] = React.useState("limit");
   const [showCustomDialog, setShowCustomDialog] = React.useState(false);
@@ -73,6 +75,31 @@ export function TradingCard({
       fetchPositions();
     }
   }, [market]);
+
+  useEffect(() => {
+    let socket = socketContext?.socket
+    if (!socket) return
+    const handlePositions = (result) => {
+      const resData = JSON.parse(result)
+      setPositions((prev) => {
+        return {
+          ...prev,
+          filled: [
+            {
+              price: resData?.price,
+              qty: resData?.quantity
+            }
+          ],
+          quantity: resData?.quantity,
+        }
+      })
+      
+    }
+    socket.on("pos-update", handlePositions)
+    return () => {
+      socket.off("pos-update", handlePositions)
+    }
+  }, [socketContext])
 
   return (
     <Card className="w-[100%] trading_card" style={{ backgroundColor: "#161616" }}>
@@ -109,7 +136,7 @@ export function TradingCard({
             </div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
-            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} &middot; {positions?.quantity}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned ⓘ</h1>}
+            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned ⓘ</h1>}
             <div className="pt-2">
               <Options
                 defaultValue={activeView}
