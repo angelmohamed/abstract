@@ -15,6 +15,7 @@ const History = () => {
       const event = item.marketId.eventId;
       const eventId = event._id;
       const marketId = item.marketId._id;
+      const groupItemTitle = item.marketId.groupItemTitle;
 
       if (!groupedByEvent[eventId]) {
         groupedByEvent[eventId] = {
@@ -30,6 +31,7 @@ const History = () => {
           entry: 0,
           exit: 0,
           pnl: 0,
+          groupItemTitle: groupItemTitle,
         };
       }
 
@@ -91,11 +93,11 @@ const History = () => {
           <thead>
             <tr>
               <th>Market</th>
-              <th>Final position</th>
-              <th>Settlement payout</th>
-              <th>Total cost</th>
-              <th>Total payout</th>
-              <th>Total return</th>
+              <th>Final Position</th>
+              <th>Settlement Payout</th>
+              <th>Total Cost</th>
+              <th>Total Payout</th>
+              <th>Total Return</th>
             </tr>
           </thead>
           <tbody>
@@ -136,7 +138,7 @@ const History = () => {
 
                       return (
                         <tr key={marketId}>
-                          <td>{isMultiMarket ? event?.eventInfo?.title : ""}</td>
+                          <td>{ m.groupItemTitle || ""}</td>
                           <td className="text-gray-500">None</td>
                           <td className="text-gray-500">$0</td>
                           <td>${toFixedDown(m.entry, 2)}</td>

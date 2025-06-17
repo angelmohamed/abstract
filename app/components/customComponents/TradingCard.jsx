@@ -84,13 +84,9 @@ export function TradingCard({
       setPositions((prev) => {
         return {
           ...prev,
-          filled: [
-            {
-              price: resData?.price,
-              qty: resData?.quantity
-            }
-          ],
+          filled: resData?.filled,
           quantity: resData?.quantity,
+          side: resData?.side,
         }
       })
       
