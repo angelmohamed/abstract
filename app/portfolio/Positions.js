@@ -72,7 +72,80 @@ const Positions = () => {
     let socket = socketContext?.socket
     if (!socket) return
     const handlePositions = (result) => {
-      console.log("resData of pos-update", result);
+      const resData = JSON.parse(result)
+      console.log("resData of pos-update", resData);
+      getUserPositionHistory()
+      // setPositionHistory(prev => {
+      //   const findMarket = prev.find(market => market.eventId === resData.marketId.eventId._id)
+      //   const marketIndex = prev.findIndex(market => market.eventId === resData.marketId.eventId._id);
+      //   if(findMarket){
+      //       const findOrder = findMarket.orders.find(order => order._id === resData._id)
+      //       if(findOrder){
+      //           if (["open", "pending"].includes(resData.status)) {
+      //               findOrder.filledQuantity = resData.execQty
+      //               findOrder.price = resData.price
+      //               findOrder.quantity = resData.quantity
+      //               findOrder.createdAt = resData.createdAt
+      //               findOrder.userSide = resData.userSide
+      //               findOrder.status = resData.status
+      //               findOrder.currentPrice = resData.marketId.last
+      //               findOrder.timeInForce = resData.timeInForce
+      //               findOrder.expiration = resData.expiration
+      //               findOrder.action = resData.action
+      //               return prev;
+      //           } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
+      //               const updatedMarket = {
+      //                 ...findMarket,
+      //                 orders: findMarket.orders?.filter(order => order._id !== resData._id) || [],
+      //               };
+      //               if(updatedMarket.orders.length === 0){
+      //                   return prev.filter(market => market.eventId !== resData.marketId.eventId._id)
+      //               }
+      //               const updatedData = prev.map(market => market.eventId === resData.marketId.eventId._id ? updatedMarket : market)
+      //               return updatedData
+      //           }
+      //       } else {
+      //           const newOrder = {
+      //               ...resData,
+      //               currentPrice: resData.marketId.last,
+      //               timeInForce: resData.timeInForce,
+      //               expiration: resData.expiration,
+      //               action: resData.action
+      //             };
+            
+      //             const updatedMarket = {
+      //               ...findMarket,
+      //               orders: [...findMarket.orders, newOrder],
+      //             };
+            
+      //             const updatedMarkets = [...prev];
+      //             updatedMarkets[marketIndex] = updatedMarket;
+            
+      //             return updatedMarkets;
+      //           // findMarket.orders.push(resData)
+      //           // return [...prev, findMarket]
+      //       }
+      //   } else {
+      //       let orderData = {
+      //           ...resData,
+      //           currentPrice: resData.marketId.last,
+      //           timeInForce: resData.timeInForce,
+      //           expiration: resData.expiration,
+      //           action: resData.action
+      //       }
+      //       const newMarket = {
+      //           eventId: resData.marketId.eventId._id,
+      //           eventSlug: resData.marketId.eventId.slug,
+      //           eventImage: resData.marketId.eventId.image,
+      //           eventTitle: resData.marketId.eventId.title, 
+      //           orders: [orderData]
+      //       }
+      //       console.log('newMarket of order-update', newMarket)
+      //       return [newMarket,...prev]
+      //   }
+      // })
+      // marketId
+      // positionHistory.some(pos => pos.marketId === resData.marketId._id)
     }
     socket.on("pos-update", handlePositions)
     return () => {
@@ -163,10 +236,10 @@ const Positions = () => {
                                         </div>
                                     </div>
                                     </td>
-                                    <td>${toFixedDown(data?.filled?.[0]?.price,1)}</td>
-                                    <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity)/100,2)}</td>
+                                    <td>{toFixedDown(data?.filled?.[0]?.price,1)}¢</td>
+                                    <td>{toFixedDown((data?.filled?.[0]?.price * data?.quantity)/100,2)}¢</td>
                                     <td>
-                                    ${data?.last || 0} <span className={data?.last > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({(((data?.last || data.filled?.[0]?.price) - data.filled?.[0]?.price)/data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
+                                    {data?.last || 0}¢ <span className={data?.last > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({(((data?.last || data.filled?.[0]?.price) - data.filled?.[0]?.price)/data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
                                     </td>
                                     <td>${data?.quantity?.toFixed(2)}</td>
                                     {/* <td>
