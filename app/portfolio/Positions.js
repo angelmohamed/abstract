@@ -128,6 +128,10 @@ const Positions = () => {
               ...positionData,
               quantity: resData.quantity,
               last: resData.marketLast,
+              filled: resData.filled,
+              price: resData.price,
+              last: resData.marketLast,
+              side: resData.side,
             }
             const updatedEvent = {
               ...prev[eventIndex],

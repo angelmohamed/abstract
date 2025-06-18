@@ -528,7 +528,7 @@ export default function PortfolioPage() {
   //   }
   //   // getUser();
   // }, []);
-  console.log(data,walletData, tokenAmt, usdConvt,isConnected,"datadatadata");
+  // console.log(data,walletData, tokenAmt, usdConvt,isConnected,"datadatadata");
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">

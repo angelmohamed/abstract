@@ -193,3 +193,15 @@ export const deleteComment = async (data:any) => {
     return handleResp(error, "error");
   }
 };
+
+export const getCurrentValue = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/current-value`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
