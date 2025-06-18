@@ -22,6 +22,7 @@ import { OpenOrderDialog } from "@/app/components/customComponents/OpenOrderDial
 import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 import { Footer } from "@/app/components/customComponents/Footer";
+import { Button } from "@/app/components/ui/button";
 
 export default function EventPage() {
   const param = useParams();
@@ -43,6 +44,7 @@ export default function EventPage() {
   const [openItem, setOpenItem] = useState("orderbook");
   const [openOrders, setOpenOrders] = useState([]);
   const [openOrderDialog, setOpenOrderDialog] = useState(false); 
+  const [showFullText, setShowFullText] = useState(false);
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -350,7 +352,7 @@ export default function EventPage() {
                         </>
                       )}
 
-                      <ExpandableTextView>
+                      {/* <ExpandableTextView>
                         <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
                           Rules
                         </h3>
@@ -358,7 +360,7 @@ export default function EventPage() {
                         <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
                           {events?.description}
                         </p>
-                        {/* <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
+                         <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
                           Resolver:{" "}
                           <Link
                             href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
@@ -367,8 +369,36 @@ export default function EventPage() {
                           >
                             {markets?.[selectedIndex]?.resolvedBy}
                           </Link>
-                        </p> */}
-                      </ExpandableTextView>
+                        </p> 
+                      </ExpandableTextView> */}
+                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                          Rules
+                        </h3>
+                        <SelectSeparator className="my-4" />
+                        <div className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
+                          {events?.description?.length > 250 ? (
+                             <div className="space-y-0">
+                                  <div
+                                    className={`line-clamp-5 transition-all duration-300 ${
+                                      showFullText ? "line-clamp-none" : ""
+                                    }`}
+                                  >
+                                    {showFullText ? events?.description : events?.description?.slice(0, 250) + "..."}
+                                  </div>
+                                  <div className="flex items-center justify-between">
+                                    <Button
+                                      variant="link"
+                                      onClick={() => setShowFullText(!showFullText)}
+                                      className="text-sm text-primary"
+                                    >
+                                      {showFullText ? "Show Less" : "Show More"}
+                                    </Button>
+                                  </div>
+                                </div>
+                          ) : (
+                             events?.description
+                          )}
+                        </div>
                     </div>
 
                     {/* 评论区 Comment Section */}

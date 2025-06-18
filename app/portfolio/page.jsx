@@ -62,6 +62,7 @@ import OpenOrders from "./OpenOrders"
 import Positions from "./Positions"
 import History from "./History"
 import { Footer } from "../components/customComponents/Footer";
+import { PnLFormatted } from "@/utils/helpers";
 
 let initialValue = {
   currency: "",
@@ -95,6 +96,10 @@ export default function PortfolioPage() {
     allowance: 0,
     usdConvt: 0,
   });
+  const [profitAmount, setProfitAmount] = useState(0);
+  const [interval, setInterval] = useState("max");
+  const [dateRange, setDateRange] = useState([null, null]);
+  const [startDate, endDate] = dateRange;
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -107,6 +112,10 @@ export default function PortfolioPage() {
 
   var { currency, amount, walletAddress } = depositData;
   var { minDeposit, tokenAmt, allowance, usdConvt } = tokenValue;
+
+  useEffect(() => {
+    setProfitAmount(walletData?.position);
+  }, [walletData ,interval]);
 
   // useEffect(() => {
   //   if (!wallet) return;
@@ -135,10 +144,6 @@ export default function PortfolioPage() {
     };
     fetchProfile();
   }, [wallet]);
-
-  const [interval, setInterval] = useState("all");
-  const [dateRange, setDateRange] = useState([null, null]);
-  const [startDate, endDate] = dateRange;
 
   const balanceData = async () => {
     try {
@@ -556,9 +561,8 @@ export default function PortfolioPage() {
                 <div className="flex flex-col items-left">
                   <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
                   <span className="mt-2 text-3xl font-semibold">
-                    $
                     {walletData?.balance
-                      ? formatNumber(walletData?.balance, 4)
+                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 4))
                       : 0}
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
@@ -566,8 +570,7 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
-                  $
-                  {walletData?.balance ? formatNumber(walletData?.balance, 4) : 0}
+                  {walletData?.balance ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 4)) : 0}
                 </Badge>
               </div>
               <div
@@ -1211,9 +1214,9 @@ export default function PortfolioPage() {
               <div className="flex items-start justify-between flex-wrap">
                 <div className="flex flex-col items-left">
                   <span className="text-sm text-gray-500 mt-1">PROFIT/LOSS</span>
-                  <span className="mt-2 text-3xl font-semibold">-$0.05</span>
+                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(profitAmount)}</span>
                   <span className="text-sm text-gray-500 mt-1">
-                    <span className="text-red-500">$0.00 (0.00%)</span> Today
+                    <span className={`${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>$0.00 (0.00%)</span> Today
                   </span>
                 </div>
                 <div className="justify-center items-center">

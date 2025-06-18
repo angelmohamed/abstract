@@ -132,7 +132,7 @@ export function TradingCard({
             </div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
-            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned ⓘ</h1>}
+            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned</h1>}
             <div className="pt-2">
               <Options
                 defaultValue={activeView}

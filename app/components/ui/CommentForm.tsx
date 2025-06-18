@@ -62,7 +62,7 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
 
   if (!signedIn) {
     return (
-      <div className="text-center my-4">
+      <div className="text-center my-4 min-h-12">
         <p className="text-sm text-gray-300 mb-2">
             You need to be logged in to comment.
         </p>

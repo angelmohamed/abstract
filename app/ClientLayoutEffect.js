@@ -17,7 +17,7 @@ export default function ClientLayoutEffect() {
           balance: result.balance,
           inOrder: result.inOrder,
           locked: result.locked,
-          position: result.position,
+          position: result.position/100,
         }));
       }
     } catch (error) {

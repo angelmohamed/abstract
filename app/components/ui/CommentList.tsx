@@ -72,7 +72,7 @@ const CommentList: React.FC<CommentListProps> = (props) => {
     }, [comments]);
 
     return (
-        <div className="space-y-1">
+        <div className="space-y-1 mb-4">
             {displayedComments.map((comment: any, index: number) => {
                 const isLast = index === displayedComments.length - 1;
 
