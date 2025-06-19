@@ -81,7 +81,7 @@ export default function EventPage() {
 
     const handleOrderbook = (result) => {
       const orderbook = JSON.parse(result);
-      console.log("socket: orderbook result", orderbook);
+      // console.log("socket: orderbook result", orderbook);
       setBooks(prev => 
         prev.map(item => 
           item.marketId === orderbook.marketId
@@ -199,7 +199,7 @@ export default function EventPage() {
                     <Chart
                       id={id}
                       title={events?.title}
-                      volume={events?.volume}
+                      volume={markets?.reduce((acc, market) => acc + (market.volume || 0), 0) || 0}
                       image={events?.image || "/images/logo.png"}
                       endDate={events?.endDate}
                       market={markets}

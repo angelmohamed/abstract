@@ -97,7 +97,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                       event.marketId[0]?.last
                     }
 
-                    totalPool={`$${(event.volume ? event.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
+                    totalPool={`$${(event.marketId?.[0]?.volume ? event.marketId[0].volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
                     yesButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[0]?.title || "Yes"}`}
                     noButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[1]?.title || "No"}`}
                     yesPotential={
@@ -116,7 +116,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                   <MultipleOptionCard
                     imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
-                    totalPool={`$${(event.volume ? event.volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
+                    totalPool={`$${(event.marketId ? event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
                     options={event?.marketId}
                   />
                 </Link>
@@ -124,7 +124,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
             </div>
           ))}
       </div>
-      {events && events.length === 0 &&
+      {!loading && events && events.length === 0 &&
         <div className="text-center text-gray-500">No events found</div>
       }
       {

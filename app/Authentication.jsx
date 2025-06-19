@@ -494,7 +494,7 @@ export default function Authentication() {
     };
   }, [address]);
 
-  console.log(address, "addresss")
+  // console.log(address, "addresss")
   return (
     <>
       {/* {signedIn && (

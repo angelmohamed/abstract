@@ -60,7 +60,7 @@ export const getPositions = async () => {
 export const getTradeHistory = async (data:any) => {
   try {
     let respData = await axios({
-      url: `${config.backendURL}/api/v1/user/trade-history/user/${data?.id}`,
+      url: `${config.backendURL}/api/v1/user/trade-history/user/${data?.id}?page=${data.page}&limit=${data.limit}`,
       method: "get",
     });
     return handleResp(respData, "success");
@@ -150,7 +150,6 @@ export const getPositionsByEvtId = async (data:any) => {
       url: `${config.backendURL}/api/v1/user/positions/event/${data?.id}`,
       method: "get",
     });
-    console.log("respData of position", respData);
     return handleResp(respData, "success");
   } catch (error: any) {
     return handleResp(error, "positionerror");

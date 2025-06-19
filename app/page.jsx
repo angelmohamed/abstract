@@ -26,7 +26,7 @@ const InfoCards = () => {
   const fetchInfoCards = async () => {
     try {
       const { success, result } = await getInfoCards();
-      console.log(result, "result info cards");
+      // console.log(result, "result info cards");
       if (success) {
         setCards(result);
       }

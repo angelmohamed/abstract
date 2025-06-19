@@ -463,11 +463,12 @@ const Chart: React.FC<ChartProps> = ({
                                             key={asset.asset}
                                             type="natural"
                                             dataKey={asset.asset}
-                                            name={asset.label + (
-                                                multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label) ? 
-                                                " " + multiDisplayChance.find((item: any) => item.label === asset.label)?.last + "%" 
-                                                : " " + displayChance?.toFixed(1) + "%")}
-                                            stroke={asset.color} // Use different colors for each line
+                                            name={`${asset.label} ${
+                                                multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
+                                                ? multiDisplayChance.find((item: any) => item.label === asset.label)?.last + "%"
+                                                : (displayChance !== undefined ? displayChance.toFixed(1) + "%" : "")
+                                            }`}
+                                            stroke={asset.color}
                                             strokeWidth={2}
                                             dot={false}
                                             label={false}
