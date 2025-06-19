@@ -90,11 +90,25 @@ export default function EventPage() {
         )
       );
     };
+
+    const handleRecentTrade = (result) => {
+      const recentTrade = JSON.parse(result);
+      // console.log("socket: recent trades result", recentTrade);
+      setMarkets(prev => 
+        prev.map(item => 
+          item._id === recentTrade.market 
+            ? { ...item, last: recentTrade.side == 'no' ? (100 - recentTrade.p) : recentTrade.p } 
+            : item
+        )
+      );
+    };
     
     socket.on("orderbook", handleOrderbook);
+    socket.on("recent-trade", handleRecentTrade)
 
     return () => {
       socket.off("orderbook");
+      socket.off("recent-trade");
     };
   
   }, [socketContext?.socket]);

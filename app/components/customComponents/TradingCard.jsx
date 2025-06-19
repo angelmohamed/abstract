@@ -83,14 +83,19 @@ export function TradingCard({
     if (!socket) return
     const handlePositions = (result) => {
       const resData = JSON.parse(result)
-      setPositions((prev) => {
-        return {
-          ...prev,
-          filled: resData?.filled,
-          quantity: resData?.quantity,
-          side: resData?.side,
-        }
-      })
+      // console.log("Received position update:", resData)
+      if(resData?.quantity == 0) {
+        setPositions({})
+      }else {
+        setPositions((prev) => {
+          return {
+            ...prev,
+            filled: resData?.filled,
+            quantity: resData?.quantity,
+            side: resData?.side,
+          }
+        })
+      }
       
     }
     socket.on("pos-update", handlePositions)

@@ -123,7 +123,20 @@ const Positions = () => {
             }
             return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)]
           } else{
-            let positionIndex = prev[eventIndex].positions.findIndex(position => position._id === resData._id)
+            // let positionIndex = prev[eventIndex].positions.findIndex(position => position._id === resData._id)
+            if (resData.quantity === 0) {
+              const filteredPositions = prev[eventIndex].positions.filter(p => p._id !== resData._id);
+              if (filteredPositions.length === 0) {
+                return [...prev.slice(0, eventIndex), ...prev.slice(eventIndex + 1)];
+              } else {
+                const updatedEvent = {
+                  ...prev[eventIndex],
+                  positions: filteredPositions
+                };
+                return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)];
+              }
+            }
+
             const updatedPosition = {
               ...positionData,
               quantity: resData.quantity,
