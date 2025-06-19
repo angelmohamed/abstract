@@ -19,7 +19,7 @@ if (isClient) {
 		version: 1,
 		storage,
 		stateReconciler: autoMergeLevel1,
-		whitelist: ["auth","wallet"],
+		whitelist: ["auth","wallet","walletconnect"],
 		debug: true,
 		// transforms: [
 		// 	encryptTransform({

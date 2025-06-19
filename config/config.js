@@ -4,11 +4,15 @@ var key = {};
     frontUrl: "https://sonotrade-frontend-2025.pages.dev",
     backendURL: "https://sonotradesdemo.wearedev.team",
     txLink: "https://amoy.polygonscan.com/",
-    rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
     getLoginInfo: "https://freeipapi.com/api/json",
-    chainId: 80002,
-    chaincode: "amoy",
-    txurl: "https://testnet.bscscan.com",
+    // rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
+    // chainId: 80002,
+    // chaincode: "amoy",
+    // txurl: "https://testnet.bscscan.com",
+    txUrl: "https://solscan.io/tx/",
+    networkType: "devnet",
+    network: "solana",
+    rpcUrl: "https://api.devnet.solana.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
     clientId: "787150198264-2mkh4meu0m9phtb4m65f7bdre82kuibl.apps.googleusercontent.com"
@@ -18,14 +22,22 @@ var key = {};
     frontUrl: "http://localhost:3000",
     backendURL: "http://localhost:3001",
     txLink: "https://amoy.polygonscan.com/",
-    rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
     getLoginInfo: "https://freeipapi.com/api/json",
-    chainId: 80002,
-    chaincode: "amoy",
-    txurl: "https://testnet.bscscan.com",
+    // rpcUrl: "https://polygon-amoy-bor-rpc.publicnode.com",
+    // chainId: 80002,
+    // chaincode: "amoy",
+    // txurl: "https://testnet.bscscan.com",
+    txUrl: "https://solscan.io/tx/",
+    networkType: "devnet",
+    network: "solana",
+    rpcUrl: "https://api.devnet.solana.com",
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
     clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com"
   };
 }
 export default key;
+
+
+
+

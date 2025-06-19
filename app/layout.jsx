@@ -41,8 +41,8 @@ export default function RootLayout({ children }) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>
           <SnackbarClient>
-         <ClientLayoutEffect />
-            <WalletProvider>{children}</WalletProvider>
+           <ClientLayoutEffect />
+           <WalletProvider>{children}</WalletProvider>
           </SnackbarClient>
         </StoreProvider>
         <ToastContainer />
