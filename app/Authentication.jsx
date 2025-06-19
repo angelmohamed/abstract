@@ -38,6 +38,7 @@ import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import local from "next/font/local/index.js";
 import { availableBalance } from "@/lib/utils.js";
 import { Connection, PublicKey } from '@solana/web3.js';
+import { PnLFormatted } from "@/utils/helpers.js";
 
 let initialData = {
   otp: "",
@@ -79,8 +80,6 @@ export default function Authentication() {
     const resetData = { ...userData, [name]: value };
     delete error[name];
     setUserData(resetData);
-    let errMsg = regInputValidate(resetData, name);
-    setError({ ...error, ...errMsg });
   };
 
   // navigation handlers
@@ -413,7 +412,7 @@ export default function Authentication() {
           className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
           onClick={() => navigateToPortfolioPage()}
         >
-          <div className="text-l text-[#33ff4c]">${availableBalance(walletData)}</div>
+          <div className="text-l text-[#33ff4c]">{PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2))}</div>
           <div className="text-xs text-grey">Portfolio</div>
         </button>
       )}
@@ -821,7 +820,7 @@ export default function Authentication() {
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
                 <img
-                  src={data?.profileImg ? data?.profileImg : "/images/Ye.png"}
+                  src={data?.profileImg ? data?.profileImg : "/images/default_user.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}
@@ -835,7 +834,7 @@ export default function Authentication() {
                 <DropdownMenu.Content className="profile_menu" sideOffset={5}>
                   <div className="flex items-center space-x-3">
                     <img
-                      src={data?.profileImg ? data?.profileImg : "/images/Ye.png"}
+                      src={data?.profileImg ? data?.profileImg : "/images/default_user.png"}
                       alt="Profile Icon"
                       width={40}
                       height={40}

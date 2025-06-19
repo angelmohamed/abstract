@@ -116,3 +116,8 @@ export const getAccumalativeValueReverse = (arr, length) => {
   }
   return total;
 };
+
+export const PnLFormatted = (pnl) => {
+  return pnl >= 0 ? `$${pnl}` : `-$${pnl*-1}`;
+};
+

@@ -18,6 +18,7 @@ import { HistoryIcon, ShareIcon, X } from 'lucide-react'
 import { momentFormat } from '../helper/date'
 import { TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { SocketContext } from '@/config/socketConnectivity'
+import { isEmpty } from '@/lib/isEmpty'
 
 const Positions = () => {
   const [positionHistory, setPositionHistory] = useState([])
@@ -73,79 +74,78 @@ const Positions = () => {
     if (!socket) return
     const handlePositions = (result) => {
       const resData = JSON.parse(result)
-      console.log("resData of pos-update", resData);
-      getUserPositionHistory()
-      // setPositionHistory(prev => {
-      //   const findMarket = prev.find(market => market.eventId === resData.marketId.eventId._id)
-      //   const marketIndex = prev.findIndex(market => market.eventId === resData.marketId.eventId._id);
-      //   if(findMarket){
-      //       const findOrder = findMarket.orders.find(order => order._id === resData._id)
-      //       if(findOrder){
-      //           if (["open", "pending"].includes(resData.status)) {
-      //               findOrder.filledQuantity = resData.execQty
-      //               findOrder.price = resData.price
-      //               findOrder.quantity = resData.quantity
-      //               findOrder.createdAt = resData.createdAt
-      //               findOrder.userSide = resData.userSide
-      //               findOrder.status = resData.status
-      //               findOrder.currentPrice = resData.marketId.last
-      //               findOrder.timeInForce = resData.timeInForce
-      //               findOrder.expiration = resData.expiration
-      //               findOrder.action = resData.action
-      //               return prev;
-      //           } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
-      //               const updatedMarket = {
-      //                 ...findMarket,
-      //                 orders: findMarket.orders?.filter(order => order._id !== resData._id) || [],
-      //               };
-      //               if(updatedMarket.orders.length === 0){
-      //                   return prev.filter(market => market.eventId !== resData.marketId.eventId._id)
-      //               }
-      //               const updatedData = prev.map(market => market.eventId === resData.marketId.eventId._id ? updatedMarket : market)
-      //               return updatedData
-      //           }
-      //       } else {
-      //           const newOrder = {
-      //               ...resData,
-      //               currentPrice: resData.marketId.last,
-      //               timeInForce: resData.timeInForce,
-      //               expiration: resData.expiration,
-      //               action: resData.action
-      //             };
-            
-      //             const updatedMarket = {
-      //               ...findMarket,
-      //               orders: [...findMarket.orders, newOrder],
-      //             };
-            
-      //             const updatedMarkets = [...prev];
-      //             updatedMarkets[marketIndex] = updatedMarket;
-            
-      //             return updatedMarkets;
-      //           // findMarket.orders.push(resData)
-      //           // return [...prev, findMarket]
-      //       }
-      //   } else {
-      //       let orderData = {
-      //           ...resData,
-      //           currentPrice: resData.marketId.last,
-      //           timeInForce: resData.timeInForce,
-      //           expiration: resData.expiration,
-      //           action: resData.action
-      //       }
-      //       const newMarket = {
-      //           eventId: resData.marketId.eventId._id,
-      //           eventSlug: resData.marketId.eventId.slug,
-      //           eventImage: resData.marketId.eventId.image,
-      //           eventTitle: resData.marketId.eventId.title, 
-      //           orders: [orderData]
-      //       }
-      //       console.log('newMarket of order-update', newMarket)
-      //       return [newMarket,...prev]
-      //   }
-      // })
-      // marketId
-      // positionHistory.some(pos => pos.marketId === resData.marketId._id)
+      // console.log("resData of pos-update", resData);
+      // getUserPositionHistory()
+      // event data - id image title slug
+      // market id - grouptitle last bid
+      // position data - side quantity filled price
+
+
+
+      setPositionHistory(prev => {
+        const eventIndex = prev.findIndex(event => event._id === resData.eventId)
+        if(eventIndex == -1){
+          const newEvent = {
+            _id: resData.eventId,
+            eventTitle: resData.eventTitle,
+            eventImage: resData.eventImage,
+            eventSlug: resData.eventSlug,
+            positions: [{
+              _id: resData._id,
+              // userId: resData.userId,
+              marketId: resData.marketId,
+              marketGroupTitle: resData.marketGroupTitle,
+              outcomes: resData.marketOutcomes,
+              // createdAt: "$createdAt",
+              side: resData.side,
+              filled: resData.filled,
+              quantity: resData.quantity,
+              last: resData.marketLast,
+            }]
+          }
+          return [newEvent, ...prev]
+        }else{
+          const positionData = prev[eventIndex].positions.find(position => position._id === resData._id);
+          if(isEmpty(positionData)){
+            const newPosition = {
+              _id: resData._id,
+              marketId: resData.marketId,
+              marketGroupTitle: resData.marketGroupTitle,
+              outcomes: resData.marketOutcomes,
+              side: resData.side,
+              filled: resData.filled,
+              quantity: resData.quantity,
+              last: resData.marketLast,
+            }
+            const updatedEvent = {
+              ...prev[eventIndex],
+              positions: [...prev[eventIndex].positions, newPosition]
+            }
+            return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)]
+          } else{
+            let positionIndex = prev[eventIndex].positions.findIndex(position => position._id === resData._id)
+            const updatedPosition = {
+              ...positionData,
+              quantity: resData.quantity,
+              last: resData.marketLast,
+              filled: resData.filled,
+              price: resData.price,
+              last: resData.marketLast,
+              side: resData.side,
+            }
+            const updatedEvent = {
+              ...prev[eventIndex],
+              positions: [...prev[eventIndex].positions.filter(position => position._id !== resData._id), updatedPosition]
+            }
+            return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)]
+            // positionData.quantity = resData.quantity
+            // positionData.last = resData.marketLast
+            // positionData.side = resData.side
+            // positionData.filled = resData.filled
+            // return prev
+          }
+        }
+      })
     }
     socket.on("pos-update", handlePositions)
     return () => {
@@ -239,7 +239,7 @@ const Positions = () => {
                                     <td>{toFixedDown(data?.filled?.[0]?.price,1)}¢</td>
                                     <td>{toFixedDown((data?.filled?.[0]?.price * data?.quantity)/100,2)}¢</td>
                                     <td>
-                                    {data?.last || 0}¢ <span className={data?.last > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({(((data?.last || data.filled?.[0]?.price) - data.filled?.[0]?.price)/data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
+                                    {data.side == "no" ? (100 - data?.last) : data?.last }¢ <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price)/data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
                                     </td>
                                     <td>${data?.quantity?.toFixed(2)}</td>
                                     {/* <td>
@@ -357,8 +357,8 @@ const Positions = () => {
                   {tradeHistory?.map((item, index) => (
                     <tr key={index}>
                       <td style={{textTransform:"capitalize"}} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side} ({item.type} at {item.price}¢)</td>
-                      <td>{item.price}</td>
-                      <td>{item.quantity}</td>
+                      <td>{item.price}¢</td>
+                      <td>{toFixedDown(item.quantity,2)}</td>
                       <td>${toFixedDown((item.price * item.quantity)/100,2)}</td>
                       <td>{momentFormat(item.createdAt,"DD/MM/YYYY HH:mm")}</td>
                     </tr>

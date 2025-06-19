@@ -17,6 +17,7 @@ import { toFixedDown } from "@/lib/roundOf";
 import { getOpenOrdersByEvtId } from "@/services/user";
 import { OpenOrderDialog } from "../customComponents/OpenOrderDialog";
 import { SocketContext } from "@/config/socketConnectivity";
+import store from "@/store";
 
 interface OrderBookItem {
   price: string;
@@ -147,6 +148,7 @@ const OrderbookAccordionContent = React.forwardRef<
     const [openOrderDialog, setOpenOrderDialog] = useState<boolean>(false);
     const [selectedOpenOrder, setSelectedOpenOrder] = useState<any>(null);
     const socketContext = useContext(SocketContext);
+    const { user } = store.getState().auth;
     const calcSpread = React.useCallback((bids: any[][] = [], asks: any[][] = []): string => {
       const b = bids.map((b) => parseFloat(b[0])).filter((n) => !isNaN(n));
       const a = asks.map((a) => parseFloat(a[0])).filter((n) => !isNaN(n));
@@ -231,7 +233,7 @@ const OrderbookAccordionContent = React.forwardRef<
           if(orderIndex != -1) {
             let newOpenOrders = [...openOrders];
             newOpenOrders.splice(orderIndex, 1);
-            setOpenOrders(newOpenOrders);
+            // setOpenOrders(newOpenOrders);
             let selOpenOrderData = selectedOpenOrder.filter((order: any) => order._id != orderId);
             if(selOpenOrderData.length > 0) {
               setSelectedOpenOrder(selOpenOrderData)
@@ -250,9 +252,50 @@ const OrderbookAccordionContent = React.forwardRef<
       if (!socket) return;
   
       const handleOpenOrders = (result: any) => {
-        getOpenOrders();
-      };
-      
+        const resData = JSON.parse(result);
+        // price quantity side eventid marketid groupItemTitle userSide action price execQty timeInForce createdAt _id
+        if (resData.marketId._id !== selectedMarket?._id) return;
+        // if(resData.userId !== user?._id) return;
+        setOpenOrders((prev: any) => {
+              const findOrder = prev.find(order => order._id === resData._id)
+              if(findOrder){ 
+                  if (["open", "pending"].includes(resData.status)) {
+                    findOrder.price = resData.price
+                    findOrder.quantity = resData.quantity
+                    findOrder.execQty = resData.execQty
+                    findOrder.side = resData.side
+                    findOrder.createdAt = resData.createdAt
+                    findOrder.action = resData.action
+                    findOrder.userSide = resData.userSide
+                    findOrder.timeInForce = resData.timeInForce
+                    // findOrder.status = resData.status
+                    return prev;
+                  } else if (["completed", "cancelled", "expired"].includes(resData.status)) {
+                      let updatedOpenOrders = prev.filter(order => order._id !== resData._id)
+                      return updatedOpenOrders
+                  }
+              } else {
+                  const newOrder = {
+                    _id: resData._id,
+                    price: resData.price,
+                    quantity: resData.quantity,
+                    execQty: resData.execQty,
+                    side: resData.side,
+                    createdAt: resData.createdAt,
+                    action: resData.action,
+                    userSide: resData.userSide,
+                    timeInForce: resData.timeInForce,
+                    marketId: {
+                      _id: resData.marketId._id,
+                      groupItemTitle: resData.marketId.groupItemTitle,
+                      last: resData.marketId.last
+                    }
+                  }
+                  return [newOrder, ...prev]
+              }
+        })
+      }
+
       socket.on("order-update", handleOpenOrders);
   
       return () => {
@@ -361,7 +404,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                     {openOrder?.length > 0 && (
                                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
                                         <Clock5 className="w-4 h-4" />
-                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + curr.quantity, 0), 2)}
+                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
                                       </div>
                                     )}
                                   </div>
@@ -443,7 +486,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                     {openOrder?.length > 0 && (
                                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
                                         <Clock5 className="w-4 h-4" />
-                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + curr.quantity, 0), 2)}
+                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
                                       </div>
                                     )}
                                   </div>
