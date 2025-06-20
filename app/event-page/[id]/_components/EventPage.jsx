@@ -498,7 +498,7 @@ export default function EventPage() {
           <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
         </div>
       </div>
-      {/* <Footer/> */}
+      <Footer/>
     </>
   );
 }
