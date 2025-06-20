@@ -139,3 +139,28 @@ export const getTagsByCategory = async (id: string) => {
     return handleResp(error, "error");
   }
 }
+
+
+export const getSeriesByEvent = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/events/series/event/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+}
+
+export const positionClaim = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/order/claim-position/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+}

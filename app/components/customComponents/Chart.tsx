@@ -22,9 +22,12 @@ import {
 import { toTwoDecimal } from "@/utils/helpers";
 import { HoverCard } from "radix-ui";
 import { CountdownTimerIcon } from "@radix-ui/react-icons";
-import { getPriceHistory } from "@/services/market";
+import { getPriceHistory, getSeriesByEvent } from "@/services/market";
 import { capitalize } from "@/lib/stringCase";
 import * as Popover from "@radix-ui/react-popover";
+import Link from "next/link";
+import { momentFormat } from "@/app/helper/date";
+import { useRouter } from "next/navigation";
 
 interface MarketData {
     clobTokenIds: string;
@@ -51,6 +54,7 @@ interface ChartProps {
     market: MarketData[];
     interval: string;
     chance?: number;
+    series?: any
 }
 
 const CustomTooltip: React.FC<CustomTooltipProps> = ({
@@ -85,6 +89,7 @@ const Chart: React.FC<ChartProps> = ({
     market,
     interval,
     chance,
+    series
 }) => {
     const [chartDataYes, setChartDataYes] = useState<ChartDataPoint[]>([]);
     const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
@@ -92,6 +97,8 @@ const Chart: React.FC<ChartProps> = ({
     const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
     const [chartConfig, setChartConfig] = useState<any>([]);
     const [assetKeys, setAssetKeys] = useState<any>([]);
+    const [seriesData, setSeriesData] = useState<any>([])
+    const route = useRouter()
 
     const [hoveredChance, setHoveredChance] = useState<number | undefined>(
         undefined
@@ -107,18 +114,22 @@ const Chart: React.FC<ChartProps> = ({
         "hsl(var(--chart-2))",
         "hsl(var(--chart-3))",
         "hsl(var(--chart-4))",
+        "hsl(var(--chart-5))",
         "hsl(var(--chart-1))",
         "hsl(var(--chart-2))",
         "hsl(var(--chart-3))",
         "hsl(var(--chart-4))",
+        "hsl(var(--chart-5))",
         "hsl(var(--chart-1))",
         "hsl(var(--chart-2))",
         "hsl(var(--chart-3))",
         "hsl(var(--chart-4))",
+        "hsl(var(--chart-5))",
         "hsl(var(--chart-1))",
         "hsl(var(--chart-2))",
         "hsl(var(--chart-3))",
         "hsl(var(--chart-4))",
+        "hsl(var(--chart-5))",
     ]
     
     // Update screen width on resize
@@ -238,6 +249,25 @@ const Chart: React.FC<ChartProps> = ({
         fetchData();
     }, [market, interval, selectedYes]);
 
+    const getSeriesData = async(id:any)=>{
+        try{
+
+            let { success,result } = await getSeriesByEvent(id)
+            if(success){
+                setSeriesData(result)
+            }
+        }catch(err){
+            console.log('error',err)
+        }
+    }
+    useEffect(()=>{
+        if(series?.slug){
+            getSeriesData(series?.slug)
+        }else{
+            setSeriesData([])
+        }
+    },[series,id])
+
     // Calculate the current displayed chance value and color
     const displayChance =
         hoveredChance !== undefined
@@ -354,11 +384,37 @@ const Chart: React.FC<ChartProps> = ({
                                     <ul className="history_card_list">
                                     <li>Ended: May 7, 2025</li>
                                     <li>Ended: March 19, 2025</li>
+                                    {seriesData?.length > 0 && (
+                                        seriesData
+                                            .filter((series) => series.status !== "active")
+                                            .map((event) => (
+                                                <li key={event?.slug} onClick={()=>route.push(`/event-page/${event.slug}`)}>
+                                                    {/* <Link href={`/event-page/${event.slug}`}> */}
+                                                        {momentFormat(event.endDate,"D MMM YYYY, h:mm A")}
+                                                    {/* </Link> */}
+                                                </li>
+                                            ))
+                                        )}
                                     </ul>
                                     <Popover.Arrow className="HoverCardArrow" />
                                 </Popover.Content>
                             </Popover.Root>
-                            <Button
+                            {seriesData?.length > 0 && (
+                                seriesData
+                                    .filter((series) => series.status === "active")
+                                    .map((event) => (
+                                    <div
+                                        key={event.slug} 
+                                        // href={`/event-page/${event.slug}`}
+                                        onClick={()=>route.push(`/event-page/${event.slug}`)}
+                                        className="w-[90px] rounded-full bg-transparent border border-[#262626] text-white hover:bg-[#262626] hover:text-white active:bg-[#262626] active:text-white text-center px-2 py-1 block text-sm"
+                                    >
+                                        {momentFormat(event?.endDate,"D MMM")}
+                                    </div>
+                                ))
+                            )}
+
+                            {/* <Button
                                 // className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]"
                                 className={`w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] ${activeDate === "Jun 18"
                                         ? "bg-[#fff] text-[#262626] border-[#262626]"
@@ -370,7 +426,7 @@ const Chart: React.FC<ChartProps> = ({
                             </Button>
                             <Button className="w-[90px] rounded-full bg-[transparent] border border-[#262626] text-[#fff] hover:bg-[#262626] hover:text-[#fff] active:bg-[#262626] active:text-[#fff]">
                                 Jul 30
-                            </Button>
+                            </Button> */}
                         </div>
                     </CardDescription>
                 </CardHeader>

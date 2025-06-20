@@ -39,6 +39,7 @@ export function TradingCard({
   activeView,
   setActiveView,
   selectedOrderBookData,
+  status
 }) {
   const onTabChange = (value) => {
     setActiveView(value);
@@ -181,6 +182,7 @@ export function TradingCard({
                     activeView={activeView}
                     marketId={market?._id}
                     buyorsell={tab}
+                    status={status}
                   />
                 )}
 
@@ -189,6 +191,7 @@ export function TradingCard({
                     activeView={activeView}
                     marketId={market?._id}
                     buyorsell={tab}
+                    status={status}
                   />
                 )}
               </Options>
