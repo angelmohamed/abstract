@@ -53,7 +53,7 @@ export default function Authentication() {
   const { signedIn } = useSelector((state) => state.auth?.session);
   const data = useSelector(state => state?.auth?.user);
   const walletData = useSelector((state) => state?.wallet?.data);
-  const { isConnected,address,balance} = useSelector((state) => state?.walletconnect?.walletconnect);
+  const { isConnected, address, balance } = useSelector((state) => state?.walletconnect?.walletconnect);
 
   const [open, setOpen] = useState(false);
   const [loader, setloader] = useState(false);
@@ -99,6 +99,19 @@ export default function Authentication() {
         }
         const response = await window.solana.connect({ onlyIfTrusted: false });
 
+        const message = 
+        `Welcome to SonoTrade! - Sign to connect 
+
+        URI : ${window.location.origin} 
+        Network : ${config.networkType}
+        Solana Account: ${response.publicKey.toString()}`
+        const encodedMessage = new TextEncoder().encode(message);
+
+
+        const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
+
+        console.log("Signature:", signedMessage);
+
         const connection = new Connection(config?.rpcUrl);
 
         const publicKey = new PublicKey(response.publicKey.toString());
@@ -125,7 +138,7 @@ export default function Authentication() {
         }
         dispatch(
           setWalletConnect({
-            isConnected:false,
+            isConnected: false,
             address: "",
             network: "",
             type: "",
@@ -133,6 +146,8 @@ export default function Authentication() {
             balance: 0
           }));
         toastAlert("error", "Failed to connect wallet", "wallet");
+        setIsConnect(true);
+        setOpen(false);
       }
     } else {
       toastAlert("error", "Phantom wallet extension is not installed", "error");
@@ -144,7 +159,7 @@ export default function Authentication() {
       window.solana.disconnect();
       dispatch(
         setWalletConnect({
-          isConnected:false,
+          isConnected: false,
           address: "",
           network: "",
           type: "",
@@ -153,7 +168,7 @@ export default function Authentication() {
         }));
     }
   }
-  
+
   const getUserLogindetails = async () => {
     try {
       let result = await getLocation();
@@ -361,17 +376,17 @@ export default function Authentication() {
   useEffect(() => {
     const handlePhantomAccountChanged = async (newPublicKey) => {
       console.log("Phantom account changed:", newPublicKey);
-  
+
       if (!newPublicKey || typeof newPublicKey.toString !== "function") {
         console.log("Phantom wallet disconnected or invalid publicKey.");
         return;
       }
-  
+
       const newAddress = newPublicKey.toString().toLowerCase();
       const savedAddress = data?.walletAddress?.toLowerCase();
-  
+
       if (newAddress === savedAddress || isEmpty(savedAddress)) return;
-  
+
       if (isConnected) {
         disconnectWallet(); // custom logout function
         document.cookie = "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
@@ -382,17 +397,17 @@ export default function Authentication() {
           `Logged out: please reconnect with your wallet address${data?.walletAddress}`,
           "logout"
         );
-  
+
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);
       }
     };
-  
+
     if (window.solana?.isPhantom) {
       window.solana.on("accountChanged", handlePhantomAccountChanged);
     }
-  
+
     return () => {
       if (window.solana?.isPhantom) {
         window.solana.removeListener("accountChanged", handlePhantomAccountChanged);
@@ -401,7 +416,7 @@ export default function Authentication() {
   }, [address, isConnected, data?.walletAddress]);
 
 
-  console.log(address,balance, "addresss")
+  console.log(address, balance, "addresss")
   return (
     <>
       {/* {signedIn && (
