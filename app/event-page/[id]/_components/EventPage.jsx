@@ -2,7 +2,7 @@
 import "@/app/globals.css";
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useContext } from "react";
-import { ClockIcon, Loader } from "lucide-react";
+import { CheckCircle, ClockIcon, Loader, XCircle } from "lucide-react";
 import { Accordion, AccordionItem, AccordionTrigger } from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
 import Chart from "@/app/components/customComponents/Chart";
@@ -23,6 +23,7 @@ import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
 import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 import { Footer } from "@/app/components/customComponents/Footer";
 import { Button } from "@/app/components/ui/button";
+import ResolutionCard from "@/app/components/customComponents/ResolutionCard";
 
 export default function EventPage() {
   const param = useParams();
@@ -81,7 +82,7 @@ export default function EventPage() {
 
     const handleOrderbook = (result) => {
       const orderbook = JSON.parse(result);
-      console.log("socket: orderbook result", orderbook);
+      // console.log("socket: orderbook result", orderbook);
       setBooks(prev => 
         prev.map(item => 
           item.marketId === orderbook.marketId
@@ -90,11 +91,25 @@ export default function EventPage() {
         )
       );
     };
+
+    const handleRecentTrade = (result) => {
+      const recentTrade = JSON.parse(result);
+      // console.log("socket: recent trades result", recentTrade);
+      setMarkets(prev => 
+        prev.map(item => 
+          item._id === recentTrade.market 
+            ? { ...item, last: recentTrade.side == 'no' ? (100 - recentTrade.p) : recentTrade.p } 
+            : item
+        )
+      );
+    };
     
     socket.on("orderbook", handleOrderbook);
+    socket.on("recent-trade", handleRecentTrade)
 
     return () => {
       socket.off("orderbook");
+      socket.off("recent-trade");
     };
   
   }, [socketContext?.socket]);
@@ -117,7 +132,7 @@ export default function EventPage() {
           setEvents(result);
           if (result?.marketId && result?.marketId.length > 0) {
             setMarkets(
-              result.marketId.filter((market) => market.status === "active")
+              result.marketId.filter((market) => ["active", "closed", "resolved"].includes(market.status))
             );
           }
         }
@@ -199,12 +214,13 @@ export default function EventPage() {
                     <Chart
                       id={id}
                       title={events?.title}
-                      volume={events?.volume}
+                      volume={markets?.reduce((acc, market) => acc + (market.volume || 0), 0) || 0}
                       image={events?.image || "/images/logo.png"}
                       endDate={events?.endDate}
                       market={markets}
                       interval={interval}
                       chance={markets[0]?.last}
+                      series={events?.seriesId}
                     />
                     {/* {markets.length < 2 ? (
                       <SingleLineChart
@@ -247,7 +263,8 @@ export default function EventPage() {
                     </div>
 
                     <div>
-                      {markets?.length < 2 && books ? (
+                      {events?.status == "resolved" && <hr className="mt-4"/>}
+                      {markets?.length < 2 && books && events?.status != "resolved"  ? (
                         <OrderbookAccordion
                           type="single"
                           value={openItem}
@@ -279,6 +296,7 @@ export default function EventPage() {
                               setSelectedIndex={setSelectedIndex}
                               index={0}
                               selectedMarket={markets[0]}
+                              // isResolved={events?.isResolved}
                             />
                           </OrderbookAccordionItem>
                         </OrderbookAccordion>
@@ -287,8 +305,9 @@ export default function EventPage() {
                           <Accordion type="single" collapsible>
                             {markets &&
                               markets?.length > 0 &&
+                              events?.status != "resolved" &&
                               markets
-                                .filter((market) => market.status === "active")
+                                // .filter((market) => market.status === "active")
                                 ?.map((market, index) => (
                                   <AccordionItem
                                     value={`market-${index + 1}`}
@@ -345,11 +364,44 @@ export default function EventPage() {
                                       setSelectedIndex={setSelectedIndex}
                                       index={index}
                                       selectedMarket={market}
+                                      // isResolved={events?.isResolved}
                                     />
                                   </AccordionItem>
                                 ))}
                           </Accordion>
                         </>
+                      )}
+
+                      {events?.status == 'resolved' && markets.length >= 2 && (
+                        markets.map(((market,index) => (
+                          <>
+                            <div
+                              onClick={() => setSelectedIndex(index)}
+                              className="flex justify-between items-center px-4 py-3 border-b border-[#2a2a2a] hover:bg-[#1d1d1d] cursor-pointer"
+                            >
+                              <div>
+                                <h3 className="text-[15px] sm:text-[16px] font-bold text-white flex items-center gap-2">
+                                  {market.groupItemTitle}
+                                </h3>
+                                <p className="text-gray-400 text-sm">${Number(market.volume).toLocaleString()} Vol.</p>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <p
+                                  className={`text-sm font-semibold ${
+                                    events.outcomeId === market._id ? "text-green-500" : "text-red-500"
+                                  }`}
+                                >
+                                  {events.outcomeId === market._id ? "Yes" : "No"}
+                                </p>
+                                {events.outcomeId === market._id ? (
+                                  <CheckCircle className="w-5 h-5 text-green-500" strokeWidth={2.5} />
+                                ) : (
+                                  <XCircle className="w-5 h-5 text-red-500" strokeWidth={2.5} />
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        )))
                       )}
 
                       {/* <ExpandableTextView>
@@ -371,7 +423,7 @@ export default function EventPage() {
                           </Link>
                         </p> 
                       </ExpandableTextView> */}
-                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                        <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
                           Rules
                         </h3>
                         <SelectSeparator className="my-4" />
@@ -399,6 +451,19 @@ export default function EventPage() {
                              events?.description
                           )}
                         </div>
+                       
+                        {events?.status === "closed" && (
+                          <div className="flex items-start gap-3 p-4 rounded-md border border-red-500 bg-[#2a1414] text-red-300">
+                            {/* <XCircle className="w-5 h-5 mt-0.5 text-red-400" /> */}
+                            <div>
+                              <p className=" font-semibold">Market Closed</p>
+                              <p className="text-sm text-red-400">
+                                This market has ended and is awaiting resolution. Final outcome will be announced soon.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                     </div>
 
                     {/* 评论区 Comment Section */}
@@ -408,13 +473,21 @@ export default function EventPage() {
                   </div>
 
                   {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
-                  <div className="hidden lg:block lg:w-[30%] relative">
-                    <div className="fixed top-[135px] z-60 w-[25%]">
+                  {events?.status == "resolved" ? (
+                    <div className="hidden lg:block lg:w-[15%] relative">
+                    <div className="fixed top-[135px] z-60 w-[15%]">           
+                      <ResolutionCard  outcome={events?.outcome} outcomeId={events?.outcomeId} eventType={markets?.length > 1 ? "Multiple Choice" : "Binary"} market={markets[selectedIndex]}/>
+                    </div>
+                  </div>
+                  ) : (
+                    <div className="hidden lg:block lg:w-[30%] relative">
+                    <div className="fixed top-[135px] z-60 w-[30%]">
                       <TradingCard
                         activeView={activeView}
                         setActiveView={setActiveView}
                         selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
                         market={markets[selectedIndex]}
+                        status={events?.status}
                       />
 
                       {/* Spotify Embed */}
@@ -431,6 +504,8 @@ export default function EventPage() {
                       </div> */}
                     </div>
                   </div>
+                  )}
+                  
                 </div>
               </div>
 
@@ -442,7 +517,11 @@ export default function EventPage() {
                     onClick={() => setIsDrawerOpen(false)}
                   ></div>
                 )}
-                <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                {events?.status == "resolved" ? (
+                  <ResolutionCard />
+                ) : (
+                  <>
+                  <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                   <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
                     Trade
                   </DrawerTrigger>
@@ -470,10 +549,14 @@ export default function EventPage() {
                           {}
                         }
                         market={markets[selectedIndex]}
+                        status={events?.status}
                       />
                     </div>
                   </DrawerContent>
                 </Drawer>
+                </>
+                )}
+                
               </div>
             </div>
           )}
@@ -484,7 +567,7 @@ export default function EventPage() {
           <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
         </div>
       </div>
-      {/* <Footer/> */}
+      <Footer/>
     </>
   );
 }

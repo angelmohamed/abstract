@@ -15,6 +15,7 @@ import { toastAlert } from "@/lib/toast";
 import { useSelector } from "react-redux";
 import { SocketContext } from "@/config/socketConnectivity";
 import { deleteComment } from "@/services/user";
+import { getTimeAgo } from "@/utils/helpers";
 
 const avatarColors = [
   'bg-blue-500',
@@ -45,8 +46,8 @@ export function Comment({
   }
 
   // Format time, e.g. "3 hours ago"
-  const timeAgo = comment.created_at 
-    ? formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })
+  const timeAgo = comment.createdAt 
+    ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
     : "";
     
   // Check if the current user is the author of this comment
@@ -98,6 +99,7 @@ export function Comment({
               Delete
             </button>
           )}
+          {/* {getTimeAgo(comment.createdAt)} */}
         </div>
       </div>
     </div>
@@ -303,7 +305,7 @@ export function CommentSection({ eventId }: CommentSectionProps) {
 
     const handleCommentAdded = (result: any) => {
     const parsedData = JSON.parse(result);
-    console.log('cmt socket Data: ', parsedData);
+    // console.log('cmt socket Data: ', parsedData);
     const { type, data } = parsedData;
       if (type === "add" && data?.eventId === eventId) {
         setComments(prev => [data, ...prev]);

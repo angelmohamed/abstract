@@ -605,7 +605,7 @@ export default function PortfolioPage() {
                   <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
                   <span className="mt-2 text-3xl font-semibold">
                     {walletData?.balance
-                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 4))
+                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2))
                       : 0}
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
@@ -613,7 +613,7 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
-                  {walletData?.balance ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 4)) : 0}
+                  {walletData?.balance ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2)) : 0}
                 </Badge>
               </div>
               <div
@@ -1015,7 +1015,7 @@ export default function PortfolioPage() {
                                       <span className="text-[13px] text-gray-200">
                                         $
                                         {gasAmt?.gasCost
-                                          ? formatNumber(gasAmt?.gasCost, 4)
+                                          ? formatNumber(gasAmt?.gasCost, 2)
                                           : 0}
                                       </span>
                                     </div>
@@ -1026,7 +1026,7 @@ export default function PortfolioPage() {
                                       </span>
                                       <span className="text-[13px] text-gray-200">
                                         {gasAmt?.marketGasCost
-                                          ? formatNumber(gasAmt?.marketGasCost, 4)
+                                          ? formatNumber(gasAmt?.marketGasCost, 2)
                                           : 0}{" "}
                                         Gwei
                                       </span>
@@ -1257,7 +1257,7 @@ export default function PortfolioPage() {
               <div className="flex items-start justify-between flex-wrap">
                 <div className="flex flex-col items-left">
                   <span className="text-sm text-gray-500 mt-1">PROFIT/LOSS</span>
-                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(profitAmount)}</span>
+                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(formatNumber(profitAmount,2))}</span>
                   <span className="text-sm text-gray-500 mt-1">
                     <span className={`${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>$0.00 (0.00%)</span> Today
                   </span>

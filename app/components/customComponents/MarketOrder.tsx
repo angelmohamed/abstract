@@ -246,6 +246,9 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
             Login
           </Button>
         )}
+          {/* <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300" disabled>
+            Order cannot placed right now
+          </Button> */}
       </div>
     </>
   );

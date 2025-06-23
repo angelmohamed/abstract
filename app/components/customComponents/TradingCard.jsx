@@ -39,13 +39,16 @@ export function TradingCard({
   activeView,
   setActiveView,
   selectedOrderBookData,
+  status
 }) {
   const onTabChange = (value) => {
     setActiveView(value);
   };
 
-  const buyYes = selectedOrderBookData?.asks?.[0]?.reverse()?.[0] || [];
-  const buyNo = selectedOrderBookData?.bids?.[0]?.reverse()?.[0] || [];
+  const descending = (a, b) => Number(b[0]) - Number(a[0]);
+  const ascending = (a, b) => Number(a[0]) - Number(b[0]);
+  const buyYes = selectedOrderBookData?.asks?.[0]?.sort(descending)?.[0] || [];
+  const buyNo = selectedOrderBookData?.bids?.[0]?.sort(descending)?.[0] || [];
   const sellYes = selectedOrderBookData?.bids?.[0]?.[0] || [];
   const sellNo = selectedOrderBookData?.asks?.[0]?.[0] || [];
   const socketContext = useContext(SocketContext)
@@ -81,14 +84,19 @@ export function TradingCard({
     if (!socket) return
     const handlePositions = (result) => {
       const resData = JSON.parse(result)
-      setPositions((prev) => {
-        return {
-          ...prev,
-          filled: resData?.filled,
-          quantity: resData?.quantity,
-          side: resData?.side,
-        }
-      })
+      // console.log("Received position update:", resData)
+      if(resData?.quantity == 0) {
+        setPositions({})
+      }else {
+        setPositions((prev) => {
+          return {
+            ...prev,
+            filled: resData?.filled,
+            quantity: resData?.quantity,
+            side: resData?.side,
+          }
+        })
+      }
       
     }
     socket.on("pos-update", handlePositions)
@@ -174,6 +182,7 @@ export function TradingCard({
                     activeView={activeView}
                     marketId={market?._id}
                     buyorsell={tab}
+                    status={status}
                   />
                 )}
 
@@ -182,6 +191,7 @@ export function TradingCard({
                     activeView={activeView}
                     marketId={market?._id}
                     buyorsell={tab}
+                    status={status}
                   />
                 )}
               </Options>

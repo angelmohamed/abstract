@@ -67,7 +67,7 @@ export default function PortfolioPage() {
   const [amountFilter, setAmountFilter] = useState("All");
   const [positions, setPositions] = useState<any[]>([]);
   const [tradeOverview, setTradeOverview] = useState<any>(initialTradeOverview);
-  console.log("tradeOverview",tradeOverview)
+  // console.log("tradeOverview",tradeOverview)
   const [tradeOverviewLoading, setTradeOverviewLoading] = useState(true);
   const [profileData, setProfileData] = useState<{
     username: string;
@@ -110,7 +110,6 @@ export default function PortfolioPage() {
     setTradeOverviewLoading(true);
     try {
     const { success, result } = await getTradeOverview();
-    console.log("tradeOverview result",result)
     if (success ) {
         setTradeOverview({
           total_value: result.totalPositionValue.toFixed(2),

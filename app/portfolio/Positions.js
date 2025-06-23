@@ -19,6 +19,8 @@ import { momentFormat } from '../helper/date'
 import { TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { SocketContext } from '@/config/socketConnectivity'
 import { isEmpty } from '@/lib/isEmpty'
+import { positionClaim } from '@/services/market'
+import { toastAlert } from '@/lib/toast'
 
 const Positions = () => {
   const [positionHistory, setPositionHistory] = useState([])
@@ -123,7 +125,20 @@ const Positions = () => {
             }
             return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)]
           } else{
-            let positionIndex = prev[eventIndex].positions.findIndex(position => position._id === resData._id)
+            // let positionIndex = prev[eventIndex].positions.findIndex(position => position._id === resData._id)
+            if (resData.quantity === 0) {
+              const filteredPositions = prev[eventIndex].positions.filter(p => p._id !== resData._id);
+              if (filteredPositions.length === 0) {
+                return [...prev.slice(0, eventIndex), ...prev.slice(eventIndex + 1)];
+              } else {
+                const updatedEvent = {
+                  ...prev[eventIndex],
+                  positions: filteredPositions
+                };
+                return [...prev.slice(0, eventIndex), updatedEvent, ...prev.slice(eventIndex + 1)];
+              }
+            }
+
             const updatedPosition = {
               ...positionData,
               quantity: resData.quantity,
@@ -152,6 +167,19 @@ const Positions = () => {
       socket.off("pos-update", handlePositions)
     }
   }, [socketContext])
+
+  const marketPositionClaim = async(id) =>{
+    try {
+      const {success,message} = await positionClaim(id)
+      if(success){
+        toastAlert("success", message,"position")
+      } else {
+        toastAlert("error", message,"positionErr");
+      }
+    } catch (error) {
+      console.log('error',error)
+    }
+  }
 
   return (
     <>
@@ -190,9 +218,12 @@ const Positions = () => {
                               <td colSpan={6}>
                                 <div className="flex items-center justify-between">
                                   <Link href={`/event-page/${item?.eventSlug}`} className="cursor-pointer">{item.eventTitle}</Link>
+                                  <div>
                                   <button className="text-blue-500" onClick={() => handleShareOpen(item)}>
                                     <ShareIcon />
                                   </button>
+                                  
+                                  </div>
                                 </div>
                               </td>
                             </tr>
@@ -324,10 +355,15 @@ const Positions = () => {
                                     </Dialog.Root>
                                     </div>
                                     </td> */}
-                                    <td>
+                                    <td className='flex justify-start items-center gap-2'>                                     
                                       <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId)}>
                                         <HistoryIcon />
                                       </button>
+                                      {data.claim && (
+                                        <Button size="sm" className="bg-[#37ce37] text-[#fff] hover:text-[#000]" onClick={()=>marketPositionClaim(data.marketId)}>
+                                          Claim
+                                        </Button>
+                                      )}
                                     </td>
                                 </tr>
                         ))}
