@@ -13,9 +13,13 @@ var key = {};
     networkType: "devnet",
     network: "solana",
     rpcUrl: "https://api.devnet.solana.com",
+    tokenMint : "3driscz4P25P1BfPiA1nmXtj1A1Sr7UUozqWgPE22t9p",
+    programID : "FfEzqvwSJfjKYsU1oomqBkn3b4yc8dxGhvSPPn3kRMU2",
+    adminAdd : "rQBosrkDL5DBSxbvA2pCGTW8VmgU9y9zou7a9BedFo6",
+    clientId: "787150198264-2mkh4meu0m9phtb4m65f7bdre82kuibl.apps.googleusercontent.com",
+
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "787150198264-2mkh4meu0m9phtb4m65f7bdre82kuibl.apps.googleusercontent.com"
   }
 } else {
   key = {
@@ -31,9 +35,13 @@ var key = {};
     networkType: "devnet",
     network: "solana",
     rpcUrl: "https://api.devnet.solana.com",
+    tokenMint : "3driscz4P25P1BfPiA1nmXtj1A1Sr7UUozqWgPE22t9p",
+    programID : "FfEzqvwSJfjKYsU1oomqBkn3b4yc8dxGhvSPPn3kRMU2",
+    adminAdd : "rQBosrkDL5DBSxbvA2pCGTW8VmgU9y9zou7a9BedFo6",
+    clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com",
+
     usdcAdd : "0xeC35E5e8c4B26510F5FA90b00F202E1B44B8F537",
     contractAdd : "0x07b67af96d444ea2842Faca9Ff2B68a358f83B82",
-    clientId: "787150198264-2qt0ai7tjcu85ehjfh81kum2nsh8momt.apps.googleusercontent.com"
   };
 }
 export default key;

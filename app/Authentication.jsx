@@ -374,55 +374,59 @@ export default function Authentication() {
 
 
   useEffect(() => {
+    console.log("Phantom account changed");
     const handlePhantomAccountChanged = async (newPublicKey) => {
-      console.log("Phantom account changed:", newPublicKey);
-
+      console.log("Phantom account changed:", newPublicKey?.toString());
+  
       if (!newPublicKey || typeof newPublicKey.toString !== "function") {
-        console.log("Phantom wallet disconnected or invalid publicKey.");
+        console.log("Phantom wallet disconnected.");
         return;
       }
-
+  
       const newAddress = newPublicKey.toString().toLowerCase();
       const savedAddress = data?.walletAddress?.toLowerCase();
-
+  
       if (newAddress === savedAddress || isEmpty(savedAddress)) return;
-
+  
       if (isConnected) {
-        disconnectWallet(); // custom logout function
+        disconnectWallet();
         document.cookie = "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
         dispatch(reset());
         dispatch(signOut());
         toastAlert(
           "error",
-          `Logged out: please reconnect with your wallet address${data?.walletAddress}`,
+          `Logged out: please reconnect with your wallet address ${data?.walletAddress}`,
           "logout"
         );
-
+  
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);
       }
     };
-
-    if (window.solana?.isPhantom) {
-      window.solana.on("accountChanged", handlePhantomAccountChanged);
+  
+    const provider = window?.solana;
+     
+    if (provider?.isPhantom && provider.isConnected) {
+      provider.on("accountChanged", handlePhantomAccountChanged);
     }
-
+  
     return () => {
-      if (window.solana?.isPhantom) {
-        window.solana.removeListener("accountChanged", handlePhantomAccountChanged);
+      if (provider?.isPhantom && provider.isConnected) {
+        provider.removeListener("accountChanged", handlePhantomAccountChanged);
       }
     };
-  }, [address, isConnected, data?.walletAddress]);
+  }, [data?.walletAddress, isConnected,address]);
 
+  
 
-  console.log(address, balance, "addresss")
+  console.log(address, balance ,"addresss")
  
   return (
     <>
-      {/* {signedIn && (
+      {signedIn && (
         <Button onClick={() => navigateToPortfolioPage()}>Deposit</Button>
-      )} */}
+      )}
       {signedIn && (
         <button
           className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
