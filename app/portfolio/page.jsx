@@ -3,13 +3,7 @@ import Header from "@/app/Header";
 // import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
-import Web3 from "web3";
 import config from "../../config/config";
 import {
   Tabs,
@@ -19,12 +13,8 @@ import {
 } from "@/app/components/ui/tabs";
 import { Badge } from "@/app/components/ui/badge";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
-import SearchBar from "../components/ui/SearchBar";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
-import Link from "next/link";
-import { IconWindowMaximize } from "@tabler/icons-react";
 import { Dialog, Accordion, Checkbox, Separator } from "radix-ui";
 import { shortText, numberFloatOnly } from "../helper/custommath";
 import { toastAlert } from "../../lib/toast"
@@ -42,19 +32,30 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useSelector } from "@/store";
 import { useDispatch } from "react-redux";
-import { setWallet } from "@/store/slices/wallet/dataSlice";
-import {
-  getCoinAmt,
-  depsoitToken,
-  depsoitCoin,
-  approveToken,
-  getGasCostAmt,
-} from "./multicall";
-import { walletClientToSigner } from "../helper/ethersconnect";
+import { userDeposit } from "@/services/wallet";
 import { formatNumber } from "../helper/custommath";
-import tokenABI from "../../components/ABI/TOKENABI.json";
+import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 import { addressCheck } from "@/services/wallet";
-import { Connection, PublicKey } from '@solana/web3.js';
+import {
+  Connection,
+  PublicKey,
+  clusterApiUrl,
+  Transaction,
+  LAMPORTS_PER_SOL,
+  TransactionMessage
+} from "@solana/web3.js";
+import {
+  AnchorProvider,
+  Program,
+  web3,
+  BN,
+} from "@project-serum/anchor";
+import {
+  getAssociatedTokenAddress,
+  getAccount,
+  createAssociatedTokenAccountInstruction,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
 import { reset } from "@/store/slices/auth/userSlice"
 import { signOut } from "@/store/slices/auth/sessionSlice";
 import OpenOrders from "./OpenOrders"
@@ -72,6 +73,9 @@ let initialValue = {
 
 export default function PortfolioPage() {
 
+  const programID = new PublicKey(config?.programID);
+  const connection = new Connection(config?.rpcUrl, "confirmed");
+
   const { isConnected,address } = useSelector((state) => state?.walletconnect?.walletconnect);
   const walletData = useSelector(state => state?.wallet?.data);
   const data = useSelector(state => state?.auth?.user);
@@ -87,15 +91,8 @@ export default function PortfolioPage() {
   const [depsoitAmt, setDepositAmt] = useState(0);
   const [loader, setloader] = useState(false);
   const [txopen, setTxOpen] = useState(false);
-  const [showallowance, setshowallowance] = useState(false);
   const [transactionHash, settransactionHash] = useState("");
-  const [connval, setconnval] = useState(null);
-  const [tokenValue, setTokenValue] = useState({
-    minDeposit: 0,
-    tokenAmt: 0,
-    allowance: 0,
-    usdConvt: 0,
-  });
+  const [tokenValue, setTokenValue] = useState(0);
   const [profitAmount, setProfitAmount] = useState(0);
   const [interval, setInterval] = useState("max");
   const [dateRange, setDateRange] = useState([null, null]);
@@ -111,7 +108,7 @@ export default function PortfolioPage() {
   const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0 });
 
   var { currency, amount, walletAddress } = depositData;
-  var { minDeposit, tokenAmt, allowance, usdConvt } = tokenValue;
+  var {  tokenAmt } = tokenValue;
 
   useEffect(() => {
     setProfitAmount(walletData?.position);
@@ -147,19 +144,23 @@ export default function PortfolioPage() {
 
   const balanceData = async () => {
     try {
-      const web3 = new Web3(config.rpcUrl);
       if(address){
-      const balanceWei = await web3.eth.getBalance(address);
-      const balancePOL = web3.utils.fromWei(balanceWei, "ether");
-      const formattedBalance = parseFloat(balancePOL).toFixed(6);
+      const publicKey = new PublicKey(address);
+      const balanceLamports = await connection.getBalance(publicKey);
+      const balanceSOL = balanceLamports / LAMPORTS_PER_SOL;
+      const formattedBalance = formatNumber(balanceSOL,4);
       setBalance(formattedBalance);
-      const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
-      const decimals = await usdcContract.methods.decimals().call();
-      const rawBalance = await usdcContract.methods.balanceOf(address).call();
-      const formattedBalance1 = parseFloat(rawBalance / 10 ** decimals).toFixed(
-        4
-      );
+
+      const mint = new PublicKey(config?.tokenMint);
+      const walletAddress = new PublicKey(address);
+      const ata = await getAssociatedTokenAddress(mint, walletAddress);
+      if(ata){
+        const tokenAccount = await getAccount(connection, ata);
+        const rawBalance = parseFloat(tokenAccount?.amount)/ 10 ** 6;
+        console.log("✅ Token Balance:", parseFloat(rawBalance));
+      const formattedBalance1 = formatNumber(rawBalance,4);
       setTokenBalance(formattedBalance1);
+      }
       }
     } catch (err) {
       console.error("Error fetching POL balance:", err);
@@ -181,78 +182,6 @@ export default function PortfolioPage() {
     }
   }
 
-  // async function handleConnect(connector) {
-  //   try {
-  //     disconnectWallet()
-  //     var network = config.chainId;
-
-  //     let check = isMobile();
-  //     var isType = connector && connector.id ? connector.id : "";
-
-  //     if (check && !window.ethereum && isType == "MetaMask") {
-  //       connectMetamaskMobile();
-  //       return;
-  //     } else {
-  //       var web3 = null;
-  //       if (isType == "injected") {
-  //         web3 = new Web3(window.BinanceChain);
-  //       } else if (isType !== "walletConnect") {
-  //         web3 = new Web3(window.ethereum);
-  //       } else {
-  //         var rpcUrl = config.rpcUrl;
-  //         web3 = new Web3(rpcUrl);
-  //       }
-  //       var currnetwork = await web3.eth.net.getId();
-
-  //       if (
-  //         parseInt(currnetwork) !== parseInt(network) &&
-  //         isType !== "walletConnect"
-  //       ) {
-  //         await window.ethereum.request({
-  //           method: "wallet_switchEthereumChain",
-  //           params: [{ chainId: Web3.utils.toHex(network) }],
-  //         });
-  //         currnetwork = network;
-  //       }
-
-  //       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  //       const connectedAddress = accounts?.[0];
-
-  //       const { result } = await addressCheck({ address : connectedAddress });
-    
-  //       if((isEmpty(data?.walletAddress) && result === true)){
-  //         toastAlert(
-  //           "error",
-  //           `This address is already exists. Please connect another new address.`,"wallet"
-  //         )
-  //         setOpen(false);
-  //         disconnectWallet()
-  //         return;
-  //       }else if (!isEmpty(data?.walletAddress) && connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()) {
-  //         toastAlert("error", `Please connect your wallet address ${data?.walletAddress}`, "logout");
-  //         setOpen(false);
-  //         disconnectWallet()
-  //         return;
-  //       }
-    
-  //       await connectWallet(connector);
-  //       setOpen(false);
-  //       getAddress();
-  //     }
-  //   } catch (err) {
-  //     console.log(err, "errerr");
-  //     var error = err && err.message ? err.message.toString() : err.toString();
-  //     var pos = error.search("Provider not set or invalid");
-  //     var pos1 = error.search("User rejected");
-  //     if (pos >= 0) {
-  //       toastAlert("error", "Please login into metamask","wallet");
-  //     } else if (pos1 >= 0) {
-  //       toastAlert("error", "Confirmation is rejected","wallet");
-  //     } else {
-  //       toastAlert("error", "Please try again later","wallet");
-  //     }
-  //   }
-  // }
 
   async function ConnectPhantomWallet() {
     if (window.solana && window.solana.isPhantom) {
@@ -321,38 +250,34 @@ export default function PortfolioPage() {
     }
   }
 
+  const getSolanaTxFee = async () => {
+    const publicKey = new PublicKey(address);
+    const messageV0 = new TransactionMessage({
+      payerKey: publicKey,
+      recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
+      instructions: [], // no actual instructions
+    }).compileToV0Message();
+  
+    const feeInLamports = await connection.getFeeForMessage(messageV0);
+    const feeInSol = feeInLamports?.value / 1e9;
+    const feeInUSD = feeInSol * tokenValue;
+    setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD})
 
-  const getCoinValue = async () => {
-    try {
-      const web3 = new Web3(config.rpcUrl);
-      const usdcContract = new web3.eth.Contract(tokenABI, config.usdcAdd);
-      const decimals = await usdcContract.methods.decimals().call();
-      let amt = depsoitAmt * 10 ** decimals;
-      console.log(amt, "depsoitAmtdepsoitAmt");
-      let { minDeposit, tokenAmt, allowance, usdConvt } = await getCoinAmt(
-        address,
-        amt,
-        connval,
-      );
-      console.log(usdConvt,"usdConvtusdConvt")
-      setTokenValue({ minDeposit, tokenAmt, allowance, usdConvt });
+    const provider = await getAnchorProvider();
+    const program = new Program(depositIDL, programID, provider);
 
-      //gasCostValues
-      var gasPrice = await web3.eth.getGasPrice();
-      var marketGasCost = (gasPrice / 1e9) * usdConvt;
-      let estimateGas = 110171;
-      console.log(
-        marketGasCost,
-        "***********************21",
-        usdConvt,
-        gasPrice
+      const [statePDA] = await PublicKey.findProgramAddress(
+        [Buffer.from("state_v5")],
+        program.programId
       );
-      var gasCost = ((gasPrice * estimateGas) / 1e18) * usdConvt;
-      setGasAmt({ marketGasCost: gasPrice / 1e9, gasCost });
-    } catch (err) {
-      console.log(err, "errr");
-    }
+ 
+      const stateAccount = await program.account.state.fetch(statePDA);
+ 
+      console.log("State:", stateAccount, stateAccount.tokenPrice.toString(),stateAccount.tokenPrice.toString()/1e6);
+      setTokenValue(stateAccount.tokenPrice.toString()/1e6)
+
   };
+
 
   const getAddress = async (address) => {
     try {
@@ -383,15 +308,7 @@ export default function PortfolioPage() {
     }
   };
 
-  // useEffect(() => {
-  //   if (isConnected == true) {
-  //     getAddress(address);
-  //   }
-  // }, [isConnected]);
 
-  // useEffect(() => {
-  //   getCoinValue()
-  // }, [depsoitAmt])
 
   useEffect(() => {
     balanceData();
@@ -401,7 +318,17 @@ export default function PortfolioPage() {
     if (!isEmpty(currency)) {
       setStep("2");
       setDepositAmt()
-      getCoinValue();
+      getSolanaTxFee()
+      if(currency == "USDT" && tokenbalance == 0){
+        setStep("1");
+        toastAlert("error", "Insufficient Balance","wallet");
+      }else if(currency == "SOL" && balance == 0){
+        setStep("1");
+        toastAlert("error", "Insufficient Balance","wallet");
+      }else if(balance <= 0){
+        setStep("1");
+        toastAlert("error", "Insufficient SOL Balance","wallet");
+      }
     } else {
       toastAlert("error", "Please select a currency","wallet");
     }
@@ -411,12 +338,12 @@ export default function PortfolioPage() {
     try {
       var depositBalance = currency == "USDT" ? tokenbalance : balance;
       if (depositBalance > 0) {
-        if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(minDeposit)) {
+        if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(0.0001)) {
           toastAlert(
             "error",
             "Enter the amount must be greater than minimum deposit value","deposit"
           );
-        } else if (currency == "POL" && depsoitAmt < 0.001) {
+        } else if (currency == "SOL" && depsoitAmt < 0.001) {
           toastAlert(
             "error",
             `Enter the amount must be greater than minimum deposit value`,"deposit"
@@ -425,7 +352,7 @@ export default function PortfolioPage() {
           toastAlert("error", "Insufficient Balance","deposit");
         } else if (depsoitAmt > 0) {
           setStep("3");
-          getCoinValue();
+          getSolanaTxFee()
         }
       } else if (depositBalance <= 0) {
         toastAlert("error", "Insufficient Balance","deposit");
@@ -447,21 +374,146 @@ export default function PortfolioPage() {
     disconnectWallet();
   }
 
+   const getAnchorProvider = async () => {
+    const provider = window.solana;
+  
+    if (!provider || !provider.isPhantom) {
+      throw new Error("Phantom wallet not found");
+    }
+    console.log(provider.publicKey,"provider")
+    return new AnchorProvider(
+      connection,
+      {
+        publicKey: new PublicKey(address),
+        signTransaction: provider.signTransaction,
+        signAllTransactions: provider.signAllTransactions,
+      },
+      { preflightCommitment: "processed" }
+    );
+  };
+
   async function buy() {
     try {
       setloader(true);
-
       if (currency == "USDT") {
-        var { status, txId, message } = await depsoitToken(
-          address,
-          depsoitAmt,
-          connval,
-          dispatch
+        console.log("usdtttt")
+        const provider = await getAnchorProvider();
+        const program = new Program(depositIDL, programID, provider);
+        const connection = provider.connection;
+  
+        const mint = new PublicKey(config?.tokenMint);
+        const receiverPubKey = new PublicKey(config?.adminAdd);
+  
+        const fromTokenAccount = await getAssociatedTokenAddress(mint, provider.publicKey);
+        const toTokenAccount = await getAssociatedTokenAddress(mint, receiverPubKey);
+  
+        // ✅ Check and create receiver ATA if it doesn't exist
+        try {
+          await getAccount(connection, toTokenAccount);
+        } catch (err) {
+          console.log(err, "errrr")
+          const ataIx = createAssociatedTokenAccountInstruction(
+            provider.publicKey,        // payer
+            toTokenAccount,            // ATA to create
+            receiverPubKey,            // token account owner
+            mint                       // mint address
+          );
+  
+          const ataTx = new Transaction().add(ataIx);
+          ataTx.feePayer = provider.publicKey;
+  
+          const blockhash = await connection.getLatestBlockhash();
+          ataTx.recentBlockhash = blockhash.blockhash;
+  
+          const signedTx = await window.solana.signTransaction(ataTx);
+          const ataTxSig = await connection.sendRawTransaction(signedTx.serialize());
+  
+          // ✅ Use finalized commitment for reliable confirmation
+          await connection.confirmTransaction(
+            { signature: ataTxSig, ...blockhash },
+            "finalized"
+          );
+        }
+  
+        // Optional: small delay to avoid race condition
+        await new Promise((res) => setTimeout(res, 500));
+  
+        const amount = new BN(parseFloat(depsoitAmt) * 10 ** 6); // adjust decimals if needed
+  
+        const [tokenInfoPDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("supported-token"), mint.toBuffer()],
+          program.programId
         );
-        settransactionHash(txId);
+  
+        const [statePDA] = await PublicKey.findProgramAddress(
+          [Buffer.from("state_v5")],
+          program.programId
+        );
+  
+        const [userDepositPDA] = await PublicKey.findProgramAddress(
+          [Buffer.from("user"), provider.publicKey.toBuffer()],
+          program.programId
+        );
+        const tx = await program.methods
+          .transferToken(amount)
+          .accounts({
+            from: fromTokenAccount,
+            to: toTokenAccount,
+            authority: provider.publicKey,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            mint: mint,
+            tokenInfo: tokenInfoPDA,
+            state: statePDA,
+            userDeposit: userDepositPDA,
+            systemProgram: web3.SystemProgram.programId,
+          })
+          .rpc();
+  
+        settransactionHash(tx);
         setloader(true);
+
+        const parsedTx = await connection.getParsedTransaction(tx, {
+          commitment: "confirmed",
+        });
+        
+        if (!parsedTx) {
+          toastAlert("error","Transaction not found","deposit");
+          return;
+        }
+        
+        const { meta, transaction } = parsedTx;
+        
+        // Get all token balance changes
+        const preTokenBalances = meta?.preTokenBalances || [];
+        const postTokenBalances = meta?.postTokenBalances || [];
+        let depositdata = {}
+        // Loop through and compare
+        for (let i = 0; i < preTokenBalances.length; i++) {
+          const pre = preTokenBalances[i];
+          const post = postTokenBalances[i];
+        
+          if (!pre || !post) continue;
+        
+          const change = Number(post.uiTokenAmount.amount) - Number(pre.uiTokenAmount.amount);
+          if (change !== 0) {
+            console.log("✅ SPL Token Transfer Detected:");
+            console.log("📤 Owner:", pre.owner);
+            console.log("🪙 Mint:", pre.mint);
+            console.log("💰 Amount:", Math.abs(change) / 10 ** pre.uiTokenAmount.decimals);
+            const tokenAmt = Math.abs(change) / (10 ** pre.uiTokenAmount.decimals)
+             depositdata = {
+              hash : tx,
+              address: pre.owner,
+              amount : tokenAmt,
+              symbol : "USDT"
+           }
+          }
+        }
+
+        
+         var { message ,status} = await userDeposit(depositdata,dispatch)
         if (status) {
-          toastAlert("success", "Your transaction is successfully completed","deposit");
+          toastAlert("success", message,"deposit");
           setDepositAmt(0);
           setStep("");
           setTxOpen(true);
@@ -471,24 +523,97 @@ export default function PortfolioPage() {
           }
           // await getUser();
         } else {
-          toastAlert("error", message,"deposit");
+          toastAlert("error", "failed","deposit");
           const button = document.querySelector(".modal_close_brn");
           if (button) {
             button.click();
           }
         }
         setloader(false);
-      } else if (currency == "POL") {
-        var { status, txId, message } = await depsoitCoin(
-          address,
-          depsoitAmt,
-          connval,
-          dispatch
-        );
-        settransactionHash(txId);
+      } else if (currency == "SOL") {
+        const provider = await getAnchorProvider();
+  
+        const program = new Program(depositIDL, programID, provider);
+        const lamports = new BN(parseFloat(depsoitAmt) * web3.LAMPORTS_PER_SOL);
+        const receiverPubKey = new PublicKey(config?.adminAdd);
+
+
+       const [statePDA] = await PublicKey.findProgramAddress(
+        [Buffer.from("state_v5")],
+        program.programId
+      );
+      const [userDepositPDA] = await PublicKey.findProgramAddress(
+        [Buffer.from("user"), provider.publicKey.toBuffer()],
+        program.programId
+      );
+      console.log(statePDA,"statePDA");
+
+      const tx = await program.methods
+        .transferSol(lamports)
+        .accounts({
+          sender: provider.publicKey,
+          receiver: receiverPubKey,
+          systemProgram: web3.SystemProgram.programId,
+          state: statePDA,
+          userDeposit: userDepositPDA,
+        })
+        .rpc();
+          console.log(tx,"tx")
+  
+        settransactionHash(tx);
         setloader(true);
+
+        const txDetails = await connection.getTransaction(tx, {
+          commitment: "confirmed",
+        });
+    
+        if (!txDetails) {
+          console.error("❌ Transaction not found");
+          return;
+        }
+    
+        const { meta, transaction } = txDetails;
+        const accountKeys = transaction.message.accountKeys;
+    
+        // 🔍 Find sender and receiver indices
+        const senderIndex = accountKeys.findIndex((key) =>
+          key.equals(provider.publicKey)
+        );
+        const receiverIndex = accountKeys.findIndex((key) =>
+          key.equals(receiverPubKey)
+        );
+    
+        if (senderIndex === -1 || receiverIndex === -1) {
+          console.error("❌ Could not find sender or receiver in account keys");
+          return;
+        }
+    
+        // 🧮 Calculate lamports sent
+        const lamportsSentTotal = meta.preBalances[senderIndex] - meta.postBalances[senderIndex];
+        const feePaid = meta.fee;
+        const lamportsSent = lamportsSentTotal - feePaid;
+        
+        const solAmt = lamportsSent / LAMPORTS_PER_SOL;
+        const usdValue = solAmt * tokenValue;
+        
+        console.log("TX Hash:", tx);
+        console.log("From:", provider.publicKey.toBase58());
+        console.log("To:", receiverPubKey.toBase58());
+        console.log("Amount (lamports):", lamportsSent);
+        console.log("Amount (SOL):", solAmt);
+        console.log("USD Value ($):", usdValue);
+        console.log("Fee (lamports):", feePaid);
+        console.log("Fee (SOL):", feePaid / LAMPORTS_PER_SOL);
+
+        let depositdata = {
+          hash : tx,
+          address: provider.publicKey.toBase58(),
+          amount : usdValue,
+          symbol : "SOL"
+       }
+      var { message ,status} = await userDeposit(depositdata,dispatch)
         if (status) {
-          toastAlert("success", "Your transaction is successfully completed","deposit");
+          toastAlert("success", message ,"deposit");
           setDepositAmt(0);
           setStep("");
           setTxOpen(true);
@@ -507,58 +632,29 @@ export default function PortfolioPage() {
         setloader(false);
       }
     } catch (err) {
+      console.log(err,"errr")
       setloader(false);
     }
   }
 
   const handlechange = async (e) => {
     let value = e.target.value;
-    setDepositAmt(e.target.value);
-    let isNum = numberFloatOnly(value);
-    if (isNum) {
-      setshowallowance(false);
-      if (value > allowance && currency == "USDT") {
-        setshowallowance(true);
-      }
-    }
-  };
-
-  async function approve() {
-    setloader(true);
-    try {
-      var { approvalAmt, isAllowed, error } = await approveToken(
-        address,
-        connval
-      );
-      if (isAllowed) {
-        if (depsoitAmt > approvalAmt) {
-          toastAlert("error", "Insufficient approval amount","deposit");
-        } else {
-          toastAlert("success", "Successfully approved","deposit");
-          setshowallowance(false);
-        }
-      } else {
-        toastAlert("error", error,"deposit");
-      }
-      setloader(false);
-    } catch (err) {
-      setloader(false);
-    }
-  }
-
-  const isLogin = () => {
-    if (localStorage.getItem("sonoTradeToken")) {
-      return true;
-    }
-    return false;
+    setDepositAmt(parseFloat(e.target.value));
+    // let isNum = numberFloatOnly(value);
+    // if (isNum) {
+    //   setshowallowance(false);
+    //   if (value > allowance && currency == "USDT") {
+    //     setshowallowance(true);
+    //   }
+    // }
   };
 
   const iniDepsotClick = () => {
     if (isConnected == true) {
       setStep("1");
       setDepositAmt(0);
-      getCoinValue();
       balanceData()
+      getSolanaTxFee()
       setTxOpen(false);
     }else if(!isEmpty(data?.walletAddress) && 
     data?.walletAddress.toString() != address?.toString() && isConnected){
@@ -570,13 +666,10 @@ export default function PortfolioPage() {
       toastAlert("error", "Connect Your Wallet","deposit");
     }
   };
-  // useEffect(() => {
-  //   if (isLogin() == false) {
-  //     window.location.href = "/";
-  //   }
-  //   // getUser();
-  // }, []);
-  // console.log(data,walletData, tokenAmt, usdConvt,isConnected,"datadatadata");
+
+
+  
+  console.log(address, data,tokenValue,"datadatadata");
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -653,10 +746,11 @@ export default function PortfolioPage() {
                           )}
                           {(step == "1" || step == "2" || step == "3") && (
                             <p className="text-center text-[12px] text-gray-400 mb-0">
-                              Available Balance: ${" "}
+                              Available Balance: {" "}
                               {currency === "USDT"
                                 ? `${tokenbalance} ${currency}`
-                                : `${formatNumber(balance * usdConvt,4)} ${currency}`}
+                                : `${balance} ${currency ? currency : "SOL"}`}
+                              {/* {formatNumber(balance * usdConvt, 4)} */}
                             </p>
                           )}
                           {step == "1" && (
@@ -668,7 +762,7 @@ export default function PortfolioPage() {
                                 </p>
                                 <div className="flex items-center gap-2">
                                   <Image
-                                    src="/images/wallet_icon_01.png"
+                                    src="/images/wallet_icon_02.png"
                                     alt="Profile Icon"
                                     width={16}
                                     height={16}
@@ -679,7 +773,7 @@ export default function PortfolioPage() {
                                   </span>
                                   <span className="text-[13px] text-gray-400">
                                     {/* $10.20 */}
-                                    {balance} POL
+                                    {balance} SOL
                                   </span>
                                 </div>
                               </Button>
@@ -722,35 +816,36 @@ export default function PortfolioPage() {
                               <div className="wallet_coin_list">
                                 <div
                                   className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
-                                    depositData.currency === "POL"
+                                    depositData.currency === "SOL"
                                       ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
                                       : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                   }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
                                       ...prev,
-                                      currency: "POL",
+                                      currency: "SOL",
                                     }))
                                   }
                                 >
                                   <div className="flex items-center gap-2">
                                     <Image
-                                      src="/images/polygon.svg"
-                                      alt="POL Icon"
+                                      src="/images/solana.png"
+                                      alt="SOL Icon"
                                       width={24}
                                       height={24}
                                       className="rounded-full"
                                     />
                                     <div className="flex flex-col">
-                                      <span className="text-[14px]">POL</span>
+                                      <span className="text-[14px]">SOL</span>
                                       <span className="text-[12px] text-gray-400">
-                                        {balance} POL
+                                        {balance} SOL
                                       </span>
                                     </div>
                                   </div>
                                   <span className="text-[14px]">
                                     {/* $9.88 */}${" "}
-                                    {formatNumber(balance * usdConvt, 4)}
+                                    {formatNumber(balance * tokenValue,4)} 
+                                    {/* {formatNumber(balance * usdConvt, 4)} */}
                                   </span>
                                 </div>
                               </div>
@@ -806,9 +901,10 @@ export default function PortfolioPage() {
                                 </Button>
                               </div>
                               <p className="text-[12px] text-gray-400 text-center mt-8">
-                                {currency === "POL"
-                                  ? `${0.001} minimum deposit`
-                                  : `${minDeposit} ${currency} minimum deposit`}
+                                {currency === "SOL"
+                                  ? `${0.001} ${currency} minimum deposit`
+                                  : `${0.0001} ${currency} minimum deposit`}
+                                  {/* `${minDeposit} ${currency} minimum deposit`} */}
                               </p>
                               <div
                                 className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
@@ -819,7 +915,7 @@ export default function PortfolioPage() {
                                     src={
                                       currency == "USDT"
                                         ? "/images/usdt.svg"
-                                        : "/images/polygon.svg"
+                                        : "/images/solana.png"
                                     }
                                     alt="Icon"
                                     width={24}
@@ -914,7 +1010,7 @@ export default function PortfolioPage() {
                                 </span>
                                 <div className="flex gap-2 items-center">
                                   <Image
-                                    src="/images/wallet_icon_01.png"
+                                    src="/images/wallet_icon_02.png"
                                     alt="Icon"
                                     width={18}
                                     height={18}
@@ -949,7 +1045,7 @@ export default function PortfolioPage() {
                                     src={
                                       currency == "USDT"
                                         ? "/images/usdt.svg"
-                                        : "/images/polygon.svg"
+                                        : "/images/solana.png"
                                     }
                                     alt="Icon"
                                     width={18}
@@ -975,7 +1071,8 @@ export default function PortfolioPage() {
                                   <span className="text-[14px] text-gray-200">
                                     {currency == "USDT"
                                       ? `${depsoitAmt} USDC`
-                                      : `${tokenAmt} USDC`}
+                                      : `${formatNumber(depsoitAmt * tokenValue,4)} USDC`}
+                                    {/* tokenAmt */}
                                   </span>
                                 </div>
                               </div>
@@ -995,10 +1092,10 @@ export default function PortfolioPage() {
                                           height={18}
                                         />
                                         <span className="text-[14px] text-gray-200">
-                                          $
+                                         
                                           {gasAmt?.gasCost
-                                            ? formatNumber(gasAmt?.gasCost, 4)
-                                            : 0}
+                                            ? formatNumber(gasAmt?.gasCost, 6)
+                                            : 0} SOL
                                         </span>
                                         <ChevronDownIcon
                                           className="AccordionChevron"
@@ -1013,10 +1110,10 @@ export default function PortfolioPage() {
                                         Your gas costs
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-                                        $
+                                        
                                         {gasAmt?.gasCost
-                                          ? formatNumber(gasAmt?.gasCost, 2)
-                                          : 0}
+                                          ? formatNumber(gasAmt?.gasCost, 6)
+                                          : 0} SOL
                                       </span>
                                     </div>
 
@@ -1025,10 +1122,10 @@ export default function PortfolioPage() {
                                         Market gas price
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-                                        {gasAmt?.marketGasCost
-                                          ? formatNumber(gasAmt?.marketGasCost, 2)
+                                      $ {""}{gasAmt?.marketGasCost
+                                          ? formatNumber(gasAmt?.marketGasCost, 6)
                                           : 0}{" "}
-                                        Gwei
+                                        {/* Gwei */}
                                       </span>
                                     </div>
 
@@ -1043,7 +1140,7 @@ export default function PortfolioPage() {
                                   </Accordion.Content>
                                 </Accordion.Item>
                               </Accordion.Root>
-                              {showallowance ? (
+                              {/* {showallowance ? (
                                 <Button
                                   className="mt-4 w-full"
                                   disabled={loader}
@@ -1057,7 +1154,7 @@ export default function PortfolioPage() {
                                     ></i>
                                   )}
                                 </Button>
-                              ) : (
+                              ) : ( */}
                                 <Button
                                   className="mt-4 w-full"
                                   disabled={loader}
@@ -1071,7 +1168,7 @@ export default function PortfolioPage() {
                                     ></i>
                                   )}
                                 </Button>
-                              )}
+                              {/* )} */}
                             </div>
                           )}
                           <Dialog.Close asChild>
@@ -1131,9 +1228,9 @@ export default function PortfolioPage() {
                         </div> */}
 
                         {transactionHash && (
-                          <a
+                          <a         
                             className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
-                            href={`${config?.txLink}tx/${transactionHash}`}
+                            href={`${config?.txUrl}${transactionHash}?cluster=${config?.networkType}`}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

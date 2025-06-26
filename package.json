@@ -15,6 +15,7 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@orderly.network/react": "^1",
+    "@project-serum/anchor": "^0.26.0",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-avatar": "^1.1.2",
@@ -33,6 +34,7 @@
     "@radix-ui/react-tooltip": "^1.1.7",
     "@react-oauth/google": "^0.12.1",
     "@reduxjs/toolkit": "^2.8.2",
+    "@solana/spl-token": "^0.4.13",
     "@solana/web3.js": "^1.98.2",
     "@supabase/supabase-js": "^2.47.2",
     "@tabler/icons-react": "^3.30.0",

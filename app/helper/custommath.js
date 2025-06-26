@@ -4,7 +4,7 @@ import {convert} from "./convert"
 export function shortText(address) {
     try {
         var addr = address.substring(0, 4);
-        var addr1 = address.substring(36, 42);
+        var addr1 = address.substring(38, 44);
         var concat = addr + "...." + addr1;
         return concat;
     } catch (err) {
