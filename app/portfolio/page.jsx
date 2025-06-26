@@ -505,6 +505,7 @@ export default function PortfolioPage() {
               hash : tx,
               address: pre.owner,
               amount : tokenAmt,
+              usdAmt : tokenAmt,
               symbol : "USDT"
            }
           }
@@ -608,7 +609,8 @@ export default function PortfolioPage() {
         let depositdata = {
           hash : tx,
           address: provider.publicKey.toBase58(),
-          amount : usdValue,
+          amount : solAmt,
+          usdAmt : usdValue,
           symbol : "SOL"
        }
       var { message ,status} = await userDeposit(depositdata,dispatch)
