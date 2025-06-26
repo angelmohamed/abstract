@@ -374,8 +374,8 @@ export default function EventPage() {
 
                       {events?.status == 'resolved' && markets.length >= 2 && (
                         markets.map(((market,index) => (
-                          <>
                             <div
+                            key={index}
                               onClick={() => setSelectedIndex(index)}
                               className="flex justify-between items-center px-4 py-3 border-b border-[#2a2a2a] hover:bg-[#1d1d1d] cursor-pointer"
                             >
@@ -400,7 +400,6 @@ export default function EventPage() {
                                 )}
                               </div>
                             </div>
-                          </>
                         )))
                       )}
 
@@ -435,7 +434,7 @@ export default function EventPage() {
                                       showFullText ? "line-clamp-none" : ""
                                     }`}
                                   >
-                                    {showFullText ? events?.description : events?.description?.slice(0, 250) + "..."}
+                                    {showFullText ? events?.description : events?.description?.slice(0, 250) + " ..."}
                                   </div>
                                   <div className="flex items-center justify-between">
                                     <Button
@@ -453,7 +452,7 @@ export default function EventPage() {
                         </div>
                        
                         {events?.status === "closed" && (
-                          <div className="flex items-start gap-3 p-4 rounded-md border border-red-500 bg-[#2a1414] text-red-300">
+                          <div className="flex items-start gap-3 p-4 my-3 rounded-md border border-red-500 bg-[#2a1414] text-red-300">
                             {/* <XCircle className="w-5 h-5 mt-0.5 text-red-400" /> */}
                             <div>
                               <p className=" font-semibold">Market Closed</p>

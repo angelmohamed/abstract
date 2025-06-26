@@ -372,6 +372,11 @@ const Positions = () => {
                 }
                 </tbody>
             </table>
+            {positionHistory.length === 0 && (
+                <div  className="flex justify-center my-5 text-gray-500">
+                    No Positions found
+                </div>
+            )}
             
         </div>
         <Dialog.Root open={tradeOpen} onOpenChange={setTradeOpen}>
