@@ -425,9 +425,9 @@ export default function Authentication() {
  
   return (
     <>
-      {signedIn && (
+      {/* {signedIn && (
         <Button onClick={() => navigateToPortfolioPage()}>Deposit</Button>
-      )}
+      )} */}
       {signedIn && (
         <button
           className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"

@@ -118,6 +118,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                     question={event?.title}
                     totalPool={`$${(event.marketId ? event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
                     options={event?.marketId}
+                    forecast={event?.forecast}
                   />
                 </Link>
               )}

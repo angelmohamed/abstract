@@ -18,6 +18,7 @@ import { ScrollArea } from "@/app/components/ui/scroll-area";
 import { decimalToPercentage, toTwoDecimal } from "@/utils/helpers";
 // import Polymarket from "/public/images/polymarket.png";
 import { BookmarkFilledIcon, BookmarkIcon } from "@radix-ui/react-icons";
+import SpotifyLogo from "../../../public/images/spotifylogo.png";
 
 interface Option {
   groupItemTitle?: string;
@@ -37,6 +38,7 @@ interface MultipleOptionCardProps {
   question: string;
   totalPool?: string;
   options: Option[];
+  forecast?: boolean;
   onYesClick?: (option: Option) => void;
   onNoClick?: (option: Option) => void;
   yesColor?: string;
@@ -51,6 +53,7 @@ export function MultipleOptionCard({
   question,
   totalPool,
   options,
+  forecast = false,
   yesColor = "#27ae60",
   noColor = "pink",
   yesHoverBg = "#244445",
@@ -221,13 +224,26 @@ export function MultipleOptionCard({
           >
             {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
           </span>
-          <Button
-            className="p-1 h-6 w-6  z-10 rounded"
-            variant="ghost"
-            onClick={handleBookmarkClick}
-          >
-            {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
-          </Button>
+          <div className="flex gap-2 items-center justify-end">
+            {forecast && (
+              <div className="">
+                <Image 
+                  src={SpotifyLogo} 
+                  alt="Spotify" 
+                  width={20} 
+                  height={20} 
+                  className="opacity-70 hover:opacity-100 transition-opacity duration-200"
+                />
+              </div>
+            )}
+            {/* <Button
+              className="p-1 h-6 w-6  z-10 rounded"
+              variant="ghost"
+              onClick={handleBookmarkClick}
+            >
+              {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
+            </Button> */}
+          </div>
         </div>
       </CardFooter>
     </Card>

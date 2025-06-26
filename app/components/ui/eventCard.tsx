@@ -202,13 +202,13 @@ const EventCard: React.FC<EventCardProps> = ({
           >
             {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
           </span>
-          <Button
+          {/* <Button
             className="p-1 h-6 w-6  z-10 rounded"
             variant="ghost"
             onClick={handleBookmarkClick}
           >
             {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
-          </Button>
+          </Button> */}
         </div>
       </CardFooter>
     </Card>
