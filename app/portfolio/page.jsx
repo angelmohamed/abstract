@@ -154,11 +154,13 @@ export default function PortfolioPage() {
       const mint = new PublicKey(config?.tokenMint);
       const walletAddress = new PublicKey(address);
       const ata = await getAssociatedTokenAddress(mint, walletAddress);
+      if(ata){
         const tokenAccount = await getAccount(connection, ata);
-        const rawBalance = parseFloat(tokenAccount.amount)/ 10 ** 6;
+        const rawBalance = parseFloat(tokenAccount?.amount)/ 10 ** 6;
         console.log("✅ Token Balance:", parseFloat(rawBalance));
       const formattedBalance1 = formatNumber(rawBalance,4);
       setTokenBalance(formattedBalance1);
+      }
       }
     } catch (err) {
       console.error("Error fetching POL balance:", err);
@@ -317,8 +319,15 @@ export default function PortfolioPage() {
       setStep("2");
       setDepositAmt()
       getSolanaTxFee()
-      if(balance == 0 || tokenbalance == 0){
+      if(currency == "USDT" && tokenbalance == 0){
+        setStep("1");
         toastAlert("error", "Insufficient Balance","wallet");
+      }else if(currency == "SOL" && balance == 0){
+        setStep("1");
+        toastAlert("error", "Insufficient Balance","wallet");
+      }else if(balance <= 0){
+        setStep("1");
+        toastAlert("error", "Insufficient SOL Balance","wallet");
       }
     } else {
       toastAlert("error", "Please select a currency","wallet");
@@ -456,6 +465,7 @@ export default function PortfolioPage() {
             tokenInfo: tokenInfoPDA,
             state: statePDA,
             userDeposit: userDepositPDA,
+            systemProgram: web3.SystemProgram.programId,
           })
           .rpc();
   

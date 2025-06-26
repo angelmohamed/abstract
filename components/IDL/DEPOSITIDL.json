@@ -164,7 +164,7 @@
         },
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true
         },
         {
@@ -191,6 +191,14 @@
           "name": "userDeposit",
           "isMut": true,
           "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "docs": [
+            "✅ required for init"
+          ]
         }
       ],
       "args": [

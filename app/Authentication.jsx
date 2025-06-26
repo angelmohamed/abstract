@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import { useSelector } from "@/store";
 import SONOTRADE from "@/public/images/logo.png";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,useCallback} from "react";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
 import {
@@ -97,7 +97,7 @@ export default function Authentication() {
         if (window.solana.isConnected) {
           await window.solana.disconnect();
         }
-        const response = await window.solana.connect({ onlyIfTrusted: false });
+        const response = await window.solana.connect();
 
         const message = 
         `Welcome to SonoTrade! - Sign to connect 
@@ -111,7 +111,7 @@ export default function Authentication() {
         const signedMessage = await window.solana.signMessage(encodedMessage, "utf8");
 
         console.log("Signature:", signedMessage);
-
+   if(signedMessage){
         const connection = new Connection(config?.rpcUrl);
 
         const publicKey = new PublicKey(response.publicKey.toString());
@@ -131,6 +131,7 @@ export default function Authentication() {
         setIsConnect(true);
         setOpen(false);
         walletAdd();
+   }
       } catch (err) {
         console.log(err, "errerr");
         if (err?.code === 4001) {
@@ -372,10 +373,8 @@ export default function Authentication() {
     }, 1000);
   }
 
-
-  useEffect(() => {
-    console.log("Phantom account changed");
-    const handlePhantomAccountChanged = async (newPublicKey) => {
+  const handlePhantomAccountChanged = useCallback(
+    async (newPublicKey) => {
       console.log("Phantom account changed:", newPublicKey?.toString());
   
       if (!newPublicKey || typeof newPublicKey.toString !== "function") {
@@ -390,7 +389,8 @@ export default function Authentication() {
   
       if (isConnected) {
         disconnectWallet();
-        document.cookie = "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+        document.cookie =
+          "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
         dispatch(reset());
         dispatch(signOut());
         toastAlert(
@@ -398,25 +398,26 @@ export default function Authentication() {
           `Logged out: please reconnect with your wallet address ${data?.walletAddress}`,
           "logout"
         );
-  
         setTimeout(() => {
           window.location.href = "/";
         }, 1000);
       }
-    };
-  
+    },
+    [data?.walletAddress, isConnected] // dependencies
+  );
+  useEffect(() => {
     const provider = window?.solana;
-     
-    if (provider?.isPhantom && provider.isConnected) {
+    if (provider?.isPhantom) {
       provider.on("accountChanged", handlePhantomAccountChanged);
     }
   
     return () => {
-      if (provider?.isPhantom && provider.isConnected) {
+      if (provider?.isPhantom) {
         provider.removeListener("accountChanged", handlePhantomAccountChanged);
       }
     };
-  }, [data?.walletAddress, isConnected,address]);
+  }, [handlePhantomAccountChanged]);
+  
 
   
 
