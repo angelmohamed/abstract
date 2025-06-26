@@ -374,31 +374,31 @@ const Chart: React.FC<ChartProps> = ({
                             </Button>
                         </div>
                         <div className="flex items-center gap-2 mt-3">
-                            <Popover.Root>
-                                <Popover.Trigger asChild>
-                                    <Button className="...">
-                                    <CountdownTimerIcon />
-                                    </Button>
-                                </Popover.Trigger>
-                                <Popover.Content className="history_card" sideOffset={5}>
-                                    <ul className="history_card_list">
-                                    <li>Ended: May 7, 2025</li>
-                                    <li>Ended: March 19, 2025</li>
-                                    {seriesData?.length > 0 && (
-                                        seriesData
-                                            .filter((series) => series.status !== "active")
-                                            .map((event) => (
-                                                <li key={event?.slug} onClick={()=>route.push(`/event-page/${event.slug}`)}>
-                                                    {/* <Link href={`/event-page/${event.slug}`}> */}
-                                                        {momentFormat(event.endDate,"D MMM YYYY, h:mm A")}
-                                                    {/* </Link> */}
-                                                </li>
-                                            ))
-                                        )}
-                                    </ul>
-                                    <Popover.Arrow className="HoverCardArrow" />
-                                </Popover.Content>
-                            </Popover.Root>
+                            {seriesData?.length > 0 && (
+                                <Popover.Root>
+                                    <Popover.Trigger asChild>
+                                        <Button className="...">
+                                            <CountdownTimerIcon />
+                                        </Button>
+                                    </Popover.Trigger>
+                                    <Popover.Content className="history_card" sideOffset={5}>
+                                        <ul className="history_card_list">
+                                        {seriesData?.length > 0 && (
+                                            seriesData
+                                                .filter((series) => series.status !== "active")
+                                                .map((event) => (
+                                                    <li key={event?.slug} onClick={()=>route.push(`/event-page/${event.slug}`)}>
+                                                        {/* <Link href={`/event-page/${event.slug}`}> */}
+                                                            {momentFormat(event.endDate,"D MMM YYYY, h:mm A")}
+                                                        {/* </Link> */}
+                                                    </li>
+                                                ))
+                                            )}
+                                        </ul>
+                                        <Popover.Arrow className="HoverCardArrow" />
+                                    </Popover.Content>
+                                </Popover.Root>
+                            )}
                             {seriesData?.length > 0 && (
                                 seriesData
                                     .filter((series) => series.status === "active")

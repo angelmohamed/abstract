@@ -120,11 +120,18 @@ const ActivityTable = () => {
           ))}
         </tbody>
       </table>
-      <PaginationComp
-        pagination={pagination}
-        setPagination={setPagination}
-        hasMore={hasMore}
-      />
+      {trades.length === 0 && (
+          <div  className="flex justify-center my-5 text-gray-500">
+              No Activity found
+          </div>
+      )}
+      {trades.length > 0 && (
+          <PaginationComp
+            pagination={pagination}
+            setPagination={setPagination}
+            hasMore={hasMore}
+          />
+      )}     
     </div>
   );
 }
