@@ -43,13 +43,13 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
   const [loading, setLoading] = useState<boolean>(true);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
-    limit: 8,
+    limit: 16,
     offset: 0,
   });
 
   useEffect(() => {
     // Reset pagination when category or showClosed changes
-    setPagination({ page: 1, limit: 8, offset: 0 });
+    setPagination({ page: 1, limit: 16, offset: 0 });
   }, [selectCategory, showClosed, selectedSubcategory]);
 
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                       event.marketId[0]?.last
                     }
 
-                    totalPool={`$${(event.marketId?.[0]?.volume ? event.marketId[0].volume.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
+                    totalPool={`$${(event.marketId?.[0]?.volume ? (event.marketId[0].volume/100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
                     yesButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[0]?.title || "Yes"}`}
                     noButtonLabel = {`Buy ${event.marketId[0]?.outcome?.[1]?.title || "No"}`}
                     yesPotential={
@@ -116,7 +116,10 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                   <MultipleOptionCard
                     imageSrc={event?.image || '/images/logo.png'} // 提供默认图片路径
                     question={event?.title}
-                    totalPool={`$${(event.marketId ? event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00")}`}
+                    totalPool={(
+                      event.marketId 
+                      ? event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0) 
+                      : 0)}
                     options={event?.marketId}
                     forecast={event?.forecast}
                   />

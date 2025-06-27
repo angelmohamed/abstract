@@ -8,6 +8,11 @@ import React, { useState, useEffect ,useCallback} from "react";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
 import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/app/components/ui/avatar";
+import {
   ChevronDownIcon,
   OpenInNewWindowIcon,
   Cross2Icon,
@@ -39,6 +44,7 @@ import local from "next/font/local/index.js";
 import { availableBalance } from "@/lib/utils.js";
 import { Connection, PublicKey } from '@solana/web3.js';
 import { PnLFormatted } from "@/utils/helpers.js";
+import { Copy } from "lucide-react";
 
 let initialData = {
   otp: "",
@@ -421,7 +427,7 @@ export default function Authentication() {
 
   
 
-  console.log(address, balance ,"addresss")
+  // console.log(address, balance ,"addresss")
  
   return (
     <>
@@ -840,13 +846,27 @@ export default function Authentication() {
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button className="profile_button" aria-label="Customise options">
-                <img
+                {/* <img
                   src={data?.profileImg ? data?.profileImg : "/images/default_user.png"}
                   alt="Profile Icon"
                   width={32}
                   height={32}
                   className="rounded-full"
-                />
+                /> */}
+                <Avatar className="w-6 h-6">
+                    {data?.profileImg ? (
+                    <AvatarImage
+                        src={data?.profileImg}
+                        alt={data?.username || "User Avatar"}
+                    />
+                    ) : (
+                    <AvatarFallback className="bg-blue-500 text-sm">
+                        {data?.username
+                        ? data?.username.charAt(0).toUpperCase()
+                        : data?.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                    )}
+                </Avatar>
                 <ChevronDownIcon className="w-4 h-4" />
               </button>
             </DropdownMenu.Trigger>
@@ -854,28 +874,50 @@ export default function Authentication() {
               <div className="custom_dropdown_portal">
                 <DropdownMenu.Content className="profile_menu" sideOffset={5}>
                   <div className="flex items-center space-x-3">
-                    <img
+                    {/* <img
                       src={data?.profileImg ? data?.profileImg : "/images/default_user.png"}
                       alt="Profile Icon"
                       width={40}
                       height={40}
                       className="rounded-full"
+                    /> */}
+                    <Avatar className="w-10 h-10">
+                    {data?.profileImg ? (
+                    <AvatarImage
+                        src={data?.profileImg}
+                        alt={data?.username || "User Avatar"}
                     />
+                    ) : (
+                    <AvatarFallback className="bg-blue-500 text-md">
+                        {data?.username
+                        ? data?.username.charAt(0).toUpperCase()
+                        : data?.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                    )}
+                </Avatar>
                     <div>
                       <span className="text-sm text-gray-100">
                         {data?.name ? data?.name : "--"}
                       </span>
                       <div className="text-sm text-gray-100 flex items-center space-x-2">
-                        <Tooltip.Provider>
-                          <Tooltip.Root>
-                            <Tooltip.Trigger asChild>
-                              <button className="IconButton bg-[#131212] px-2 py-1 rounded" onClick={() => {
-                                navigator.clipboard.writeText(address ? address : data?.email);
-                                toastAlert("success", "Address copied to clipboard");
-                              }}>
+                        <button className="IconButton bg-[#131212] px-2 py-1 rounded" 
+                              // onClick={() => {
+                              //   navigator.clipboard.writeText(address ? address : data?.email);
+                              //   toastAlert("success", "Address copied to clipboard");
+                              // }}
+                              >
                                 <span className="text-[12px]">
                                   {address ? shortText(address) : data?.email}
                                 </span>
+                              </button>
+                        <Tooltip.Provider>
+                          <Tooltip.Root>
+                            <Tooltip.Trigger asChild>
+                              <button className="IconButton bg-[#131212] px-2 py-2 rounded" onClick={() => {
+                                navigator.clipboard.writeText(address ? address : data?.email);
+                                toastAlert("success", "Address copied to clipboard");
+                              }}>
+                                <Copy size={14} />
                               </button>
                             </Tooltip.Trigger>
                             <Tooltip.Portal>

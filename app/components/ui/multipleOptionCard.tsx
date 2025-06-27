@@ -222,7 +222,7 @@ export function MultipleOptionCard({
               textOverflow: "ellipsis",
             }}
           >
-            {totalPool && <CardDescription>{totalPool} Vol</CardDescription>}
+            <CardDescription>${totalPool ? parseFloat(totalPool)/100 : "0.00"} Vol</CardDescription>        
           </span>
           <div className="flex gap-2 items-center justify-end">
             {forecast && (

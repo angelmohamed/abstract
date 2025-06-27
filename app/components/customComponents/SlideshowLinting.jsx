@@ -93,8 +93,12 @@ export default function EventCarousel() {
                     backgroundImage={event.bannerImage || "/images/travis.png"}
                     imageSrc={event.image || "/images/travis.png"}
                     question={event.title}
-                    totalPool={`$${event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0)?.toLocaleString() || "0"}`}
+                    totalPool={(
+                      event.marketId 
+                      ? event.marketId?.reduce((acc, mark) => acc + (mark.volume || 0) , 0) 
+                      : 0)}
                     options={event.marketId}
+                    forecast={event?.forecast}
                   />
                 // ) : index % 3 === 2 ? (
                 //   <PreviewCard
@@ -125,7 +129,7 @@ export default function EventCarousel() {
                     probability={event.marketId[0]?.last}
                     totalPool={`$${(
                       event.marketId?.[0]?.volume
-                        ? event.marketId?.[0]?.volume.toLocaleString(undefined, {
+                        ? (event.marketId?.[0]?.volume/100).toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })
