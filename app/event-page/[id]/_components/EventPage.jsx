@@ -15,7 +15,7 @@ import { TradingCard } from "@/app/components/customComponents/TradingCard";
 import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerHeader } from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
 import { SocketContext, subscribe, unsubscribe } from "@/config/socketConnectivity";
-import { getOrderBook, getEventById } from "@/services/market";
+import { getOrderBook, getEventById, getCategories } from "@/services/market";
 import { isEmpty } from "@/lib/isEmpty";
 import { getOpenOrdersByEvtId } from "@/services/user";
 import { OpenOrderDialog } from "@/app/components/customComponents/OpenOrderDialog";
@@ -29,6 +29,7 @@ import MonthlyListenersChart from "@/app/components/customComponents/MonthlyList
 // import SpotifyLogo from "../../../public/images/spotifylogo.png";
 import Jackboys2 from "@/public/images/jackboys2.png";
 import Astroworld from "@/public/images/astroworld.png";
+import { NavigationBar } from "@/app/components/ui/navigation-menu";
 
 export default function EventPage() {
   const param = useParams();
@@ -51,6 +52,9 @@ export default function EventPage() {
   const [openOrders, setOpenOrders] = useState([]);
   const [openOrderDialog, setOpenOrderDialog] = useState(false); 
   const [showFullText, setShowFullText] = useState(false);
+  const [navigationItems, setNavigationItems] = useState([]);
+  const [selectCategory, setSelectedCategory] = useState("all");
+
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -195,13 +199,33 @@ export default function EventPage() {
     }
   }
 
+  const fetchMenuItems = async () => {
+    try {
+      const { success, result } = await getCategories();
+      if (success) {
+        setNavigationItems(result);
+      }
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
   return (
     <>
       {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0"> */}
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
           <Header />
-          {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
+          <NavigationBar
+            menuItems={navigationItems}
+            showLiveTag={true}
+            setSelectedCategory={setSelectedCategory}
+            selectedCategory={selectCategory}
+          />
         </div>
         <div className="container mx-auto px-4 max-w-full overflow-hidden">
           {eventsLoading ? (
