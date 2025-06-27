@@ -222,7 +222,7 @@ export default function ProfileSettings() {
                     id="username"
                     value={username}
                     onChange={handleUsernameChange}
-                    className="bg-black border-[#252525] focus-visible:outline-none"
+                    className="bg-black border-[#252525] focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     placeholder="Set a unique username (letters, numbers, underscore only)"
                     disabled={isDisable}
                 />
@@ -239,7 +239,7 @@ export default function ProfileSettings() {
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-black border-[#252525] focus-visible:outline-none"
+                    className="bg-black border-[#252525] focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none "
                     placeholder="Your name (optional)"
                 />
                 </div>

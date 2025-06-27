@@ -19,6 +19,7 @@ import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting
 import { getCategories, getTagsByCategory } from "@/services/market";
 import { getInfoCards } from "@/services/user";
 import { Footer } from "./components/customComponents/Footer";
+import { ScrollArea } from "radix-ui";
 
 const InfoCards = () => {
   const [cards, setCards] = useState([]);
@@ -98,31 +99,42 @@ const SubcategoryBar = ({
 }) => (
   <div className="flex justify-center pb-4 pt-2 items-center">
     <div className="w-full">
-      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap scrollbar-hide">
-        <Button
-          className={cn(
-            selectedSubcategory === "all"
-              ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
-              : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
-          )}
-          onClick={() => setSelectedSubcategory("all")}
+      <ScrollArea.Root className="ScrollAreaRoot w-full">
+        <ScrollArea.Viewport className="ScrollAreaViewport">
+          <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap pb-5">
+            <Button
+              className={cn(
+                selectedSubcategory === "all"
+                  ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
+                  : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+              )}
+              onClick={() => setSelectedSubcategory("all")}
+            >
+              For You
+            </Button>
+            {subcategories?.map((subcategory) => (
+              <Button
+                key={subcategory.slug}
+                className={cn(
+                  selectedSubcategory === subcategory.slug
+                    ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
+                    : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+                )}
+                onClick={() => setSelectedSubcategory(subcategory.slug)}
+              >
+                {subcategory.title}
+              </Button>
+            ))}
+          </div>
+        </ScrollArea.Viewport>
+        <ScrollArea.Scrollbar
+          className="ScrollAreaScrollbar"
+          orientation="horizontal"
         >
-          For You
-        </Button>
-        {subcategories?.map((subcategory) => (
-          <Button
-            key={subcategory.slug}
-            className={cn(
-              selectedSubcategory === subcategory.slug
-                ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
-                : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
-            )}
-            onClick={() => setSelectedSubcategory(subcategory.slug)}
-          >
-            {subcategory.title}
-          </Button>
-        ))}
-      </div>
+          <ScrollArea.Thumb className="ScrollAreaThumb" />
+        </ScrollArea.Scrollbar>
+        <ScrollArea.Corner className="ScrollAreaCorner" />
+      </ScrollArea.Root>
     </div>
   </div>
 );
@@ -172,37 +184,37 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching tags:", error);
     }
-  }
+  };
 
-  useEffect(()=>{
-    fetchTags()
-  },[selectCategory])
+  useEffect(() => {
+    fetchTags();
+  }, [selectCategory]);
 
   return (
     <>
-    <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
-      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
-        <Header />
-        <NavigationBar
-          menuItems={navigationItems}
-          showLiveTag={true}
-          setSelectedCategory={setSelectedCategory}
-          selectedCategory={selectCategory}
-        />
-      </div>
+      <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+          <Header />
+          <NavigationBar
+            menuItems={navigationItems}
+            showLiveTag={true}
+            setSelectedCategory={setSelectedCategory}
+            selectedCategory={selectCategory}
+          />
+        </div>
 
-      <div className="container mx-auto px-4 max-w-full overflow-hidden">
-        <SubcategoryBar
-          subcategories={subcategoryList}
-          selectedSubcategory={selectedSubcategory}
-          setSelectedSubcategory={setSelectedSubcategory}
-        />
-        <SlideshowLinting />
+        <div className="container mx-auto px-4 max-w-full overflow-hidden">
+          <SubcategoryBar
+            subcategories={subcategoryList}
+            selectedSubcategory={selectedSubcategory}
+            setSelectedSubcategory={setSelectedSubcategory}
+          />
+          <SlideshowLinting />
 
-        {/* Info Cards Section */}
-        <InfoCards />
+          {/* Info Cards Section */}
+          <InfoCards />
 
-        {/* <div>
+          {/* <div>
           <div className="flex justify-center pb-5 sm:pt-4 pt-0 items-center">
             <div className="w-full">
               <div className="flex justify-center gap-2 sm:gap-4">
@@ -237,19 +249,19 @@ export default function Home() {
           </div>
         </div> */}
 
-        {/* Event Cards Section */}
-        <div className="flex pb-6 mt-8 justify-center w-full">
-          <div className="w-full">
-            <EventLinting
-              selectCategory={selectCategory}
-              showClosed={showClosed}
-              selectedSubcategory={selectedSubcategory}
-            />
+          {/* Event Cards Section */}
+          <div className="flex pb-6 mt-8 justify-center w-full">
+            <div className="w-full">
+              <EventLinting
+                selectCategory={selectCategory}
+                showClosed={showClosed}
+                selectedSubcategory={selectedSubcategory}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
-    <Footer/>
+      <Footer />
     </>
   );
 }

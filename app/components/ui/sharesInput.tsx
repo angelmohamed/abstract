@@ -13,7 +13,7 @@ const SharesInput = React.forwardRef<HTMLInputElement, SharesInputProps>(
         <input
           type={type}
           className={cn(
-            "flex-1 h-10 rounded-md bg-transparent text-base placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+            "flex-1 h-10 rounded-md bg-transparent text-base placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none",
             className
           )}
           ref={ref}

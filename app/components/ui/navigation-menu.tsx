@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ScrollArea } from "radix-ui";
 
 interface MenuItem {
   title: string;
@@ -183,6 +184,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     router.replace(window.location.pathname);
   };
 
+  const TAGS = Array.from({ length: 50 }).map(
+    (_, i, a) => `v1.2.0-beta.${a.length - i}`
+  );
+
   return (
     <div className="container mx-auto px-4 max-w-full overflow-hidden">
       <div className="w-full flex justify-start mt-0 pb-3">
@@ -207,7 +212,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
         {/* Horizontal category list with arrows */}
         <div className="flex items-center w-full mx-4">
-          <button
+          {/* <button
             className="p-2 text-white bg-[transparent] mr-2 disabled:opacity-0"
             onClick={() => {
               categoryListRef.current?.scrollBy({
@@ -220,37 +225,49 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             type="button"
           >
             <ChevronLeftIcon height={24} width={24} />
-          </button>
-          <div
-            ref={categoryListRef}
-            className="flex overflow-x-auto no-scrollbar gap-2"
-            style={{ scrollBehavior: "smooth" }}
-            onScroll={handleCategoryScroll}
-          >
-            <div
-              className={cn(
-                "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
-                selectedCategory === "all" && "text-white bg-slate-700"
-              )}
-              onClick={() => handleCategoryClick("all")}
-            >
-              Trending
-            </div>
-            {menuItems.length > 0 &&
-              menuItems.map((item) => (
+          </button> */}
+          <ScrollArea.Root className="ScrollAreaRoot w-full">
+            <ScrollArea.Viewport className="ScrollAreaViewport">
+              <div
+                ref={categoryListRef}
+                className="flex flex-nowrap gap-2 pb-5"
+                style={{ scrollBehavior: "smooth" }}
+                onScroll={handleCategoryScroll}
+              >
                 <div
-                  key={item.title}
                   className={cn(
                     "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
-                    selectedCategory === item.slug && "text-white bg-slate-700"
+                    selectedCategory === "all" && "text-white bg-slate-700"
                   )}
-                  onClick={() => handleCategoryClick(item.slug)}
+                  onClick={() => handleCategoryClick("all")}
                 >
-                  {item.title}
+                  Trending
                 </div>
-              ))}
-          </div>
-          <button
+                {menuItems.length > 0 &&
+                  menuItems.map((item) => (
+                    <div
+                      key={item.title}
+                      className={cn(
+                        "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
+                        selectedCategory === item.slug &&
+                          "text-white bg-slate-700"
+                      )}
+                      onClick={() => handleCategoryClick(item.slug)}
+                    >
+                      {item.title}
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar
+              className="ScrollAreaScrollbar"
+              orientation="horizontal"
+            >
+              <ScrollArea.Thumb className="ScrollAreaThumb" />
+            </ScrollArea.Scrollbar>
+            <ScrollArea.Corner className="ScrollAreaCorner" />
+          </ScrollArea.Root>
+          {/* <button
             className="p-2 text-white bg-[transparent] ml-2 disabled:opacity-0"
             onClick={() => {
               categoryListRef.current?.scrollBy({
@@ -263,7 +280,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             type="button"
           >
             <ChevronRightIcon height={24} width={24} />
-          </button>
+          </button> */}
         </div>
       </div>
     </div>

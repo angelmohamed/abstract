@@ -515,7 +515,7 @@ export default function Authentication() {
             </div>
             <div className="custom_grpinp">
               <input
-                className="Input"
+                className="Input focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                 type="email"
                 name="email"
                 value={email}
@@ -601,7 +601,7 @@ export default function Authentication() {
               </Dialog.Title><br />
               <div className="custom_grpinp">
                 <input
-                  className="Input"
+                  className="Input focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                   type="otp"
                   name="otp"
                   value={otp ? otp : ""}
@@ -663,7 +663,7 @@ export default function Authentication() {
               <br />
               <div className="custom_grpinp">
                 <input
-                  className="Input"
+                  className="Input focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                   type="email"
                   name="email"
                   value={email ? email : ""}

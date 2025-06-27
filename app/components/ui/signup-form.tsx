@@ -139,6 +139,7 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="Enter your username"
                       required
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     />
                   </div>
                 </div>
@@ -153,6 +154,7 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
                       type="email"
                       placeholder="johndoe@example.com"
                       required
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     />
                   </div>
                 </div>
@@ -169,6 +171,7 @@ export function SignupForm({ className, onSwitchToLogin, ...props }: SignupFormP
                       placeholder="Enter password"
                       id="password"
                       required
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     />
                   </div>
                 </div>

@@ -54,7 +54,7 @@ export function MultipleOptionCard({
   totalPool,
   options,
   forecast = false,
-  yesColor = "#27ae60",
+  yesColor = "#7dfdfe",
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
@@ -171,7 +171,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleYesClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#1f3e2c] text-[#27ae60] hover:bg-[#27ae60] hover:text-[#1f3e2c] text-[10px] transition-colors duration-300 rounded-full capitalize"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] text-[10px] transition-colors duration-300 rounded-full capitalize"
                         >
                           {(option.outcome && option.outcome?.[0]?.title) ||
                             "Yes"}
@@ -190,7 +190,7 @@ export function MultipleOptionCard({
                       >
                         <Button
                           onClick={() => handleNoClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#362020] text-[#e64800] hover:bg-[#e64800] hover:text-[#362020] text-[10px] transition-colors duration-300 rounded-full capitalize"
+                          className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] text-[10px] transition-colors duration-300 rounded-full capitalize"
                         >
                           {(option.outcome && option.outcome?.[1]?.title) ||
                             "No"}
