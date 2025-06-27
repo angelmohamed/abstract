@@ -106,11 +106,21 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
 
   const marketOrderValidation = () => {
     let errors: any = {};
-    if (!ordVal) {
-      errors.ordVal = "Amount field is required";
+    if( buyorsell === "buy"){
+      if (!ordVal) {
+        errors.ordVal = "Amount field is required";
+      }
+      if (Number(ordVal) <= 0) {
+        errors.ordVal = "Amount must be greater than 0";
+      }
     }
-    if (Number(ordVal) <= 0) {
-      errors.ordVal = "Amount must be greater than 0";
+     if( buyorsell === "sell"){
+      if (!amount) {
+        errors.amount = "Amount field is required";
+      }
+      if (Number(amount) <= 0) {
+        errors.amount = "Amount must be greater than 0";
+      }
     }
     // if (customDate && customDate <= new Date()) {
     //   errors.customDate = "Custom date must be in the future";

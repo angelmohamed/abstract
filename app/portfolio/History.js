@@ -178,7 +178,7 @@ const History = () => {
         </table>
         {Object.entries(ClosedPnL)?.length === 0 && (
             <div  className="flex justify-center my-5 text-gray-500">
-                No Positions found
+                No history found
             </div>
         )}
       </div>

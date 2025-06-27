@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
+import { toTwoDecimal } from "@/utils/helpers";
 
 interface ChartDataPoint {
   timestamp: string;
@@ -37,7 +38,7 @@ interface CustomTooltipProps {
 
 interface MonthlyListenersChartProps {
   title?: string;
-  volume?: string;
+  volume?: number;
   endDate?: string;
   image: any;
   customData: ChartDataPoint[];
@@ -246,7 +247,7 @@ const MonthlyListenersChart: React.FC<MonthlyListenersChartProps> = ({
           {/* Volume and Date info */}
           <CardDescription className="py-2 flex flex-col sm:flex-row sm:gap-3 gap-1 justify-start items-start sm:items-center">
             <div className="flex flex-wrap gap-3 items-center">
-              <p>Vol ${volume || ""}</p>
+              <p>Vol ${(volume && toTwoDecimal(volume/100)?.toLocaleString(undefined,{ minimumFractionDigits: 2, maximumFractionDigits: 2 })) || "0.00"}</p>
               {endDate && (
                 <p className="flex items-center gap-1">
                   <Clock size={14} />{" "}

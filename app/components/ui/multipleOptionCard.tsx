@@ -152,11 +152,11 @@ export function MultipleOptionCard({
 
                     <div className="flex justify-center items-center align-middle gap-1">
                       <p>
-                        {option.last &&
+                        {option.last ?
                           // decimalToPercentage(
                           //   JSON.parse(option.outcomePrices)[0]
                           // ) + "%"
-                          `${option.last}%`}
+                          `${option.last}%` : ""}
                       </p>
                       {/* Yes Button */}
                       {/* Yes Button */}
@@ -222,7 +222,7 @@ export function MultipleOptionCard({
               textOverflow: "ellipsis",
             }}
           >
-            <CardDescription>${totalPool ? parseFloat(totalPool)/100 : "0.00"} Vol</CardDescription>        
+            <CardDescription>${totalPool ? (parseFloat(totalPool)/100)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} Vol</CardDescription>        
           </span>
           <div className="flex gap-2 items-center justify-end">
             {forecast && (
