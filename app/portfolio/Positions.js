@@ -252,12 +252,12 @@ const Positions = () => {
                                         </span>
                                         <div className="flex flex-col gap-1">
                                         <Link className="text-sm font-normal" href={`/event-page/${item?.eventSlug}`}>
-                                            <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
+                                            <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
                                             {capitalize(data.side)}
                                             </Badge> {data.marketGroupTitle}
                                         </Link>
                                         <div className="flex items-center gap-2">
-                                            {/* <Badge className="z-10 text-xs text-[#27ae60] bg-[#1f3e2c] font-normal">
+                                            {/* <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
                                             {data.side}
                                             </Badge> */}
                                             <span className="text-xs font-normal">
@@ -277,7 +277,7 @@ const Positions = () => {
                                     <div className="flex items-center space-x-2">
                                         <Dialog.Root>
                                       <Dialog.Trigger asChild>
-                                        <Button className="bg-[#e64800] text-[#fff] hover:text-[#000] w-[80px]">
+                                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000] w-[80px]">
                                           Sell
                                         </Button>
                                       </Dialog.Trigger>
@@ -309,7 +309,7 @@ const Positions = () => {
                                             </div>
                                             <div className="flex items-center justify-between mb-4">
                                               
-                                              <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#1f3e2c] font-normal rounded">
+                                              <Badge className="z-10 text-[16px] text-[#7dfdfe] bg-[#152632] font-normal rounded">
                                                 56x Chennai Super Kings
                                               </Badge>
                                               <span>Avg {toFixedDown(data.filled?.[0]?.price,1)}¢</span>
@@ -329,7 +329,7 @@ const Positions = () => {
                                               </div>
                                               <div>
                                                 <h5 className="text-gray-400">To win</h5>
-                                                <p className="text-[#27ae60] mb-0 font-semibold">
+                                                <p className="text-[#7dfdfe] mb-0 font-semibold">
                                                   ${data.quantity?.toFixed(2)}
                                                 </p>
                                               </div>
@@ -446,7 +446,7 @@ const Positions = () => {
                 </div>
                 <div className="flex items-center justify-between mb-4">
                   
-                  <Badge className="z-10 text-[16px] text-[#27ae60] bg-[#1f3e2c] font-normal rounded">
+                  <Badge className="z-10 text-[16px] text-[#7dfdfe] bg-[#152632] font-normal rounded">
                     {/* 56x Chennai Super Kings */}
                     {capitalize(selectedMarketData?.side)}  {selectedMarketData?.marketGroupTitle}
                   </Badge>
@@ -465,7 +465,7 @@ const Positions = () => {
                   </div>
                   <div>
                     <h5 className="text-gray-400">To win</h5>
-                    <p className="text-[#27ae60] mb-0 font-semibold">
+                    <p className="text-[#7dfdfe] mb-0 font-semibold">
                       ${selectedMarketData?.quantity?.toFixed(2)}
                     </p>
                   </div>

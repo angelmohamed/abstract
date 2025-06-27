@@ -140,7 +140,7 @@ export function TradingCard({
             </div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
-            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#27ae60" : "#e64800"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned</h1>}
+            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#7dfdfe" : "#ec4899"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned</h1>}
             <div className="pt-2">
               <Options
                 defaultValue={activeView}
@@ -150,7 +150,7 @@ export function TradingCard({
               >
                 <OptionsList className="grid w-full grid-cols-2 gap-2">
                   <OptionsTrigger
-                    className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#1f3e2c] data-[state=active]:text-[#27ae60] data-[state=active]:border-[#1f3e2c]"
+                    className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7dfdfe] data-[state=active]:border-[#152632]"
                     value="Yes"
                   >
                     
@@ -162,7 +162,7 @@ export function TradingCard({
                         `${toFixedDown(sellYes?.[0], 2)}¢`}
                   </OptionsTrigger>
                   <OptionsTrigger
-                    className="hover:bg-[#282828] data-[state=active]:border-[#362020] data-[state=active]:text-[#e64800] data-[state=active]:bg-[#362020]"
+                    className="hover:bg-[#282828] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:bg-[#321b29]"
                     value="No"
                   >
                     {firstLetterCase(market?.outcome?.[1]?.title) || "No"}{" "}

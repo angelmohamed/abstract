@@ -63,6 +63,7 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
                       type="email"
                       placeholder="johndoe@example.com"
                       required
+                      className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
                     />
                   </div>
                 </div>
@@ -77,7 +78,7 @@ export function LoginForm({ className, onSwitchToSignup, ...props }: LoginFormPr
                     </a>
                   </div>
                   <div>
-                    <Input id="password" type="password" required />
+                    <Input id="password" type="password" required className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none" />
                   </div>
                 </div>
                 <Button type="submit">

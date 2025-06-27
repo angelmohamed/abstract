@@ -324,7 +324,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 className={cn(
                   "flex-1 p-2 transition-colors duration-300",
                   activeView === "Yes"
-                    ? "bg-transparent text-[#27ae60]"
+                    ? "bg-transparent text-[#7dfdfe]"
                     : "bg-transparent text-white hover:bg-transparent"
                 )}
               >
@@ -396,7 +396,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       className="w-full"
                                     />
                                   </div>
-                                  <div className="text-center w-[20%] text-[#e64800]">
+                                  <div className="text-center w-[20%] text-[#ec4899]">
                                     {toFixedDown(Number(row[0]), 2) + "¢"} 
                                   </div>
                                   <div className="w-[25%] text-center flex items-center justify-center gap-2">
@@ -478,7 +478,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       className="hover:bg-[#0a0a0a]"
                                     />
                                   </div>
-                                  <div className="w-[20%] text-center text-[#27ae60]">
+                                  <div className="w-[20%] text-center text-[#7dfdfe]">
                                     {toFixedDown(Number(row[0]), 2) + "¢"} 
                                   </div>
                                   <div className="w-[25%] text-center flex items-center justify-center gap-2">

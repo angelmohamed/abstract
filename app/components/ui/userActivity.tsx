@@ -16,7 +16,7 @@ export function Transition(): React.ReactElement {
         {/* Username and Yes count */}
         <div className="flex items-center space-x-2">
           <p className="text-sm font-semibold text-white">Angel Mo</p>
-          <p className="text-xs text-[#27ae60]">• 274136 Yes</p>
+          <p className="text-xs text-[#7dfdfe]">• 274136 Yes</p>
                   {/* Date */}
           <div className="text-sm font-semibold">
             <p className="text-xs text-[#757575]">12/01/2025</p>

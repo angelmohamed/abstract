@@ -100,7 +100,7 @@ export function TradingCard({ title, volume, image, activeView, setActiveView })
                           <span className="text-muted-foreground">
                             Potential return if
                           </span>
-                          <span className="text-[#27ae60]"> Yes </span>
+                          <span className="text-[#7dfdfe]"> Yes </span>
                           <span className="text-muted-foreground"> wins</span>
                         </div>
                         <span className="text-foreground">$500.00</span>{" "}
@@ -184,7 +184,7 @@ export function TradingCard({ title, volume, image, activeView, setActiveView })
                           <span className="text-muted-foreground">
                             Average price return per
                           </span>
-                          <span className="text-[#27ae60]"> Yes</span>
+                          <span className="text-[#7dfdfe]"> Yes</span>
                         </div>
                         <span className="text-foreground">$500.00</span>{" "}
                         {/* Replace with actual number */}

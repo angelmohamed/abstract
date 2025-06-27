@@ -151,11 +151,11 @@ const Chart: React.FC<ChartProps> = ({
         if (selectedYes) {
             setChartData(chartDataYes);
             // setChartConfig({
-            //     asset1: { label: "Yes", color: "#27ae60" },
+            //     asset1: { label: "Yes", color: "#7dfdfe" },
             // });
         } else {
             setChartData(chartDataNo);
-            // setChartConfig({ asset1: { label: "No", color: "#e64800" } });
+            // setChartConfig({ asset1: { label: "No", color: "#ec4899" } });
         }
     }, [selectedYes, chartDataYes, chartDataNo]);
 
@@ -197,7 +197,7 @@ const Chart: React.FC<ChartProps> = ({
                     }else{
                         setChartConfig([{
                             label: capitalize(selectedYes ? "yes" : "no"),
-                            color: selectedYes ? "#27ae60" : "#e64800",
+                            color: selectedYes ? "#7dfdfe" : "#ec4899",
                             asset: "asset1"
                         }]);
                     }
@@ -277,7 +277,7 @@ const Chart: React.FC<ChartProps> = ({
                 : chance !== undefined
                     ? 100 - chance
                     : undefined;
-    const chanceColor = selectedYes ? "#27ae60" : "#e64800";
+    const chanceColor = selectedYes ? "#7dfdfe" : "#ec4899";
     const [activeDate, setActiveDate] = useState("Jun 18");
     const [multiDisplayChance, setMultiDisplayChance] = useState<any>([]);
     useEffect(() => {

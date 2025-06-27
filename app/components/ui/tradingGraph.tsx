@@ -83,8 +83,8 @@ export function TradingGraph({
           <CardContent>
           <div className="w-[100%]">
           <CardHeader>
-            <CardTitle className="text-4xl text-[#27ae60]" >25% chance</CardTitle>
-            <CardDescription className="text-[#27ae60]"> • Yes
+            <CardTitle className="text-4xl text-[#7dfdfe]" >25% chance</CardTitle>
+            <CardDescription className="text-[#7dfdfe]"> • Yes
               </CardDescription>
           </CardHeader>
           <CardContent>
@@ -122,7 +122,7 @@ export function TradingGraph({
                 <Line
                   dataKey="desktop"
                   type="natural"
-                  stroke="#27ae60"
+                  stroke="#7dfdfe"
                   strokeWidth={2}
                   dot={false}
                 />
