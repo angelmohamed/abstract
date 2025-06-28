@@ -10,6 +10,8 @@ import { MacbookScroll } from "@/app/components/ui/macbook-scroll";
 
 // Ensure correct handling of static assets
 import SONOTRADE from "@/app/sonotrade.png"; // Next.js requires import for local static assets
+import { Footer } from "../components/customComponents/Footer";
+import Header from "../Header";
 
 // If these images are in the `public` folder under `/public/images`, reference them as strings.
 const Frame4 = "/images/Frame4.png";
@@ -136,9 +138,12 @@ export default function Home() {
   return (
     <div className="text-white min-h-screen flex flex-col bg-black">
       {/* Header */}
+      <Link href="/">
       <header className="mbp-header pl-4 pt-4 pb-8">
         <Image src={SONOTRADE} alt="SONOTRADE Logo" width={220} priority />
       </header>
+      </Link>
+      {/* <Header /> */}
 
 
       {/* Hero Section */}
@@ -171,6 +176,7 @@ export default function Home() {
           ))}
         </div>
       </section>
+      <Footer/>
     </div>
   );
 }

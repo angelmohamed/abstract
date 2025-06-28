@@ -25,6 +25,7 @@ import { useDispatch } from "react-redux";
 import NotificationSettings from "./NotificationSettings";
 import WalletSettings from "./WalletSettings";
 import ProfileSettings from "./ProfileSettings";
+import { Footer } from "../components/customComponents/Footer";
 
 // Helper function to upload image to Supabase storage
 const uploadToStorage = async (file: File): Promise<string> => {
@@ -128,6 +129,7 @@ export default function ProfilePage() {
           </div>
         </Tabs.Root>
       </div>
+      <Footer/>
     </div>
   );
 }

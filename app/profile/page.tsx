@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getPositions, getTradeOverview, getUserData } from "@/services/user";
 import ActivityTable from "./activity";
 import Positions from "../portfolio/Positions";
+import { Footer } from "../components/customComponents/Footer";
 
 // Define PolygonScan transaction type
 interface PolygonTx {
@@ -307,6 +308,7 @@ export default function PortfolioPage() {
             )} */}
           </TabsContent>
         </Tabs>
+        <Footer/>
       </div>
     </div>
   );

@@ -134,7 +134,13 @@ const EventCard: React.FC<EventCardProps> = ({
               value={probability}
               className="w-[100%]"
             />
-           ) : null} 
+           ) : (
+            <Progress
+              // value={probability && decimalToPercentage(probability)}
+              value={0}
+              className="w-[100%]"
+            />
+           )} 
         </div>
         <div
           className="pb-0"

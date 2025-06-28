@@ -48,9 +48,10 @@ export const Footer: React.FC = () => {
               About
             </Link>
             <span>|</span>
-            <Link href="/register" className="hover:underline">
+            {/* <Link href="/register" className="hover:underline">
               Waitlist
-            </Link>
+            </Link> */}
+            <span>Waitlist</span>
           </div>
         </div>
       </div>

@@ -102,6 +102,19 @@ export const getPriceHistory = async (id: string, params: any) => {
   }
 };
 
+export const getForecastHistory = async (id: string, params: any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/events/forecast-history/${id}`,
+      method: "get",
+      params,
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
 //get comments
 export const getComments = async (eventId: string) => {
   try {
