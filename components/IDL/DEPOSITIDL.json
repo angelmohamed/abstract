@@ -245,6 +245,26 @@
   ],
   "accounts": [
     {
+      "name": "UserDeposit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalDepositedUsd",
+            "type": "u128"
+          },
+          {
+            "name": "lastDepositTime",
+            "type": "i64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "State",
       "type": {
         "kind": "struct",
@@ -283,26 +303,6 @@
           },
           {
             "name": "isSupported",
-            "type": "bool"
-          }
-        ]
-      }
-    },
-    {
-      "name": "UserDeposit",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "totalDepositedUsd",
-            "type": "u64"
-          },
-          {
-            "name": "lastDepositTime",
-            "type": "i64"
-          },
-          {
-            "name": "isActive",
             "type": "bool"
           }
         ]
@@ -434,6 +434,11 @@
     },
     {
       "code": 6006,
+      "name": "InvalidPriceDecimals",
+      "msg": "Invalid price decimals"
+    },
+    {
+      "code": 6007,
       "name": "Unauthorized",
       "msg": "Unauthorized access"
     }
