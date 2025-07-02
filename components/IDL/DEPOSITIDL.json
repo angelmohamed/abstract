@@ -241,6 +241,62 @@
       "returns": {
         "defined": "PriceData"
       }
+    },
+    {
+      "name": "withdrawSplAdminToUser",
+      "accounts": [
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "adminTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userWithdraw",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
     }
   ],
   "accounts": [
@@ -252,6 +308,26 @@
           {
             "name": "totalDepositedUsd",
             "type": "u128"
+          },
+          {
+            "name": "lastDepositTime",
+            "type": "i64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserWithdraw",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "withdrawAmt",
+            "type": "u64"
           },
           {
             "name": "lastDepositTime",
@@ -399,6 +475,31 @@
           "index": false
         }
       ]
+    },
+    {
+      "name": "SplWithdrawEvent",
+      "fields": [
+        {
+          "name": "from",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "to",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -439,6 +540,11 @@
     },
     {
       "code": 6007,
+      "name": "InvalidSender",
+      "msg": "Sender must be the admin wallet"
+    },
+    {
+      "code": 6008,
       "name": "Unauthorized",
       "msg": "Unauthorized access"
     }
