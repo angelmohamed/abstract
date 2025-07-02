@@ -109,7 +109,8 @@ interface OrderbookAccordionContentProps
   selectedMarket: {
     last: number | null;
     _id: string;
-  }
+  },
+  setSelectedOrder: (data: any) => void;
 }
 
 // Accordion Content Component
@@ -129,6 +130,7 @@ const OrderbookAccordionContent = React.forwardRef<
       isOpen = true,
       index,
       selectedMarket,
+      setSelectedOrder,
       ...props
     },
     ref
@@ -381,7 +383,18 @@ const OrderbookAccordionContent = React.forwardRef<
                               return (
                                 <div
                                   key={index}
-                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative"
+                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative cursor-pointer"
+                                  onClick={() => setSelectedOrder({ 
+                                    side: activeView, 
+                                    row, 
+                                    bidOrAsk: "ask", 
+                                    ordCost: Number(
+                                      getAccumalativeValueReverse(
+                                        asks || [],
+                                        orderBookLength - (index + 1)
+                                      ) / 100
+                                    )?.toFixed(2) 
+                                  })}
                                 >
                                   <div className="w-[30%]">
                                     <FillAsk
@@ -402,7 +415,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                   <div className="w-[25%] text-center flex items-center justify-center gap-2">
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
-                                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
+                                      <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
                                         <Clock5 className="w-4 h-4" />
                                         {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
                                       </div>
@@ -463,7 +476,18 @@ const OrderbookAccordionContent = React.forwardRef<
                               return (
                                 <div
                                   key={index}
-                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative"
+                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative cursor-pointer"
+                                  onClick={() => setSelectedOrder({ 
+                                    side: activeView, 
+                                    row, 
+                                    bidOrAsk: "bid", 
+                                    ordCost: Number(
+                                      getAccumalativeValueReverse(
+                                        asks || [],
+                                        orderBookLength - (index + 1)
+                                      ) / 100
+                                    )?.toFixed(2) 
+                                  })}
                                 >
                                   <div className="w-[30%]">
                                     <FillBid
@@ -484,7 +508,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                   <div className="w-[25%] text-center flex items-center justify-center gap-2">
                                     {toFixedDown(Number(row[1]), 2)}
                                     {openOrder?.length > 0 && (
-                                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
+                                      <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
                                         <Clock5 className="w-4 h-4" />
                                         {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
                                       </div>

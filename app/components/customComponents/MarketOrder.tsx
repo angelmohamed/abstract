@@ -6,11 +6,13 @@ import { availableBalance } from "@/lib/utils";
 import { useSelector } from "@/store";
 import { placeOrder } from "@/services/market";
 import { toastAlert } from "@/lib/toast";
+import { isEmpty } from "@/lib/isEmpty";
 
 interface MarketOrderProps {
   activeView: string;
   marketId: string;
   buyorsell: "buy" | "sell";
+  selectedOrder: any;
 }
 
 const initialFormValue = {
@@ -34,7 +36,7 @@ interface ErrorState {
 }
 
 const MarketOrder: React.FC<MarketOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell } = props;
+  const { activeView, marketId, buyorsell, selectedOrder } = props;
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
   const asset = useSelector((state) => state?.wallet?.data);
@@ -132,7 +134,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
   useEffect(() => {
     setFormValue(initialFormValue);
     setErrors({});
-  }, [activeView, buyorsell]);
+  }, [activeView, buyorsell, marketId]);
 
   const handlePlaceOrder = async (action: any) => {
     let activeTab = activeView?.toLowerCase();
@@ -159,6 +161,27 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
       toastAlert("error", message, "order-failed");
     }
   };
+
+  useEffect(() => {
+    console.log(selectedOrder, "selectedOrder1")
+    if (isEmpty(selectedOrder)) {
+      return;
+    }
+
+    if (buyorsell == "buy" && selectedOrder?.bidOrAsk == "ask") {
+      setFormValue({
+        ...formValue,
+        ordVal: selectedOrder?.ordCost || "",
+      });
+    } else if (buyorsell == "sell" && selectedOrder?.bidOrAsk == "bid") {
+      setFormValue({
+        ...formValue,
+        amount: selectedOrder?.row[1] || "",
+      })
+    } else {
+      setFormValue(initialFormValue);
+    }
+  }, [selectedOrder]);
 
   return (
     <>

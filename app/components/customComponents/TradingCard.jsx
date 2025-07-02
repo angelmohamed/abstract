@@ -39,7 +39,8 @@ export function TradingCard({
   activeView,
   setActiveView,
   selectedOrderBookData,
-  status
+  status,
+  selectedOrder
 }) {
   const onTabChange = (value) => {
     setActiveView(value);
@@ -140,13 +141,13 @@ export function TradingCard({
             </div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
-            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#7dfdfe" : "#ec4899"}}>{capitalize(positions?.side)} &middot; {toFixedDown(positions?.quantity, 2)}  ({positions?.filled?.[0]?.price?.toFixed(2)}¢) owned</h1>}
+            {!isEmptyObject(positions) && <h1 className="pt-2" style={{color: positions?.side === "yes" ? "#7dfdfe" : "#ec4899"}}>{toFixedDown(positions?.quantity, 2)} &middot; {capitalize(positions?.side)} ({positions?.filled?.[0]?.price?.toFixed(0)}¢) owned</h1>}
             <div className="pt-2">
               <Options
                 defaultValue={activeView}
                 value={activeView}
                 onValueChange={onTabChange}
-                className="w-full"
+              className="w-full"
               >
                 <OptionsList className="grid w-full grid-cols-2 gap-2">
                   <OptionsTrigger
@@ -183,6 +184,7 @@ export function TradingCard({
                     marketId={market?._id}
                     buyorsell={tab}
                     status={status}
+                    selectedOrder={selectedOrder}
                   />
                 )}
 
@@ -192,6 +194,7 @@ export function TradingCard({
                     marketId={market?._id}
                     buyorsell={tab}
                     status={status}
+                    selectedOrder={selectedOrder}
                   />
                 )}
               </Options>

@@ -54,7 +54,8 @@ export default function EventPage() {
   const [showFullText, setShowFullText] = useState(false);
   const [navigationItems, setNavigationItems] = useState([]);
   const [selectCategory, setSelectedCategory] = useState("all");
-
+  const [selectedOrder, setSelectedOrder] = useState({});
+  
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -411,6 +412,7 @@ export default function EventPage() {
                               setSelectedIndex={setSelectedIndex}
                               index={0}
                               selectedMarket={markets[0]}
+                              setSelectedOrder={setSelectedOrder}
                               // isResolved={events?.isResolved}
                             />
                           </OrderbookAccordionItem>
@@ -479,6 +481,7 @@ export default function EventPage() {
                                       setSelectedIndex={setSelectedIndex}
                                       index={index}
                                       selectedMarket={market}
+                                      setSelectedOrder={setSelectedOrder}
                                       // isResolved={events?.isResolved}
                                     />
                                   </AccordionItem>
@@ -602,6 +605,7 @@ export default function EventPage() {
                         selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
                         market={markets[selectedIndex]}
                         status={events?.status}
+                        selectedOrder={selectedOrder}
                       />
 
                       {/* Spotify Embed */}
