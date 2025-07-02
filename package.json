@@ -16,6 +16,7 @@
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@orderly.network/react": "^1",
     "@project-serum/anchor": "^0.26.0",
+    "@pythnetwork/client": "^2.22.1",
     "@radix-ui/colors": "^3.0.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-avatar": "^1.1.2",

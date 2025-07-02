@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "solana_transfer_dapp",
+  "name": "sonotrade_deploy",
   "instructions": [
     {
       "name": "initializeState",
@@ -11,9 +11,24 @@
           "isSigner": false
         },
         {
-          "name": "authority",
+          "name": "tokenInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "admin",
           "isMut": true,
           "isSigner": true
+        },
+        {
+          "name": "pythPriceAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "systemProgram",
@@ -27,12 +42,16 @@
           "type": "publicKey"
         },
         {
-          "name": "tokenPrice",
-          "type": "u128"
-        },
-        {
           "name": "tokenDecimals",
           "type": "u8"
+        },
+        {
+          "name": "mint",
+          "type": "publicKey"
+        },
+        {
+          "name": "isSupported",
+          "type": "bool"
         }
       ]
     },
@@ -58,7 +77,7 @@
       ]
     },
     {
-      "name": "updateTokenConfig",
+      "name": "updatePrice",
       "accounts": [
         {
           "name": "state",
@@ -66,21 +85,17 @@
           "isSigner": false
         },
         {
-          "name": "authority",
+          "name": "pythPriceAccount",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "adminWallet",
           "isMut": false,
           "isSigner": true
         }
       ],
-      "args": [
-        {
-          "name": "tokenPrice",
-          "type": "u128"
-        },
-        {
-          "name": "tokenDecimals",
-          "type": "u8"
-        }
-      ]
+      "args": []
     },
     {
       "name": "setTokenSupport",
@@ -140,6 +155,11 @@
           "name": "userDeposit",
           "isMut": true,
           "isSigner": false
+        },
+        {
+          "name": "pythPriceAccount",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -195,10 +215,80 @@
         {
           "name": "systemProgram",
           "isMut": false,
-          "isSigner": false,
-          "docs": [
-            "✅ required for init"
-          ]
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "getUsdPrice",
+      "docs": [
+        "Gets the current USD price directly from Pyth (fresh price)"
+      ],
+      "accounts": [
+        {
+          "name": "pythPriceAccount",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [],
+      "returns": {
+        "defined": "PriceData"
+      }
+    },
+    {
+      "name": "withdrawSplAdminToUser",
+      "accounts": [
+        {
+          "name": "state",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "mint",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "adminTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userTokenAccount",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "userWithdraw",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "user",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": [
@@ -211,6 +301,46 @@
   ],
   "accounts": [
     {
+      "name": "UserDeposit",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "totalDepositedUsd",
+            "type": "u128"
+          },
+          {
+            "name": "lastDepositTime",
+            "type": "i64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserWithdraw",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "withdrawAmt",
+            "type": "u64"
+          },
+          {
+            "name": "lastDepositTime",
+            "type": "i64"
+          },
+          {
+            "name": "isActive",
+            "type": "bool"
+          }
+        ]
+      }
+    },
+    {
       "name": "State",
       "type": {
         "kind": "struct",
@@ -221,35 +351,19 @@
           },
           {
             "name": "totalDepositsUsd",
-            "type": "u64"
+            "type": "u128"
           },
           {
             "name": "tokenPrice",
-            "type": "u128"
+            "type": "u64"
+          },
+          {
+            "name": "priceExponent",
+            "type": "i32"
           },
           {
             "name": "tokenDecimals",
             "type": "u8"
-          }
-        ]
-      }
-    },
-    {
-      "name": "UserDeposit",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "totalDepositedUsd",
-            "type": "u64"
-          },
-          {
-            "name": "lastDepositTime",
-            "type": "i64"
-          },
-          {
-            "name": "isActive",
-            "type": "bool"
           }
         ]
       }
@@ -271,6 +385,36 @@
       }
     }
   ],
+  "types": [
+    {
+      "name": "PriceData",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "exponent",
+            "type": "i32"
+          },
+          {
+            "name": "confidence",
+            "type": "u64"
+          },
+          {
+            "name": "publishTime",
+            "type": "i64"
+          },
+          {
+            "name": "currentSlot",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ],
   "events": [
     {
       "name": "SolTransferred",
@@ -287,6 +431,11 @@
         },
         {
           "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "usdValue",
           "type": "u64",
           "index": false
         },
@@ -326,6 +475,31 @@
           "index": false
         }
       ]
+    },
+    {
+      "name": "SplWithdrawEvent",
+      "fields": [
+        {
+          "name": "from",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "to",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        },
+        {
+          "name": "timestamp",
+          "type": "i64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -353,9 +527,29 @@
       "code": 6004,
       "name": "InvalidAmount",
       "msg": "Invalid amount"
+    },
+    {
+      "code": 6005,
+      "name": "PythError",
+      "msg": "Invalid Pyth price account"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidPriceDecimals",
+      "msg": "Invalid price decimals"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidSender",
+      "msg": "Sender must be the admin wallet"
+    },
+    {
+      "code": 6008,
+      "name": "Unauthorized",
+      "msg": "Unauthorized access"
     }
   ],
   "metadata": {
-    "address": "FfEzqvwSJfjKYsU1oomqBkn3b4yc8dxGhvSPPn3kRMU2"
+    "address": "2KrhzQ72G68pUcLob5M4k2GKkgWSCiu9JeVvGREGzV5f"
   }
 }

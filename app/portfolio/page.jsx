@@ -34,7 +34,6 @@ import { useSelector } from "@/store";
 import { useDispatch } from "react-redux";
 import { userDeposit } from "@/services/wallet";
 import { formatNumber } from "../helper/custommath";
-import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 import { addressCheck } from "@/services/wallet";
 import {
   Connection,
@@ -64,6 +63,8 @@ import History from "./History"
 import { Footer } from "../components/customComponents/Footer";
 import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import { PnLFormatted } from "@/utils/helpers";
+import { parsePriceData } from "@pythnetwork/client";
+import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 
 let initialValue = {
   currency: "",
@@ -75,8 +76,9 @@ export default function PortfolioPage() {
 
   const programID = new PublicKey(config?.programID);
   const connection = new Connection(config?.rpcUrl, "confirmed");
+  const PYTH_PRICE_ACCOUNT = new PublicKey(config?.PYTH_PRICE_ACCOUNT);
 
-  const { isConnected,address } = useSelector((state) => state?.walletconnect?.walletconnect);
+  const { isConnected, address } = useSelector((state) => state?.walletconnect?.walletconnect);
   const walletData = useSelector(state => state?.wallet?.data);
   const data = useSelector(state => state?.auth?.user);
 
@@ -108,11 +110,10 @@ export default function PortfolioPage() {
   const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0 });
 
   var { currency, amount, walletAddress } = depositData;
-  var {  tokenAmt } = tokenValue;
 
   useEffect(() => {
     setProfitAmount(walletData?.position);
-  }, [walletData ,interval]);
+  }, [walletData, interval]);
 
   // useEffect(() => {
   //   if (!wallet) return;
@@ -144,23 +145,23 @@ export default function PortfolioPage() {
 
   const balanceData = async () => {
     try {
-      if(address){
-      const publicKey = new PublicKey(address);
-      const balanceLamports = await connection.getBalance(publicKey);
-      const balanceSOL = balanceLamports / LAMPORTS_PER_SOL;
-      const formattedBalance = formatNumber(balanceSOL,4);
-      setBalance(formattedBalance);
+      if (address) {
+        const publicKey = new PublicKey(address);
+        const balanceLamports = await connection.getBalance(publicKey);
+        const balanceSOL = balanceLamports / LAMPORTS_PER_SOL;
+        const formattedBalance = formatNumber(balanceSOL, 4);
+        setBalance(formattedBalance);
 
-      const mint = new PublicKey(config?.tokenMint);
-      const walletAddress = new PublicKey(address);
-      const ata = await getAssociatedTokenAddress(mint, walletAddress);
-      if(ata){
-        const tokenAccount = await getAccount(connection, ata);
-        const rawBalance = parseFloat(tokenAccount?.amount)/ 10 ** 6;
-        console.log("✅ Token Balance:", parseFloat(rawBalance));
-      const formattedBalance1 = formatNumber(rawBalance,4);
-      setTokenBalance(formattedBalance1);
-      }
+        const mint = new PublicKey(config?.tokenMint);
+        const walletAddress = new PublicKey(address);
+        const ata = await getAssociatedTokenAddress(mint, walletAddress);
+        if (ata) {
+          const tokenAccount = await getAccount(connection, ata);
+          const rawBalance = parseFloat(tokenAccount?.amount) / 10 ** 6;
+          console.log("✅ Token Balance:", parseFloat(rawBalance));
+          const formattedBalance1 = formatNumber(rawBalance, 4);
+          setTokenBalance(formattedBalance1);
+        }
       }
     } catch (err) {
       console.error("Error fetching POL balance:", err);
@@ -172,7 +173,7 @@ export default function PortfolioPage() {
       window.solana.disconnect();
       dispatch(
         setWalletConnect({
-          isConnected:false,
+          isConnected: false,
           address: "",
           network: "",
           type: "",
@@ -199,23 +200,23 @@ export default function PortfolioPage() {
         console.log(balanceSOL, balanceLamports, 'balanceSOLbalanceSOL')
         const connectedAddress = response.publicKey.toString()
 
-        const { result } = await addressCheck({ address : connectedAddress });
+        const { result } = await addressCheck({ address: connectedAddress });
 
-        if((isEmpty(data?.walletAddress) && result === true)){
+        if ((isEmpty(data?.walletAddress) && result === true)) {
           toastAlert(
             "error",
-            `This address is already exists. Please connect another new address.`,"wallet"
+            `This address is already exists. Please connect another new address.`, "wallet"
           )
           setOpen(false);
           disconnectWallet()
           return;
-        }else if (!isEmpty(data?.walletAddress) && connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()) {
+        } else if (!isEmpty(data?.walletAddress) && connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()) {
           toastAlert("error", `Please connect your wallet address ${data?.walletAddress}`, "logout");
           setOpen(false);
           disconnectWallet()
           return;
         }
-    
+
         dispatch(
           setWalletConnect({
             isConnected: true,
@@ -236,7 +237,7 @@ export default function PortfolioPage() {
         }
         dispatch(
           setWalletConnect({
-            isConnected:false,
+            isConnected: false,
             address: "",
             network: "",
             type: "",
@@ -257,24 +258,19 @@ export default function PortfolioPage() {
       recentBlockhash: (await connection.getLatestBlockhash()).blockhash,
       instructions: [], // no actual instructions
     }).compileToV0Message();
-  
+
     const feeInLamports = await connection.getFeeForMessage(messageV0);
     const feeInSol = feeInLamports?.value / 1e9;
     const feeInUSD = feeInSol * tokenValue;
-    setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD})
+    setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD })
 
-    const provider = await getAnchorProvider();
-    const program = new Program(depositIDL, programID, provider);
+    const accountInfo = await connection.getAccountInfo(PYTH_PRICE_ACCOUNT);
+    if (!accountInfo) throw new Error("Pyth price account not found");
 
-      const [statePDA] = await PublicKey.findProgramAddress(
-        [Buffer.from("state_v5")],
-        program.programId
-      );
- 
-      const stateAccount = await program.account.state.fetch(statePDA);
- 
-      console.log("State:", stateAccount, stateAccount.tokenPrice.toString(),stateAccount.tokenPrice.toString()/1e6);
-      setTokenValue(stateAccount.tokenPrice.toString()/1e6)
+    const priceData = parsePriceData(accountInfo.data);
+    console.log("📈 SOL/USD price:", priceData.price);
+
+    setTokenValue(priceData.price)
 
   };
 
@@ -282,19 +278,19 @@ export default function PortfolioPage() {
   const getAddress = async (address) => {
     try {
       const { result } = await addressCheck({ address });
-      if((isEmpty(data?.walletAddress) && result === true)){
+      if ((isEmpty(data?.walletAddress) && result === true)) {
         toastAlert(
           "error",
-          `This address is already exists. Please connect another address.`,"wallet"
+          `This address is already exists. Please connect another address.`, "wallet"
         );
         disconnect()
-      }else if (
+      } else if (
         (!isEmpty(data?.walletAddress) && result === true) ||
         !isEmpty(data?.walletAddress) && data?.walletAddress.toString() != address?.toString() && isConnected
       ) {
         toastAlert(
           "error",
-          `Please connect your wallet address ${data?.walletAddress}`,"wallet"
+          `Please connect your wallet address ${data?.walletAddress}`, "wallet"
         );
         disconnect()
       } else if (
@@ -319,18 +315,18 @@ export default function PortfolioPage() {
       setStep("2");
       setDepositAmt()
       getSolanaTxFee()
-      if(currency == "USDT" && tokenbalance == 0){
+      if (currency == "USDT" && tokenbalance == 0) {
         setStep("1");
-        toastAlert("error", "Insufficient Balance","wallet");
-      }else if(currency == "SOL" && balance == 0){
+        toastAlert("error", "Insufficient Balance", "wallet");
+      } else if (currency == "SOL" && balance == 0) {
         setStep("1");
-        toastAlert("error", "Insufficient Balance","wallet");
-      }else if(balance <= 0){
+        toastAlert("error", "Insufficient Balance", "wallet");
+      } else if (balance <= 0) {
         setStep("1");
-        toastAlert("error", "Insufficient SOL Balance","wallet");
+        toastAlert("error", "Insufficient SOL Balance", "wallet");
       }
     } else {
-      toastAlert("error", "Please select a currency","wallet");
+      toastAlert("error", "Please select a currency", "wallet");
     }
   };
 
@@ -341,21 +337,21 @@ export default function PortfolioPage() {
         if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(0.0001)) {
           toastAlert(
             "error",
-            "Enter the amount must be greater than minimum deposit value","deposit"
+            "Enter the amount must be greater than minimum deposit value", "deposit"
           );
         } else if (currency == "SOL" && depsoitAmt < 0.001) {
           toastAlert(
             "error",
-            `Enter the amount must be greater than minimum deposit value`,"deposit"
+            `Enter the amount must be greater than minimum deposit value`, "deposit"
           );
         } else if (depsoitAmt > depositBalance) {
-          toastAlert("error", "Insufficient Balance","deposit");
+          toastAlert("error", "Insufficient Balance", "deposit");
         } else if (depsoitAmt > 0) {
           setStep("3");
           getSolanaTxFee()
         }
       } else if (depositBalance <= 0) {
-        toastAlert("error", "Insufficient Balance","deposit");
+        toastAlert("error", "Insufficient Balance", "deposit");
       }
     } catch (err) {
       console.log(err, "ererrrr");
@@ -374,13 +370,13 @@ export default function PortfolioPage() {
     disconnectWallet();
   }
 
-   const getAnchorProvider = async () => {
+  const getAnchorProvider = async () => {
     const provider = window.solana;
-  
+
     if (!provider || !provider.isPhantom) {
       throw new Error("Phantom wallet not found");
     }
-    console.log(provider.publicKey,"provider")
+    console.log(provider.publicKey, "provider")
     return new AnchorProvider(
       connection,
       {
@@ -400,13 +396,13 @@ export default function PortfolioPage() {
         const provider = await getAnchorProvider();
         const program = new Program(depositIDL, programID, provider);
         const connection = provider.connection;
-  
+
         const mint = new PublicKey(config?.tokenMint);
         const receiverPubKey = new PublicKey(config?.adminAdd);
-  
+
         const fromTokenAccount = await getAssociatedTokenAddress(mint, provider.publicKey);
         const toTokenAccount = await getAssociatedTokenAddress(mint, receiverPubKey);
-  
+
         // ✅ Check and create receiver ATA if it doesn't exist
         try {
           await getAccount(connection, toTokenAccount);
@@ -418,42 +414,43 @@ export default function PortfolioPage() {
             receiverPubKey,            // token account owner
             mint                       // mint address
           );
-  
+
           const ataTx = new Transaction().add(ataIx);
           ataTx.feePayer = provider.publicKey;
-  
+
           const blockhash = await connection.getLatestBlockhash();
           ataTx.recentBlockhash = blockhash.blockhash;
-  
+
           const signedTx = await window.solana.signTransaction(ataTx);
           const ataTxSig = await connection.sendRawTransaction(signedTx.serialize());
-  
+
           // ✅ Use finalized commitment for reliable confirmation
           await connection.confirmTransaction(
             { signature: ataTxSig, ...blockhash },
             "finalized"
           );
         }
-  
+
         // Optional: small delay to avoid race condition
         await new Promise((res) => setTimeout(res, 500));
-  
+
         const amount = new BN(parseFloat(depsoitAmt) * 10 ** 6); // adjust decimals if needed
-  
+
         const [tokenInfoPDA] = PublicKey.findProgramAddressSync(
           [Buffer.from("supported-token"), mint.toBuffer()],
           program.programId
         );
-  
-        const [statePDA] = await PublicKey.findProgramAddress(
-          [Buffer.from("state_v5")],
+    
+        const [statePDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("state")],
           program.programId
         );
-  
-        const [userDepositPDA] = await PublicKey.findProgramAddress(
+    
+        const [userDepositPDA] = PublicKey.findProgramAddressSync(
           [Buffer.from("user"), provider.publicKey.toBuffer()],
           program.programId
         );
+    
         const tx = await program.methods
           .transferToken(amount)
           .accounts({
@@ -468,21 +465,21 @@ export default function PortfolioPage() {
             systemProgram: web3.SystemProgram.programId,
           })
           .rpc();
-  
+
         settransactionHash(tx);
         setloader(true);
 
         const parsedTx = await connection.getParsedTransaction(tx, {
           commitment: "confirmed",
         });
-        
+
         if (!parsedTx) {
-          toastAlert("error","Transaction not found","deposit");
+          toastAlert("error", "Transaction not found", "deposit");
           return;
         }
-        
+
         const { meta, transaction } = parsedTx;
-        
+
         // Get all token balance changes
         const preTokenBalances = meta?.preTokenBalances || [];
         const postTokenBalances = meta?.postTokenBalances || [];
@@ -491,9 +488,9 @@ export default function PortfolioPage() {
         for (let i = 0; i < preTokenBalances.length; i++) {
           const pre = preTokenBalances[i];
           const post = postTokenBalances[i];
-        
+
           if (!pre || !post) continue;
-        
+
           const change = Number(post.uiTokenAmount.amount) - Number(pre.uiTokenAmount.amount);
           if (change !== 0) {
             console.log("✅ SPL Token Transfer Detected:");
@@ -501,20 +498,20 @@ export default function PortfolioPage() {
             console.log("🪙 Mint:", pre.mint);
             console.log("💰 Amount:", Math.abs(change) / 10 ** pre.uiTokenAmount.decimals);
             const tokenAmt = Math.abs(change) / (10 ** pre.uiTokenAmount.decimals)
-             depositdata = {
-              hash : tx,
+            depositdata = {
+              hash: tx,
               address: pre.owner,
-              amount : tokenAmt,
-              usdAmt : tokenAmt,
-              symbol : "USDT"
-           }
+              amount: tokenAmt,
+              usdAmt: tokenAmt,
+              symbol: "USDT"
+            }
           }
         }
 
-        
-         var { message ,status} = await userDeposit(depositdata,dispatch)
+
+        var { message, status } = await userDeposit(depositdata, dispatch)
         if (status) {
-          toastAlert("success", message,"deposit");
+          toastAlert("success", message, "deposit");
           setDepositAmt(0);
           setStep("");
           setTxOpen(true);
@@ -524,7 +521,7 @@ export default function PortfolioPage() {
           }
           // await getUser();
         } else {
-          toastAlert("error", "failed","deposit");
+          toastAlert("error", "failed", "deposit");
           const button = document.querySelector(".modal_close_brn");
           if (button) {
             button.click();
@@ -533,22 +530,24 @@ export default function PortfolioPage() {
         setloader(false);
       } else if (currency == "SOL") {
         const provider = await getAnchorProvider();
-  
+
         const program = new Program(depositIDL, programID, provider);
         const lamports = new BN(parseFloat(depsoitAmt) * web3.LAMPORTS_PER_SOL);
         const receiverPubKey = new PublicKey(config?.adminAdd);
 
 
-       const [statePDA] = await PublicKey.findProgramAddress(
-        [Buffer.from("state_v5")],
+        // Derive PDAs
+      const [statePDA] = PublicKey.findProgramAddressSync(
+        [Buffer.from("state")],
         program.programId
       );
-      const [userDepositPDA] = await PublicKey.findProgramAddress(
+  
+      const [userDepositPDA] = PublicKey.findProgramAddressSync(
         [Buffer.from("user"), provider.publicKey.toBuffer()],
         program.programId
       );
-      console.log(statePDA,"statePDA");
-
+  
+      // ✅ Call the transferSol method
       const tx = await program.methods
         .transferSol(lamports)
         .accounts({
@@ -557,25 +556,26 @@ export default function PortfolioPage() {
           systemProgram: web3.SystemProgram.programId,
           state: statePDA,
           userDeposit: userDepositPDA,
+          pythPriceAccount: PYTH_PRICE_ACCOUNT,
         })
         .rpc();
-          console.log(tx,"tx")
-  
+        console.log(tx, "tx")
+
         settransactionHash(tx);
         setloader(true);
 
         const txDetails = await connection.getTransaction(tx, {
           commitment: "confirmed",
         });
-    
+
         if (!txDetails) {
           console.error("❌ Transaction not found");
           return;
         }
-    
+
         const { meta, transaction } = txDetails;
         const accountKeys = transaction.message.accountKeys;
-    
+
         // 🔍 Find sender and receiver indices
         const senderIndex = accountKeys.findIndex((key) =>
           key.equals(provider.publicKey)
@@ -583,20 +583,20 @@ export default function PortfolioPage() {
         const receiverIndex = accountKeys.findIndex((key) =>
           key.equals(receiverPubKey)
         );
-    
+
         if (senderIndex === -1 || receiverIndex === -1) {
           console.error("❌ Could not find sender or receiver in account keys");
           return;
         }
-    
+
         // 🧮 Calculate lamports sent
         const lamportsSentTotal = meta.preBalances[senderIndex] - meta.postBalances[senderIndex];
         const feePaid = meta.fee;
         const lamportsSent = lamportsSentTotal - feePaid;
-        
+
         const solAmt = lamportsSent / LAMPORTS_PER_SOL;
-        const usdValue = solAmt * tokenValue;
-        
+        const usdValue = formatNumber(solAmt * tokenValue,6)
+
         console.log("TX Hash:", tx);
         console.log("From:", provider.publicKey.toBase58());
         console.log("To:", receiverPubKey.toBase58());
@@ -607,15 +607,15 @@ export default function PortfolioPage() {
         console.log("Fee (SOL):", feePaid / LAMPORTS_PER_SOL);
 
         let depositdata = {
-          hash : tx,
+          hash: tx,
           address: provider.publicKey.toBase58(),
-          amount : solAmt,
-          usdAmt : usdValue,
-          symbol : "SOL"
-       }
-      var { message ,status} = await userDeposit(depositdata,dispatch)
+          amount: solAmt,
+          usdAmt: usdValue,
+          symbol: "SOL"
+        }
+        var { message, status } = await userDeposit(depositdata, dispatch)
         if (status) {
-          toastAlert("success", message ,"deposit");
+          toastAlert("success", message, "deposit");
           setDepositAmt(0);
           setStep("");
           setTxOpen(true);
@@ -625,7 +625,7 @@ export default function PortfolioPage() {
           }
           // await getUser();
         } else {
-          toastAlert("error", message,"deposit");
+          toastAlert("error", message, "deposit");
           const button = document.querySelector(".modal_close_brn");
           if (button) {
             button.click();
@@ -634,7 +634,7 @@ export default function PortfolioPage() {
         setloader(false);
       }
     } catch (err) {
-      console.log(err,"errr")
+      console.log(err, "errr")
       setloader(false);
     }
   }
@@ -658,20 +658,20 @@ export default function PortfolioPage() {
       balanceData()
       getSolanaTxFee()
       setTxOpen(false);
-    }else if(!isEmpty(data?.walletAddress) && 
-    data?.walletAddress.toString() != address?.toString() && isConnected){
+    } else if (!isEmpty(data?.walletAddress) &&
+      data?.walletAddress.toString() != address?.toString() && isConnected) {
       toastAlert(
         "error",
-        `Please connect your wallet address ${data?.walletAddress}`,"wallet"
+        `Please connect your wallet address ${data?.walletAddress}`, "wallet"
       );
     } else {
-      toastAlert("error", "Connect Your Wallet","deposit");
+      toastAlert("error", "Connect Your Wallet", "deposit");
     }
   };
 
 
-  
-  console.log(address, data,tokenValue,"datadatadata");
+
+  console.log(address, data, tokenValue, "datadatadata");
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -680,17 +680,17 @@ export default function PortfolioPage() {
           {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
         </div>
         <div className="container mx-auto py-10 px-4 container-sm">
-            <div className="flex justify-end mb-4">
-              {isConnected ? (
-                <>
-                  <Button className="mr-2">{shortText(address)}</Button>
-                  <Button onClick={() => disconnect()}>Disconnect</Button>
-                </>
-              ) : (
-                <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
-              )}
-            </div>
-            {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
+          <div className="flex justify-end mb-4">
+            {isConnected ? (
+              <>
+                <Button className="mr-2">{shortText(address)}</Button>
+                <Button onClick={() => disconnect()}>Disconnect</Button>
+              </>
+            ) : (
+              <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
+            )}
+          </div>
+          {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
           <br></br>
           {/* 2. Key metrics card area */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -782,11 +782,10 @@ export default function PortfolioPage() {
 
                               <div className="wallet_coin_list">
                                 <div
-                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
-                                    depositData.currency === "USDT"
+                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDT"
                                       ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
                                       : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                  }`}
+                                    }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
                                       ...prev,
@@ -817,11 +816,10 @@ export default function PortfolioPage() {
 
                               <div className="wallet_coin_list">
                                 <div
-                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
-                                    depositData.currency === "SOL"
+                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "SOL"
                                       ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
                                       : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                  }`}
+                                    }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
                                       ...prev,
@@ -846,7 +844,7 @@ export default function PortfolioPage() {
                                   </div>
                                   <span className="text-[14px]">
                                     {/* $9.88 */}${" "}
-                                    {formatNumber(balance * tokenValue,4)} 
+                                    {formatNumber(balance * tokenValue, 4)}
                                     {/* {formatNumber(balance * usdConvt, 4)} */}
                                   </span>
                                 </div>
@@ -906,7 +904,7 @@ export default function PortfolioPage() {
                                 {currency === "SOL"
                                   ? `${0.001} ${currency} minimum deposit`
                                   : `${0.0001} ${currency} minimum deposit`}
-                                  {/* `${minDeposit} ${currency} minimum deposit`} */}
+                                {/* `${minDeposit} ${currency} minimum deposit`} */}
                               </p>
                               <div
                                 className="flex gap-3 items-center justify-between sm:flex-nowrap flex-wrap py-3 px-4 border border-[#3d3d3d] rounded-full sm:w-[60%] w-[100%] m-auto mt-3
@@ -1073,7 +1071,7 @@ export default function PortfolioPage() {
                                   <span className="text-[14px] text-gray-200">
                                     {currency == "USDT"
                                       ? `${depsoitAmt} USDC`
-                                      : `${formatNumber(depsoitAmt * tokenValue,4)} USDC`}
+                                      : `${formatNumber(depsoitAmt * tokenValue, 4)} USDC`}
                                     {/* tokenAmt */}
                                   </span>
                                 </div>
@@ -1094,7 +1092,7 @@ export default function PortfolioPage() {
                                           height={18}
                                         />
                                         <span className="text-[14px] text-gray-200">
-                                         
+
                                           {gasAmt?.gasCost
                                             ? formatNumber(gasAmt?.gasCost, 6)
                                             : 0} SOL
@@ -1112,7 +1110,7 @@ export default function PortfolioPage() {
                                         Your gas costs
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-                                        
+
                                         {gasAmt?.gasCost
                                           ? formatNumber(gasAmt?.gasCost, 6)
                                           : 0} SOL
@@ -1124,7 +1122,7 @@ export default function PortfolioPage() {
                                         Market gas price
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-                                      $ {""}{gasAmt?.marketGasCost
+                                        $ {""}{gasAmt?.marketGasCost
                                           ? formatNumber(gasAmt?.marketGasCost, 6)
                                           : 0}{" "}
                                         {/* Gwei */}
@@ -1157,19 +1155,19 @@ export default function PortfolioPage() {
                                   )}
                                 </Button>
                               ) : ( */}
-                                <Button
-                                  className="mt-4 w-full"
-                                  disabled={loader}
-                                  onClick={() => buy()}
-                                >
-                                  Confirm Order{" "}
-                                  {loader && (
-                                    <i
-                                      className="fas fa-spinner fa-spin ml-2"
-                                      style={{ color: "black" }}
-                                    ></i>
-                                  )}
-                                </Button>
+                              <Button
+                                className="mt-4 w-full"
+                                disabled={loader}
+                                onClick={() => buy()}
+                              >
+                                Confirm Order{" "}
+                                {loader && (
+                                  <i
+                                    className="fas fa-spinner fa-spin ml-2"
+                                    style={{ color: "black" }}
+                                  ></i>
+                                )}
+                              </Button>
                               {/* )} */}
                             </div>
                           )}
@@ -1230,7 +1228,7 @@ export default function PortfolioPage() {
                         </div> */}
 
                         {transactionHash && (
-                          <a         
+                          <a
                             className="text-blue-500 hover:underline mt-4 flex items-center gap-2"
                             href={`${config?.txUrl}${transactionHash}?cluster=${config?.networkType}`}
                             target="_blank"
@@ -1356,7 +1354,7 @@ export default function PortfolioPage() {
               <div className="flex items-start justify-between flex-wrap">
                 <div className="flex flex-col items-left">
                   <span className="text-sm text-gray-500 mt-1">PROFIT/LOSS</span>
-                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(formatNumber(profitAmount,2))}</span>
+                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(formatNumber(profitAmount, 2))}</span>
                   <span className="text-sm text-gray-500 mt-1">
                     <span className={`${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>$0.00 (0.00%)</span> Today
                   </span>
@@ -1616,7 +1614,7 @@ export default function PortfolioPage() {
                   </tbody>
                 </table>
               </div> */}
-              <Positions/>
+              <Positions />
             </TabsContent>
             <TabsContent value="openorders">
               {/* <div className="flex space-x-4 mb-3">
@@ -1650,7 +1648,7 @@ export default function PortfolioPage() {
                   </tbody>
                 </table>
               </div> */}
-              <OpenOrders/>
+              <OpenOrders />
             </TabsContent>
             <TabsContent value="history">
               {/* <div className="flex space-x-4 mb-3">
@@ -1765,7 +1763,7 @@ export default function PortfolioPage() {
                   </tbody>
                 </table>
               </div> */}
-              <History/>
+              <History />
             </TabsContent>
           </Tabs>
         </div>
@@ -1777,17 +1775,17 @@ export default function PortfolioPage() {
                 Welcome to Sonotrade
               </Dialog.Title>
               <div className="flex gap-3 justify-between mt-4 sm:flex-nowrap flex-wrap">
-                      <Button
-                        onClick={() => ConnectPhantomWallet()}
-                        className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]"
-                      >
-                        <Image
-                          src={"/images/wallet_icon_02.png"}
-                          alt="Icon"
-                          width={40}
-                          height={40}
-                        />
-                      </Button>
+                <Button
+                  onClick={() => ConnectPhantomWallet()}
+                  className="w-full h-13 bg-[#1e1e1e] border border-[#3d3d3d] hover:bg-[#333]"
+                >
+                  <Image
+                    src={"/images/wallet_icon_02.png"}
+                    alt="Icon"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
               </div>
               <Dialog.Close asChild>
                 <button className="modal_close_brn" aria-label="Close">
