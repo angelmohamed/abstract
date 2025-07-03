@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
 
 import { Trash2, Reply } from "lucide-react";
-import { useWallet } from "@/app/walletconnect/walletContext.js";
 import CommentForm from "./CommentForm";
 import { CommentProps,PostCommentRequestData } from "@/types/comments";
 import CommentList from "./CommentList";
@@ -115,7 +114,7 @@ interface ReplyFormProps {
 
 export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFormProps) {
  
-  const {address} = useWallet();
+  const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [account, setaccount] = useState("");
@@ -196,7 +195,7 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ eventId }: CommentSectionProps) {
-  const {address} = useWallet();
+  const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
   const [account, setaccount] = useState(address);
   const [comments, setComments] = useState<CommentProps["comment"][]>([]);
   const [isLoading, setIsLoading] = useState(true);

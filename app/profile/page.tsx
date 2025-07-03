@@ -17,10 +17,11 @@ import {
 } from "@/app/components/ui/tabs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useWallet } from "@/app/walletconnect/walletContext.js";
 import { useDispatch, useSelector } from "react-redux";
 import { getPositions, getTradeOverview, getUserData } from "@/services/user";
 import ActivityTable from "./activity";
+import DepositTable from "./deposit-history"
+import WithdrawTable from "./withdraw-history"
 import Positions from "../portfolio/Positions";
 import { Footer } from "../components/customComponents/Footer";
 
@@ -59,7 +60,8 @@ export default function PortfolioPage() {
   //get profile data from redux
   const dispatch = useDispatch();
   const { profileImg } = useSelector((state: any) => state?.auth?.user);
-  const { address} = useWallet();
+  // const { address} = useWallet();
+  const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
   const [account, setaccount] = useState(address);
   const wallet: string = address?address:"";
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
@@ -76,17 +78,17 @@ export default function PortfolioPage() {
     bio: string;
   } | any>(null);
 
-  useEffect(() => {
-    if (!wallet) return;
-    const fetchTx = async () => {
-      setLoadingTx(true);
-      const res = await fetch(`/api/polygon/transactions?address=${wallet}`);
-      const data = await res.json();
-      setTransactions(data.result || []);
-      setLoadingTx(false);
-    };
-    fetchTx();
-  }, [wallet]);
+  // useEffect(() => {
+  //   if (!wallet) return;
+  //   const fetchTx = async () => {
+  //     setLoadingTx(true);
+  //     const res = await fetch(`/api/polygon/transactions?address=${wallet}`);
+  //     const data = await res.json();
+  //     setTransactions(data.result || []);
+  //     setLoadingTx(false);
+  //   };
+  //   fetchTx();
+  // }, [wallet]);
 
   const fetchProfile = async () => {
     try {
@@ -250,6 +252,8 @@ export default function PortfolioPage() {
             <TabsList className="flex space-x-4">
               <TabsTrigger value="positions">Positions</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
+              <TabsTrigger value="deposit">Deposit History</TabsTrigger>
+              <TabsTrigger value="withdraw">Withdraw History</TabsTrigger>
             </TabsList>
             <select
               value={amountFilter}
@@ -306,6 +310,12 @@ export default function PortfolioPage() {
                 </table>
               </div>
             )} */}
+          </TabsContent>
+          <TabsContent value="deposit">
+           <DepositTable />
+          </TabsContent>
+          <TabsContent value="withdraw">
+           <WithdrawTable />
           </TabsContent>
         </Tabs>
         <Footer/>

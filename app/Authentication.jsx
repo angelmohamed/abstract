@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import { useSelector } from "@/store";
 import SONOTRADE from "@/public/images/logo.png";
-import React, { useState, useEffect ,useCallback} from "react";
+import React, { useState, useEffect ,useCallback,useRef} from "react";
 import { useRouter } from "next/navigation";
 import { DropdownMenu, Tooltip, Separator, Dialog } from "radix-ui";
 import {
@@ -56,6 +56,8 @@ let initialValue = {
 export default function Authentication() {
   const router = useRouter();
   const dispatch = useDispatch();
+  const previousWalletRef = useRef(null);
+  
   const { signedIn } = useSelector((state) => state.auth?.session);
   const data = useSelector(state => state?.auth?.user);
   const walletData = useSelector((state) => state?.wallet?.data);
@@ -379,51 +381,50 @@ export default function Authentication() {
     }, 1000);
   }
 
-  const handlePhantomAccountChanged = useCallback(
-    async (newPublicKey) => {
-      console.log("Phantom account changed:", newPublicKey?.toString());
-  
-      if (!newPublicKey || typeof newPublicKey.toString !== "function") {
-        console.log("Phantom wallet disconnected.");
-        return;
-      }
-  
-      const newAddress = newPublicKey.toString().toLowerCase();
-      const savedAddress = data?.walletAddress?.toLowerCase();
-  
-      if (newAddress === savedAddress || isEmpty(savedAddress)) return;
-  
-      if (isConnected) {
-        disconnectWallet();
-        document.cookie =
-          "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-        dispatch(reset());
-        dispatch(signOut());
-        toastAlert(
-          "error",
-          `Logged out: please reconnect with your wallet address ${data?.walletAddress}`,
-          "logout"
-        );
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 1000);
-      }
-    },
-    [data?.walletAddress, isConnected] // dependencies
-  );
   useEffect(() => {
-    const provider = window?.solana;
-    if (provider?.isPhantom) {
-      provider.on("accountChanged", handlePhantomAccountChanged);
-    }
+    const interval = setInterval(async () => {
+      try {
+        const res = await window.solana.connect({ onlyIfTrusted: true });
+        const newPublicKey = res?.publicKey?.toString()?.toLowerCase();
+        const savedAddress = data?.walletAddress?.toLowerCase();
   
-    return () => {
-      if (provider?.isPhantom) {
-        provider.removeListener("accountChanged", handlePhantomAccountChanged);
+        if (!previousWalletRef.current) {
+          previousWalletRef.current = newPublicKey;
+        }
+  
+        if (
+          newPublicKey &&
+          savedAddress &&
+          newPublicKey !== previousWalletRef.current &&
+          newPublicKey !== savedAddress
+        ) {
+          console.log("🔁 Wallet switched from", previousWalletRef.current, "to", newPublicKey);
+  
+          if (isConnected) {
+            disconnectWallet();
+            document.cookie =
+              "user-token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+            dispatch(reset());
+            dispatch(signOut());
+            toastAlert(
+              "error",
+              `Logged out: please reconnect with your wallet address ${data?.walletAddress}`,
+              "logout"
+            );
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1000);
+          }
+        }
+  
+        previousWalletRef.current = newPublicKey;
+      } catch (err) {
+        console.warn("Phantom not connected yet");
       }
-    };
-  }, [handlePhantomAccountChanged]);
+    }, 1000);
   
+    return () => clearInterval(interval);
+  }, [data?.walletAddress, isConnected]);
 
   
 

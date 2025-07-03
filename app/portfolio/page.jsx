@@ -66,6 +66,8 @@ import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
 import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 
+import Withdraw from "./withdraw"
+
 let initialValue = {
   currency: "",
   amount: "",
@@ -337,12 +339,12 @@ export default function PortfolioPage() {
         if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(0.0001)) {
           toastAlert(
             "error",
-            "Enter the amount must be greater than minimum deposit value", "deposit"
+            "Enter an amount greater than or equal to the minimum deposit amount.", "deposit"
           );
         } else if (currency == "SOL" && depsoitAmt < 0.001) {
           toastAlert(
             "error",
-            `Enter the amount must be greater than minimum deposit value`, "deposit"
+            `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
           );
         } else if (depsoitAmt > depositBalance) {
           toastAlert("error", "Insufficient Balance", "deposit");
@@ -594,7 +596,7 @@ export default function PortfolioPage() {
         const feePaid = meta.fee;
         const lamportsSent = lamportsSentTotal - feePaid;
 
-        const solAmt = lamportsSent / LAMPORTS_PER_SOL;
+        const solAmt = lamports / LAMPORTS_PER_SOL;
         const usdValue = formatNumber(solAmt * tokenValue,6)
 
         console.log("TX Hash:", tx);
@@ -1252,102 +1254,7 @@ export default function PortfolioPage() {
                   </Dialog.Portal>
                 </Dialog.Root>
 
-                <div
-                  className="text-[12px]"
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: "48%",
-                  }}
-                >
-                  <Dialog.Root>
-                    <Dialog.Trigger asChild>
-                      <Button className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#000000] transition-colors duration-300 rounded-full">
-                        Withdraw
-                      </Button>
-                    </Dialog.Trigger>
-                    <Dialog.Portal>
-                      <Dialog.Overlay className="DialogOverlay" />
-                      <Dialog.Content className="DialogContent">
-                        <Dialog.Title className="DialogTitle">
-                          Withdraw
-                        </Dialog.Title>
-                        <div className="flex gap-2 items-center bg-[#eff4fe] p-3 rounded-lg mt-4">
-                          <InfoCircledIcon className="text-[#1652f0]" />
-                          <span className="text-[14px] text-gray-700">
-                            Only send to a USDC address on the Polygon network.
-                          </span>
-                        </div>
-                        <form className="mt-4">
-                          <fieldset className="Fieldset mb-4">
-                            <div className="flex gap-2 items-center justify-between mb-1">
-                              <label className="Label" htmlFor="Address">
-                                Address
-                              </label>
-                              <span className="text-[14px] text-gray-400 cursor-pointer underline underline-offset-4">
-                                Use connected
-                              </span>
-                            </div>
-                            <Input
-                              type="text"
-                              placeholder="0x..."
-                              className="Input h-12 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                              id="Address"
-                            />
-                          </fieldset>
-
-                          <fieldset className="Fieldset mt-4">
-                            <div className="flex gap-2 items-center justify-between mb-1">
-                              <label className="Label" htmlFor="Amount">
-                                Amount{" "}
-                                <span className="text-[14px] text-gray-400">
-                                  ($0.01 min)
-                                </span>
-                              </label>
-                              <div className="flex gap-2">
-                                <span className="text-[14px] text-gray-400 cursor-pointer">
-                                  $8.96 available
-                                </span>
-                                <span className="text-[14px] text-gray-400 cursor-pointer underline underline-offset-4">
-                                  Max
-                                </span>
-                              </div>
-                            </div>
-                            <Input
-                              type="text"
-                              placeholder="$0.00"
-                              className="Input h-12 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-                              id="Amount"
-                            />
-                          </fieldset>
-
-                          <div className="flex items-center space-x-2 mt-4">
-                            <Checkbox.Root
-                              className="CheckboxRoot"
-                              defaultChecked
-                              id="c1"
-                            >
-                              <Checkbox.Indicator className="CheckboxIndicator">
-                                <CheckIcon className="h-[20px] w-[20px]" />
-                              </Checkbox.Indicator>
-                            </Checkbox.Root>
-                            <label className="Label" htmlFor="c1">
-                              Send USDC.e (don’t swap to native USDC)
-                            </label>
-                          </div>
-
-                          <Button className="mt-4 w-full">Withdraw</Button>
-                        </form>
-                        <Dialog.Close asChild>
-                          <button className="modal_close_brn" aria-label="Close">
-                            <Cross2Icon />
-                          </button>
-                        </Dialog.Close>
-                      </Dialog.Content>
-                    </Dialog.Portal>
-                  </Dialog.Root>
-                </div>
+               <Withdraw />
               </div>
             </div>
             <div className="bg-[#131212] p-4 rounded-lg">
