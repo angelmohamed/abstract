@@ -43,3 +43,19 @@ export const saveWalletEmail = async (data: any) => {
     return handleResp(error, "error");
   }
 };
+
+
+export const withdrawRequest = async (data: any,dispatch: any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/withdraw-request`,
+      method: "post",
+      data,
+    });
+    const { wallet } = respData.data;
+    dispatch(setWallet(wallet));
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

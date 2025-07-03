@@ -204,3 +204,20 @@ export const getCurrentValue = async () => {
     return handleResp(error, "error");
   }
 };
+
+
+export const transactionHistory = async (data:any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/transaction-history`,
+      method: "get",
+      params: data,
+    });
+    if (data.export) {
+      return handleResp(respData, "success");
+    }
+    return handleResp(respData, "success");
+  } catch (err) {
+    return handleResp(err, "error");
+  }
+}
