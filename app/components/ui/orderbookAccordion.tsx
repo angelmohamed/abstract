@@ -482,7 +482,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                     row, 
                                     bidOrAsk: "bid", 
                                     ordCost: Number(
-                                      getAccumalativeValueReverse(
+                                      getAccumalativeValue(
                                         asks || [],
                                         orderBookLength - (index + 1)
                                       ) / 100
@@ -517,11 +517,12 @@ const OrderbookAccordionContent = React.forwardRef<
                                   <div className="w-[25%] text-center">
                                     {"$" +
                                       Number(
-                                        getAccumalativeValueReverse(
+                                        getAccumalativeValue(
                                           bids || [],
-                                          orderBookLength - (index + 1)
+                                          index
                                         ) / 100
-                                      )?.toFixed(2)}
+                                      )?.toFixed(2)
+                                    }
                                   </div>
                                 </div>
                               );
