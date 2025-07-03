@@ -11,11 +11,13 @@ import { useSelector } from "@/store";
 import { availableBalance } from "@/lib/utils";
 import { Switch } from "radix-ui";
 import CustomDateComponent from "./CustomDate";
+import { isEmpty } from "@/lib/isEmpty";
 
 interface LimitOrderProps {
   activeView: string;
   marketId: string;
   buyorsell: "buy" | "sell";
+  selectedOrder: any;
 }
 
 interface FormState {
@@ -39,7 +41,7 @@ const errorState = {
 };
 
 const LimitOrder: React.FC<LimitOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell } = props;
+  const { activeView, marketId, buyorsell, selectedOrder } = props;
 
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
@@ -204,7 +206,30 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   useEffect(() => {
     setFormValue(initialFormValue);
     setErrors({});
-  }, [activeView, buyorsell]);
+  }, [activeView, buyorsell, marketId]);
+
+  useEffect(() => {
+    if (isEmpty(selectedOrder)) {
+      return;
+    }
+
+    if (buyorsell == "buy" && selectedOrder?.bidOrAsk == "ask") {
+      setFormValue({
+        price: selectedOrder?.row[0],
+        amount: selectedOrder?.row[1],
+      });
+    } else if (buyorsell == "sell" && selectedOrder?.bidOrAsk == "bid") {
+      setFormValue({
+        price: selectedOrder?.row[0],
+        amount: selectedOrder?.row[1],
+      });
+    } else {
+      setFormValue({
+        price: selectedOrder?.row[0],
+        amount: "",
+      });
+    }
+  }, [selectedOrder]);
 
   return (
     <>

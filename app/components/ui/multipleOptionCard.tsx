@@ -46,6 +46,7 @@ interface MultipleOptionCardProps {
   yesHoverBg?: string;
   noHoverBg?: string;
   id?: string | number;
+  status: string;
 }
 
 export function MultipleOptionCard({
@@ -60,6 +61,7 @@ export function MultipleOptionCard({
   noHoverBg = "#430a36",
   onYesClick,
   onNoClick,
+  status,
 }: MultipleOptionCardProps) {
   const router = useRouter();
   const [bookmarked, setBookmarked] = React.useState(false);
@@ -150,53 +152,57 @@ export function MultipleOptionCard({
                       {question}
                     </div>
 
-                    <div className="flex justify-center items-center align-middle gap-1">
-                      <p>
-                        {option.last ?
-                          // decimalToPercentage(
-                          //   JSON.parse(option.outcomePrices)[0]
-                          // ) + "%"
-                          `${option.last}%` : ""}
-                      </p>
-                      {/* Yes Button */}
-                      {/* Yes Button */}
-                      <div
-                        className="text-[8px]"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          width: "45%", // increased from 31%
-                        }}
-                      >
-                        <Button
-                          onClick={() => handleYesClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] text-[10px] transition-colors duration-300 rounded-full capitalize"
-                        >
-                          {(option.outcome && option.outcome?.[0]?.title) ||
-                            "Yes"}
-                        </Button>
-                      </div>
+                    {
+                      status == "active" ? (
+                        <div className="flex justify-center items-center align-middle gap-1">
+                          <p>
+                            {option.last ?
+                              // decimalToPercentage(
+                              //   JSON.parse(option.outcomePrices)[0]
+                              // ) + "%"
+                              `${option.last}%` : ""}
+                          </p>
+                          {/* Yes Button */}
+                          {/* Yes Button */}
+                          <div
+                            className="text-[8px]"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "45%", // increased from 31%
+                            }}
+                          >
+                            <Button
+                              onClick={() => handleYesClick(option)}
+                              className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] text-[10px] transition-colors duration-300 rounded-full capitalize"
+                            >
+                              {(option.outcome && option.outcome?.[0]?.title) ||
+                                "Yes"}
+                            </Button>
+                          </div>
 
-                      {/* No Button */}
-                      <div
-                        className="text-[8px]"
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          alignItems: "center",
-                          width: "45%", // same width for symmetry
-                        }}
-                      >
-                        <Button
-                          onClick={() => handleNoClick(option)}
-                          className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] text-[10px] transition-colors duration-300 rounded-full capitalize"
-                        >
-                          {(option.outcome && option.outcome?.[1]?.title) ||
-                            "No"}
-                        </Button>
-                      </div>
-                    </div>
+                          {/* No Button */}
+                          <div
+                            className="text-[8px]"
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              width: "45%", // same width for symmetry
+                            }}
+                          >
+                            <Button
+                              onClick={() => handleNoClick(option)}
+                              className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] text-[10px] transition-colors duration-300 rounded-full capitalize"
+                            >
+                              {(option.outcome && option.outcome?.[1]?.title) ||
+                                "No"}
+                            </Button>
+                          </div>
+                        </div>) :
+                        <span className="text-[#7dfdfe] text-[10px]">NBA</span>
+                    }
                   </div>
                 );
               })}
@@ -222,7 +228,7 @@ export function MultipleOptionCard({
               textOverflow: "ellipsis",
             }}
           >
-            <CardDescription>${totalPool ? (parseFloat(totalPool)/100)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} Vol</CardDescription>        
+            {status == "active" && <CardDescription>${totalPool ? (parseFloat(totalPool)/100)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} Vol</CardDescription>}
           </span>
           <div className="flex gap-2 items-center justify-end">
             {forecast && (

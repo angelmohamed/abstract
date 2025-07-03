@@ -78,14 +78,10 @@ export default function EventCarousel() {
               return null; // Skip rendering this item
             }
 
-            // Select background image based on index
-            const backgroundImage = backgroundImages[index % 3];
-
             return (
               <CarouselItem key={event?._id}>
               {(() => {
                 const imageIndex = index % backgroundImages.length; // Ensure it cycles through 3 images
-                const backgroundImage = backgroundImages[imageIndex]?.src || "/images/travis.png";
             
                 return event.marketId?.length > 1 ? (
                   <ImageCardMultiple
@@ -99,27 +95,8 @@ export default function EventCarousel() {
                       : 0)}
                     options={event.marketId}
                     forecast={event?.forecast}
+                    status={event.status}
                   />
-                // ) : index % 3 === 2 ? (
-                //   <PreviewCard
-                //     endDate={event.endDate}
-                //     eventID={event.slug}
-                //     eventImageSrc={event.bannerImage || "/images/travis.png"}
-                //     question={event.title}
-                //     probability={event.marketId[0]?.last}
-                //     totalPool={`$${(
-                //       event.volume
-                //         ? event.volume.toLocaleString(undefined, {
-                //             minimumFractionDigits: 2,
-                //             maximumFractionDigits: 2,
-                //           })
-                //         : "0.00"
-                //     )}`}
-                //     yesPotential={outcomePrices[0] || 50}
-                //     noPotential={outcomePrices[1] || 50}
-                //     className="max-w-7xl mx-auto" // 添加容器样式
-                //     style={{ height: "510px" }} // 与其他卡片背景容器保持一致的高度
-                //   />
                 ) : (
                   <ImageCard
                     eventID={event.slug}
@@ -137,6 +114,7 @@ export default function EventCarousel() {
                     )}`}
                     yesPotential={outcomePrices[0] || 50}
                     noPotential={outcomePrices[1] || 50}
+                    status={event.status}
                   />
                 );
               })()}

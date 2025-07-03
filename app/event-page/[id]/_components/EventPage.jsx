@@ -54,7 +54,8 @@ export default function EventPage() {
   const [showFullText, setShowFullText] = useState(false);
   const [navigationItems, setNavigationItems] = useState([]);
   const [selectCategory, setSelectedCategory] = useState("all");
-
+  const [selectedOrder, setSelectedOrder] = useState({});
+  
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -249,68 +250,6 @@ export default function EventPage() {
                         eventId={events?._id}
                         eventSlug={events?.slug}
                         interval={interval}
-                        // customData={[
-                        //   // July 2024 - flat period
-                        //   { timestamp: 'Jul', asset1: 87.2 },
-                        //   { timestamp: '', asset1: 87.1 },
-                        //   { timestamp: '', asset1: 87.4 },
-                        //   { timestamp: '', asset1: 87.3 },
-                        //   // August 2024 - sudden jump up
-                        //   { timestamp: 'Aug', asset1: 91.8 },
-                        //   { timestamp: '', asset1: 92.2 },
-                        //   { timestamp: '', asset1: 93.1 },
-                        //   { timestamp: '', asset1: 94.5 },
-                        //   // September 2024 - continues up
-                        //   { timestamp: 'Sep', asset1: 95.3 },
-                        //   { timestamp: '', asset1: 96.1 },
-                        //   { timestamp: '', asset1: 95.8 },
-                        //   { timestamp: '', asset1: 96.7 },
-                        //   // October 2024 - sudden crash down
-                        //   { timestamp: 'Oct', asset1: 89.2 },
-                        //   { timestamp: '', asset1: 85.4 },
-                        //   { timestamp: '', asset1: 83.7 },
-                        //   { timestamp: '', asset1: 84.1 },
-                        //   // November 2024 - stays flat low
-                        //   { timestamp: 'Nov', asset1: 84.3 },
-                        //   { timestamp: '', asset1: 84.0 },
-                        //   { timestamp: '', asset1: 83.9 },
-                        //   { timestamp: '', asset1: 84.2 },
-                        //   // December 2024 - gradual rise
-                        //   { timestamp: 'Dec', asset1: 86.1 },
-                        //   { timestamp: '', asset1: 88.5 },
-                        //   { timestamp: '', asset1: 90.2 },
-                        //   { timestamp: '', asset1: 91.8 },
-                        //   // January 2025 - big spike up
-                        //   { timestamp: 'Jan', asset1: 94.6 },
-                        //   { timestamp: '', asset1: 95.9 },
-                        //   { timestamp: '', asset1: 96.4 },
-                        //   { timestamp: '', asset1: 95.7 },
-                        //   // February 2025 - flat high
-                        //   { timestamp: 'Feb', asset1: 95.8 },
-                        //   { timestamp: '', asset1: 95.6 },
-                        //   { timestamp: '', asset1: 95.9 },
-                        //   { timestamp: '', asset1: 95.5 },
-                        //   // March 2025 - dramatic drop
-                        //   { timestamp: 'Mar', asset1: 91.3 },
-                        //   { timestamp: '', asset1: 88.7 },
-                        //   { timestamp: '', asset1: 86.2 },
-                        //   { timestamp: '', asset1: 85.1 },
-                        //   // April 2025 - stays low flat
-                        //   { timestamp: 'Apr', asset1: 85.3 },
-                        //   { timestamp: '', asset1: 85.0 },
-                        //   { timestamp: '', asset1: 85.4 },
-                        //   { timestamp: '', asset1: 85.2 },
-                        //   // May 2025 - sudden recovery
-                        //   { timestamp: 'May', asset1: 89.8 },
-                        //   { timestamp: '', asset1: 92.4 },
-                        //   { timestamp: '', asset1: 93.7 },
-                        //   { timestamp: '', asset1: 94.1 },
-                        //   // June 2025 - slight decline
-                        //   { timestamp: 'Jun', asset1: 92.8 },
-                        //   { timestamp: '', asset1: 91.5 },
-                        //   { timestamp: '', asset1: 90.9 },
-                        //   { timestamp: '', asset1: 90.2 }
-                        // ]}
                         albumReleases={[
                           {
                             date: 'Feb 12',
@@ -411,6 +350,7 @@ export default function EventPage() {
                               setSelectedIndex={setSelectedIndex}
                               index={0}
                               selectedMarket={markets[0]}
+                              setSelectedOrder={setSelectedOrder}
                               // isResolved={events?.isResolved}
                             />
                           </OrderbookAccordionItem>
@@ -479,6 +419,7 @@ export default function EventPage() {
                                       setSelectedIndex={setSelectedIndex}
                                       index={index}
                                       selectedMarket={market}
+                                      setSelectedOrder={setSelectedOrder}
                                       // isResolved={events?.isResolved}
                                     />
                                   </AccordionItem>
@@ -602,6 +543,7 @@ export default function EventPage() {
                         selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
                         market={markets[selectedIndex]}
                         status={events?.status}
+                        selectedOrder={selectedOrder}
                       />
 
                       {/* Spotify Embed */}

@@ -135,17 +135,17 @@ const MonthlyListenersChart: React.FC<MonthlyListenersChartProps> = ({
               setCustomData([]);
             }else{
               let formettedData = result.map((item:any)=>{
-                let formetTime;
-                if(["1h","6h","1d"].includes(interval)){
-                  formetTime = momentFormat(item.createdAt, "YYYY-MM-DD HH:mm");
-                }else if(interval === "1w"){
-                  formetTime = momentFormat(item.createdAt, "YYYY-MM-DD");
-                }else{
-                  formetTime = momentFormat(item.createdAt, "YYYY-MM-DD");
-                }
+                let formetTime = momentFormat(item.createdAt, "YYYY-MM-DD HH:mm");
+                // if(["1h","6h","1d"].includes(interval)){
+                //   formetTime = momentFormat(item.createdAt, "YYYY-MM-DD HH:mm");
+                // }else if(interval === "1w"){
+                //   formetTime = momentFormat(item.createdAt, "YYYY-MM-DD HH:mm");
+                // }else{
+                //   formetTime = momentFormat(item.createdAt, "YYYY-MM-DD HH:mm");
+                // }
                 return {
                   createdAt:formetTime,
-                  forecast: item.forecast * 100
+                  forecast: item.forecast
                 }
               })
               setCustomData(formettedData)
@@ -342,7 +342,7 @@ const MonthlyListenersChart: React.FC<MonthlyListenersChartProps> = ({
             <div className="flex justify-center mb-6">
               <div className="text-center">
                 <div className="text-5xl lg:text-6xl font-bold text-white animate-pulse-subtle">
-                  {currentListeners?.toFixed(1)}%
+                  {currentListeners?.toFixed(1)}M
                 </div>
                 <div className="text-lg text-gray-400 mt-1 flex items-center justify-center gap-2">
                   <Image
@@ -382,7 +382,7 @@ const MonthlyListenersChart: React.FC<MonthlyListenersChartProps> = ({
                     
                     <YAxis
                       domain={[0, 1]}
-                      tickFormatter={(tick) => `${tick}%`}
+                      tickFormatter={(tick) => `${tick}M`}
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
