@@ -64,6 +64,7 @@ interface ImageCardProps {
   noPotential?: number | string;
   onYesClick?: () => void;
   onNoClick?: () => void;
+  status: string;
 }
 
 export function ImageCard({
@@ -77,6 +78,7 @@ export function ImageCard({
   noPotential,
   onYesClick,
   onNoClick,
+  status,
 }: ImageCardProps) {
   const router = useRouter();
 
@@ -103,7 +105,6 @@ export function ImageCard({
           pointerEvents: "none", // Prevents the overlay from blocking clicks
         }}
       ></div>
-
       {/* Centered EventCard */}
       <div style={{ cursor: "pointer" }}
           onClick={handleCardClick} className="absolute top-1/2 left-1/2 transform max-w-[350px] w-full -translate-x-1/2 -translate-y-1/2 z-10">
@@ -116,6 +117,7 @@ export function ImageCard({
           noPotential={noPotential}
           onYesClick={onYesClick}
           onNoClick={onNoClick}
+          status={status}
         />
       </div>
     </Card>

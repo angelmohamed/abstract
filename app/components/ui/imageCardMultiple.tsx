@@ -28,6 +28,7 @@ interface ImageCardMultipleProps {
   yesHoverBg?: string;
   noHoverBg?: string;
   forecast?: boolean;
+  status: string;
 }
 
 export function ImageCardMultiple({
@@ -43,7 +44,8 @@ export function ImageCardMultiple({
   noColor = "pink",
   yesHoverBg = "#244445",
   noHoverBg = "#430a36",
-  forecast = false
+  forecast = false,
+  status,
 }: ImageCardMultipleProps) {
   // Transform options to match MultipleOptionCard's expected format
   const transformedOptions = options?.map(option => ({
@@ -92,6 +94,7 @@ export function ImageCardMultiple({
           onYesClick={onYesClick}
           onNoClick={onNoClick}
           forecast={forecast}
+          status={status}
         />
       </div>
     </Card>

@@ -109,6 +109,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                       JSON.parse(event.marketId[0]?.outcomePrices)[1] || 50
                     }
                     id={event._id}
+                    status={event.status}
                   />
                 </Link>
               ) : (
@@ -122,6 +123,7 @@ export default function EventLinting({ selectCategory, showClosed, selectedSubca
                       : 0)}
                     options={event?.marketId}
                     forecast={event?.forecast}
+                    status={event.status}
                   />
                 </Link>
               )}
