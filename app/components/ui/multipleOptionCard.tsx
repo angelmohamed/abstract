@@ -201,7 +201,7 @@ export function MultipleOptionCard({
                             </Button>
                           </div>
                         </div>) :
-                        <span className="text-[#7dfdfe] text-[10px]">NBA</span>
+                        <span className="text-[#ec4899] text-[10px]">NBA</span>
                     }
                   </div>
                 );

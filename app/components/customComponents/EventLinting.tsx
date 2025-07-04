@@ -59,11 +59,12 @@ export default function EventLinting({
     limit: 16,
     offset: 0,
   });
+  const [selectedMarket, setSelectedMarket] = useState("open");
 
   useEffect(() => {
     // Reset pagination when category or showClosed changes
     setPagination({ page: 1, limit: 16, offset: 0 });
-  }, [selectCategory, showClosed, selectedSubcategory]);
+  }, [selectCategory, showClosed, selectedSubcategory, selectedMarket]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -75,6 +76,7 @@ export default function EventLinting({
           page: pagination.page,
           limit: pagination.limit,
           tag: selectedSubcategory,
+          status: selectedMarket,
         });
         if (success) {
           setEvents(result?.data);
@@ -88,12 +90,12 @@ export default function EventLinting({
     };
 
     fetchEvents();
-  }, [pagination, selectCategory, showClosed, categoryParam]);
+  }, [pagination, selectCategory, showClosed, categoryParam, selectedMarket]);
 
   return (
     <>
       <div className="flex justify-end mb-9 w-full text-end">
-        <Select>
+        <Select value={selectedMarket} onValueChange={setSelectedMarket}>
           <SelectTrigger className="focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none w-64 h-12 border-[#464646]">
             <SelectValue placeholder="All Markets" />
           </SelectTrigger>
@@ -163,6 +165,7 @@ export default function EventLinting({
                       }
                       id={event._id}
                       status={event.status}
+                      outcome={event?.outcome}
                     />
                   </Link>
                 ) : (

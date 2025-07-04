@@ -35,6 +35,7 @@ interface EventCardProps {
   onNoClick?: () => void;
   id?: string | number;
   status: string;
+  outcome: string;
 }
 
 const EventCard: React.FC<EventCardProps> = ({
@@ -54,6 +55,7 @@ const EventCard: React.FC<EventCardProps> = ({
   onNoClick,
   status,
   id,
+  outcome,
 }) => {
   const router = useRouter();
   const [bookmarked, setBookmarked] = React.useState(false);
@@ -189,8 +191,8 @@ const EventCard: React.FC<EventCardProps> = ({
         ) : status == "resolved" ? (
           <>
             <div className="pb-4 pt-1">
-              <p>Outcome:</p>
-              <p className="text-[#ec4899]">No</p>
+              <p>Outcome</p>
+              <p className={outcome == "YES" ? "text-[#7dfdfe]": "text-[#ec4899]"}>{outcome}</p>
             </div>
           </>
         ) : (
