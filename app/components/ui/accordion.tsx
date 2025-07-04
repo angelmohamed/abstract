@@ -83,18 +83,19 @@ const SelectionContext = React.createContext<SelectionContextType>({
   setSelection: () => {},
 });
 
-interface AccordionItemProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> {
+interface AccordionItemProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item> {
   className?: string;
 }
 
 const AccordionItem = React.forwardRef<
-  React.ElementRef<typeof AccordionPrimitive.Item>, 
+  React.ElementRef<typeof AccordionPrimitive.Item>,
   AccordionItemProps
 >(({ className, ...props }, ref) => (
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border-b duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border border-muted rounded-2xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
       className
     )} // Add hover effect for the entire item
     {...props}
@@ -110,7 +111,8 @@ const useSelection = (): SelectionContextType => {
   return context;
 };
 
-interface AccordionTriggerProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
+interface AccordionTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> {
   className?: string;
   marketId: string;
   outcomePrice?: number;
@@ -175,7 +177,7 @@ const AccordionTrigger = React.forwardRef<
     const isActive = activeMarket === marketId;
 
     return (
-      <AccordionPrimitive.Header className="flex items-center justify-between w-full mt-3">
+      <AccordionPrimitive.Header className="flex items-center justify-between w-full">
         <AccordionPrimitive.Trigger
           onClick={(e) => handleSelection("yes", e)}
           ref={(node) => {
@@ -184,17 +186,22 @@ const AccordionTrigger = React.forwardRef<
             triggerRef.current = node;
           }}
           className={cn(
-            "h-[60px] w-full pr-3 pl-3 flex flex-1 items-center justify-between py-4 font-medium transition-all",
+            "h-[80px] w-full pr-3 pl-4 flex flex-1 items-center justify-between py-4 font-medium transition-all",
             className
           )}
           {...props}
         >
           <span className="text-xl flex max-w-auto">{children}</span>
-          <div className="flex-1" /> {/* This will push the "25%" to the right */}
-          <div className="text-l text-right pr-3"> {/* Add padding for spacing */}
+          <div className="flex-1" />
+          {/* This will push the "25%" to the right */}
+          <div className="text-l text-right pr-3 flex items-center gap-1">           
+            {/* Add padding for spacing */}
             <span className="text-right">
-              {outcomePrice && decimalToPercentage(outcomePrice) + "%"}
+              {outcomePrice + "%"}
             </span>
+            {outcomePrice && (
+              <ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200" />
+            )}
           </div>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>
@@ -204,7 +211,8 @@ const AccordionTrigger = React.forwardRef<
 
 AccordionTrigger.displayName = "AccordionTrigger";
 
-interface AccordionContentProps extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> {
+interface AccordionContentProps
+  extends React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content> {
   className?: string;
   marketId: string;
 }
@@ -212,121 +220,119 @@ interface AccordionContentProps extends React.ComponentPropsWithoutRef<typeof Ac
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   AccordionContentProps
->(
-  ({ className, children, marketId, ...props }, ref) => {
-    const { activeMarket, activeSelection } = useSelection();
-    const isActive = activeMarket === marketId;
-    const selection = isActive ? activeSelection : null;
+>(({ className, children, marketId, ...props }, ref) => {
+  const { activeMarket, activeSelection } = useSelection();
+  const isActive = activeMarket === marketId;
+  const selection = isActive ? activeSelection : null;
 
-    const selectedOrderBook =
-      selection === "yes"
-        ? [yesAskBook, yesBidBook]
-        : selection === "no"
-        ? [noAskBook, noBidBook]
-        : [[] as OrderBookItem[], [] as OrderBookItem[]]; // Empty order book when no selection
+  const selectedOrderBook =
+    selection === "yes"
+      ? [yesAskBook, yesBidBook]
+      : selection === "no"
+      ? [noAskBook, noBidBook]
+      : [[] as OrderBookItem[], [] as OrderBookItem[]]; // Empty order book when no selection
 
-    return (
-      <AccordionPrimitive.Content
-        ref={ref}
-        className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
-        {...props}
-      >
-        <div className={cn("pb-4 pt-0", className)}>
-          <Tabs defaultValue="orderbook" className="mt-4">
-            <TabsList className="flex border-b">
-              <TabsTrigger value="orderbook">Order Book</TabsTrigger>
-              <TabsTrigger value="graph">Graph</TabsTrigger>
-            </TabsList>
-            <TabsContent value="orderbook" className="mt-1 rounded-lg">
-              <div className="w-full border-collapse rounded-lg">
-                <div className="relative">
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr className="bg-black text-white">
-                        <th className="text-black p-2 border-b pr-0 mr-0 border-gray-700">
-                          Progress
-                        </th>
-                        <th className="p-2 pl-1 ml-0 border-b border-gray-700">
-                          Price
-                        </th>
-                        <th className="p-2 border-b border-gray-700">
-                          Contracts
-                        </th>
-                        <th className="p-2 border-b border-gray-700">Total</th>
+  return (
+    <AccordionPrimitive.Content
+      ref={ref}
+      className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+      {...props}
+    >
+      <div className={cn("pb-4 pt-0", className)}>
+        <Tabs defaultValue="orderbook" className="mt-4">
+          <TabsList className="flex border-b">
+            <TabsTrigger value="orderbook">Order Book</TabsTrigger>
+            <TabsTrigger value="graph">Graph</TabsTrigger>
+          </TabsList>
+          <TabsContent value="orderbook" className="mt-1 rounded-lg">
+            <div className="w-full border-collapse rounded-lg">
+              <div className="relative">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-black text-white">
+                      <th className="text-black p-2 border-b pr-0 mr-0 border-gray-700">
+                        Progress
+                      </th>
+                      <th className="p-2 pl-1 ml-0 border-b border-gray-700">
+                        Price
+                      </th>
+                      <th className="p-2 border-b border-gray-700">
+                        Contracts
+                      </th>
+                      <th className="p-2 border-b border-gray-700">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrderBook[0].map((row, index) => (
+                      <tr
+                        key={index}
+                        className=" duration-300 ease-in-out bg-black text-white hover:bg-[#0a0a0a]"
+                      >
+                        <td className="p-0 pr-0 mr-0 w-[60%]">
+                          <FillAsk value={row.fill} className="w-full" />
+                        </td>
+                        <td className="p-2 pl-1 ml-0 w-[40%]">{row.price}</td>
+                        <td className="p-2">{row.contracts}</td>
+                        <td className="p-2">{row.total}</td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {selectedOrderBook[0].map((row, index) => (
-                        <tr
-                          key={index}
-                          className=" duration-300 ease-in-out bg-black text-white hover:bg-[#0a0a0a]"
-                        >
-                          <td className="p-0 pr-0 mr-0 w-[60%]">
-                            <FillAsk value={row.fill} className="w-full" />
-                          </td>
-                          <td className="p-2 pl-1 ml-0 w-[40%]">{row.price}</td>
-                          <td className="p-2">{row.contracts}</td>
-                          <td className="p-2">{row.total}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                    ))}
+                  </tbody>
+                </table>
 
-                  <div className="absolute left-3 flex flex-col gap-10">
-                    <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
-                      Asks
-                    </Badge>
-                    <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
-                      Bids
-                    </Badge>
-                  </div>
-
-                  <table className="w-full text-left mt-0">
-                    <thead>
-                      <tr className="bg-black text-transparent">
-                        <th className="text-black p-2 border-b pr-0 mr-0 border-gray-700">
-                          Progress
-                        </th>
-                        <th className="p-2 pl-1 ml-0 border-b border-gray-700">
-                          Price
-                        </th>
-                        <th className="p-2 border-b border-gray-700">
-                          Contracts
-                        </th>
-                        <th className="p-2 border-b border-gray-700">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedOrderBook[1].map((row, index) => (
-                        <tr
-                          key={index}
-                          className="bg-black text-white hover:bg-[#0a0a0a] duration-300 ease-in-out"
-                        >
-                          <td className="hover:bg-[#0a0a0a] p-0 pr-0 mr-0 w-[60%]">
-                            <FillBid
-                              value={row.fill}
-                              className="hover:bg-[#0a0a0a]"
-                            />
-                          </td>
-                          <td className="p-2 pl-1 ml-0 w-[40%]">{row.price}</td>
-                          <td className="p-2">{row.contracts}</td>
-                          <td className="p-2">{row.total}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="absolute left-3 flex flex-col gap-10">
+                  <Badge className="w-[50px] text-xs text-white bg-[#ff0000] -translate-y-7">
+                    Asks
+                  </Badge>
+                  <Badge className="w-[50px] z-10 text-xs text-white bg-[#00c735] -translate-y-4">
+                    Bids
+                  </Badge>
                 </div>
+
+                <table className="w-full text-left mt-0">
+                  <thead>
+                    <tr className="bg-black text-transparent">
+                      <th className="text-black p-2 border-b pr-0 mr-0 border-gray-700">
+                        Progress
+                      </th>
+                      <th className="p-2 pl-1 ml-0 border-b border-gray-700">
+                        Price
+                      </th>
+                      <th className="p-2 border-b border-gray-700">
+                        Contracts
+                      </th>
+                      <th className="p-2 border-b border-gray-700">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedOrderBook[1].map((row, index) => (
+                      <tr
+                        key={index}
+                        className="bg-black text-white hover:bg-[#0a0a0a] duration-300 ease-in-out"
+                      >
+                        <td className="hover:bg-[#0a0a0a] p-0 pr-0 mr-0 w-[60%]">
+                          <FillBid
+                            value={row.fill}
+                            className="hover:bg-[#0a0a0a]"
+                          />
+                        </td>
+                        <td className="p-2 pl-1 ml-0 w-[40%]">{row.price}</td>
+                        <td className="p-2">{row.contracts}</td>
+                        <td className="p-2">{row.total}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            </TabsContent>
-            <TabsContent value="graph" className="mt-2">
-              {/* Graph content here */}
-            </TabsContent>
-          </Tabs>
-        </div>
-      </AccordionPrimitive.Content>
-    );
-  }
-);
+            </div>
+          </TabsContent>
+          <TabsContent value="graph" className="mt-2">
+            {/* Graph content here */}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AccordionPrimitive.Content>
+  );
+});
 
 AccordionContent.displayName = "AccordionContent";
 
@@ -336,7 +342,9 @@ interface ProviderProps {
 
 const SelectionProvider: React.FC<ProviderProps> = ({ children }) => {
   const [activeMarket, setActiveMarket] = React.useState<string | null>(null);
-  const [activeSelection, setActiveSelection] = React.useState<string | null>(null);
+  const [activeSelection, setActiveSelection] = React.useState<string | null>(
+    null
+  );
 
   const setSelection = (marketId: string | null, value: string | null) => {
     setActiveMarket(marketId);
@@ -356,7 +364,9 @@ const SelectionProvider: React.FC<ProviderProps> = ({ children }) => {
   );
 };
 
-const withSelection = <P extends object>(Component: React.ComponentType<P>): React.FC<P> => {
+const withSelection = <P extends object>(
+  Component: React.ComponentType<P>
+): React.FC<P> => {
   return function WithSelectionComponent(props: P) {
     return (
       <SelectionProvider>
