@@ -60,7 +60,7 @@ const OrderbookAccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border-b duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border border-muted rounded-2xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
       className
     )}
     {...props}
@@ -74,11 +74,11 @@ const OrderbookAccordionTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => {
   return (
-    <AccordionPrimitive.Header className="sm:text-[18px] text-[14px] flex items-center justify-between w-full mt-3">
+    <AccordionPrimitive.Header className="sm:text-[18px] text-[14px] flex items-center justify-between w-full">
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          "h-[60px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-3 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all",
+          "h-[80px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all cursor-pointer",
           className
         )}
         {...props}

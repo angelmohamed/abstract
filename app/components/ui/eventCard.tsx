@@ -81,7 +81,8 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[200px] sm:h-[200px] bg-transparent"      
+      className="flex flex-col justify-between w-full h-[200px] sm:h-[200px]"
+      style={{ backgroundColor: "#161616" }}
     >
       <CardHeader className="sm:pt-3 sm:pl-3 pl-3 sm:pr-3 pr-3 pt-3 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
