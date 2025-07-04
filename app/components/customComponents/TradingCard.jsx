@@ -44,6 +44,7 @@ export function TradingCard({
   status,
   selectedOrder,
   image,
+  title,
 }) {
   const onTabChange = (value) => {
     setActiveView(value);
@@ -140,7 +141,7 @@ export function TradingCard({
                 className="text-[16px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
               >
-                {market.groupItemTitle}
+                {market.groupItemTitle != "" ? firstLetterCase(market.groupItemTitle) : firstLetterCase(title)}
               </div>
             </div>
           </CardTitle>

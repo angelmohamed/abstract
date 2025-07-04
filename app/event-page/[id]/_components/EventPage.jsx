@@ -616,6 +616,7 @@ export default function EventPage() {
                           status={events?.status}
                           image={events?.image}
                           selectedOrder={selectedOrder}
+                          title={events?.title}
                         />
 
                         {/* Spotify Embed */}
@@ -677,6 +678,7 @@ export default function EventPage() {
                             }
                             market={markets[selectedIndex]}
                             status={events?.status}
+                            title={events?.title}
                           />
                         </div>
                       </DrawerContent>

@@ -115,6 +115,7 @@ export default function EventCarousel() {
                     yesPotential={outcomePrices[0] || 50}
                     noPotential={outcomePrices[1] || 50}
                     status={event.status}
+                    outcome={event.outcome}
                   />
                 );
               })()}
