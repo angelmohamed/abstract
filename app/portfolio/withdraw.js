@@ -22,6 +22,7 @@ import { withdrawValidate, withdrawInputValidate } from "../validation/validatio
 import { withdrawRequest} from "@/services/wallet";
 
 
+
 let initialValue = {
     amount: "",
     userAddress: "",
@@ -87,6 +88,7 @@ export default function Withdraw() {
                     return;
                 }
                 setLoader(true)
+                withdraw.from = config?.adminAdd
                 let { success,message } = await withdrawRequest(withdraw,dispatch);
                 if (success) {
                     setLoader(false)

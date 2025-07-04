@@ -65,7 +65,6 @@ import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
 import depositIDL from "../../components/IDL/DEPOSITIDL.json"
-
 import Withdraw from "./withdraw"
 
 let initialValue = {
@@ -502,7 +501,8 @@ export default function PortfolioPage() {
             const tokenAmt = Math.abs(change) / (10 ** pre.uiTokenAmount.decimals)
             depositdata = {
               hash: tx,
-              address: pre.owner,
+              from: pre.owner,
+              to: config?.adminAdd.toString(),
               amount: tokenAmt,
               usdAmt: tokenAmt,
               symbol: "USDT"
@@ -610,7 +610,8 @@ export default function PortfolioPage() {
 
         let depositdata = {
           hash: tx,
-          address: provider.publicKey.toBase58(),
+          from: provider.publicKey.toBase58(),
+          to :  receiverPubKey.toBase58(),
           amount: solAmt,
           usdAmt: usdValue,
           symbol: "SOL"
@@ -670,8 +671,6 @@ export default function PortfolioPage() {
       toastAlert("error", "Connect Your Wallet", "deposit");
     }
   };
-
-
 
   console.log(address, data, tokenValue, "datadatadata");
   return (

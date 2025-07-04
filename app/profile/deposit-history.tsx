@@ -14,7 +14,8 @@ interface Deposit {
   amount: number;
   usdAmt: number;
   hash: string;
-  address: string;
+  from: string;
+  to: string;
   coin: string;
   status: string;
   type: string;
@@ -32,6 +33,7 @@ const DepositTable = () => {
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [copiedRowId, setCopiedRowId] = useState<number | null>(null);
+  const [copiedRowId1, setCopiedRowId1] = useState<number | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
     limit: 10,
@@ -78,6 +80,16 @@ const DepositTable = () => {
       console.error("Failed to copy:", err);
     }
   };
+
+  const handleCopy1 = async (text: string, rowId: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedRowId1(rowId);
+      setTimeout(() => setCopiedRowId1(null), 1000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  };
   
   return (
     <div className="overflow-x-auto">
@@ -87,7 +99,8 @@ const DepositTable = () => {
             <th className="px-6 py-3">Date</th>
             <th className="px-6 py-3">Amount</th>
             <th className="px-6 py-3">USD($)</th>
-            <th className="px-6 py-3">Address</th>
+            <th className="px-6 py-3">From</th>
+            <th className="px-6 py-3">To</th>
             <th className="px-6 py-3">Coin</th>
             <th className="px-6 py-3">Hash</th>
             <th className="px-6 py-3">Status</th>
@@ -109,10 +122,21 @@ const DepositTable = () => {
                 </td>
                 <td
                   className="px-6 py-4 cursor-pointer relative"
-                  onClick={() => handleCopy(deposit?.address, index)}
+                  onClick={() => handleCopy(deposit?.from, index)}
                 >
-                  {shortText(deposit?.address)}
+                  {shortText(deposit?.from)}
                   {copiedRowId === index && (
+                    <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
+                      Copied!
+                    </span>
+                  )}
+                </td>
+                <td
+                  className="px-6 py-4 cursor-pointer relative"
+                  onClick={() => handleCopy1(deposit?.to, index)}
+                >
+                  {shortText(deposit?.to)}
+                  {copiedRowId1 === index && (
                     <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
                       Copied!
                     </span>
