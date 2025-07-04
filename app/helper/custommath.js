@@ -1,5 +1,14 @@
 import {convert} from "./convert"
+import { PublicKey } from "@solana/web3.js";
 
+export function isAddress(address) {
+  try {
+    new PublicKey(address); // Will throw if invalid
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
 
 export function shortText(address) {
     try {
@@ -17,6 +26,18 @@ export function numberFloatOnly(value) {
     const regxFormat = /^[]?\d*(?:[.]\d*)?$/;
     var result = regxFormat.test(value)
     return result;
+  }
+
+  export function numberOnly(value) {
+    try {
+        const regxFormat = /^[0-9]*$/;
+        var result = regxFormat.test(value)
+        return result;
+    } catch (err) {
+        console.log(err, "numberOnly")
+        return false;
+    }
+  
   }
 
 export async function getFormatMulticall(results, name, pos) {
@@ -107,4 +128,15 @@ export function toFixedWithoutRound(number, decimalPlaces = 2) {
     } catch (err) {
         return "";
     }
+}
+
+export function isFirstLetterCaps(str) {
+  try{
+  var first = str.charAt(0).toUpperCase();
+  var letter = str.slice(1)
+  var fullname = first + letter
+  return fullname
+  }catch(err){
+      return "";
+  }
 }

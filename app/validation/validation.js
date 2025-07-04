@@ -1,4 +1,5 @@
 import isEmpty from "is-empty";
+import { isAddress } from "../helper/custommath"
 
 export const regValidate = async (params) => {
     let errors = {}
@@ -49,6 +50,45 @@ export const otpInputValidate = (params, name) => {
     } else if (isNaN(params.otp) && name == 'otp') {
         errors.otp = "invalid OTP";
     }
+
+    return errors;
+}
+
+
+export const withdrawValidate = async (params) => {
+    let errors = {}
+
+    if (isEmpty(params.userAddress)) {
+        errors.userAddress = "Address is required";
+    }else if(!isAddress(params.userAddress)){
+        errors.userAddress = "Invalid Address";
+    }
+
+    if (isEmpty(params.amount)) {
+        errors.amount = "Amount is required";
+    } else if (isNaN(params.amount)) {
+        errors.amount = "Invalid amount";
+    }
+
+
+    return errors;
+}
+
+export const withdrawInputValidate = (params, name) => {
+    let errors = {}
+
+    if (isEmpty(params.userAddress) && name == 'userAddress') {
+        errors.userAddress = "Address is required";
+    } else if(!isAddress(params.userAddress) && name == 'userAddress' ){
+        errors.userAddress = "Invalid Address";
+    }
+
+    if (isEmpty(params.amount) && name == 'amount') {
+        errors.amount = "Amount is required";
+    } else if (isNaN(params.amount) && name == 'amount') {
+        errors.amount = "Invalid amount";
+    }
+
 
     return errors;
 }
