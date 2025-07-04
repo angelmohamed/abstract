@@ -37,8 +37,8 @@ function getAccumalativeTotal(arr: OrderBookItem[] | undefined): number {
   }
 
   return arr.reduce((total, arr) => {
-    const price = parseFloat(arr.price); // Convert price to a number
-    const size = parseFloat(arr.size); // Convert size to a number
+    const price = parseFloat(arr[0]); // Convert price to a number
+    const size = parseFloat(arr[1]); // Convert size to a number
 
     if (isNaN(price) || isNaN(size)) {
       throw new Error("Price and size must be valid numbers.");
@@ -60,7 +60,7 @@ const OrderbookAccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border-b duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border border-muted rounded-2xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
       className
     )}
     {...props}
@@ -74,11 +74,11 @@ const OrderbookAccordionTrigger = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => {
   return (
-    <AccordionPrimitive.Header className="sm:text-[18px] text-[14px] flex items-center justify-between w-full mt-3">
+    <AccordionPrimitive.Header className="sm:text-[18px] text-[14px] flex items-center justify-between w-full">
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          "h-[60px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-3 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all",
+          "h-[80px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all cursor-pointer",
           className
         )}
         {...props}
@@ -149,8 +149,11 @@ const OrderbookAccordionContent = React.forwardRef<
     const [openOrders, setOpenOrders] = useState<any[]>([]);
     const [openOrderDialog, setOpenOrderDialog] = useState<boolean>(false);
     const [selectedOpenOrder, setSelectedOpenOrder] = useState<any>(null);
+    const [askBookHighest, setAskBookHighest] = useState<number>(0);
+    const [bidBookHighest, setBidBookHighest] = useState<number>(0);
+
     const socketContext = useContext(SocketContext);
-    const { user } = store.getState().auth;
+
     const calcSpread = React.useCallback((bids: any[][] = [], asks: any[][] = []): string => {
       const b = bids.map((b) => parseFloat(b[0])).filter((n) => !isNaN(n));
       const a = asks.map((a) => parseFloat(a[0])).filter((n) => !isNaN(n));
@@ -169,25 +172,29 @@ const OrderbookAccordionContent = React.forwardRef<
       const descending = (a: any, b: any) => Number(b[0]) - Number(a[0]);
       const ascending = (a: any, b: any) => Number(a[0]) - Number(b[0]);
       // console.log(orderBook, "orderBook");
-      
+
       if (activeView === "Yes") {
         const sortedBids = (orderBook?.bids?.[0] || []).sort(descending);
         setBids(sortedBids);
+        setBidBookHighest(getAccumalativeTotal(sortedBids));
         let asks =
           orderBook?.asks?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
         const sortedAsks = asks.sort(ascending);
         setAsks(sortedAsks ? sortedAsks.reverse(): []);
+        setAskBookHighest(getAccumalativeTotal(sortedAsks))
       } else if (activeView === "No") {
         const sortedBids = (orderBook?.asks?.[0] || []).sort(descending);
         setBids(sortedBids);
+        setBidBookHighest(getAccumalativeTotal(sortedBids))
         let asks =
           orderBook?.bids?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
         const sortedAsks = asks.sort(ascending);
         setAsks(sortedAsks ? sortedAsks.reverse() : []);
+        setAskBookHighest(getAccumalativeTotal(sortedAsks))
       }
     }, [activeView, orderBook]);
 
@@ -403,7 +410,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           asks || [],
                                           orderBookLength - (index + 1)
                                         ) /
-                                          100) *
+                                        askBookHighest) *
                                         100
                                       }
                                       className="w-full"
@@ -496,7 +503,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           bids || [],
                                           index
                                         ) /
-                                          15) *
+                                          bidBookHighest) *
                                         100
                                       }
                                       className="hover:bg-[#0a0a0a]"

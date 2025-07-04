@@ -47,7 +47,7 @@ export const OpenOrderDialog = ({openOrderDialog,setOpenOrderDialog,openOrderDat
                                 <td>{item?.marketId?.groupItemTitle} <span style={{color: item.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{item.action} {item.userSide}</span></td>
                                 {/* <td>{item.side}</td> */}
                                 {/* <td>{item.side}</td> */}
-                                <td>{item.price}</td>
+                                <td>{item.action == "sell" ? 100 - item.price : item.price}</td>
                                 <td>{item.execQty ?? 0}</td>
                                 <td>{item.quantity}</td>
                                 <td> {item.timeInForce == "GTC" ? "Good 'til canceled" : "Good 'til Date"}</td>

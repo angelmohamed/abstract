@@ -65,6 +65,7 @@ interface ImageCardProps {
   onYesClick?: () => void;
   onNoClick?: () => void;
   status: string;
+  outcome: string;
 }
 
 export function ImageCard({
@@ -79,6 +80,7 @@ export function ImageCard({
   onYesClick,
   onNoClick,
   status,
+  outcome
 }: ImageCardProps) {
   const router = useRouter();
 
@@ -118,6 +120,7 @@ export function ImageCard({
           onYesClick={onYesClick}
           onNoClick={onNoClick}
           status={status}
+          outcome={outcome}
         />
       </div>
     </Card>

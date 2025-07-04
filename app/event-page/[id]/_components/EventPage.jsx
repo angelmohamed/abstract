@@ -3,18 +3,38 @@ import "@/app/globals.css";
 import { useParams } from "next/navigation";
 import React, { useState, useEffect, useContext } from "react";
 import { CheckCircle, ClockIcon, Loader, XCircle } from "lucide-react";
-import { Accordion, AccordionItem, AccordionTrigger } from "@/app/components/ui/accordion";
+import Image from "next/image";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/app/components/ui/accordion";
 import Header from "@/app/Header";
 import Chart from "@/app/components/customComponents/Chart";
-import { OrderbookAccordion, OrderbookAccordionContent, OrderbookAccordionItem, OrderbookAccordionTrigger } from "@/app/components/ui/orderbookAccordion";
+import {
+  OrderbookAccordion,
+  OrderbookAccordionContent,
+  OrderbookAccordionItem,
+  OrderbookAccordionTrigger,
+} from "@/app/components/ui/orderbookAccordion";
 import ExpandableTextView from "@/app/components/customComponents/ExpandableTextView";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
 import { SelectSeparator } from "@/app/components/ui/select";
 import Link from "next/link";
 import { TradingCard } from "@/app/components/customComponents/TradingCard";
-import { Drawer, DrawerTrigger, DrawerContent, DrawerTitle, DrawerHeader } from "@/app/components/ui/drawer";
+import {
+  Drawer,
+  DrawerTrigger,
+  DrawerContent,
+  DrawerTitle,
+  DrawerHeader,
+} from "@/app/components/ui/drawer";
 import { CommentSection } from "@/app/components/ui/comment";
-import { SocketContext, subscribe, unsubscribe } from "@/config/socketConnectivity";
+import {
+  SocketContext,
+  subscribe,
+  unsubscribe,
+} from "@/config/socketConnectivity";
 import { getOrderBook, getEventById, getCategories } from "@/services/market";
 import { isEmpty } from "@/lib/isEmpty";
 import { getOpenOrdersByEvtId } from "@/services/user";
@@ -50,12 +70,12 @@ export default function EventPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [openItem, setOpenItem] = useState("orderbook");
   const [openOrders, setOpenOrders] = useState([]);
-  const [openOrderDialog, setOpenOrderDialog] = useState(false); 
+  const [openOrderDialog, setOpenOrderDialog] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
   const [navigationItems, setNavigationItems] = useState([]);
   const [selectCategory, setSelectedCategory] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState({});
-  
+
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -69,22 +89,21 @@ export default function EventPage() {
   useEffect(() => {
     const socket = socketContext?.socket;
     const eventId = events?._id;
-  
+
     if (!socket || !eventId) return;
-  
+
     const handleDisconnect = () => {
       console.log("socket disconnected", eventId);
       subscribe(eventId);
     };
-  
+
     socket.on("disconnect", handleDisconnect);
-  
+
     // Cleanup function
     return () => {
       socket.off("disconnect", handleDisconnect);
     };
   }, [socketContext?.socket, events?._id]);
-  
 
   useEffect(() => {
     const socket = socketContext?.socket;
@@ -93,8 +112,8 @@ export default function EventPage() {
     const handleOrderbook = (result) => {
       const orderbook = JSON.parse(result);
       // console.log("socket: orderbook result", orderbook);
-      setBooks(prev => 
-        prev.map(item => 
+      setBooks((prev) =>
+        prev.map((item) =>
           item.marketId === orderbook.marketId
             ? { ...item, bids: orderbook.bids, asks: orderbook.asks }
             : item
@@ -105,29 +124,34 @@ export default function EventPage() {
     const handleRecentTrade = (result) => {
       const recentTrade = JSON.parse(result);
       // console.log("socket: recent trades result", recentTrade);
-      setMarkets(prev => 
-        prev.map(item => 
-          item._id === recentTrade.market 
-            ? { ...item, last: recentTrade.side == 'no' ? (100 - recentTrade.p) : recentTrade.p } 
+      setMarkets((prev) =>
+        prev.map((item) =>
+          item._id === recentTrade.market
+            ? {
+                ...item,
+                last:
+                  recentTrade.side == "no"
+                    ? 100 - recentTrade.p
+                    : recentTrade.p,
+              }
             : item
         )
       );
     };
-    
+
     socket.on("orderbook", handleOrderbook);
-    socket.on("recent-trade", handleRecentTrade)
+    socket.on("recent-trade", handleRecentTrade);
 
     return () => {
       socket.off("orderbook");
       socket.off("recent-trade");
     };
-  
   }, [socketContext?.socket]);
 
   const handleOpenOrderDialog = (id) => {
     getOpenOrders(id);
     setOpenOrderDialog(true);
-  }
+  };
 
   useEffect(() => {
     if (!id) {
@@ -142,8 +166,13 @@ export default function EventPage() {
           setEvents(result);
           if (result?.marketId && result?.marketId.length > 0) {
             setMarkets(
-              result.marketId.filter((market) => ["active", "closed", "resolved"].includes(market.status))
+              result.marketId.filter((market) =>
+                ["active", "closed", "resolved"].includes(market.status)
+              )
             );
+            console.log(result?.marketId, result.marketId.filter((market) =>
+                ["active", "closed", "resolved"].includes(market.status)
+              ), "active.Iad")
           }
         }
         setEventsLoading(false);
@@ -192,13 +221,13 @@ export default function EventPage() {
       const { success, result } = await getOpenOrdersByEvtId({ id: id });
       if (success) {
         setOpenOrders(result);
-      }else{
+      } else {
         setOpenOrders([]);
       }
     } catch (error) {
       console.error("Error fetching open orders:", error);
     }
-  }
+  };
 
   const fetchMenuItems = async () => {
     try {
@@ -244,7 +273,12 @@ export default function EventPage() {
                     {events?.forecast ? (
                       <MonthlyListenersChart
                         title={events?.title}
-                        volume={markets?.reduce((acc, market) => acc + (market.volume || 0), 0) || 0}
+                        volume={
+                          markets?.reduce(
+                            (acc, market) => acc + (market.volume || 0),
+                            0
+                          ) || 0
+                        }
                         image={events?.image}
                         endDate={events.endDate}
                         eventId={events?._id}
@@ -252,22 +286,27 @@ export default function EventPage() {
                         interval={interval}
                         albumReleases={[
                           {
-                            date: 'Feb 12',
-                            title: 'ASTROWORLD',
-                            cover: Astroworld
+                            date: "Feb 12",
+                            title: "ASTROWORLD",
+                            cover: Astroworld,
                           },
                           {
-                            date: 'Apr 16',
-                            title: 'JACKBOYS 2',
-                            cover: Jackboys2
-                          }
+                            date: "Apr 16",
+                            title: "JACKBOYS 2",
+                            cover: Jackboys2,
+                          },
                         ]}
                       />
                     ) : (
                       <Chart
                         id={id}
                         title={events?.title}
-                        volume={markets?.reduce((acc, market) => acc + (market.volume || 0), 0) || 0}
+                        volume={
+                          markets?.reduce(
+                            (acc, market) => acc + (market.volume || 0),
+                            0
+                          ) || 0
+                        }
                         image={events?.image || "/images/logo.png"}
                         endDate={events?.endDate}
                         market={markets}
@@ -309,16 +348,18 @@ export default function EventPage() {
                         endDate={events.endDate}
                         interval={interval}
                       /> */}
-                    <div className="justify-center items-center">
+                    <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 flex justify-center items-center mb-8">
                       <ChartIntervals
                         interval={interval}
                         setInterval={setInterval}
                       />
                     </div>
 
-                    <div>
-                      {events?.status == "resolved" && <hr className="mt-4"/>}
-                      {markets?.length < 2 && books && events?.status != "resolved"  ? (
+                    <div className="pr-10 pl-10 sm:pr-5 sm:pl-0">
+                      {events?.status == "resolved" && <hr className="mt-4" />}
+                      {markets?.length < 2 &&
+                      books &&
+                      events?.status != "resolved" ? (
                         <OrderbookAccordion
                           type="single"
                           value={openItem}
@@ -346,7 +387,9 @@ export default function EventPage() {
                               isOpen={openItem === "orderbook"}
                               activeView={activeView}
                               setActiveView={setActiveView}
-                              setSelectedOrderBookData={setSelectedOrderBookData}
+                              setSelectedOrderBookData={
+                                setSelectedOrderBookData
+                              }
                               setSelectedIndex={setSelectedIndex}
                               index={0}
                               selectedMarket={markets[0]}
@@ -371,8 +414,7 @@ export default function EventPage() {
                                     <AccordionTrigger
                                       marketId="market-1"
                                       outcomePrice={
-                                        market?.outcomePrices &&
-                                        JSON.parse(market.outcomePrices)[0]
+                                        market?.last || 0
                                       }
                                       className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
                                       setSelectedOrderBookData={
@@ -389,14 +431,19 @@ export default function EventPage() {
                                       setSelectedIndex={setSelectedIndex}
                                       index={index}
                                     >
-                                      {/* <div className="pr-2">
-                                      <Image
-                                        src={market.icon}
-                                        alt="Market 1"
-                                        width={42}
-                                        height={42}
-                                      />
-                                    </div> */}
+                                      <div className="pr-6">
+                                        <img
+                                          src={events?.image}
+                                          alt="Market 1"
+                                          width={42}
+                                          height={42}
+                                          className="rounded-md object-cover"
+                                          style={{
+                                            width: "42px",
+                                            height: "42px",
+                                          }}
+                                        />
+                                      </div>
                                       <span className="pt-1">
                                         {market.groupItemTitle}
                                       </span>
@@ -428,36 +475,46 @@ export default function EventPage() {
                         </>
                       )}
 
-                      {events?.status == 'resolved' && markets.length >= 2 && (
-                        markets.map(((market,index) => (
-                            <div
+                      {events?.status == "resolved" &&
+                        markets.length >= 2 &&
+                        markets.map((market, index) => (
+                          <div
                             key={index}
-                              onClick={() => setSelectedIndex(index)}
-                              className="flex justify-between items-center px-4 py-3 border-b border-[#2a2a2a] hover:bg-[#1d1d1d] cursor-pointer"
-                            >
-                              <div>
-                                <h3 className="text-[15px] sm:text-[16px] font-bold text-white flex items-center gap-2">
-                                  {market.groupItemTitle}
-                                </h3>
-                                <p className="text-gray-400 text-sm">${Number(market.volume).toLocaleString()} Vol.</p>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <p
-                                  className={`text-sm font-semibold ${
-                                    events.outcomeId === market._id ? "text-green-500" : "text-red-500"
-                                  }`}
-                                >
-                                  {events.outcomeId === market._id ? "Yes" : "No"}
-                                </p>
-                                {events.outcomeId === market._id ? (
-                                  <CheckCircle className="w-5 h-5 text-green-500" strokeWidth={2.5} />
-                                ) : (
-                                  <XCircle className="w-5 h-5 text-red-500" strokeWidth={2.5} />
-                                )}
-                              </div>
+                            onClick={() => setSelectedIndex(index)}
+                            className="flex justify-between items-center px-4 py-3 border-b border-[#2a2a2a] hover:bg-[#1d1d1d] cursor-pointer"
+                          >
+                            <div>
+                              <h3 className="text-[15px] sm:text-[16px] font-bold text-white flex items-center gap-2">
+                                {market.groupItemTitle}
+                              </h3>
+                              <p className="text-gray-400 text-sm">
+                                ${Number(market.volume).toLocaleString()} Vol.
+                              </p>
                             </div>
-                        )))
-                      )}
+                            <div className="flex items-center gap-1">
+                              <p
+                                className={`text-sm font-semibold ${
+                                  events.outcomeId === market._id
+                                    ? "text-green-500"
+                                    : "text-red-500"
+                                }`}
+                              >
+                                {events.outcomeId === market._id ? "Yes" : "No"}
+                              </p>
+                              {events.outcomeId === market._id ? (
+                                <CheckCircle
+                                  className="w-5 h-5 text-green-500"
+                                  strokeWidth={2.5}
+                                />
+                              ) : (
+                                <XCircle
+                                  className="w-5 h-5 text-red-500"
+                                  strokeWidth={2.5}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        ))}
 
                       {/* <ExpandableTextView>
                         <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
@@ -478,47 +535,49 @@ export default function EventPage() {
                           </Link>
                         </p> 
                       </ExpandableTextView> */}
-                        <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
-                          Rules
-                        </h3>
-                        <SelectSeparator className="my-4" />
-                        <div className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
-                          {events?.description?.length > 250 ? (
-                             <div className="space-y-0">
-                                  <div
-                                    className={`line-clamp-5 transition-all duration-300 ${
-                                      showFullText ? "line-clamp-none" : ""
-                                    }`}
-                                  >
-                                    {showFullText ? events?.description : events?.description?.slice(0, 250) + " ..."}
-                                  </div>
-                                  <div className="flex items-center justify-between">
-                                    <Button
-                                      variant="link"
-                                      onClick={() => setShowFullText(!showFullText)}
-                                      className="text-sm text-primary"
-                                    >
-                                      {showFullText ? "Show Less" : "Show More"}
-                                    </Button>
-                                  </div>
-                                </div>
-                          ) : (
-                             events?.description
-                          )}
-                        </div>
-                       
-                        {events?.status === "closed" && (
-                          <div className="flex items-start gap-3 p-4 my-3 rounded-md border border-red-500 bg-[#2a1414] text-red-300">
-                            {/* <XCircle className="w-5 h-5 mt-0.5 text-red-400" /> */}
-                            <div>
-                              <p className=" font-semibold">Market Closed</p>
-                              <p className="text-sm text-red-400">
-                                This market has ended and is awaiting resolution. Final outcome will be announced soon.
-                              </p>
+                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                        Rules
+                      </h3>
+                      <SelectSeparator className="my-4" />
+                      <div className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
+                        {events?.description?.length > 250 ? (
+                          <div className="space-y-0">
+                            <div
+                              className={`line-clamp-5 transition-all duration-300 ${
+                                showFullText ? "line-clamp-none" : ""
+                              }`}
+                            >
+                              {showFullText
+                                ? events?.description
+                                : events?.description?.slice(0, 250) + " ..."}
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Button
+                                variant="link"
+                                onClick={() => setShowFullText(!showFullText)}
+                                className="text-sm text-primary"
+                              >
+                                {showFullText ? "Show Less" : "Show More"}
+                              </Button>
                             </div>
                           </div>
+                        ) : (
+                          events?.description
                         )}
+                      </div>
 
+                      {events?.status === "closed" && (
+                        <div className="flex items-start gap-3 p-4 my-3 rounded-md border border-red-500 bg-[#2a1414] text-red-300">
+                          {/* <XCircle className="w-5 h-5 mt-0.5 text-red-400" /> */}
+                          <div>
+                            <p className=" font-semibold">Market Closed</p>
+                            <p className="text-sm text-red-400">
+                              This market has ended and is awaiting resolution.
+                              Final outcome will be announced soon.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* 评论区 Comment Section */}
@@ -530,24 +589,38 @@ export default function EventPage() {
                   {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                   {events?.status == "resolved" ? (
                     <div className="hidden lg:block lg:w-[15%] relative">
-                    <div className="fixed top-[135px] z-60 w-[15%]">           
-                      <ResolutionCard  outcome={events?.outcome} outcomeId={events?.outcomeId} eventType={markets?.length > 1 ? "Multiple Choice" : "Binary"} market={markets[selectedIndex]}/>
+                      <div className="fixed top-[135px] z-60 w-[15%]">
+                        <ResolutionCard
+                          outcome={events?.outcome}
+                          outcomeId={events?.outcomeId}
+                          eventType={
+                            markets?.length > 1 ? "Multiple Choice" : "Binary"
+                          }
+                          market={markets[selectedIndex]}
+                        />
+                      </div>
                     </div>
-                  </div>
                   ) : (
                     <div className="hidden lg:block lg:w-[30%] relative">
-                    <div className="fixed top-[135px] z-60 w-[30%]">
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={books?.find((book) => book.marketId == markets[selectedIndex]?._id) || {}}
-                        market={markets[selectedIndex]}
-                        status={events?.status}
-                        selectedOrder={selectedOrder}
-                      />
+                      <div className="fixed top-[135px] z-60 w-[30%]">
+                        <TradingCard
+                          activeView={activeView}
+                          setActiveView={setActiveView}
+                          selectedOrderBookData={
+                            books?.find(
+                              (book) =>
+                                book.marketId == markets[selectedIndex]?._id
+                            ) || {}
+                          }
+                          market={markets[selectedIndex]}
+                          status={events?.status}
+                          image={events?.image}
+                          selectedOrder={selectedOrder}
+                          title={events?.title}
+                        />
 
-                      {/* Spotify Embed */}
-                      {/* <div className="mt-6">
+                        {/* Spotify Embed */}
+                        {/* <div className="mt-6">
                         <iframe
                           style={{ borderRadius: "12px" }}
                           src="https://open.spotify.com/embed/track/6iycYUk3oB0NPMdaDUrN1w?utm_source=generator&theme=0"
@@ -558,10 +631,9 @@ export default function EventPage() {
                           loading="lazy"
                         ></iframe>
                       </div> */}
+                      </div>
                     </div>
-                  </div>
                   )}
-                  
                 </div>
               </div>
 
@@ -577,42 +649,42 @@ export default function EventPage() {
                   <ResolutionCard />
                 ) : (
                   <>
-                  <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                  <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
-                    Trade
-                  </DrawerTrigger>
-                  <DrawerContent className="h-[80vh] z-50">
-                    {/* Hidden DrawerTitle to satisfy component requirements */}
-                    <div hidden>
-                      <DrawerHeader>
-                        <DrawerTitle>Hidden Title</DrawerTitle>
-                      </DrawerHeader>
-                    </div>
+                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                      <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
+                        Trade
+                      </DrawerTrigger>
+                      <DrawerContent className="h-[80vh] z-50">
+                        {/* Hidden DrawerTitle to satisfy component requirements */}
+                        <div hidden>
+                          <DrawerHeader>
+                            <DrawerTitle>Hidden Title</DrawerTitle>
+                          </DrawerHeader>
+                        </div>
 
-                    {/* Main Content */}
-                    <div className="p-4">
-                      <TradingCard
-                        activeView={activeView}
-                        setActiveView={setActiveView}
-                        selectedOrderBookData={
-                          selectedOrderBookData ||
-                          books?.find(
-                            (book) =>
-                              book.marketId ==
-                              // JSON?.parse(market?.clobTokenIds)[0]
-                              markets[selectedIndex]?._id
-                          ) ||
-                          {}
-                        }
-                        market={markets[selectedIndex]}
-                        status={events?.status}
-                      />
-                    </div>
-                  </DrawerContent>
-                </Drawer>
-                </>
+                        {/* Main Content */}
+                        <div className="p-4">
+                          <TradingCard
+                            activeView={activeView}
+                            setActiveView={setActiveView}
+                            selectedOrderBookData={
+                              selectedOrderBookData ||
+                              books?.find(
+                                (book) =>
+                                  book.marketId ==
+                                  // JSON?.parse(market?.clobTokenIds)[0]
+                                  markets[selectedIndex]?._id
+                              ) ||
+                              {}
+                            }
+                            market={markets[selectedIndex]}
+                            status={events?.status}
+                            title={events?.title}
+                          />
+                        </div>
+                      </DrawerContent>
+                    </Drawer>
+                  </>
                 )}
-                
               </div>
             </div>
           )}
@@ -620,10 +692,14 @@ export default function EventPage() {
             {" "}
             {/* This makes the left part wider */}
           </div>
-          <OpenOrderDialog openOrderDialog={openOrderDialog} setOpenOrderDialog={setOpenOrderDialog} openOrderData={openOrders} />
+          <OpenOrderDialog
+            openOrderDialog={openOrderDialog}
+            setOpenOrderDialog={setOpenOrderDialog}
+            openOrderData={openOrders}
+          />
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 }
