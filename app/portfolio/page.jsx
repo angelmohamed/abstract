@@ -306,7 +306,6 @@ export default function PortfolioPage() {
   };
 
 
-
   useEffect(() => {
     balanceData();
   }, [address]);
@@ -316,7 +315,7 @@ export default function PortfolioPage() {
       setStep("2");
       setDepositAmt()
       getSolanaTxFee()
-      if (currency == "USDT" && tokenbalance == 0) {
+      if (currency == "USDC" && tokenbalance == 0) {
         setStep("1");
         toastAlert("error", "Insufficient Balance", "wallet");
       } else if (currency == "SOL" && balance == 0) {
@@ -333,7 +332,7 @@ export default function PortfolioPage() {
 
   var step3Click = () => {
     try {
-      var depositBalance = currency == "USDT" ? tokenbalance : balance;
+      var depositBalance = currency == "USDC" ? tokenbalance : balance;
       if (depositBalance > 0) {
         if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(0.0001)) {
           toastAlert(
@@ -360,7 +359,7 @@ export default function PortfolioPage() {
   };
 
   const balanceChange = (value) => {
-    if (currency == "USDT") {
+    if (currency == "USDC") {
       setDepositAmt(tokenbalance * (value / 100));
     } else {
       setDepositAmt(balance * (value / 100));
@@ -392,8 +391,8 @@ export default function PortfolioPage() {
   async function buy() {
     try {
       setloader(true);
-      if (currency == "USDT") {
-        console.log("usdtttt")
+      if (currency == "USDC") {
+        console.log("USDCUSDC")
         const provider = await getAnchorProvider();
         const program = new Program(depositIDL, programID, provider);
         const connection = provider.connection;
@@ -403,6 +402,8 @@ export default function PortfolioPage() {
 
         const fromTokenAccount = await getAssociatedTokenAddress(mint, provider.publicKey);
         const toTokenAccount = await getAssociatedTokenAddress(mint, receiverPubKey);
+
+        console.log(fromTokenAccount,toTokenAccount, provider.publicKey,"toTokenAccount")
 
         // ✅ Check and create receiver ATA if it doesn't exist
         try {
@@ -505,7 +506,7 @@ export default function PortfolioPage() {
               to: config?.adminAdd.toString(),
               amount: tokenAmt,
               usdAmt: tokenAmt,
-              symbol: "USDT"
+              symbol: "USDC"
             }
           }
         }
@@ -532,7 +533,7 @@ export default function PortfolioPage() {
         setloader(false);
       } else if (currency == "SOL") {
         const provider = await getAnchorProvider();
-
+        console.log(provider.publicKey.toBase58(),"toTokenAccount")
         const program = new Program(depositIDL, programID, provider);
         const lamports = new BN(parseFloat(depsoitAmt) * web3.LAMPORTS_PER_SOL);
         const receiverPubKey = new PublicKey(config?.adminAdd);
@@ -560,7 +561,7 @@ export default function PortfolioPage() {
           userDeposit: userDepositPDA,
           pythPriceAccount: PYTH_PRICE_ACCOUNT,
         })
-        .rpc();
+        .rpc({ skipPreflight: true });
         console.log(tx, "tx")
 
         settransactionHash(tx);
@@ -639,8 +640,14 @@ export default function PortfolioPage() {
     } catch (err) {
       console.log(err, "errr")
       setloader(false);
+       const button = document.querySelector(".modal_close_brn");
+          if (button) {
+            button.click();
+          }
     }
   }
+
+
 
   const handlechange = async (e) => {
     let value = e.target.value;
@@ -648,7 +655,7 @@ export default function PortfolioPage() {
     // let isNum = numberFloatOnly(value);
     // if (isNum) {
     //   setshowallowance(false);
-    //   if (value > allowance && currency == "USDT") {
+    //   if (value > allowance && currency == "USDC") {
     //     setshowallowance(true);
     //   }
     // }
@@ -750,7 +757,7 @@ export default function PortfolioPage() {
                           {(step == "1" || step == "2" || step == "3") && (
                             <p className="text-center text-[12px] text-gray-400 mb-0">
                               Available Balance: {" "}
-                              {currency === "USDT"
+                              {currency === "USDC"
                                 ? `${tokenbalance} ${currency}`
                                 : `${balance} ${currency ? currency : "SOL"}`}
                               {/* {formatNumber(balance * usdConvt, 4)} */}
@@ -783,29 +790,29 @@ export default function PortfolioPage() {
 
                               <div className="wallet_coin_list">
                                 <div
-                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDT"
+                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDC"
                                       ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
                                       : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                     }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
                                       ...prev,
-                                      currency: "USDT",
+                                      currency: "USDC",
                                     }))
                                   }
                                 >
                                   <div className="flex items-center gap-2">
                                     <Image
-                                      src="/images/usdt.svg"
-                                      alt="USDT Icon"
+                                      src="/images/usdc.svg"
+                                      alt="USDC Icon"
                                       width={24}
                                       height={24}
                                       className="rounded-full"
                                     />
                                     <div className="flex flex-col">
-                                      <span className="text-[14px]">USDT</span>
+                                      <span className="text-[14px]">USDC</span>
                                       <span className="text-[12px] text-gray-400">
-                                        {tokenbalance} USDT
+                                        {tokenbalance} USDC
                                       </span>
                                     </div>
                                   </div>
@@ -914,8 +921,8 @@ export default function PortfolioPage() {
                                 <div className="flex items-center gap-2">
                                   <Image
                                     src={
-                                      currency == "USDT"
-                                        ? "/images/usdt.svg"
+                                      currency == "USDC"
+                                        ? "/images/usdc.svg"
                                         : "/images/solana.png"
                                     }
                                     alt="Icon"
@@ -1044,8 +1051,8 @@ export default function PortfolioPage() {
                                 <div className="flex gap-2 items-center">
                                   <Image
                                     src={
-                                      currency == "USDT"
-                                        ? "/images/usdt.svg"
+                                      currency == "USDC"
+                                        ? "/images/usdc.svg"
                                         : "/images/solana.png"
                                     }
                                     alt="Icon"
@@ -1070,7 +1077,7 @@ export default function PortfolioPage() {
                                     height={18}
                                   />
                                   <span className="text-[14px] text-gray-200">
-                                    {currency == "USDT"
+                                    {currency == "USDC"
                                       ? `${depsoitAmt} USDC`
                                       : `${formatNumber(depsoitAmt * tokenValue, 4)} USDC`}
                                     {/* tokenAmt */}
@@ -1225,7 +1232,7 @@ export default function PortfolioPage() {
                         </svg>
 
                         {/* <div className="text-light mt-4 text-lg">
-                          You will receive: <strong>{currency == "USDT" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}</strong>
+                          You will receive: <strong>{currency == "USDC" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}</strong>
                         </div> */}
 
                         {transactionHash && (

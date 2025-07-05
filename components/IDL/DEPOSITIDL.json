@@ -98,7 +98,7 @@
       "args": []
     },
     {
-      "name": "setTokenSupport",
+      "name": "updateTokenSupport",
       "accounts": [
         {
           "name": "authority",
@@ -109,6 +109,27 @@
           "name": "tokenInfo",
           "isMut": true,
           "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "isSupported",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "initializeTokenInfo",
+      "accounts": [
+        {
+          "name": "tokenInfo",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "admin",
+          "isMut": true,
+          "isSigner": true
         },
         {
           "name": "mint",
@@ -122,6 +143,10 @@
         }
       ],
       "args": [
+        {
+          "name": "mint",
+          "type": "publicKey"
+        },
         {
           "name": "isSupported",
           "type": "bool"
