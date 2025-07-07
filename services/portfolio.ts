@@ -39,3 +39,16 @@ export const getClosedPnL = async (data: any) => {
       return handleResp(error, "error");
     }
 };
+
+export const getUserPnL = async (data: any) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/position-value?timeframe=${data}`,
+      method: "get",
+      data,
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

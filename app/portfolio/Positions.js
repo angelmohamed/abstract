@@ -268,7 +268,7 @@ const Positions = () => {
                         </div>
                       </td>
                       <td>{toFixedDown(data?.filled?.[0]?.price, 0)}¢</td>
-                      <td>{toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}¢</td>
+                      <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}</td>
                       <td>
                         {data.side == "no" ? (100 - data?.last) : data?.last}¢ <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price) / data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
                       </td>
