@@ -64,8 +64,7 @@ export default function WalletSettings() {
                   htmlFor="airplane-mode"
                   style={{ paddingRight: 15 }}
                 >
-                  Use a custom RPC (must own $MATIC in your connected
-                  wallet)
+                  Use a custom RPC (must own $SOL in your connected wallet)
                 </label>
                 <Switch.Root 
                     className="SwitchRoot" 
@@ -85,7 +84,8 @@ export default function WalletSettings() {
               >
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r1">
-                    Low gas
+                  Low priority fee    
+                  {/* Low gas */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"
@@ -98,7 +98,8 @@ export default function WalletSettings() {
                 </div>
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r2">
-                    Medium gas
+                    Medium priority fee
+                    {/* Medium gas */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"
@@ -111,7 +112,8 @@ export default function WalletSettings() {
                 </div>
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r3">
-                    High gas
+                    High priority
+                    {/* High gas */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"

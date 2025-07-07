@@ -14,7 +14,8 @@ interface Deposit {
     amount: number;
     usdAmt: number;
     hash: string;
-    address: string;
+    from: string;
+    to: string;
     coin: string;
     status: string;
     type: string;
@@ -33,6 +34,7 @@ const WithdrawTable = () => {
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState<boolean>(false);
     const [copiedRowId, setCopiedRowId] = useState<number | null>(null);
+    const [copiedRowId1, setCopiedRowId1] = useState<number | null>(null);
     const [pagination, setPagination] = useState<PaginationState>({
         page: 1,
         limit: 10,
@@ -80,6 +82,15 @@ const WithdrawTable = () => {
         }
     };
 
+    const handleCopy1 = async (text: string, rowId: number) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopiedRowId1(rowId);
+            setTimeout(() => setCopiedRowId1(null), 1000);
+        } catch (err) {
+            console.error("Failed to copy:", err);
+        }
+    };
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-left text-gray-100 mb-3">
@@ -87,7 +98,8 @@ const WithdrawTable = () => {
                     <tr>
                         <th className="px-6 py-3">Date</th>
                         <th className="px-6 py-3">Amount</th>
-                        <th className="px-6 py-3">Address</th>
+                        <th className="px-6 py-3">From</th>
+                        <th className="px-6 py-3">To</th>
                         <th className="px-6 py-3">Coin</th>
                         <th className="px-6 py-3">Hash</th>
                         <th className="px-6 py-3">Reason</th>
@@ -107,10 +119,21 @@ const WithdrawTable = () => {
                                 </td>
                                 <td
                                     className="px-6 py-4 cursor-pointer relative"
-                                    onClick={() => handleCopy(withdraw?.address, index)}
+                                    onClick={() => handleCopy(withdraw?.from, index)}
                                 >
-                                    {shortText(withdraw?.address)}
+                                    {shortText(withdraw?.from)}
                                     {copiedRowId === index && (
+                                        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
+                                            Copied!
+                                        </span>
+                                    )}
+                                </td>
+                                <td
+                                    className="px-6 py-4 cursor-pointer relative"
+                                    onClick={() => handleCopy1(withdraw?.to, index)}
+                                >
+                                    {shortText(withdraw?.to)}
+                                    {copiedRowId1 === index && (
                                         <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
                                             Copied!
                                         </span>
@@ -132,13 +155,13 @@ const WithdrawTable = () => {
                                     }
                                 </td>
                                 <td className="px-6 py-4 relative group cursor-help">
-                                    {withdraw?.status === "rejected" ? 
-                                    <>
-                                    { withdraw?.reason?.length > 6 ? `${withdraw?.reason.slice(0, 6)}...` : withdraw?.reason}
-                                    <div className="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-1 w-48 p-2 text-sm text-white bg-black rounded shadow-lg">
-                                        {withdraw?.reason}
-                                    </div>
-                                    </>  : "-"} 
+                                    {withdraw?.status === "rejected" ?
+                                        <>
+                                            {withdraw?.reason?.length > 6 ? `${withdraw?.reason.slice(0, 6)}...` : withdraw?.reason}
+                                            <div className="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-1 w-48 p-2 text-sm text-white bg-black rounded shadow-lg">
+                                                {withdraw?.reason}
+                                            </div>
+                                        </> : "-"}
                                 </td>
                                 <td className="px-6 py-4">
                                     <span

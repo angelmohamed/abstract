@@ -61,14 +61,15 @@ export default function PortfolioPage() {
   const dispatch = useDispatch();
   const { profileImg } = useSelector((state: any) => state?.auth?.user);
   // const { address} = useWallet();
-  const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
+  const { address } = useSelector((state: any) => state?.walletconnect?.walletconnect);
   const [account, setaccount] = useState(address);
-  const wallet: string = address?address:"";
+  const wallet: string = address ? address : "";
   const [transactions, setTransactions] = useState<PolygonTx[]>([]);
   const [loadingTx, setLoadingTx] = useState(true);
   const [currentTab, setCurrentTab] = useState("positions");
   const [amountFilter, setAmountFilter] = useState("All");
   const [positions, setPositions] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("activity");
   const [tradeOverview, setTradeOverview] = useState<any>(initialTradeOverview);
   // console.log("tradeOverview",tradeOverview)
   const [tradeOverviewLoading, setTradeOverviewLoading] = useState(true);
@@ -93,18 +94,18 @@ export default function PortfolioPage() {
   const fetchProfile = async () => {
     try {
       const { status, result } = await getUserData(dispatch);
-      if (status ) {
+      if (status) {
         setProfileData(result);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
-    } 
+    }
   };
 
   //get positions
   const fetchPositions = async () => {
     const { status, result } = await getPositions();
-    if (status ) {
+    if (status) {
       setPositions(result);
     }
   };
@@ -112,8 +113,8 @@ export default function PortfolioPage() {
   const fetchTradeOverview = async () => {
     setTradeOverviewLoading(true);
     try {
-    const { success, result } = await getTradeOverview();
-    if (success ) {
+      const { success, result } = await getTradeOverview();
+      if (success) {
         setTradeOverview({
           total_value: result.totalPositionValue.toFixed(2),
           total_profit_loss: result.totalTradeProfitLoss.toFixed(2),
@@ -157,7 +158,7 @@ export default function PortfolioPage() {
             <Avatar className="w-16 h-16">
               {profileData?.profileImg ? (
                 <AvatarImage
-                  src={profileData.profileImg||profileImg}
+                  src={profileData.profileImg || profileImg}
                   alt={profileData.username || wallet}
                 />
               ) : (
@@ -165,8 +166,8 @@ export default function PortfolioPage() {
                   {profileData?.username
                     ? profileData.username.charAt(0).toUpperCase()
                     : wallet
-                    ? wallet ? wallet?.slice(2, 8).toUpperCase():""
-                    : "?"}
+                      ? wallet ? wallet?.slice(2, 8).toUpperCase() : ""
+                      : "?"}
                 </AvatarFallback>
               )}
             </Avatar>
@@ -252,8 +253,6 @@ export default function PortfolioPage() {
             <TabsList className="flex space-x-4">
               <TabsTrigger value="positions">Positions</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
-              <TabsTrigger value="deposit">Deposit History</TabsTrigger>
-              <TabsTrigger value="withdraw">Withdraw History</TabsTrigger>
             </TabsList>
             <select
               value={amountFilter}
@@ -266,59 +265,45 @@ export default function PortfolioPage() {
             </select>
           </div>
           <TabsContent value="positions">
-           <Positions />
+            <Positions />
           </TabsContent>
           <TabsContent value="activity">
-            <ActivityTable />
-            {/* {loadingTx ? (
-              <p>Loading transactions...</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left custom_table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Market</th>
-                      <th className="text-right">Amount</th>
-                      <th className="text-right">Time</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions && transactions?.length > 0 && transactions?.map((tx) => {
-                      const time = new Date(parseInt(tx.timeStamp) * 1000);
-                      const diffMinutes = Math.floor(
-                        (Date.now() - time.getTime()) / 60000
-                      );
-                      const relTime =
-                        diffMinutes < 60
-                          ? `${diffMinutes}m ago`
-                          : `${Math.floor(diffMinutes / 60)}h ago`;
-                      const isBuy =
-                        tx.to.toLowerCase() === wallet?.toLowerCase();
-                      return (
-                        <tr key={tx.hash} className="border-t border-gray-700">
-                          <td>{isBuy ? "Buy" : "Redeem"}</td>
-                          <td>{tx.to}</td>
-                          <td className="text-right">
-                            {(Number(tx.value) / 1e6).toFixed(4)} USDC
-                          </td>
-                          <td className="text-right">{relTime}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <div className="p-4">
+              <div className="flex gap-2 mb-4">
+                <Button
+                    variant={activeTab === "activity" ? "default" : "outline"}
+                  onClick={() => setActiveTab("activity")}
+                >
+                  Trade
+                </Button>
+                <Button
+                   variant={activeTab === "deposit" ? "default" : "outline"}
+                  onClick={() => setActiveTab("deposit")}
+                >
+                  Deposit History
+                </Button>
+                <Button
+                 variant={activeTab === "withdraw" ? "default" : "outline"}
+                  onClick={() => setActiveTab("withdraw")}
+                >
+                  Withdraw History
+                </Button>
               </div>
-            )} */}
+            </div>
+            {activeTab == "activity" &&
+            <ActivityTable />
+                }
+                  {activeTab == "deposit" &&
+             <DepositTable />
+                }
+                  {activeTab == "withdraw" &&
+             <WithdrawTable />
+                }
+
           </TabsContent>
-          <TabsContent value="deposit">
-           <DepositTable />
-          </TabsContent>
-          <TabsContent value="withdraw">
-           <WithdrawTable />
-          </TabsContent>
+
         </Tabs>
-        <Footer/>
+        <Footer />
       </div>
     </div>
   );
