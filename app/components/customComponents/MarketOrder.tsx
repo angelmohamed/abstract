@@ -187,7 +187,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     <>
       <div className="pt-2">
         <p className="text-muted-foreground text-sm text-right mb-1">
-          Balance {signedIn ? `${availableBalance(asset)}`: "--"}
+          Balance {signedIn ? `$${availableBalance(asset)}`: "--"}
         </p>
         <div className="flex justify-between mt-3">
           <div className="flex flex-col">

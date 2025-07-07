@@ -280,13 +280,13 @@ export default function PortfolioPage() {
                    variant={activeTab === "deposit" ? "default" : "outline"}
                   onClick={() => setActiveTab("deposit")}
                 >
-                  Deposit History
+                  Deposit
                 </Button>
                 <Button
                  variant={activeTab === "withdraw" ? "default" : "outline"}
                   onClick={() => setActiveTab("withdraw")}
                 >
-                  Withdraw History
+                  Withdraw
                 </Button>
               </div>
             </div>

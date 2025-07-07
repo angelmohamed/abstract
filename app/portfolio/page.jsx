@@ -66,6 +66,7 @@ import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
 import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 import Withdraw from "./withdraw"
+import { getUserPnL } from "@/services/portfolio";
 
 let initialValue = {
   currency: "",
@@ -113,8 +114,20 @@ export default function PortfolioPage() {
   var { currency, amount, walletAddress } = depositData;
 
   useEffect(() => {
-    setProfitAmount(walletData?.position);
+      getPnl()
   }, [walletData, interval]);
+
+  const getPnl = async() => {
+    try{
+      const {success,result} = await getUserPnL(interval)
+      console.log("success,result",success,result)
+      if(success){
+        setProfitAmount(result?.totalPnl/100);
+      }
+    } catch (err){
+      console.log("error ",err)
+    }
+  }
 
   // useEffect(() => {
   //   if (!wallet) return;
