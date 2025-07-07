@@ -149,7 +149,7 @@ export function TradingCard({
             {" "}
             $
             {market.volume
-              ? market.volume.toLocaleString(undefined, {
+              ? (market.volume/100).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })

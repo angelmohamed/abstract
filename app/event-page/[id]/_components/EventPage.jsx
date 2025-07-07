@@ -589,7 +589,7 @@ export default function EventPage() {
                   {/* Trading Card (Desktop: Sticky, Hidden on Mobile) */}
                   {events?.status == "resolved" ? (
                     <div className="hidden lg:block lg:w-[15%] relative">
-                      <div className="fixed top-[135px] z-60 w-[15%]">
+                      <div className="fixed top-[147px] z-60 w-[15%]">
                         <ResolutionCard
                           outcome={events?.outcome}
                           outcomeId={events?.outcomeId}
@@ -602,7 +602,7 @@ export default function EventPage() {
                     </div>
                   ) : (
                     <div className="hidden lg:block lg:w-[30%] relative">
-                      <div className="fixed top-[135px] z-60 w-[30%]">
+                      <div className="fixed top-[147px] z-60 w-[30%] xl:w-[350px]">
                         <TradingCard
                           activeView={activeView}
                           setActiveView={setActiveView}
@@ -678,6 +678,7 @@ export default function EventPage() {
                             }
                             market={markets[selectedIndex]}
                             status={events?.status}
+                            image={events?.image}
                             title={events?.title}
                           />
                         </div>

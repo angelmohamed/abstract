@@ -1,8 +1,8 @@
 import Image from "next/image";
 import { Checkbox, Separator, Switch } from "radix-ui";
 import { CheckIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
-import { setUserEmailNotification } from "@/services/user";
+import { useEffect, useState } from "react";
+import { getUserData, setUserEmailNotification } from "@/services/user";
 import { setInAppNotification } from "@/services/user";
 
 export default function NotificationSettings() {
@@ -30,6 +30,31 @@ export default function NotificationSettings() {
           console.error("Error updating email notification:", error);
         }
     }
+
+    const getNotificationSettings = async() => {
+        try{
+            let { success,result } = await getUserData()
+            if(success){
+                if(result?.notification?.email?.includes('resolution')){
+                    setEmailNotification(true)
+                }else {
+                    setEmailNotification(false)
+                }
+
+                if(result?.notification?.inApp?.includes('fillOrder')){
+                    setOrderFill(true)
+                }else {
+                    setOrderFill(false)
+                }
+            }
+        } catch(err){
+            console.log("error: ",err)
+        }
+    }
+
+    useEffect(()=>{
+        getNotificationSettings()
+    },[])
 
     return (
         <>

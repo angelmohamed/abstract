@@ -9,9 +9,9 @@ module.exports = {
   ],
   theme: {
   	extend: {
-  		screens: {
-  			xl: '2000px'
-  		},
+  		// screens: {
+  		// 	xl: '2000px'
+  		// },
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

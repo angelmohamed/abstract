@@ -442,8 +442,8 @@ const OrderbookAccordionContent = React.forwardRef<
                             })}
                           {/* Asks badge */}
                           {asks.length > 0 && (
-                            <div className="flex w-full absolute bottom-0 left-0">
-                              <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1">
+                            <div className="flex w-full">
+                              <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1 absolute bottom-0 left-5 z-30">
                                 Asks
                               </Badge>
                             </div>
@@ -468,8 +468,8 @@ const OrderbookAccordionContent = React.forwardRef<
                         {/* Bids badge */}
                         <div className="relative w-full">
                           {bids.length > 0 && (
-                            <div className="flex w-full absolute top-0 left-0 z-10">
-                              <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1">
+                            <div className="flex w-full">
+                              <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1 absolute top-0 left-5 z-30">
                                 Bids
                               </Badge>
                             </div>

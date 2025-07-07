@@ -62,7 +62,19 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   // function
   const handleChangeBtn = (op: "+" | "-", key: string, increment: number) => {
     if (op === "+") {
-      setFormValue((prev) => ({ ...prev, [key]: Number(prev[key]) + increment }));
+      setFormValue((prev) => {
+        let maxNum = {
+          "price":100,
+          "amount":100001
+        }
+        console.log("maxNum[key]",maxNum[key])
+        if ((Number(prev[key]) + increment >= maxNum[key])){
+          return {...prev, [key]: maxNum[key] - 1 }
+        } else {
+          return { ...prev, [key]: Number(prev[key]) + increment }
+        }
+      });
+
     } else if (op === "-") {
       setFormValue((prev) => {
         if (Number(prev[key]) - increment > 0) {
@@ -90,26 +102,40 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
           return prev;
         }
       } else if (name === "amount") {
-        const numericValue = value.replace(/[^0-9.]/g, '');
+        // const numericValue = value.replace(/[^0-9.]/g, '');
         
-        const parts = numericValue.split('.');
-        if (parts.length > 2) {
-          return prev;
+        // const parts = numericValue.split('.');
+        // if (parts.length > 2) {
+        //   return prev;
+        // }
+        
+        // if (parts[1] && parts[1].length > 2) {
+        //   return prev;
+        // }
+        
+        // const amountNum = parseInt(numericValue);
+        
+        // if (numericValue === '' || numericValue === '.') {
+        //   return { ...prev, [name]: numericValue };
+        // } else if (amountNum >= 0 && amountNum <= 100000) {
+        //   return { ...prev, [name]: numericValue };
+        // } else {
+        //   return prev;
+        // }
+
+        const numericValue = value.replace(/[^0-9]/g, ''); // Only digits, no decimal point
+
+        if (numericValue === '') {
+          return { ...prev, [name]: '' };
         }
         
-        if (parts[1] && parts[1].length > 2) {
-          return prev;
-        }
+        const amountNum = parseInt(numericValue, 10);
         
-        const amountNum = parseFloat(numericValue);
-        
-        if (numericValue === '' || numericValue === '.') {
+        if (!isNaN(amountNum) && amountNum >= 0 && amountNum <= 100000) {
           return { ...prev, [name]: numericValue };
-        } else if (amountNum >= 0 && amountNum <= 100000) {
-          return { ...prev, [name]: numericValue };
-        } else {
-          return prev;
         }
+        
+        return prev;
       } else {
         return prev;
       }
@@ -123,6 +149,8 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     }
     if (Number(price) <= 0) {
       errors.price = "Amount must be greater than 0";
+    } else if (Number(price) >= 100) {
+      errors.price = "Amount must be less than 99";
     }
     if (!amount) {
       errors.amount = "Shares field is required";
@@ -237,7 +265,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         <div className="flex flex-col">
           <span className="text-[#fff] text-[16px]">Limit Price</span>
           <p className="text-muted-foreground text-sm">
-            Balance ${availableBalance(asset)}
+            Balance {signedIn ? `$${availableBalance(asset)}` : "--"}
           </p>
         </div>
         <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
