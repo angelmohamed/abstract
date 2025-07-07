@@ -32,16 +32,16 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { Input } from "../components/ui/input";
 import { useSelector } from "@/store";
 import { useDispatch } from "react-redux";
-import { userDeposit } from "@/services/wallet";
+import { userDeposit, addressCheck } from "@/services/wallet";
 import { formatNumber } from "../helper/custommath";
-import { addressCheck } from "@/services/wallet";
 import {
   Connection,
   PublicKey,
   clusterApiUrl,
   Transaction,
   LAMPORTS_PER_SOL,
-  TransactionMessage
+  TransactionMessage,
+  ComputeBudgetProgram
 } from "@solana/web3.js";
 import {
   AnchorProvider,
@@ -64,6 +64,7 @@ import { Footer } from "../components/customComponents/Footer";
 import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
+import { getWalletSettings } from "@/services/user";
 import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 import Withdraw from "./withdraw"
 
@@ -97,9 +98,18 @@ export default function PortfolioPage() {
   const [transactionHash, settransactionHash] = useState("");
   const [tokenValue, setTokenValue] = useState(0);
   const [profitAmount, setProfitAmount] = useState(0);
+  const [walletsetting, setWalletsetting] = useState({});
   const [interval, setInterval] = useState("max");
+  const [copied, setCopied] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+
+  const PRIORITY_FEES = {
+    low: 5000,
+    medium: 20000,
+    high: 75000,
+  };
+
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -115,18 +125,6 @@ export default function PortfolioPage() {
   useEffect(() => {
     setProfitAmount(walletData?.position);
   }, [walletData, interval]);
-
-  // useEffect(() => {
-  //   if (!wallet) return;
-  //   const fetchTx = async () => {
-  //     setLoadingTx(true);
-  //     const res = await fetch(`/api/polygon/transactions?address=${wallet}`);
-  //     const data = await res.json();
-  //     setTransactions(data.result || []);
-  //     setLoadingTx(false);
-  //   };
-  //   fetchTx();
-  // }, [wallet]);
 
   useEffect(() => {
     if (!wallet) return;
@@ -158,10 +156,12 @@ export default function PortfolioPage() {
         const ata = await getAssociatedTokenAddress(mint, walletAddress);
         if (ata) {
           const tokenAccount = await getAccount(connection, ata);
+          if(tokenAccount){
           const rawBalance = parseFloat(tokenAccount?.amount) / 10 ** 6;
           console.log("✅ Token Balance:", parseFloat(rawBalance));
           const formattedBalance1 = formatNumber(rawBalance, 4);
           setTokenBalance(formattedBalance1);
+          }
         }
       }
     } catch (err) {
@@ -252,6 +252,24 @@ export default function PortfolioPage() {
     }
   }
 
+
+  const getWalletSettingsData = async () => {
+    try {
+      let respData = await getWalletSettings();
+      if (respData.success) {
+        setWalletsetting(respData?.result);
+      }
+    } catch (error) {
+      console.error("Error getting wallet settings:", error);
+    }
+  }
+
+
+  useEffect(() => {
+    getWalletSettingsData();
+  }, []);
+
+
   const getSolanaTxFee = async () => {
     const publicKey = new PublicKey(address);
     const messageV0 = new TransactionMessage({
@@ -261,7 +279,13 @@ export default function PortfolioPage() {
     }).compileToV0Message();
 
     const feeInLamports = await connection.getFeeForMessage(messageV0);
-    const feeInSol = feeInLamports?.value / 1e9;
+    let feeInSol = feeInLamports?.value / 1e9;
+    if (!isEmpty(walletsetting?.priority)){
+      const microLamports = PRIORITY_FEES[walletsetting?.priority];
+      const priorityFeeSol = microLamports / 1e9;
+      console.log(priorityFeeSol,"priorityFeeSol");
+      feeInSol = feeInSol + priorityFeeSol
+    }
     const feeInUSD = feeInSol * tokenValue;
     setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD })
 
@@ -272,7 +296,6 @@ export default function PortfolioPage() {
     console.log("📈 SOL/USD price:", priceData.price);
 
     setTokenValue(priceData.price)
-
   };
 
 
@@ -334,12 +357,17 @@ export default function PortfolioPage() {
     try {
       var depositBalance = currency == "USDC" ? tokenbalance : balance;
       if (depositBalance > 0) {
-        if (isEmpty(depsoitAmt) || depsoitAmt < parseFloat(0.0001)) {
+        if (isEmpty(depsoitAmt)) {
           toastAlert(
             "error",
-            "Enter an amount greater than or equal to the minimum deposit amount.", "deposit"
+            "Enter the amount", "deposit"
           );
-        } else if (currency == "SOL" && depsoitAmt < 0.001) {
+        } else if (currency == "USDC" && depsoitAmt < 0.01) {
+          toastAlert(
+            "error",
+            `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
+          );
+        }else if (currency == "SOL" && depsoitAmt < 0.001) {
           toastAlert(
             "error",
             `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
@@ -360,9 +388,9 @@ export default function PortfolioPage() {
 
   const balanceChange = (value) => {
     if (currency == "USDC") {
-      setDepositAmt(tokenbalance * (value / 100));
+      setDepositAmt(formatNumber(tokenbalance * (value / 100),4));
     } else {
-      setDepositAmt(balance * (value / 100));
+      setDepositAmt(formatNumber(balance * (value / 100),4));
     }
   };
 
@@ -403,7 +431,7 @@ export default function PortfolioPage() {
         const fromTokenAccount = await getAssociatedTokenAddress(mint, provider.publicKey);
         const toTokenAccount = await getAssociatedTokenAddress(mint, receiverPubKey);
 
-        console.log(fromTokenAccount,toTokenAccount, provider.publicKey,"toTokenAccount")
+        console.log(fromTokenAccount, toTokenAccount, provider.publicKey, "toTokenAccount")
 
         // ✅ Check and create receiver ATA if it doesn't exist
         try {
@@ -442,31 +470,51 @@ export default function PortfolioPage() {
           [Buffer.from("supported-token"), mint.toBuffer()],
           program.programId
         );
-    
+
         const [statePDA] = PublicKey.findProgramAddressSync(
           [Buffer.from("state")],
           program.programId
         );
-    
+
         const [userDepositPDA] = PublicKey.findProgramAddressSync(
           [Buffer.from("user"), provider.publicKey.toBuffer()],
           program.programId
         );
-    
-        const tx = await program.methods
-          .transferToken(amount)
-          .accounts({
-            from: fromTokenAccount,
-            to: toTokenAccount,
-            authority: provider.publicKey,
-            tokenProgram: TOKEN_PROGRAM_ID,
-            mint: mint,
-            tokenInfo: tokenInfoPDA,
-            state: statePDA,
-            userDeposit: userDepositPDA,
-            systemProgram: web3.SystemProgram.programId,
-          })
-          .rpc();
+        let tx = ""
+        if (!isEmpty(walletsetting?.priority)) {
+          const microLamports = PRIORITY_FEES[walletsetting?.priority];
+          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
+          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports });
+
+          tx = await program.methods
+            .transferToken(amount)
+            .accounts({
+              from: fromTokenAccount,
+              to: toTokenAccount,
+              authority: provider.publicKey,
+              tokenProgram: TOKEN_PROGRAM_ID,
+              mint: mint,
+              tokenInfo: tokenInfoPDA,
+              state: statePDA,
+              userDeposit: userDepositPDA,
+              systemProgram: web3.SystemProgram.programId,
+            }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
+            .rpc();
+        } else {
+          tx = await program.methods
+            .transferToken(amount)
+            .accounts({
+              from: fromTokenAccount,
+              to: toTokenAccount,
+              authority: provider.publicKey,
+              tokenProgram: TOKEN_PROGRAM_ID,
+              mint: mint,
+              tokenInfo: tokenInfoPDA,
+              state: statePDA,
+              userDeposit: userDepositPDA,
+              systemProgram: web3.SystemProgram.programId,
+            }).rpc();
+        }
 
         settransactionHash(tx);
         setloader(true);
@@ -533,35 +581,53 @@ export default function PortfolioPage() {
         setloader(false);
       } else if (currency == "SOL") {
         const provider = await getAnchorProvider();
-        console.log(provider.publicKey.toBase58(),"toTokenAccount")
+        console.log(provider.publicKey.toBase58(), "toTokenAccount")
         const program = new Program(depositIDL, programID, provider);
         const lamports = new BN(parseFloat(depsoitAmt) * web3.LAMPORTS_PER_SOL);
         const receiverPubKey = new PublicKey(config?.adminAdd);
 
 
         // Derive PDAs
-      const [statePDA] = PublicKey.findProgramAddressSync(
-        [Buffer.from("state")],
-        program.programId
-      );
-  
-      const [userDepositPDA] = PublicKey.findProgramAddressSync(
-        [Buffer.from("user"), provider.publicKey.toBuffer()],
-        program.programId
-      );
-  
-      // ✅ Call the transferSol method
-      const tx = await program.methods
-        .transferSol(lamports)
-        .accounts({
-          sender: provider.publicKey,
-          receiver: receiverPubKey,
-          systemProgram: web3.SystemProgram.programId,
-          state: statePDA,
-          userDeposit: userDepositPDA,
-          pythPriceAccount: PYTH_PRICE_ACCOUNT,
-        })
-        .rpc();
+        const [statePDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("state")],
+          program.programId
+        );
+
+        const [userDepositPDA] = PublicKey.findProgramAddressSync(
+          [Buffer.from("user"), provider.publicKey.toBuffer()],
+          program.programId
+        );
+        let tx = ""
+        if (!isEmpty(walletsetting?.priority)) {
+          const microLamports = PRIORITY_FEES[walletsetting?.priority]; // 0.00002 SOL tip
+          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
+          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports });
+
+          // ✅ Call the transferSol method
+          tx = await program.methods
+            .transferSol(lamports)
+            .accounts({
+              sender: provider.publicKey,
+              receiver: receiverPubKey,
+              systemProgram: web3.SystemProgram.programId,
+              state: statePDA,
+              userDeposit: userDepositPDA,
+              pythPriceAccount: PYTH_PRICE_ACCOUNT,
+            }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
+            .rpc();
+        } else {
+          console.log(walletsetting?.priority,"priority");
+          tx = await program.methods
+            .transferSol(lamports)
+            .accounts({
+              sender: provider.publicKey,
+              receiver: receiverPubKey,
+              systemProgram: web3.SystemProgram.programId,
+              state: statePDA,
+              userDeposit: userDepositPDA,
+              pythPriceAccount: PYTH_PRICE_ACCOUNT,
+            }).rpc();
+        }
         console.log(tx, "tx")
 
         settransactionHash(tx);
@@ -598,7 +664,7 @@ export default function PortfolioPage() {
         const lamportsSent = lamportsSentTotal - feePaid;
 
         const solAmt = lamports / LAMPORTS_PER_SOL;
-        const usdValue = formatNumber(solAmt * tokenValue,6)
+        const usdValue = formatNumber(solAmt * tokenValue, 6)
 
         console.log("TX Hash:", tx);
         console.log("From:", provider.publicKey.toBase58());
@@ -612,7 +678,7 @@ export default function PortfolioPage() {
         let depositdata = {
           hash: tx,
           from: provider.publicKey.toBase58(),
-          to :  receiverPubKey.toBase58(),
+          to: receiverPubKey.toBase58(),
           amount: solAmt,
           usdAmt: usdValue,
           symbol: "SOL"
@@ -640,10 +706,10 @@ export default function PortfolioPage() {
     } catch (err) {
       console.log(err, "errr")
       setloader(false);
-       const button = document.querySelector(".modal_close_brn");
-          if (button) {
-            button.click();
-          }
+      const button = document.querySelector(".modal_close_brn");
+      if (button) {
+        button.click();
+      }
     }
   }
 
@@ -770,7 +836,8 @@ export default function PortfolioPage() {
                                 <p className="text-[12px] text-gray-400 mb-0">
                                   Deposit from
                                 </p>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2"
+                                >
                                   <Image
                                     src="/images/wallet_icon_02.png"
                                     alt="Profile Icon"
@@ -778,8 +845,18 @@ export default function PortfolioPage() {
                                     height={16}
                                     className="rounded-full"
                                   />
-                                  <span className="text-[14px] text-gray-200">
+                                  <span className="text-[14px] text-gray-200"
+                                    onClick={async () => {
+                                      await navigator.clipboard.writeText(address);
+                                      setCopied(true);
+                                      setTimeout(() => setCopied(false), 1000);
+                                    }}>
                                     Wallet {shortText(address)}
+                                    {copied &&
+                                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
+                                        Copied!
+                                      </span>
+                                    }
                                   </span>
                                   <span className="text-[13px] text-gray-400">
                                     {/* $10.20 */}
@@ -791,8 +868,8 @@ export default function PortfolioPage() {
                               <div className="wallet_coin_list">
                                 <div
                                   className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDC"
-                                      ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                      : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                     }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
@@ -825,8 +902,8 @@ export default function PortfolioPage() {
                               <div className="wallet_coin_list">
                                 <div
                                   className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "SOL"
-                                      ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                      : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
+                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                     }`}
                                   onClick={() =>
                                     setDepositData((prev) => ({
@@ -911,7 +988,7 @@ export default function PortfolioPage() {
                               <p className="text-[12px] text-gray-400 text-center mt-8">
                                 {currency === "SOL"
                                   ? `${0.001} ${currency} minimum deposit`
-                                  : `${0.0001} ${currency} minimum deposit`}
+                                  : `${0.01} ${currency} minimum deposit`}
                                 {/* `${minDeposit} ${currency} minimum deposit`} */}
                               </p>
                               <div
@@ -1260,7 +1337,7 @@ export default function PortfolioPage() {
                   </Dialog.Portal>
                 </Dialog.Root>
 
-               <Withdraw />
+                <Withdraw />
               </div>
             </div>
             <div className="bg-[#131212] p-4 rounded-lg">

@@ -6,11 +6,11 @@ import { toastAlert } from "@/lib/toast";
 import { getWalletSettings, setWalletSettings } from "@/services/user";
 
 export default function WalletSettings() {
-    const [gas, setGas] = useState("low");
+    const [priority, setPriority] = useState("");
     const [customRPC, setCustomRPC] = useState(false);
 
     const handleGasChange = (value) => {
-        setGas(value);
+      setPriority(value);
     }
 
     const handleCustomRPCChange = (value) => {
@@ -21,7 +21,7 @@ export default function WalletSettings() {
         try {
             let respData = await getWalletSettings();
             if(respData.success){
-                setGas(respData.result.gas);
+                setPriority(respData.result.priority);
                 setCustomRPC(respData.result.customRPC);
             }
         } catch (error) {
@@ -35,7 +35,7 @@ export default function WalletSettings() {
 
     const handleSaveChanges = async () => {
         try {
-            let respData = await setWalletSettings({gas: gas, customRPC: customRPC});
+            let respData = await setWalletSettings({priority: priority, customRPC: customRPC});
             if(respData.success){
                 toastAlert("success", "Changes saved successfully");
             }
@@ -43,6 +43,7 @@ export default function WalletSettings() {
             console.error("Error saving changes:", error);
         }
     }
+    console.log(customRPC,priority,"prioritypriority");
   return (
     <>
         <h1 className="text-2xl font-bold mb-8">Wallet Settings</h1>
@@ -79,19 +80,19 @@ export default function WalletSettings() {
                 className="RadioGroupRoot"
                 defaultValue="default"
                 aria-label="View density"
-                value={gas}
+                value={priority}
                 onValueChange={handleGasChange}
               >
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r1">
                   Low priority fee    
-                  {/* Low gas */}
+                  {/* Low priority */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"
                     value="low"
                     id="r1"
-                    checked={gas === "low"}
+                    checked={priority === "low"}
                   >
                     <RadioGroup.Indicator className="RadioGroupIndicator" />
                   </RadioGroup.Item>
@@ -99,13 +100,13 @@ export default function WalletSettings() {
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r2">
                     Medium priority fee
-                    {/* Medium gas */}
+                    {/* Medium priority */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"
                     value="medium"
                     id="r2"
-                    checked={gas === "medium"}
+                    checked={priority === "medium"}
                   >
                     <RadioGroup.Indicator className="RadioGroupIndicator" />
                   </RadioGroup.Item>
@@ -113,13 +114,13 @@ export default function WalletSettings() {
                 <div className="flex items-center justify-between">
                   <label className="Label" htmlFor="r3">
                     High priority
-                    {/* High gas */}
+                    {/* High priority */}
                   </label>
                   <RadioGroup.Item
                     className="RadioGroupItem"
                     value="high"
                     id="r3"
-                    checked={gas === "high"}
+                    checked={priority === "high"}
                   >
                     <RadioGroup.Indicator className="RadioGroupIndicator" />
                   </RadioGroup.Item>

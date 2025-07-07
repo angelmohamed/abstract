@@ -137,7 +137,7 @@ export default function Withdraw() {
                         <div className="flex gap-2 items-center bg-[#eff4fe] p-3 rounded-lg mt-4">
                             <InfoCircledIcon className="text-[#1652f0]" />
                             <span className="text-[14px] text-gray-700">
-                                Only send to a USDC address on the Polygon network.
+                                Only send to a USDC address on the Solana network.
                             </span>
                         </div>
                         <form className="mt-4">
