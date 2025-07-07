@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import SearchBar from '../components/ui/SearchBar'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -21,6 +21,8 @@ import { SocketContext } from '@/config/socketConnectivity'
 import { isEmpty } from '@/lib/isEmpty'
 import { positionClaim } from '@/services/market'
 import { toastAlert } from '@/lib/toast'
+import html2canvas from "html2canvas";
+import { copyImageToClipboard } from "copy-image-clipboard";
 
 const Positions = () => {
   const [positionHistory, setPositionHistory] = useState([])
@@ -31,6 +33,7 @@ const Positions = () => {
   const [selectedMarketData, setSelectedMarketData] = useState({})
   const router = useRouter()
   const socketContext = useContext(SocketContext)
+  const cardRef = useRef();
 
   const getUserPositionHistory = async () => {
     try {
@@ -42,6 +45,34 @@ const Positions = () => {
       console.error("Error fetching Position History:", error);
     }
   }
+
+  const waitForImageLoad = (imgElement) => {
+    return new Promise((resolve) => {
+      if (imgElement.complete) return resolve();
+      imgElement.onload = resolve;
+      imgElement.onerror = resolve; // Prevent hanging
+    });
+  };
+
+  const handleCopy = async () => {
+    if (!cardRef.current) return;
+    const img = cardRef.current.querySelector("img");
+    if (img) await waitForImageLoad(img);
+
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: null,
+        useCORS: true,
+        scale: 2,
+      });
+      const dataUrl = canvas.toDataURL("image/png");
+
+      await copyImageToClipboard(dataUrl);
+      alert("Image copied to clipboard!");
+    } catch (err) {
+      console.error("Failed to copy image", err);
+    }
+  };
 
   useEffect(() => {
     getUserPositionHistory()
@@ -429,7 +460,7 @@ const Positions = () => {
               </div>
             ) : null
             }
-            <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
+            <div ref={cardRef} className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
 
 
               <div className="flex gap-3 mb-4 items-center">
@@ -439,6 +470,7 @@ const Positions = () => {
                   width={60}
                   height={21}
                   className="mb-2"
+                  crossOrigin="anonymous"
                 />
                 <h4 className="font-semibold">
                   {shareData?.eventTitle}
@@ -472,7 +504,7 @@ const Positions = () => {
               </div>
             </div>
             <div className="flex justify-between items-center mt-4 gap-3">
-              <Button className="w-full bg-[transparent] border border-[#2d2d2d] text-[#fff] hover:text-[#000]">
+              <Button onClick={handleCopy} className="w-full bg-[transparent] border border-[#2d2d2d] text-[#fff] hover:text-[#000]">
                 <CopyIcon className="h-4 w-4" />
                 <span>Copy Image</span>
               </Button>
