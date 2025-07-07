@@ -708,7 +708,7 @@ export default function PortfolioPage() {
                   <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
                   <span className="mt-2 text-3xl font-semibold">
                     {walletData?.balance
-                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2))
+                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
                       : 0}
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
