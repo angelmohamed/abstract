@@ -561,7 +561,7 @@ export default function PortfolioPage() {
           userDeposit: userDepositPDA,
           pythPriceAccount: PYTH_PRICE_ACCOUNT,
         })
-        .rpc({ skipPreflight: true });
+        .rpc();
         console.log(tx, "tx")
 
         settransactionHash(tx);
