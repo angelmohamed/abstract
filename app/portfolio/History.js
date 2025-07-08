@@ -4,9 +4,20 @@ import { getClosedPnL } from "@/services/portfolio";
 import { toFixedDown } from "../helper/roundOf";
 import { useRouter } from "next/navigation";
 import { isEmpty } from "@/lib/isEmpty";
+import { capitalize } from "@/lib/stringCase";
+import { HistoryIcon } from "lucide-react";
+import { getUserTradeHistory } from "@/services/user";
+import { Dialog } from "radix-ui";
+import {
+  Cross2Icon,
+  CopyIcon,
+} from "@radix-ui/react-icons";
+import { momentFormat } from "../helper/date";
 
 const History = () => {
   const [ClosedPnL, setClosedPnL] = useState({});
+  const [tradeHistory, setTradeHistory] = useState([])
+  const [tradeOpen, setTradeOpen] = useState(false)
 
   const formatClosedPnL = (data) => {
     const groupedByEvent = {};
@@ -33,11 +44,37 @@ const History = () => {
           pnl: 0,
           groupItemTitle: groupItemTitle,
         };
+        if (event.status === "resolved") {
+          const isBinaryMarket = event?.marketId?.length >= 2;
+          if (isBinaryMarket) {
+            marketGroup[marketId].resolution =
+              event?.outcomeId == marketId ? "yes" : "no";
+          } else {
+            const matchingOutcome = item?.marketId?.outcome?.findIndex(
+              (o) => o._id == event?.outcomeId
+            );
+            marketGroup[marketId].resolution = matchingOutcome == 0 ? "yes" : "no";
+          }
+        }        
       }
-
       marketGroup[marketId].entry += (item.entryPrice * item.qty) / 100;
       marketGroup[marketId].exit += (item.exitPrice * item.qty) / 100;
       marketGroup[marketId].pnl += item.pnl / 100;
+      
+      if(item.exitType == "resolution"){
+        marketGroup[marketId].shares = item.qty
+        marketGroup[marketId].closedSide = item.direction == "closed_yes" ? "yes" : "no"
+        marketGroup[marketId].isResolved = marketGroup[marketId].resolution == marketGroup[marketId].closedSide;
+        // if(marketGroup[marketId].isResolved){
+        //   marketGroup[marketId].exit += (item.exitPrice * item.qty) / 100;
+        // }
+        // marketGroup[marketId].entry += (item.entryPrice * item.qty) / 100;
+        // marketGroup[marketId].pnl += item.pnl / 100;
+      } else {
+        // marketGroup[marketId].entry += (item.entryPrice * item.qty) / 100;
+        // marketGroup[marketId].exit += (item.exitPrice * item.qty) / 100;
+        // marketGroup[marketId].pnl += item.pnl / 100;
+      }
     }
 
     return groupedByEvent;
@@ -60,6 +97,24 @@ const History = () => {
   useEffect(() => {
     getUserClosedPnL();
   }, []);
+
+  const getTradeHistory = async (id) => {
+    try {
+      const res = await getUserTradeHistory({ id })
+      if (res.success) {
+        setTradeHistory(res.result)
+      } else {
+        setTradeHistory([])
+      }
+    } catch (error) {
+      console.error("Error fetching Trade History:", error);
+    }
+  }
+
+  const handleTradeOpen = async (id) => {
+    await getTradeHistory(id)
+    setTradeOpen(true)
+  }
   return (
     <>
       {/* <div className="flex space-x-4 mb-3">
@@ -98,6 +153,7 @@ const History = () => {
               <th>Total Cost</th>
               <th>Total Payout</th>
               <th>Total Return</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -139,8 +195,8 @@ const History = () => {
                       return (
                         <tr key={marketId}>
                           <td>{ m.groupItemTitle || ""}</td>
-                          <td className="text-gray-500">None</td>
-                          <td className="text-gray-500">$0</td>
+                          <td className={`${m.shares > 0 ? "" : "text-gray-500"}`}>{m.shares > 0 ? `${m.shares} ${capitalize(m.closedSide)}` : "None"}</td>
+                          <td className={`${(m.resolution && m.isResolved) ? "text-green-500" : (!m.isResolved && m.resolution) ? "text-red-500" :"text-gray-500"}`}>${m.isResolved ? m.shares : "0"   }</td>
                           <td>${toFixedDown(m.entry, 2)}</td>
                           <td>${toFixedDown(m.exit, 2)}</td>
                           <td
@@ -149,6 +205,11 @@ const History = () => {
                             }
                           >
                             ${toFixedDown(m.pnl, 2)}{" "}({toFixedDown((m.pnl/m.entry)*100, 0)}%)
+                          </td>
+                          <td className='flex justify-start items-center gap-2'>
+                            <button className="text-blue-500" onClick={()=>handleTradeOpen(marketId)}>
+                              <HistoryIcon />
+                            </button>
                           </td>
                         </tr>
                       );
@@ -168,6 +229,7 @@ const History = () => {
                         >
                           ${toFixedDown(total.pnl, 2)}
                         </td>
+                        <td></td>
                       </tr>
                     )}
                   </React.Fragment>
@@ -182,6 +244,41 @@ const History = () => {
             </div>
         )}
       </div>
+      <Dialog.Root open={tradeOpen} onOpenChange={setTradeOpen}>
+        <Dialog.Overlay className="DialogOverlay" />
+        <Dialog.Content className="DialogContent w-100" style={{ maxWidth: '900px' }}>
+          <Dialog.Title className="DialogTitle">Trade History</Dialog.Title>
+          <div >
+            <table className="w-full text-left custom_table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Price</th>
+                  <th>Filled Contracts</th>
+                  <th>Cost</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tradeHistory?.map((item, index) => (
+                  <tr key={index}>
+                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side} ({item.type} at {item.price}¢)</td>
+                    <td>{item.price}¢</td>
+                    <td>{toFixedDown(item.quantity, 2)}</td>
+                    <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>
+                    <td>{momentFormat(item.createdAt, "DD/MM/YYYY HH:mm")}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Dialog.Close asChild>
+            <button className="modal_close_brn" aria-label="Close">
+              <Cross2Icon />
+            </button>
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Root>
     </>
   );
 };

@@ -229,6 +229,16 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
+                    lastYesOrder = {tab == "buy"
+                      ? buyYes?.length > 0 &&
+                        toFixedDown(100 - buyYes?.[0], 2)
+                      : sellYes?.length > 0 &&
+                        toFixedDown(sellYes?.[0], 2)}
+                    lastNoOrder = {tab == "buy"
+                      ? buyNo?.length > 0 &&
+                        toFixedDown(100 - buyNo?.[0], 2)
+                      : sellNo?.length > 0 && toFixedDown(sellNo?.[0], 2)}
+                    outcomes = {market.outcome}
                   />
                 )}
 
@@ -239,6 +249,7 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
+                    outcomes = {market.outcome}
                   />
                 )}
               </Options>
