@@ -12,12 +12,14 @@ import { availableBalance } from "@/lib/utils";
 import { Switch } from "radix-ui";
 import CustomDateComponent from "./CustomDate";
 import { isEmpty } from "@/lib/isEmpty";
+import { firstLetterCase } from "@/lib/stringCase";
 
 interface LimitOrderProps {
   activeView: string;
   marketId: string;
   buyorsell: "buy" | "sell";
   selectedOrder: any;
+  outcomes:any;
 }
 
 interface FormState {
@@ -41,7 +43,7 @@ const errorState = {
 };
 
 const LimitOrder: React.FC<LimitOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell, selectedOrder } = props;
+  const { activeView, marketId, buyorsell, selectedOrder, outcomes } = props;
 
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
@@ -426,7 +428,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
             className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
             onClick={() => handlePlaceOrder(buyorsell)}
           >
-            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView}`}
+            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView == "Yes" ? (firstLetterCase(outcomes?.[0]?.title || "yes")) : firstLetterCase(outcomes?.[1]?.title || "no")}`}
           </Button>
         ) : (
           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">

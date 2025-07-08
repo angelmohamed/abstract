@@ -7,12 +7,17 @@ import { useSelector } from "@/store";
 import { placeOrder } from "@/services/market";
 import { toastAlert } from "@/lib/toast";
 import { isEmpty } from "@/lib/isEmpty";
+import { toFixedDown } from "@/lib/roundOf";
+import { firstLetterCase } from "@/lib/stringCase";
 
 interface MarketOrderProps {
   activeView: string;
   marketId: string;
   buyorsell: "buy" | "sell";
   selectedOrder: any;
+  lastYesOrder: any;
+  lastNoOrder: any;
+  outcomes: any;
 }
 
 const initialFormValue = {
@@ -29,14 +34,16 @@ interface FormState {
 
 interface ErrorState {
   ordVal?: string;
+  amount?: string;
 }
 
 interface ErrorState {
   ordVal?: string;
+  amount?: string;
 }
 
 const MarketOrder: React.FC<MarketOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell, selectedOrder } = props;
+  const { activeView, marketId, buyorsell, selectedOrder,lastYesOrder,lastNoOrder, outcomes } = props;
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
   const asset = useSelector((state) => state?.wallet?.data);
@@ -82,26 +89,47 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
           return prev;
         }
       } else if (name === "amount") {
-        const numericValue = value.replace(/[^0-9.]/g, '');
+        // const numericValue = value.replace(/[^0-9.]/g, '');
         
-        const parts = numericValue.split('.');
-        if (parts.length > 2) {
-          return prev;
+        // const parts = numericValue.split('.');
+        // if (parts.length > 2) {
+        //   return prev;
+        // }
+        
+        // if (parts[1] && parts[1].length > 2) {
+        //   return prev;
+        // }
+        
+        // const amountNum = parseFloat(numericValue);
+        
+        // if (numericValue === '' || numericValue === '.') {
+        //   return { ...prev, [name]: numericValue };
+        // } else if (amountNum >= 0 && amountNum <= 100000) {
+        //   return { ...prev, [name]: numericValue };
+        // } else {
+        //   return prev;
+        // }
+        // const numericValue = value.replace(/[^0-9]/g, ''); // Only digits, no decimal point
+
+        if (value === '') {
+          return { ...prev, [name]: '' };
         }
         
-        if (parts[1] && parts[1].length > 2) {
-          return prev;
-        }
         
-        const amountNum = parseFloat(numericValue);
         
-        if (numericValue === '' || numericValue === '.') {
-          return { ...prev, [name]: numericValue };
-        } else if (amountNum >= 0 && amountNum <= 100000) {
-          return { ...prev, [name]: numericValue };
+        // const amountNum = parseInt(numericValue, 10);
+        
+        // if (!isNaN(amountNum) && amountNum >= 0 && amountNum <= 100000) {
+        //   return { ...prev, [name]: numericValue };
+        // }
+        let numval = parseInt(value,10)
+        if(numval){
+          return { ...prev, [name]: numval };
         } else {
-          return prev;
+          return { ...prev, [name]: 0 };
         }
+        
+        // return prev;
       }
     });
   };
@@ -118,10 +146,10 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     }
      if( buyorsell === "sell"){
       if (!amount) {
-        errors.amount = "Amount field is required";
+        errors.amount = "Shares field is required";
       }
       if (Number(amount) <= 0) {
-        errors.amount = "Amount must be greater than 0";
+        errors.amount = "Shares must be greater than 0";
       }
     }
     // if (customDate && customDate <= new Date()) {
@@ -130,6 +158,8 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     setErrors(errors);
     return Object.keys(errors).length > 0 ? false : true;
   };
+
+  console.log("amount",amount,"error",errors)
 
   useEffect(() => {
     setFormValue(initialFormValue);
@@ -206,40 +236,48 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
           </div>
         </div>
         {errors.ordVal && <p className="text-red-500 text-sm">{errors.ordVal}</p>}
+        {errors.amount && <p className="text-red-500 text-sm">{errors.amount}</p>}
         <div className="flex gap-2 pt-2 justify-between">
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "ordVal", 1)}
+            onClick={() => handleChangeBtn("+", buyorsell == "buy" ? "ordVal": "amount", 1)}
           >
             +$1
           </Button>
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "ordVal", 20)}
+            onClick={() => handleChangeBtn("+", buyorsell == "buy" ? "ordVal": "amount", 20)}
           >
             +$20
           </Button>
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "ordVal", 100)}
+            onClick={() => handleChangeBtn("+", buyorsell == "buy" ? "ordVal": "amount", 100)}
           >
             +$100
           </Button>
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("max", "ordVal", 100)}
+            onClick={() => handleChangeBtn("max", buyorsell == "buy" ? "ordVal": "amount", 100)}
           >
             Max
           </Button>
         </div>
       </div>
-
+    {(activeView === "Yes" ? lastYesOrder : lastNoOrder) && (
       <div className="pt-4 space-y-2 pb-2">
         {/* Shares */}
         <div className="flex justify-between text-sm pt-2">
           <span className="text-muted-foreground">Shares</span>
           <span className="text-foreground">
-            0
+            {buyorsell == "sell" && (amount || 0)}
+            {buyorsell === "buy"
+            ? (() => {
+                const divisor = activeView === "Yes" ? lastYesOrder || 0 : lastNoOrder || 0;
+                if (divisor === 0) return "";
+                return (Math.floor(Number(ordVal) * 100 / divisor))
+              })()
+            : ""}
           </span>{" "}
         </div>
 
@@ -247,7 +285,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Average price</span>
           <span className="text-foreground">
-            {0}¢
+            {activeView == "Yes" ? lastYesOrder : lastNoOrder}¢
           </span>{" "}
         </div>
 
@@ -255,15 +293,26 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
         <div className="flex justify-between text-sm">
           <div>
             <span className="text-muted-foreground">Potential return if</span>
-            <span className="text-white"> Yes </span>
+            <span className="text-white">  {`${activeView == "Yes" ? (firstLetterCase(outcomes?.[0]?.title || "yes")) : firstLetterCase(outcomes?.[1]?.title || "no")}
+            `} </span>
             <span className="text-muted-foreground"> wins</span>
           </div>
           <span className="text-green-500">
             {/* ${toTwoDecimal(buyYes?.totalShares) || 0} */}
+            $
+            {buyorsell == "sell" && (amount || 0)}
+            {buyorsell === "buy"
+            ? (() => {
+                const divisor = activeView === "Yes" ? lastYesOrder || 0 : lastNoOrder || 0;
+                if (divisor === 0) return "";
+                return (Math.floor(Number(ordVal) * 100 / divisor))
+              })()
+            : ""}
           </span>{" "}
           {/* Replace with actual number */}
         </div>
       </div>
+    )}
 
 
       <div className="pt-4">
@@ -272,7 +321,8 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
             className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
             onClick={() => handlePlaceOrder(buyorsell)}
           >
-            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView}`}
+            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView == "Yes" ? (firstLetterCase(outcomes?.[0]?.title || "yes")) : firstLetterCase(outcomes?.[1]?.title || "no")}
+            `}
           </Button>
         ) : (
           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
