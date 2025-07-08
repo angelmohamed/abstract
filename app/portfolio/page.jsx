@@ -64,13 +64,14 @@ import { Footer } from "../components/customComponents/Footer";
 import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
-import { getWalletSettings } from "@/services/user";
+import { getWalletSettings, getCoinList } from "@/services/user";
 import depositIDL from "../../components/IDL/DEPOSITIDL.json"
 import Withdraw from "./withdraw"
 import { getUserPnL } from "@/services/portfolio";
 
 let initialValue = {
   currency: "",
+  minDeposit: "",
   amount: "",
   walletAddress: "",
 };
@@ -99,6 +100,7 @@ export default function PortfolioPage() {
   const [transactionHash, settransactionHash] = useState("");
   const [tokenValue, setTokenValue] = useState(0);
   const [profitAmount, setProfitAmount] = useState(0);
+  const [coin, setCoin] = useState([]);
   const [walletsetting, setWalletsetting] = useState({});
   const [interval, setInterval] = useState("max");
   const [copied, setCopied] = useState(false);
@@ -121,21 +123,21 @@ export default function PortfolioPage() {
   });
   const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0 });
 
-  var { currency, amount, walletAddress } = depositData;
+  var { currency, amount, walletAddress,minDeposit } = depositData;
 
   useEffect(() => {
-      getPnl()
+    getPnl()
   }, [walletData, interval]);
 
-  const getPnl = async() => {
-    try{
-      const {success,result} = await getUserPnL(interval)
-      console.log("success,result",success,result)
-      if(success){
-        setProfitAmount(result?.totalPnl/100);
+  const getPnl = async () => {
+    try {
+      const { success, result } = await getUserPnL(interval)
+      console.log("success,result", success, result)
+      if (success) {
+        setProfitAmount(result?.totalPnl / 100);
       }
-    } catch (err){
-      console.log("error ",err)
+    } catch (err) {
+      console.log("error ", err)
     }
   }
 
@@ -169,11 +171,11 @@ export default function PortfolioPage() {
         const ata = await getAssociatedTokenAddress(mint, walletAddress);
         if (ata) {
           const tokenAccount = await getAccount(connection, ata);
-          if(tokenAccount){
-          const rawBalance = parseFloat(tokenAccount?.amount) / 10 ** 6;
-          console.log("✅ Token Balance:", parseFloat(rawBalance));
-          const formattedBalance1 = formatNumber(rawBalance, 4);
-          setTokenBalance(formattedBalance1);
+          if (tokenAccount) {
+            const rawBalance = parseFloat(tokenAccount?.amount) / 10 ** 6;
+            console.log("✅ Token Balance:", parseFloat(rawBalance));
+            const formattedBalance1 = formatNumber(rawBalance, 4);
+            setTokenBalance(formattedBalance1);
           }
         }
       }
@@ -278,8 +280,20 @@ export default function PortfolioPage() {
   }
 
 
+  const getCoinData = async () => {
+    try {
+      let respData = await getCoinList();
+      if (respData.success) {
+        setCoin(respData?.result);
+      }
+    } catch (error) {
+      console.error("Error getting coin list:", error);
+    }
+  }
+
   useEffect(() => {
     getWalletSettingsData();
+    getCoinData()
   }, []);
 
 
@@ -293,10 +307,10 @@ export default function PortfolioPage() {
 
     const feeInLamports = await connection.getFeeForMessage(messageV0);
     let feeInSol = feeInLamports?.value / 1e9;
-    if (!isEmpty(walletsetting?.priority)){
+    if (!isEmpty(walletsetting?.priority)) {
       const microLamports = PRIORITY_FEES[walletsetting?.priority];
       const priorityFeeSol = microLamports / 1e9;
-      console.log(priorityFeeSol,"priorityFeeSol");
+      console.log(priorityFeeSol, "priorityFeeSol");
       feeInSol = feeInSol + priorityFeeSol
     }
     const feeInUSD = feeInSol * tokenValue;
@@ -375,17 +389,12 @@ export default function PortfolioPage() {
             "error",
             "Enter the amount", "deposit"
           );
-        } else if (currency == "USDC" && depsoitAmt < 0.01) {
+        } else if (depsoitAmt < minDeposit) {
           toastAlert(
             "error",
             `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
           );
-        }else if (currency == "SOL" && depsoitAmt < 0.001) {
-          toastAlert(
-            "error",
-            `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
-          );
-        } else if (depsoitAmt > depositBalance) {
+        }  else if (depsoitAmt > depositBalance) {
           toastAlert("error", "Insufficient Balance", "deposit");
         } else if (depsoitAmt > 0) {
           setStep("3");
@@ -401,9 +410,9 @@ export default function PortfolioPage() {
 
   const balanceChange = (value) => {
     if (currency == "USDC") {
-      setDepositAmt(formatNumber(tokenbalance * (value / 100),4));
+      setDepositAmt(formatNumber(tokenbalance * (value / 100), 4));
     } else {
-      setDepositAmt(formatNumber(balance * (value / 100),4));
+      setDepositAmt(formatNumber(balance * (value / 100), 4));
     }
   };
 
@@ -629,7 +638,7 @@ export default function PortfolioPage() {
             }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
             .rpc();
         } else {
-          console.log(walletsetting?.priority,"priority");
+          console.log(walletsetting?.priority, "priority");
           tx = await program.methods
             .transferSol(lamports)
             .accounts({
@@ -747,6 +756,7 @@ export default function PortfolioPage() {
       balanceData()
       getSolanaTxFee()
       setTxOpen(false);
+      getCoinData()
     } else if (!isEmpty(data?.walletAddress) &&
       data?.walletAddress.toString() != address?.toString() && isConnected) {
       toastAlert(
@@ -758,7 +768,7 @@ export default function PortfolioPage() {
     }
   };
 
-  console.log(address, data, tokenValue, "datadatadata");
+  console.log(address, data, tokenValue, coin, "datadatadata");
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
@@ -877,77 +887,47 @@ export default function PortfolioPage() {
                                   </span>
                                 </div>
                               </Button>
+                              {coin && coin.length > 0 && coin.map((value, i) => {
+                                const isSelected = depositData.currency === value?.symbol;
+                                const tokenIcon = value?.symbol === 'USDC' ? '/images/usdc.svg' : '/images/solana.png';
+                                const tokenAmount = value?.symbol === 'USDC' ? tokenbalance : balance;
+                                const tokenValueUSD = value?.symbol === 'USDC'
+                                  ? tokenbalance
+                                  : formatNumber(balance * tokenValue, 4);
 
-                              <div className="wallet_coin_list">
-                                <div
-                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "USDC"
-                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                    }`}
-                                  onClick={() =>
-                                    setDepositData((prev) => ({
-                                      ...prev,
-                                      currency: "USDC",
-                                    }))
-                                  }
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Image
-                                      src="/images/usdc.svg"
-                                      alt="USDC Icon"
-                                      width={24}
-                                      height={24}
-                                      className="rounded-full"
-                                    />
-                                    <div className="flex flex-col">
-                                      <span className="text-[14px]">USDC</span>
-                                      <span className="text-[12px] text-gray-400">
-                                        {tokenbalance} USDC
-                                      </span>
+                                return (
+                                  <div key={i} className="wallet_coin_list">
+                                    <div
+                                      className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${isSelected ? "border-[#4f99ff] bg-[#1a1a1a]" : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                        }`}
+                                      onClick={() =>
+                                        setDepositData((prev) => ({
+                                          ...prev,
+                                          currency: value?.symbol,
+                                          minDeposit: value?.minDeposit
+                                        }))
+                                      }
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <Image
+                                          src={isEmpty(value?.image) ? tokenIcon : value?.image} 
+                                          alt={`${value?.symbol} Icon`}
+                                          width={24}
+                                          height={24}
+                                          className="rounded-full"
+                                        />
+                                        <div className="flex flex-col">
+                                          <span className="text-[14px]">{value?.symbol}</span>
+                                          <span className="text-[12px] text-gray-400">
+                                            {tokenAmount} {value?.symbol}
+                                          </span>
+                                        </div>
+                                      </div>
+                                      <span className="text-[14px]">${tokenValueUSD}</span>
                                     </div>
                                   </div>
-                                  <span className="text-[14px]">
-                                    $ {tokenbalance}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="wallet_coin_list">
-                                <div
-                                  className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${depositData.currency === "SOL"
-                                    ? "border-[#4f99ff] bg-[#1a1a1a]" // Highlight when selected
-                                    : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
-                                    }`}
-                                  onClick={() =>
-                                    setDepositData((prev) => ({
-                                      ...prev,
-                                      currency: "SOL",
-                                    }))
-                                  }
-                                >
-                                  <div className="flex items-center gap-2">
-                                    <Image
-                                      src="/images/solana.png"
-                                      alt="SOL Icon"
-                                      width={24}
-                                      height={24}
-                                      className="rounded-full"
-                                    />
-                                    <div className="flex flex-col">
-                                      <span className="text-[14px]">SOL</span>
-                                      <span className="text-[12px] text-gray-400">
-                                        {balance} SOL
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <span className="text-[14px]">
-                                    {/* $9.88 */}${" "}
-                                    {formatNumber(balance * tokenValue, 4)}
-                                    {/* {formatNumber(balance * usdConvt, 4)} */}
-                                  </span>
-                                </div>
-                              </div>
-
+                                );
+                              })}
                               <Button
                                 className="mt-4 w-full"
                                 onClick={() => step2Click()}
@@ -999,9 +979,8 @@ export default function PortfolioPage() {
                                 </Button>
                               </div>
                               <p className="text-[12px] text-gray-400 text-center mt-8">
-                                {currency === "SOL"
-                                  ? `${0.001} ${currency} minimum deposit`
-                                  : `${0.01} ${currency} minimum deposit`}
+                                {`${minDeposit} ${currency} minimum deposit`
+                                  }
                                 {/* `${minDeposit} ${currency} minimum deposit`} */}
                               </p>
                               <div

@@ -221,3 +221,15 @@ export const transactionHistory = async (data:any) => {
     return handleResp(err, "error");
   }
 }
+
+export const getCoinList = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/get-coin-list`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
