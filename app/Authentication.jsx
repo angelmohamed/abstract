@@ -46,6 +46,7 @@ import { Connection, PublicKey } from '@solana/web3.js';
 import { PnLFormatted } from "@/utils/helpers.js";
 import { Copy } from "lucide-react";
 import Web3 from "web3"
+import Notifications from "./components/customComponents/Notifications";
 
 let initialData = {
   otp: "",
@@ -712,130 +713,7 @@ export default function Authentication() {
                   <DropdownMenu.Label className="text-[18px] font-medium text-gray-100 px-4 py-3 border-b border-gray-700">
                     Notifications
                   </DropdownMenu.Label>
-                  {/* <div className="flex flex-col gap-2">
-                    <Link
-                      href="/notifications"
-                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
-                    >
-                      <Image
-                        src="/images/album.png"
-                        alt="Profile Icon"
-                        width={48}
-                        height={48}
-                        className="rounded"
-                      />
-                      <div>
-                        <h5 className="text-[16px] font-semibold text-gray-100">
-                          New market
-                        </h5>
-                        <p className="text-sm text-gray-300">
-                          Will Alex Albon win the 2025 Spanish Grand Prix?
-                        </p>
-                        <p className="text-[12px] text-gray-400 mb-0">
-                          19h ago
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/notifications"
-                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
-                    >
-                      <Image
-                        src="/images/album.png"
-                        alt="Profile Icon"
-                        width={48}
-                        height={48}
-                        className="rounded"
-                      />
-                      <div>
-                        <h5 className="text-[16px] font-semibold text-gray-100">
-                          New market
-                        </h5>
-                        <p className="text-sm text-gray-300">
-                          Will Alex Albon win the 2025 Spanish Grand Prix?
-                        </p>
-                        <p className="text-[12px] text-gray-400 mb-0">
-                          19h ago
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/notifications"
-                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
-                    >
-                      <Image
-                        src="/images/album.png"
-                        alt="Profile Icon"
-                        width={48}
-                        height={48}
-                        className="rounded"
-                      />
-                      <div>
-                        <h5 className="text-[16px] font-semibold text-gray-100">
-                          New market
-                        </h5>
-                        <p className="text-sm text-gray-300">
-                          Will Alex Albon win the 2025 Spanish Grand Prix?
-                        </p>
-                        <p className="text-[12px] text-gray-400 mb-0">
-                          19h ago
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/notifications"
-                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
-                    >
-                      <Image
-                        src="/images/album.png"
-                        alt="Profile Icon"
-                        width={48}
-                        height={48}
-                        className="rounded"
-                      />
-                      <div>
-                        <h5 className="text-[16px] font-semibold text-gray-100">
-                          New market
-                        </h5>
-                        <p className="text-sm text-gray-300">
-                          Will Alex Albon win the 2025 Spanish Grand Prix?
-                        </p>
-                        <p className="text-[12px] text-gray-400 mb-0">
-                          19h ago
-                        </p>
-                      </div>
-                    </Link>
-
-                    <Link
-                      href="/notifications"
-                      className="flex items-start gap-3 p-4 hover:bg-[#333333] rounded"
-                    >
-                      <Image
-                        src="/images/album.png"
-                        alt="Profile Icon"
-                        width={48}
-                        height={48}
-                        className="rounded"
-                      />
-                      <div>
-                        <h5 className="text-[16px] font-semibold text-gray-100">
-                          New market
-                        </h5>
-                        <p className="text-sm text-gray-300">
-                          Will Alex Albon win the 2025 Spanish Grand Prix?
-                        </p>
-                        <p className="text-[12px] text-gray-400 mb-0">
-                          19h ago
-                        </p>
-                      </div>
-                    </Link>
-                  </div> */}
-                  <div className="text-center text-gray-100 text-sm min-h-[200px] flex items-center justify-center">
-                    No notifications yet
-                  </div>
+                  <Notifications />
                 </DropdownMenu.Content>
               </div>
             </DropdownMenu.Portal>
