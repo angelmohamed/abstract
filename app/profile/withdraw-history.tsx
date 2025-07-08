@@ -13,6 +13,8 @@ import config from "../../config/config"
 interface Deposit {
     amount: number;
     usdAmt: number;
+    fee:number;
+    withdrawAmt : number;
     hash: string;
     from: string;
     to: string;
@@ -98,6 +100,8 @@ const WithdrawTable = () => {
                     <tr>
                         <th className="px-6 py-3">Date</th>
                         <th className="px-6 py-3">Amount</th>
+                        <th className="px-6 py-3">Fee(%)</th>
+                        <th className="px-6 py-3">Withdraw Amount</th>
                         <th className="px-6 py-3">From</th>
                         <th className="px-6 py-3">To</th>
                         <th className="px-6 py-3">Coin</th>
@@ -116,6 +120,12 @@ const WithdrawTable = () => {
 
                                 <td className="px-6 py-4">
                                     {formatNumber(withdraw?.amount, 4)}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {withdraw?.fee}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {formatNumber(withdraw?.withdrawAmt, 4)}
                                 </td>
                                 <td
                                     className="px-6 py-4 cursor-pointer relative"

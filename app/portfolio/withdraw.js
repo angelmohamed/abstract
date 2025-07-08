@@ -19,7 +19,8 @@ import {
 import { PnLFormatted } from "@/utils/helpers";
 import { Input } from "../components/ui/input";
 import { withdrawValidate, withdrawInputValidate } from "../validation/validation"
-import { withdrawRequest} from "@/services/wallet";
+import { withdrawRequest } from "@/services/wallet";
+import { getCoinList } from "@/services/user";
 
 
 
@@ -37,7 +38,8 @@ export default function Withdraw() {
     const [error, setError] = useState({})
     const [loader, setLoader] = useState(false)
     const [open, setOpen] = useState(false)
-    const minWithdraw = 0.01
+    const [coin, setCoin] = useState({})
+    // const minWithdraw = 0.01
     const availableBalance = walletData?.balance
         ? formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2)
         : 0
@@ -64,9 +66,9 @@ export default function Withdraw() {
             isError = true;
             errMsg = "Insufficient Balance";
         }
-        else if (parseFloat(amount) < minWithdraw || amount == 0 || amount == "0") {
+        else if (parseFloat(amount) < coin?.minWithdraw || amount == 0 || amount == "0") {
             isError = true;
-            errMsg = `Minimum withdrawal amount is ${minWithdraw}.`
+            errMsg = `Minimum withdrawal amount is ${coin?.minWithdraw}.`
         } else if (parseFloat(amount) > parseFloat(availableBalance)) {
             isError = true;
             errMsg = "Insufficient Balance";
@@ -89,7 +91,12 @@ export default function Withdraw() {
                 }
                 setLoader(true)
                 withdraw.from = config?.adminAdd
-                let { success,message } = await withdrawRequest(withdraw,dispatch);
+                withdraw.fee = coin?.withdrawFee
+                const feeAmt = (coin?.withdrawFee / 100) * amount;
+                withdraw.withdrawAmt = amount - feeAmt
+                withdraw.minWithdraw = coin?.minWithdraw
+                console.log(withdraw, coin, feeAmt, "withdrawaaaa");
+                let { success, message } = await withdrawRequest(withdraw, dispatch);
                 if (success) {
                     setLoader(false)
                     setWithdraw(initialValue)
@@ -105,7 +112,29 @@ export default function Withdraw() {
             console.log(err, "errr");
         }
     };
-    console.log(withdraw, "withdraw");
+
+
+    const getCoinData = async () => {
+        try {
+            const respData = await getCoinList();
+            if (respData.success) {
+                const usdcCoin = respData.result.find((coin) => coin.symbol === "USDC");
+                if (usdcCoin) {
+                    setCoin(usdcCoin);
+                } else {
+                    console.warn("USDC coin not found.");
+                }
+            }
+        } catch (error) {
+            console.error("Error getting coin list:", error);
+        }
+    };
+
+
+    useEffect(() => {
+        getCoinData()
+    }, []);
+    console.log(withdraw, coin, "withdraw");
     return (
         <div
             className="text-[12px]"
@@ -119,11 +148,12 @@ export default function Withdraw() {
             <Dialog.Root open={open} onOpenChange={setOpen}>
                 <Dialog.Trigger asChild>
                     <Button className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#000000] transition-colors duration-300 rounded-full"
-                        onClick={() => {
+                        onClick={async () => {
                             setWithdraw(initialValue)
                             setError({})
                             setOpen(true)
                             setLoader(false)
+                            await getCoinData()
                         }}>
                         Withdraw
                     </Button>
@@ -175,7 +205,7 @@ export default function Withdraw() {
                                     <label className="Label" htmlFor="Amount">
                                         Amount{" "}
                                         <span className="text-[14px] text-gray-400">
-                                            (${minWithdraw} min)
+                                            (${coin?.minWithdraw} min) ({coin?.withdrawFee}% Fee)
                                         </span>
                                     </label>
                                     <div className="flex gap-2">
@@ -205,6 +235,18 @@ export default function Withdraw() {
                                 {error?.amount && (
                                     <span style={{ color: "red" }}>{error.amount}</span>
                                 )}
+                                {
+                                    !isEmpty(amount) && (() => {
+                                        const feeAmt = (coin?.withdrawFee / 100) * amount;
+                                        const withdrawAmt = amount - feeAmt;
+                                        return (
+                                            <span className="text-[14px] text-gray-400 cursor-pointer">
+                                                Withdrawal Amount: {formatNumber(withdrawAmt, 4)} USDC
+                                            </span>
+                                        );
+                                    })()
+                                }
+
                             </fieldset>
 
                             <div className="flex items-center space-x-2 mt-4">
