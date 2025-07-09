@@ -31,6 +31,7 @@ const Positions = () => {
   const [shareOpen, setShareOpen] = useState(false)
   const [shareData, setShareData] = useState({})
   const [selectedMarketData, setSelectedMarketData] = useState({})
+  const [selectedMarketOutcome, setSelectedMarketOutcome] = useState([])
   const router = useRouter()
   const socketContext = useContext(SocketContext)
   const cardRef = useRef();
@@ -91,7 +92,8 @@ const Positions = () => {
     }
   }
 
-  const handleTradeOpen = async (id) => {
+  const handleTradeOpen = async (id,outcomes) => {
+    setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
   }
@@ -284,7 +286,7 @@ const Positions = () => {
                           <div className="flex flex-col gap-1">
                             <Link className="text-sm font-normal" href={`/event-page/${item?.eventSlug}`}>
                               <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                                {capitalize(data.side)}
+                                {capitalize(data.side == "yes" ? data?.outcomes?.[0]?.title : data?.outcomes?.[1]?.title )}
                               </Badge> {data.marketGroupTitle}
                             </Link>
                             <div className="flex items-center gap-2">
@@ -387,7 +389,7 @@ const Positions = () => {
                                     </div>
                                     </td> */}
                       <td className='flex justify-start items-center gap-2'>
-                        <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId)}>
+                        <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId,data?.outcomes)}>
                           <HistoryIcon />
                         </button>
                         {data.claim && (
@@ -428,7 +430,7 @@ const Positions = () => {
               <tbody>
                 {tradeHistory?.map((item, index) => (
                   <tr key={index}>
-                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side} ({item.type} at {item.price}¢)</td>
+                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side == "yes" ? (selectedMarketOutcome?.[0]?.title || "yes") : (selectedMarketOutcome?.[1]?.title || "no") } ({item.type} at {item.price}¢)</td>
                     <td>{item.price}¢</td>
                     <td>{toFixedDown(item.quantity, 2)}</td>
                     <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>

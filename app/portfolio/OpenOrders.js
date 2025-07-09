@@ -178,7 +178,7 @@ const OpenOrders = () => {
                             ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                             .map((data,index)=> (
                             <tr key={index}>
-                                <td>{data.marketGroupTitle} <span style={{color: data.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{data.action} {data.userSide}</span></td>
+                                <td>{data.marketGroupTitle} <span style={{color: data.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no") }</span></td>
                                 {/* <td>{data.side}</td> */}
                                 {/* <td>{data.side}</td> */}
                                 <td>{data.filledQuantity ?? 0}</td>

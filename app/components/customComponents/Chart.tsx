@@ -517,7 +517,7 @@ const Chart: React.FC<ChartProps> = ({
                                     {chartConfig.map((asset: any, idx: any) => (
                                         <Line
                                             key={asset.asset}
-                                            type="basis"
+                                            type="natural" // step bump
                                             dataKey={asset.asset}
                                             name={`${asset.label} ${
                                                 multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
