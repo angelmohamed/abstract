@@ -86,7 +86,8 @@ const OpenOrders = () => {
                             currentPrice: resData.marketId.last,
                             timeInForce: resData.timeInForce,
                             expiration: resData.expiration,
-                            action: resData.action
+                            action: resData.action,
+                            outcomes: resData.marketId.outcome
                           };
                     
                           const updatedMarket = {
@@ -108,7 +109,7 @@ const OpenOrders = () => {
                         timeInForce: resData.timeInForce,
                         expiration: resData.expiration,
                         action: resData.action,
-                        outcomes: resData.marketId.outcomes
+                        outcomes: resData.marketId.outcome
                     }
                     const newMarket = {
                         eventId: resData.marketId.eventId._id,
