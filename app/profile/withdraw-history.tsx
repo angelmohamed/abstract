@@ -167,7 +167,7 @@ const WithdrawTable = () => {
                                 <td className="px-6 py-4 relative group cursor-help">
                                     {withdraw?.status === "rejected" ?
                                         <>
-                                            {withdraw?.reason?.length > 6 ? `${withdraw?.reason.slice(0, 6)}...` : withdraw?.reason}
+                                            {withdraw?.reason?.length > 5 ? `${withdraw?.reason.slice(0, 5)}...` : withdraw?.reason}
                                             <div className="absolute z-10 hidden group-hover:block bottom-full left-1/2 -translate-x-1/2 mb-1 w-48 p-2 text-sm text-white bg-black rounded shadow-lg">
                                                 {withdraw?.reason}
                                             </div>

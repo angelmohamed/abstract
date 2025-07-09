@@ -236,7 +236,7 @@ export default function Withdraw() {
                                     <span style={{ color: "red" }}>{error.amount}</span>
                                 )}
                                 {
-                                    !isEmpty(amount) && (() => {
+                                    !isEmpty(amount) && isEmpty(error?.amount) && (() => {
                                         const feeAmt = (coin?.withdrawFee / 100) * amount;
                                         const withdrawAmt = amount - feeAmt;
                                         return (
