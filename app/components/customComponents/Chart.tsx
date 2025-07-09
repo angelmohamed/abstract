@@ -190,13 +190,13 @@ const Chart: React.FC<ChartProps> = ({
                         market.forEach((item: any) => {
                             const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
                             if(asset){
-                                asset.last = item.last
+                                asset.last = selectedYes ? item.last : 100 - item.last
                             }
                         })
                         setChartConfig(assetKeysData);
                     }else{
                         setChartConfig([{
-                            label: capitalize(selectedYes ? "yes" : "no"),
+                            label: capitalize(selectedYes ? (market?.[0]?.outcome?.[0]?.title || "yes") : (market?.[0]?.outcome?.[1]?.title || "no")),
                             color: selectedYes ? "#7dfdfe" : "#ec4899",
                             asset: "asset1"
                         }]);
@@ -297,12 +297,12 @@ const Chart: React.FC<ChartProps> = ({
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: item.last
+                        last: selectedYes ? item.last : 100 - item.last
                     }
                 }));
             }
         }
-    }, [market,multiHoveredChance]);
+    }, [market, multiHoveredChance, selectedYes]);
 
     return (
         <Card
@@ -517,7 +517,7 @@ const Chart: React.FC<ChartProps> = ({
                                     {chartConfig.map((asset: any, idx: any) => (
                                         <Line
                                             key={asset.asset}
-                                            type="natural"
+                                            type="basis"
                                             dataKey={asset.asset}
                                             name={`${asset.label} ${
                                                 multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)

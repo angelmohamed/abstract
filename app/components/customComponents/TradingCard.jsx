@@ -184,7 +184,7 @@ export function TradingCard({
                 }}
               >
                 {toFixedDown(positions?.quantity, 2)} &middot;{" "}
-                {capitalize(positions?.side)} (
+                {capitalize(positions?.side == "yes" ? firstLetterCase(market?.outcome?.[0]?.title || "yes") : firstLetterCase(market?.outcome?.[1]?.title || "no") )} (
                 {positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
               </h1>
             )}
