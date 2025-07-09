@@ -1,3 +1,4 @@
+import { toFixedDown } from "@/lib/roundOf";
 import { decimalToPercentage } from "@/utils/helpers";
 interface DataPoint {
   t: number;
@@ -107,7 +108,7 @@ export function processSingleChartData(
       for (const market of data) {
         // let previous = previousPrice[`asset${data.indexOf(market) + 1}`]
         const match = market.data.find((d) => d.t === timestamp);
-        result[`asset${data.indexOf(market) + 1}`] = match?.p ?? null;
+        result[`asset${data.indexOf(market) + 1}`] = toFixedDown(match?.p , 2) ?? null;
         //previous price is the price of the current market here
         // previousPrice[`asset${data.indexOf(market) + 1}`] = match?.p ?? previousPrice[`asset${data.indexOf(market) + 1}`];
       }

@@ -18,6 +18,7 @@ import { getOpenOrdersByEvtId } from "@/services/user";
 import { OpenOrderDialog } from "../customComponents/OpenOrderDialog";
 import { SocketContext } from "@/config/socketConnectivity";
 import store from "@/store";
+import { capitalize } from "@/lib/stringCase";
 
 interface OrderBookItem {
   price: string;
@@ -109,6 +110,7 @@ interface OrderbookAccordionContentProps
   selectedMarket: {
     last: number | null;
     _id: string;
+    outcome: any;
   },
   setSelectedOrder: (data: any) => void;
 }
@@ -337,7 +339,7 @@ const OrderbookAccordionContent = React.forwardRef<
                     : "bg-transparent text-white hover:bg-transparent"
                 )}
               >
-                Trade Yes
+                Trade {capitalize(selectedMarket?.outcome?.[0]?.title || "Yes")}
               </TabsTrigger>
               <TabsTrigger
                 value="No"
@@ -348,7 +350,7 @@ const OrderbookAccordionContent = React.forwardRef<
                     : "bg-transparent text-white hover:bg-transparent"
                 )}
               >
-                Trade No
+                Trade {capitalize(selectedMarket?.outcome?.[1]?.title || "No")}
               </TabsTrigger>
             </TabsList>
 
@@ -363,7 +365,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 <>
                   <div className="flex items-center h-[35px] w-full justify-between">
                     <div className="w-[30%]">
-                      {activeView === "Yes" ? "Trade Yes" : "Trade No"}
+                      {activeView === "Yes" ? `Trade ${capitalize(selectedMarket?.outcome?.[0]?.title) || "Yes"}` : `Trade ${capitalize(selectedMarket?.outcome?.[1]?.title) || "No"}`}
                     </div>
                     <div className="w-[20%] text-center">Price</div>
                     <div className="w-[25%] text-center">Shares</div>

@@ -387,7 +387,7 @@ const Positions = () => {
                                     </div>
                                     </td> */}
                       <td className='flex justify-start items-center gap-2'>
-                                      <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId)}>
+                        <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId)}>
                           <HistoryIcon />
                         </button>
                         {data.claim && (

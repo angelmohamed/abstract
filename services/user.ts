@@ -233,3 +233,15 @@ export const getCoinList = async () => {
     return handleResp(error, "error");
   }
 };
+
+export const getNotifications = async () => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/notifications`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};

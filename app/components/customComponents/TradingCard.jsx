@@ -184,7 +184,7 @@ export function TradingCard({
                 }}
               >
                 {toFixedDown(positions?.quantity, 2)} &middot;{" "}
-                {capitalize(positions?.side)} (
+                {capitalize(positions?.side == "yes" ? firstLetterCase(market?.outcome?.[0]?.title || "yes") : firstLetterCase(market?.outcome?.[1]?.title || "no") )} (
                 {positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
               </h1>
             )}
@@ -229,6 +229,16 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
+                    lastYesOrder = {tab == "buy"
+                      ? buyYes?.length > 0 &&
+                        toFixedDown(100 - buyYes?.[0], 2)
+                      : sellYes?.length > 0 &&
+                        toFixedDown(sellYes?.[0], 2)}
+                    lastNoOrder = {tab == "buy"
+                      ? buyNo?.length > 0 &&
+                        toFixedDown(100 - buyNo?.[0], 2)
+                      : sellNo?.length > 0 && toFixedDown(sellNo?.[0], 2)}
+                    outcomes = {market.outcome}
                   />
                 )}
 
@@ -239,6 +249,7 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
+                    outcomes = {market.outcome}
                   />
                 )}
               </Options>
