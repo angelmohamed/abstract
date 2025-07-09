@@ -4,6 +4,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar"
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
+import { setUser } from "@/store/slices/auth/userSlice";
 
 import { Trash2, Reply } from "lucide-react";
 import CommentForm from "./CommentForm";
@@ -11,10 +12,12 @@ import { CommentProps,PostCommentRequestData } from "@/types/comments";
 import CommentList from "./CommentList";
 import { getComments, postComment } from "@/services/market";
 import { toastAlert } from "@/lib/toast";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { SocketContext } from "@/config/socketConnectivity";
 import { deleteComment } from "@/services/user";
-import { getTimeAgo } from "@/utils/helpers";
+import PopupModal from "./usernameModal";
+import { isEmpty } from "@/lib/isEmpty";
+import { addUserName } from "@/services/user";
 
 const avatarColors = [
   'bg-blue-500',
@@ -39,7 +42,7 @@ export function Comment({
   ...props 
 }: CommentProps) {
   const user = useSelector((state: any) => state?.auth?.user || {});
-  const { signedIn } = useSelector((state) => state.auth?.session);
+  const { signedIn } = useSelector((state: any) => state?.auth?.session);
 
   if (!comment) {
     return null;
@@ -135,9 +138,12 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
   const [reply, setReply] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modelError, setModelError] = useState("");
   const [account, setaccount] = useState("");
   const user = useSelector((state: any) => state?.auth?.user || {});
 
+  const dispatch = useDispatch();
 
   useEffect(() => {
     try {
@@ -178,33 +184,95 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
     }
   };
 
+  const onchangeReply = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if(!user || isEmpty(user?.userName)){
+      setIsModalOpen(true);
+      return;
+    }
+    setReply(e.target.value);
+  }
+
+  const handleSaveUsername = async (username: string): Promise<boolean> => {
+    try {
+      if (!username.trim()) {
+        setModelError("Username cannot be empty.");
+        return false;
+      }
+      if (username.length < 6) {
+        setModelError("Username must be at least 6 characters long.");
+        return false;
+      }
+      if (username.length > 20) {
+        setModelError("Username must be at most 20 characters long.");
+        return false;
+      }
+      if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        setModelError("Username can only contain letters, numbers, and underscores.");
+        return false;
+      }
+  
+      const reqData = {
+        userName: username,
+      };
+      const { status, message,result } = await addUserName(reqData);
+  
+      if (!status) {
+        if (message) {
+          toastAlert("error", message);
+        }
+        return false;
+      }
+      console.log('result: ', result);
+
+      setModelError("");
+      dispatch(setUser(result));
+
+      
+      toastAlert("success", "Username saved successfully!");
+      return true;
+    } catch (error) {
+      console.error("Error saving username:", error);
+      toastAlert("error", "An unexpected error occurred. Please try again.");
+      return false;
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="mt-2 mb-3 ml-10">
-      <textarea
-        value={reply}
-        onChange={(e) => setReply(e.target.value)}
-        placeholder="Write your reply..."
-        className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white mb-2 min-h-[80px] focus:border-blue-500 focus:outline-none"
-        disabled={isSubmitting}
+    <>
+      <form onSubmit={handleSubmit} className="mt-2 mb-3 ml-10">
+        <textarea
+          value={reply}
+          onChange={onchangeReply}
+          placeholder="Write your reply..."
+          className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white mb-2 min-h-[80px] focus:border-blue-500 focus:outline-none"
+          disabled={isSubmitting}
+        />
+        <div className="flex justify-end space-x-2">
+          <Button 
+            type="button" 
+            onClick={onCancel}
+            className="w-auto border border-gray-700 bg-transparent text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-300"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit" 
+            disabled={isSubmitting || !reply.trim()}
+            onClick={handleSubmit}
+            className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+          >
+            {isSubmitting ? "Posting..." : "Post Reply"}
+          </Button>
+        </div>
+      </form>
+      <PopupModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSave={handleSaveUsername}
+        error={modelError}
+        setError={setModelError}
       />
-      <div className="flex justify-end space-x-2">
-        <Button 
-          type="button" 
-          onClick={onCancel}
-          className="w-auto border border-gray-700 bg-transparent text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-300"
-        >
-          Cancel
-        </Button>
-        <Button 
-          type="submit" 
-          disabled={isSubmitting || !reply.trim()}
-          onClick={handleSubmit}
-          className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-        >
-          {isSubmitting ? "Posting..." : "Post Reply"}
-        </Button>
-      </div>
-    </form>
+    </>
   );
 }
 

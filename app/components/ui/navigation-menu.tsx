@@ -4,11 +4,9 @@ import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ChevronLeftIcon, ChevronRightIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ScrollArea } from "radix-ui";
-
+import { useRouter, useSearchParams } from "next/navigation";
 interface MenuItem {
   title: string;
   slug: string;
@@ -19,6 +17,7 @@ interface NavigationBarProps {
   showLiveTag?: boolean;
   setSelectedCategory: (category: string) => void;
   selectedCategory: string;
+  redirect?: boolean;
 }
 
 interface ListItemProps {
@@ -159,12 +158,16 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   showLiveTag = true,
   setSelectedCategory,
   selectedCategory,
+  redirect = false,
 }) => {
   const categoryListRef = React.useRef<HTMLDivElement>(null);
-  const [categoryScrollAtStart, setCategoryScrollAtStart] =
     React.useState(true);
+  const [categoryScrollAtStart, setCategoryScrollAtStart] = React.useState(true);
   const [categoryScrollAtEnd, setCategoryScrollAtEnd] = React.useState(false);
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  const categoryParam = searchParams.get("category");
 
   const handleCategoryScroll = () => {
     const el = categoryListRef.current;
@@ -184,9 +187,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
     router.replace(window.location.pathname);
   };
 
-  const TAGS = Array.from({ length: 50 }).map(
-    (_, i, a) => `v1.2.0-beta.${a.length - i}`
-  );
+  useEffect(() => {
+    if (categoryParam)
+      setSelectedCategory(categoryParam);
+  }, [categoryParam]);
 
   return (
     <div className="container mx-auto px-4 max-w-full overflow-hidden">
@@ -252,7 +256,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         selectedCategory === item.slug &&
                           "text-white bg-slate-700"
                       )}
-                      onClick={() => handleCategoryClick(item.slug)}
+                      onClick={() => !redirect ? handleCategoryClick(item.slug): router.push(`/?category=${item.slug}`)}
                     >
                       {item.title}
                     </div>
