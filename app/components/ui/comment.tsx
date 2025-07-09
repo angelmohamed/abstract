@@ -39,6 +39,7 @@ export function Comment({
   ...props 
 }: CommentProps) {
   const user = useSelector((state: any) => state?.auth?.user || {});
+  const { signedIn } = useSelector((state) => state.auth?.session);
 
   if (!comment) {
     return null;
@@ -51,6 +52,23 @@ export function Comment({
     
   // Check if the current user is the author of this comment
   const isAuthor = currentUserWallet && comment.wallet_address === currentUserWallet;
+  
+  const getColorFromUsername = (username: string  | undefined) => {
+    try {
+      if (!username || typeof username !== 'string' || username.trim() === '') {
+        return avatarColors[0];
+      }
+
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+      const index = Math.abs(hash) % avatarColors.length;
+      return avatarColors[index];
+    } catch {
+      return avatarColors[0];
+    }     
+  }
 
   return (
     <div className={cn("w-full pt-4 pb-4 flex items-start space-x-3", className)} {...props}>
@@ -60,7 +78,7 @@ export function Comment({
           {comment?.userId?.profileImg ? (
             <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.userName} />
           ) : (
-            <AvatarFallback className={avatarColors[Math.floor(Math.random() * avatarColors.length)]}>
+            <AvatarFallback className={getColorFromUsername(comment?.userId?.userName)}>
               {comment?.userId?.userName?comment?.userId?.userName.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
             </AvatarFallback>
           )}
@@ -79,7 +97,7 @@ export function Comment({
         
         {/* Comment actions */}
         <div className="flex mt-2 space-x-4">
-          {onReply && !comment.parentId && (
+          {onReply && signedIn && !comment.parentId && (
             <button 
               onClick={() => onReply(comment._id)} 
               className="flex items-center text-xs text-gray-400 hover:text-white"
