@@ -33,7 +33,7 @@ const OpenOrders = () => {
     }, [])
 
     const handleCancelOrder = async(orderId) => {
-        console.log("orderId", orderId);
+        // console.log("orderId", orderId);
         try {
             const { success, message } = await cancelOrder(orderId)
             if(success) {
