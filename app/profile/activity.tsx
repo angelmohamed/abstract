@@ -113,7 +113,7 @@ const ActivityTable = () => {
                 {trade.action}
               </td>
               <td className={`px-6 py-4 ${trade.side === 'yes' ? 'text-green-500' : 'text-red-500'} capitalize`}>
-                {trade.side}
+                {trade.side == "yes" ? (trade?.marketId?.outcome?.[0]?.title || "yes") : (trade?.marketId?.outcome?.[1]?.title || "no") }
               </td>
             </tr>
             </Fragment>

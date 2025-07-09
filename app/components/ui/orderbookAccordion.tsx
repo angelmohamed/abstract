@@ -299,7 +299,8 @@ const OrderbookAccordionContent = React.forwardRef<
                     marketId: {
                       _id: resData.marketId._id,
                       groupItemTitle: resData.marketId.groupItemTitle,
-                      last: resData.marketId.last
+                      last: resData.marketId.last,
+                      outcome: resData.marketId.outcome
                     }
                   }
                   return [newOrder, ...prev]
@@ -364,7 +365,7 @@ const OrderbookAccordionContent = React.forwardRef<
               ) : (
                 <>
                   <div className="flex items-center h-[35px] w-full justify-between">
-                    <div className="w-[30%]">
+                    <div className="w-[30%] p-3">
                       {activeView === "Yes" ? `Trade ${capitalize(selectedMarket?.outcome?.[0]?.title) || "Yes"}` : `Trade ${capitalize(selectedMarket?.outcome?.[1]?.title) || "No"}`}
                     </div>
                     <div className="w-[20%] text-center">Price</div>
