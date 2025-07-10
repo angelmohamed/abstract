@@ -256,7 +256,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                         selectedCategory === item.slug &&
                           "text-white bg-slate-700"
                       )}
-                      onClick={() => !redirect ? handleCategoryClick(item.slug): router.push(`/?category=${item.slug}`)}
+                      onClick={() => router.push(`/?category=${item.slug}`)}
                     >
                       {item.title}
                     </div>

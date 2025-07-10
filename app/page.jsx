@@ -20,6 +20,8 @@ import { getCategories, getTagsByCategory } from "@/services/market";
 import { getInfoCards } from "@/services/user";
 import { Footer } from "./components/customComponents/Footer";
 import { ScrollArea } from "radix-ui";
+import { useSearchParams } from "next/navigation";
+import { isEmpty } from "@/lib/isEmpty";
 
 const InfoCards = () => {
   const [cards, setCards] = useState([]);
@@ -147,6 +149,9 @@ export default function Home() {
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [subcategoryList, setSubcategoryList] = useState([]);
 
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const fetchCategories = async () => {
     try {
       const { success, result } = await getCategories();
@@ -209,10 +214,15 @@ export default function Home() {
             selectedSubcategory={selectedSubcategory}
             setSelectedSubcategory={setSelectedSubcategory}
           />
-          <SlideshowLinting />
-
-          {/* Info Cards Section */}
-          <InfoCards />
+          {
+            isEmpty(categoryParam) && (
+              <>
+                <SlideshowLinting />
+                {/* Info Cards Section */}
+                <InfoCards />
+              </>
+            )
+          }
 
           {/* <div>
           <div className="flex justify-center pb-5 sm:pt-4 pt-0 items-center">
@@ -250,7 +260,7 @@ export default function Home() {
         </div> */}
 
           {/* Event Cards Section */}
-          <div className="flex pb-6 mt-8 justify-center w-full">
+          <div className={"flex pb-6 justify-center w-full mt-0"}>
             <div className="w-full">
               <EventLinting
                 selectCategory={selectCategory}
