@@ -390,7 +390,7 @@ const MonthlyListenersChart: React.FC<MonthlyListenersChartProps> = ({
                     />
                     <Tooltip content={<CustomTooltip />} />
                     <Line
-                      type="bump"
+                      type="step"
                       dataKey="forecast"
                       name="Forecast"
                       stroke="#7DFDFE"

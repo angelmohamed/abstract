@@ -346,7 +346,7 @@ const SingleLineChart: React.FC<SingleLineChartProps> = ({
                   {["asset1"].map((asset, _) => (
                     <Line
                       key={asset}
-                      type="natural"
+                      type="step"
                       dataKey={asset}
                       name={chartConfig[asset].label}
                       stroke={selectedYes ? "#7dfdfe" : "#ec4899"}
