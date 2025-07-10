@@ -7,22 +7,22 @@ import { getWalletSettings, setWalletSettings } from "@/services/user";
 
 export default function WalletSettings() {
     const [priority, setPriority] = useState("");
-    const [customRPC, setCustomRPC] = useState(false);
+    // const [customRPC, setCustomRPC] = useState(false);
 
     const handleGasChange = (value) => {
       setPriority(value);
     }
 
-    const handleCustomRPCChange = (value) => {
-        setCustomRPC(value);
-    }
+    // const handleCustomRPCChange = (value) => {
+    //     setCustomRPC(value);
+    // }
 
     const getWalletSettingsData = async () => {
         try {
             let respData = await getWalletSettings();
             if(respData.success){
                 setPriority(respData.result.priority);
-                setCustomRPC(respData.result.customRPC);
+                // setCustomRPC(respData.result.customRPC);
             }
         } catch (error) {
             console.error("Error getting wallet settings:", error);
@@ -35,7 +35,7 @@ export default function WalletSettings() {
 
     const handleSaveChanges = async () => {
         try {
-            let respData = await setWalletSettings({priority: priority, customRPC: customRPC});
+            let respData = await setWalletSettings({priority: priority});
             if(respData.success){
                 toastAlert("success", "Changes saved successfully");
             }
@@ -43,7 +43,7 @@ export default function WalletSettings() {
             console.error("Error saving changes:", error);
         }
     }
-    console.log(customRPC,priority,"prioritypriority");
+    console.log(priority,"prioritypriority");
   return (
     <>
         <h1 className="text-2xl font-bold mb-8">Wallet Settings</h1>
@@ -59,7 +59,7 @@ export default function WalletSettings() {
                   Pay your own gas
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              {/* <div className="flex items-center justify-between">
                 <label
                   className="Label"
                   htmlFor="airplane-mode"
@@ -75,7 +75,7 @@ export default function WalletSettings() {
                 >
                   <Switch.Thumb className="SwitchThumb" />
                 </Switch.Root>
-              </div>
+              </div> */}
               <RadioGroup.Root
                 className="RadioGroupRoot"
                 defaultValue="default"
