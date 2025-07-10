@@ -3,7 +3,7 @@ import SearchBar from '../components/ui/SearchBar'
 import { getOpenOrders } from '@/services/portfolio'
 import { cancelOrder } from '@/services/market'
 import { useRouter } from 'next/navigation'
-import { X } from 'lucide-react'
+import { Loader, X } from 'lucide-react'
 import { toastAlert } from '@/lib/toast'
 import { momentFormat } from '../helper/date'
 import { SocketContext } from '@/config/socketConnectivity'
@@ -13,18 +13,22 @@ import { isEmpty } from '@/lib/isEmpty'
 
 const OpenOrders = () => {
      const [openOrders, setOpenOrders] = useState([])
+     const [loading, setLoading] = useState(false)
      const route = useRouter()
      const socketContext = useContext(SocketContext)
      const { user } = store.getState().auth;
     
     const getUserOpenOrders = async () => {
         try {
+            setLoading(true)
             const res = await getOpenOrders({})
             if(res.success){
                 setOpenOrders(res.result)
             }
         } catch (error) {
             console.error("Error fetching Position History:", error);
+        } finally {
+            setLoading(false)
         }
     }
     
@@ -157,7 +161,7 @@ const OpenOrders = () => {
                 </tr>
                 </thead>
                 <tbody>
-               {openOrders?.length>0 && openOrders.map((item)=>(
+               {openOrders?.length>0 && !loading && openOrders.map((item)=>(
                     <React.Fragment key={item._id}>
                         <tr>
                             <td colSpan={8}>
@@ -209,9 +213,14 @@ const OpenOrders = () => {
                )}
                 </tbody>
             </table>
-            {openOrders.length === 0 && (
+            {openOrders.length === 0 && !loading && (
                 <div  className="flex justify-center my-5 text-gray-500">
                     No orders found
+                </div>
+            )}
+            {loading && (
+                <div className="flex justify-center items-center my-5 min-h-[100px]">
+                    <Loader className="w-26 h-26 animate-spin" />
                 </div>
             )}
         </div>

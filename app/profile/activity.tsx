@@ -8,6 +8,7 @@ import { getTradeHistory } from '@/services/user';
 import PaginationComp from '../components/customComponents/PaginationComp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Loader } from 'lucide-react';
 
 interface Trade {
   time: string;
@@ -27,7 +28,7 @@ interface PaginationState {
 
 const ActivityTable = () => {
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [pagination, setPagination] = useState<PaginationState>({
      page: 1,
@@ -42,6 +43,7 @@ const ActivityTable = () => {
   useEffect(() => {
     const fetchTradeHistory = async () => {
       try {
+        setLoading(true)
         const { success, result } = await getTradeHistory({id:uniqueId,...pagination});
         if (success) {
             setTrades(result.data);
@@ -50,16 +52,20 @@ const ActivityTable = () => {
       } catch (error) {
         console.error('Error fetching trade history:');
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
     };
 
     fetchTradeHistory();
   }, [uniqueId,pagination]);
 
-  if (loading) {
-    return <div className="text-center py-4">Loading...</div>;
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="flex justify-center items-center my-5 min-h-[100px]">
+  //       <Loader className="w-26 h-26 animate-spin" />
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className="overflow-x-auto">
@@ -75,7 +81,7 @@ const ActivityTable = () => {
           </tr>
         </thead>
         <tbody>
-          {trades.map((trade, index) => (
+          {!loading && trades.length>0 && trades.map((trade, index) => (
             <Fragment key={index}>
               <tr>
                 <td colSpan={5} className='py-3 px-6'>
@@ -120,18 +126,23 @@ const ActivityTable = () => {
           ))}
         </tbody>
       </table>
-      {trades.length === 0 && (
+      {!loading && trades.length === 0 && (
           <div  className="flex justify-center my-5 text-gray-500">
               No Activity found
           </div>
       )}
-      {trades.length > 0 && (
+      {!loading && trades.length > 0 && (
           <PaginationComp
             pagination={pagination}
             setPagination={setPagination}
             hasMore={hasMore}
           />
-      )}     
+      )}   
+    {loading &&  (
+      <div className="flex justify-center items-center my-5 min-h-[100px]">
+        <Loader className="w-26 h-26 animate-spin" />
+      </div>
+    )}
     </div>
   );
 }

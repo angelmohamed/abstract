@@ -421,7 +421,7 @@ export default function Authentication() {
   
         previousWalletRef.current = newPublicKey;
       } catch (err) {
-        console.warn("Phantom not connected yet");
+        // console.warn("Phantom not connected yet");
       }
     }, 1000);
   

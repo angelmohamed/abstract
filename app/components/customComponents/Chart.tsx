@@ -308,7 +308,7 @@ const Chart: React.FC<ChartProps> = ({
     }, [market, multiHoveredChance, selectedYes]);
 
     const CustomDot = (props: any) => {
-        const { cx, cy, payload, index } = props;
+        const { cx, cy, payload, index, color } = props;
         const isLastPoint = index === chartData.length - 1;
         
         if (!isLastPoint) return null;
@@ -321,7 +321,7 @@ const Chart: React.FC<ChartProps> = ({
               cy={cy}
               r={8}
               fill="none"
-              stroke="#7DFDFE"
+              stroke={color}
               strokeWidth={2}
               opacity={0.6}
             >
@@ -344,7 +344,7 @@ const Chart: React.FC<ChartProps> = ({
               cx={cx}
               cy={cy}
               r={4}
-              fill="#7DFDFE"
+              fill={color}
               stroke="#fff"
               strokeWidth={2}
             >
@@ -581,7 +581,7 @@ const Chart: React.FC<ChartProps> = ({
                                             }`}
                                             stroke={asset.color}
                                             strokeWidth={2}
-                                            dot={<CustomDot />}
+                                            dot={<CustomDot color={asset.color}/>}
                                             label={false}
                                             connectNulls
                                         />

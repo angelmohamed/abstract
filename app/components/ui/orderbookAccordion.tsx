@@ -389,7 +389,7 @@ const OrderbookAccordionContent = React.forwardRef<
                           {asks.length > 0 &&
                             asks.map((row: any, index: any) => {
                               const orderBookLength = asks.length || 0;
-                              const openOrder = openOrders?.filter((order: any) => (100 - Number(order.price)) == row[0] );
+                              const openOrder = openOrders?.filter((order: any) => (100 - Number(order.price)) == row[0] && activeView?.toLowerCase() != order.side );
                               return (
                                 <div
                                   key={index}
