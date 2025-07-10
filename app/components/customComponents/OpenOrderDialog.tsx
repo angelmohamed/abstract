@@ -44,7 +44,7 @@ export const OpenOrderDialog = ({openOrderDialog,setOpenOrderDialog,openOrderDat
                     {openOrderData?.length>0 && openOrderData.map((item)=>(
                         <Fragment key={item._id}>
                             <tr>
-                                <td>{item?.marketId?.groupItemTitle} <span style={{color: item.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{item.action} {item.userSide}</span></td>
+                                <td>{item?.marketId?.groupItemTitle} <span style={{color: item.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{item.action} {item.userSide == "yes" ? (item?.marketId?.outcome?.[0]?.title || "yes") : (item?.marketId?.outcome?.[1]?.title || "no") }</span></td>
                                 {/* <td>{item.side}</td> */}
                                 {/* <td>{item.side}</td> */}
                                 <td>{item.action == "sell" ? 100 - item.price : item.price}</td>

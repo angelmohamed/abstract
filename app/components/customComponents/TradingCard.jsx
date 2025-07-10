@@ -141,14 +141,14 @@ export function TradingCard({
                 className="text-[16px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
               >
-                {market.groupItemTitle != "" ? firstLetterCase(market.groupItemTitle) : firstLetterCase(title)}
+                {market?.groupItemTitle != "" ? firstLetterCase(market?.groupItemTitle) : firstLetterCase(title)}
               </div>
             </div>
           </CardTitle>
           <CardDescription>
             {" "}
             $
-            {market.volume
+            {market?.volume
               ? (market.volume/100).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -238,7 +238,7 @@ export function TradingCard({
                       ? buyNo?.length > 0 &&
                         toFixedDown(100 - buyNo?.[0], 2)
                       : sellNo?.length > 0 && toFixedDown(sellNo?.[0], 2)}
-                    outcomes = {market.outcome}
+                    outcomes = {market?.outcome}
                   />
                 )}
 
@@ -249,7 +249,7 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
-                    outcomes = {market.outcome}
+                    outcomes = {market?.outcome}
                   />
                 )}
               </Options>

@@ -33,7 +33,7 @@ const OpenOrders = () => {
     }, [])
 
     const handleCancelOrder = async(orderId) => {
-        console.log("orderId", orderId);
+        // console.log("orderId", orderId);
         try {
             const { success, message } = await cancelOrder(orderId)
             if(success) {
@@ -86,7 +86,8 @@ const OpenOrders = () => {
                             currentPrice: resData.marketId.last,
                             timeInForce: resData.timeInForce,
                             expiration: resData.expiration,
-                            action: resData.action
+                            action: resData.action,
+                            outcomes: resData.marketId.outcome
                           };
                     
                           const updatedMarket = {
@@ -107,7 +108,8 @@ const OpenOrders = () => {
                         currentPrice: resData.marketId.last,
                         timeInForce: resData.timeInForce,
                         expiration: resData.expiration,
-                        action: resData.action
+                        action: resData.action,
+                        outcomes: resData.marketId.outcome
                     }
                     const newMarket = {
                         eventId: resData.marketId.eventId._id,
@@ -178,7 +180,7 @@ const OpenOrders = () => {
                             ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                             .map((data,index)=> (
                             <tr key={index}>
-                                <td>{data.marketGroupTitle} <span style={{color: data.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{data.action} {data.userSide}</span></td>
+                                <td>{data.marketGroupTitle} <span style={{color: data.userSide == 'yes' ? "rgba(38, 92, 255, 1)" : "violet",textTransform:"capitalize"}}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no") }</span></td>
                                 {/* <td>{data.side}</td> */}
                                 {/* <td>{data.side}</td> */}
                                 <td>{data.filledQuantity ?? 0}</td>

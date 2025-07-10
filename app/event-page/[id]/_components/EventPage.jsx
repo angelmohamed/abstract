@@ -255,6 +255,7 @@ export default function EventPage() {
             showLiveTag={true}
             setSelectedCategory={setSelectedCategory}
             selectedCategory={selectCategory}
+            redirect={true}
           />
         </div>
         <div className="container mx-auto px-4 max-w-full overflow-hidden">

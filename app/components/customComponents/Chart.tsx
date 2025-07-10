@@ -274,9 +274,12 @@ const Chart: React.FC<ChartProps> = ({
             ? hoveredChance
             : selectedYes
                 ? chance
-                : chance !== undefined
-                    ? 100 - chance
-                    : undefined;
+                : chance == 0
+                    ? 0
+                    : chance !== undefined
+                        ? 100 - chance
+                        : undefined;
+
     const chanceColor = selectedYes ? "#7dfdfe" : "#ec4899";
     const [activeDate, setActiveDate] = useState("Jun 18");
     const [multiDisplayChance, setMultiDisplayChance] = useState<any>([]);
@@ -288,7 +291,7 @@ const Chart: React.FC<ChartProps> = ({
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: multiHoveredChance[index] || item.last
+                        last: multiHoveredChance[index] ?? item.last
                     }
                 }));
             } else {
@@ -303,6 +306,58 @@ const Chart: React.FC<ChartProps> = ({
             }
         }
     }, [market, multiHoveredChance, selectedYes]);
+
+    const CustomDot = (props: any) => {
+        const { cx, cy, payload, index } = props;
+        const isLastPoint = index === chartData.length - 1;
+        
+        if (!isLastPoint) return null;
+        
+        return (
+          <g>
+            {/* Animated pulsing ring */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={8}
+              fill="none"
+              stroke="#7DFDFE"
+              strokeWidth={2}
+              opacity={0.6}
+            >
+              <animate
+                attributeName="r"
+                values="4;12;4"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="opacity"
+                values="0.8;0;0.8"
+                dur="2s"
+                repeatCount="indefinite"
+              />
+            </circle>
+            
+            {/* Main dot */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={4}
+              fill="#7DFDFE"
+              stroke="#fff"
+              strokeWidth={2}
+            >
+              <animate
+                attributeName="r"
+                values="4;5;4"
+                dur="1.5s"
+                repeatCount="indefinite"
+              />
+            </circle>
+          </g>
+        );
+      };
 
     return (
         <Card
@@ -479,7 +534,7 @@ const Chart: React.FC<ChartProps> = ({
                                                 setMultiHoveredChance(multiHoveredValue);
                                             } else {
                                                 const hoveredValue = e.activePayload[0].payload.asset1 ;
-                                                if(hoveredValue){
+                                                if(hoveredValue || hoveredValue == 0){
                                                     setHoveredChance(hoveredValue); // Convert to percentage
                                                 }else{
                                                     setHoveredChance(undefined);
@@ -517,7 +572,7 @@ const Chart: React.FC<ChartProps> = ({
                                     {chartConfig.map((asset: any, idx: any) => (
                                         <Line
                                             key={asset.asset}
-                                            type="basis"
+                                            type="bump" // step bump
                                             dataKey={asset.asset}
                                             name={`${asset.label} ${
                                                 multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
@@ -526,7 +581,7 @@ const Chart: React.FC<ChartProps> = ({
                                             }`}
                                             stroke={asset.color}
                                             strokeWidth={2}
-                                            dot={false}
+                                            dot={<CustomDot />}
                                             label={false}
                                             connectNulls
                                         />

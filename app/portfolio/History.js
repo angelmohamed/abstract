@@ -18,6 +18,8 @@ const History = () => {
   const [ClosedPnL, setClosedPnL] = useState({});
   const [tradeHistory, setTradeHistory] = useState([])
   const [tradeOpen, setTradeOpen] = useState(false)
+  const [selectedMarketOutcome, setSelectedMarketOutcome] = useState([])
+
 
   const formatClosedPnL = (data) => {
     const groupedByEvent = {};
@@ -27,6 +29,7 @@ const History = () => {
       const eventId = event._id;
       const marketId = item.marketId._id;
       const groupItemTitle = item.marketId.groupItemTitle;
+      const outcome = item.marketId.outcome
 
       if (!groupedByEvent[eventId]) {
         groupedByEvent[eventId] = {
@@ -43,6 +46,7 @@ const History = () => {
           exit: 0,
           pnl: 0,
           groupItemTitle: groupItemTitle,
+          outcome: outcome
         };
         if (event.status === "resolved") {
           const isBinaryMarket = event?.marketId?.length >= 2;
@@ -111,7 +115,8 @@ const History = () => {
     }
   }
 
-  const handleTradeOpen = async (id) => {
+  const handleTradeOpen = async (id, outcomes) => {
+    setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
   }
@@ -195,7 +200,7 @@ const History = () => {
                       return (
                         <tr key={marketId}>
                           <td>{ m.groupItemTitle || ""}</td>
-                          <td className={`${m.shares > 0 ? "" : "text-gray-500"}`}>{m.shares > 0 ? `${m.shares} ${capitalize(m.closedSide)}` : "None"}</td>
+                          <td className={`${m.shares > 0 ? "" : "text-gray-500"}`}>{m.shares > 0 ? `${m.shares} ${capitalize(m.closedSide == "yes" ? (m.outcome?.[0]?.title || "yes") : (m.outcome?.[1]?.title || "no"))}` : "None"}</td>
                           <td className={`${(m.resolution && m.isResolved) ? "text-green-500" : (!m.isResolved && m.resolution) ? "text-red-500" :"text-gray-500"}`}>${m.isResolved ? m.shares : "0"   }</td>
                           <td>${toFixedDown(m.entry, 2)}</td>
                           <td>${toFixedDown(m.exit, 2)}</td>
@@ -207,7 +212,7 @@ const History = () => {
                             ${toFixedDown(m.pnl, 2)}{" "}({toFixedDown((m.pnl/m.entry)*100, 0)}%)
                           </td>
                           <td className='flex justify-start items-center gap-2'>
-                            <button className="text-blue-500" onClick={()=>handleTradeOpen(marketId)}>
+                            <button className="text-blue-500" onClick={()=>handleTradeOpen(marketId, m.outcome)}>
                               <HistoryIcon />
                             </button>
                           </td>
@@ -262,7 +267,7 @@ const History = () => {
               <tbody>
                 {tradeHistory?.map((item, index) => (
                   <tr key={index}>
-                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side} ({item.type} at {item.price}¢)</td>
+                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side == "yes" ? (selectedMarketOutcome?.[0]?.title || "yes") : (selectedMarketOutcome?.[1]?.title || "no") } ({item.type} at {item.price}¢)</td>
                     <td>{item.price}¢</td>
                     <td>{toFixedDown(item.quantity, 2)}</td>
                     <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>

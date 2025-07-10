@@ -190,7 +190,7 @@ const EventCard: React.FC<EventCardProps> = ({
           </>
         ) : status == "resolved" ? (
           <>
-            <div className="pb-4 pt-1">
+            <div className="pb-4 pt-1 capitalize">
               <p>Outcome</p>
               <p className={outcome == "YES" ? "text-[#7dfdfe]": "text-[#ec4899]"}>{outcome}</p>
             </div>
