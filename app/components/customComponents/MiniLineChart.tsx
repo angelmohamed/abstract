@@ -224,7 +224,7 @@ export default function MiniLineChart({
                   {["asset1"].map((asset) => (
                     <Line
                       key={asset}
-                      type="natural"
+                      type="step"
                       dataKey={asset}
                       name={chartConfig[asset].label}
                       stroke={

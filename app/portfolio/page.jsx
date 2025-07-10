@@ -109,7 +109,7 @@ export default function PortfolioPage() {
 
   const PRIORITY_FEES = {
     low: 5000,
-    medium: 20000,
+    medium: 30000,
     high: 75000,
   };
 
@@ -757,6 +757,7 @@ export default function PortfolioPage() {
       getSolanaTxFee()
       setTxOpen(false);
       getCoinData()
+      setloader(false)
     } else if (!isEmpty(data?.walletAddress) &&
       data?.walletAddress.toString() != address?.toString() && isConnected) {
       toastAlert(

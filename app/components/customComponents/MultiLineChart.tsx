@@ -328,7 +328,7 @@ export default function MultiLineChart({
               {["1", "2", "3", "4"].map((assetNum, index) => (
                 <Line
                   key={`asset${assetNum}`}
-                  type="natural"
+                  type="step"
                   dataKey={`asset${assetNum}`}
                   name={
                     chartConfig[`asset${assetNum}` as keyof ChartConfig].label

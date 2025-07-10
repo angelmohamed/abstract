@@ -121,7 +121,7 @@ export function TradingGraph({
                 />
                 <Line
                   dataKey="desktop"
-                  type="natural"
+                  type="step"
                   stroke="#7dfdfe"
                   strokeWidth={2}
                   dot={false}
