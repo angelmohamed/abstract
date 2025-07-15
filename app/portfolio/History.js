@@ -270,6 +270,7 @@ const History = () => {
                   <th>Price</th>
                   <th>Filled Contracts</th>
                   <th>Cost</th>
+                  <th>Fees</th>
                   <th>Date</th>
                 </tr>
               </thead>
@@ -280,6 +281,7 @@ const History = () => {
                     <td>{item.price}¢</td>
                     <td>{toFixedDown(item.quantity, 2)}</td>
                     <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>
+                    <td>${item?.fee ?? 0}</td>
                     <td>{momentFormat(item.createdAt, "DD/MM/YYYY HH:mm")}</td>
                   </tr>
                 ))}

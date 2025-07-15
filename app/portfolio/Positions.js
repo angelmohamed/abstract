@@ -239,9 +239,11 @@ const Positions = () => {
           <thead>
             <tr>
               <th>Market</th>
-              <th>Latest</th>
-              <th>Bet</th>
-              <th>Current</th>
+              <th>Contracts</th>
+              <th>Avg. Price</th>
+              <th>Cost</th>
+              <th>Current(¢)</th>
+              <th>Position Now</th>
               <th>To Win</th>
               {/* <th>Action</th> */}
               <th>History</th>
@@ -252,7 +254,7 @@ const Positions = () => {
               positionHistory?.map((item, index) => (
                 <React.Fragment key={item._id}>
                   <tr>
-                    <td colSpan={6}>
+                    <td colSpan={8}>
                       <div className="flex items-center justify-between">
                         <Link href={`/event-page/${item?.eventSlug}`} className="cursor-pointer">{item.eventTitle}</Link>
                         <div>
@@ -304,10 +306,16 @@ const Positions = () => {
                           </div>
                         </div>
                       </td>
+                      <td>{data?.quantity?.toFixed(0)}</td>
                       <td>{toFixedDown(data?.filled?.[0]?.price, 0)}¢</td>
                       <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}</td>
                       <td>
-                        {data.side == "no" ? (100 - data?.last) : data?.last}¢ <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price) / data?.filled?.[0]?.price * 100).toFixed(2)}%)</span>
+                        {data.side == "no" ? (100 - data?.last) : data?.last}¢ 
+                        {/* <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price) / data?.filled?.[0]?.price * 100).toFixed(2)}%)</span> */}
+                      </td>
+                      <td className={`${(data.side == "no" ? (100 - data?.last) : data?.last) >= data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}`}>
+                        ${toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) * data?.quantity) / 100, 2)}
+                        ({toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) - data?.filled?.[0]?.price) / data?.filled?.[0]?.price * 100, 2)}%)
                       </td>
                       <td>${data?.quantity?.toFixed(2)}</td>
                       {/* <td>

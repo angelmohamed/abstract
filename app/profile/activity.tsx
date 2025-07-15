@@ -18,6 +18,7 @@ interface Trade {
   side: string;
   action: string;
   marketId: any;
+  fee: any;
 }
 
 interface PaginationState {
@@ -76,6 +77,7 @@ const ActivityTable = () => {
             {/* <th className="px-6 py-3">User</th> */}
             <th className="px-6 py-3">Price</th>
             <th className="px-6 py-3">Quantity</th>
+            <th className="px-6 py-3">Fees</th>
             <th className="px-6 py-3">Action</th>
             <th className="px-6 py-3">Direction</th>
           </tr>
@@ -114,6 +116,9 @@ const ActivityTable = () => {
               </td>
               <td className="px-6 py-4">
                 {formatNumber(trade.quantity)}
+              </td>
+              <td className="px-6 py-4">
+                ${formatNumber(trade.fee)}
               </td>
               <td className={`px-6 py-4 ${trade.action === 'buy' ? 'text-green-500' : 'text-red-500'} capitalize`}>
                 {trade.action}
