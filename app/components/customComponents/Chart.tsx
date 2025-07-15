@@ -28,6 +28,7 @@ import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
 import { momentFormat } from "@/app/helper/date";
 import { useRouter } from "next/navigation";
+import { isEmpty } from "@/lib/isEmpty";
 
 interface MarketData {
     clobTokenIds: string;
@@ -489,7 +490,7 @@ const Chart: React.FC<ChartProps> = ({
                 <CardContent className="gap-0 sm:gap-2 p-0">
                     <div className="w-full test">
                         <CardHeader className="sm:pb-4 p-0 mt-3">
-                            {displayChance !== undefined && (
+                            {displayChance !== undefined && isEmpty(displayChance) && (
                                 <div className="flex justify-start mb-4">
                                     {" "}
                                     {/* Changed from justify-center to justify-start */}
@@ -498,7 +499,7 @@ const Chart: React.FC<ChartProps> = ({
                                         className="text-4xl"
                                         style={{ color: chanceColor }}
                                     >
-                                        <span>{(displayChance)?.toFixed(1)}%</span>
+                                        <span>{typeof displayChance === 'number' ? displayChance.toFixed(1) : 'N/A'}%</span>
                                         <span className="text-2xl font-light"> chance</span>
                                     </CardTitle>
                                     )}
