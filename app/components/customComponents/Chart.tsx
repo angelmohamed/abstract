@@ -581,7 +581,7 @@ const Chart: React.FC<ChartProps> = ({
                                             }`}
                                             stroke={asset.color}
                                             strokeWidth={2}
-                                            dot={<CustomDot />}
+                                            dot={<CustomDot color={asset.color}/>}
                                             label={false}
                                             connectNulls
                                         />

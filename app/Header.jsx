@@ -59,7 +59,7 @@ export default function Header() {
     if (!e.target.value) {
       setFilterEvent([]);
       setIsSearchActive(true)
-      setIsSearchActive(false);
+      // setIsSearchActive(false);
     } else {
       setIsSearchActive(true);
     }
@@ -67,6 +67,13 @@ export default function Header() {
 
   //when i click the event , data stored in local storage
   const clickEvent = (event) => {
+    const eventPath = `/event-page/${event.slug}`;
+    console.log("router.asPath",router.asPath)
+  // if (router.asPath === eventPath) {
+  //   // Already on the event page, no need to push
+  //   alert("you are already in the page")
+  //   return;
+  // }
     setRecentActivity((prev) => {
       const updatedActivity = [event,...prev ];
       if (updatedActivity.length > 5) {

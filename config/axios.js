@@ -64,6 +64,9 @@ export const handleResp = (respData, type = 'success', doc) => {
     ) {
       // store.dispatch(clearUser());
       // store.dispatch(clearWallet());
+      // disconnectWallet();
+      // dispatch(reset());
+      document.cookie = "user-token" + "=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
       store.dispatch(signOut());
       toastAlert("error", "Your session has expired, please login again", "session-expired");
       setTimeout(() => {

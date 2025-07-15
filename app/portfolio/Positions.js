@@ -14,7 +14,7 @@ import { toFixedDown } from '../helper/roundOf'
 import { capitalize } from '../helper/string'
 import { useRouter } from 'next/navigation'
 import { getUserTradeHistory } from '@/services/user'
-import { HistoryIcon, ShareIcon, X } from 'lucide-react'
+import { HistoryIcon, Loader, ShareIcon, X } from 'lucide-react'
 import { momentFormat } from '../helper/date'
 import { TabsList, TabsTrigger } from '@radix-ui/react-tabs'
 import { SocketContext } from '@/config/socketConnectivity'
@@ -32,18 +32,22 @@ const Positions = () => {
   const [shareData, setShareData] = useState({})
   const [selectedMarketData, setSelectedMarketData] = useState({})
   const [selectedMarketOutcome, setSelectedMarketOutcome] = useState([])
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
   const socketContext = useContext(SocketContext)
   const cardRef = useRef();
 
   const getUserPositionHistory = async () => {
     try {
+      setLoading(true)
       const res = await getPositionHistory({})
       if (res.success) {
         setPositionHistory(res.result)
       }
     } catch (error) {
       console.error("Error fetching Position History:", error);
+    } finally {
+        setLoading(false)
     }
   }
 
@@ -388,7 +392,8 @@ const Positions = () => {
                                     </Dialog.Root>
                                     </div>
                                     </td> */}
-                      <td className='flex justify-start items-center gap-2'>
+                      <td>
+                        <div className='flex justify-start items-center gap-2'>
                         <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId,data?.outcomes)}>
                           <HistoryIcon />
                         </button>
@@ -397,6 +402,7 @@ const Positions = () => {
                             Claim
                           </Button>
                         )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -405,9 +411,14 @@ const Positions = () => {
             }
           </tbody>
         </table>
-        {positionHistory.length === 0 && (
+        {positionHistory.length === 0 && !loading &&   (
           <div className="flex justify-center my-5 text-gray-500">
             No positions found
+          </div>
+        )}
+        {loading && (
+          <div className="flex justify-center items-center my-5 min-h-[100px]">
+            <Loader className="w-26 h-26 absolute animate-spin bg-blend-overlay" />
           </div>
         )}
 

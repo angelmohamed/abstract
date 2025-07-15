@@ -9,6 +9,7 @@ import PaginationComp from '../components/customComponents/PaginationComp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import config from "../../config/config"
+import { Loader } from 'lucide-react';
 
 interface Deposit {
   amount: number;
@@ -30,7 +31,7 @@ interface PaginationState {
 
 const DepositTable = () => {
   const [Deposit, setDeposit] = useState<Deposit[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState<boolean>(false);
   const [copiedRowId, setCopiedRowId] = useState<number | null>(null);
   const [copiedRowId1, setCopiedRowId1] = useState<number | null>(null);
@@ -47,6 +48,7 @@ const DepositTable = () => {
   useEffect(() => {
     const fetchDepositHistory = async () => {
       try {
+        setLoading(true)
         let data = {
           type: "deposit",
           id: uniqueId, ...pagination
@@ -65,10 +67,6 @@ const DepositTable = () => {
 
     fetchDepositHistory();
   }, [uniqueId, pagination]);
-
-  if (loading) {
-    return <div className="text-center py-4">Loading...</div>;
-  }
 
 
   const handleCopy = async (text: string, rowId: number) => {
@@ -107,7 +105,7 @@ const DepositTable = () => {
           </tr>
         </thead>
         <tbody>
-          {Deposit && Deposit?.length > 0 && Deposit.map((deposit, index) => (
+          {!loading && Deposit && Deposit?.length > 0 && Deposit.map((deposit, index) => (
             <Fragment key={index}>
               <tr className="border-b border-[#333333]">
                 <td className="px-6 py-4">
@@ -165,17 +163,22 @@ const DepositTable = () => {
           ))}
         </tbody>
       </table>
-      {Deposit?.length === 0 && (
+      {!loading && Deposit?.length === 0 && (
         <div className="flex justify-center my-5 text-gray-500">
           No Activity found
         </div>
       )}
-      {Deposit?.length > 0 && (
+      {!loading && Deposit?.length > 0 && (
         <PaginationComp
           pagination={pagination}
           setPagination={setPagination}
           hasMore={hasMore}
         />
+      )}
+      {loading &&  (
+        <div className="flex justify-center items-center my-5 min-h-[100px]">
+            <Loader className="w-26 h-26 animate-spin" />
+        </div>
       )}
     </div>
   );

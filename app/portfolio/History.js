@@ -5,7 +5,7 @@ import { toFixedDown } from "../helper/roundOf";
 import { useRouter } from "next/navigation";
 import { isEmpty } from "@/lib/isEmpty";
 import { capitalize } from "@/lib/stringCase";
-import { HistoryIcon } from "lucide-react";
+import { HistoryIcon, Loader } from "lucide-react";
 import { getUserTradeHistory } from "@/services/user";
 import { Dialog } from "radix-ui";
 import {
@@ -19,6 +19,7 @@ const History = () => {
   const [tradeHistory, setTradeHistory] = useState([])
   const [tradeOpen, setTradeOpen] = useState(false)
   const [selectedMarketOutcome, setSelectedMarketOutcome] = useState([])
+  const [loading, setLoading] = useState(false)
 
 
   const formatClosedPnL = (data) => {
@@ -86,6 +87,7 @@ const History = () => {
 
   const getUserClosedPnL = async () => {
     try {
+      setLoading(true)
       const res = await getClosedPnL({});
       if (res.success) {
         if (res && res.result && res.result.length > 0) {
@@ -95,6 +97,8 @@ const History = () => {
       }
     } catch (error) {
       console.error("Error fetching Position History:", error);
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -162,7 +166,7 @@ const History = () => {
             </tr>
           </thead>
           <tbody>
-            {!isEmpty(ClosedPnL) && Object.entries(ClosedPnL).map(
+            {!isEmpty(ClosedPnL) && !loading && Object.entries(ClosedPnL).map(
               ([eventId, event]) => {
                 const markets = event?.markets;
                 const marketIds = Object.keys(markets);
@@ -211,7 +215,7 @@ const History = () => {
                           >
                             ${toFixedDown(m.pnl, 2)}{" "}({toFixedDown((m.pnl/m.entry)*100, 0)}%)
                           </td>
-                          <td className='flex justify-start items-center gap-2'>
+                          <td>
                             <button className="text-blue-500" onClick={()=>handleTradeOpen(marketId, m.outcome)}>
                               <HistoryIcon />
                             </button>
@@ -243,9 +247,14 @@ const History = () => {
             )}
           </tbody>
         </table>
-        {Object.entries(ClosedPnL)?.length === 0 && (
+        {Object.entries(ClosedPnL)?.length === 0 && !loading && (
             <div  className="flex justify-center my-5 text-gray-500">
                 No history found
+            </div>
+        )}
+        {loading && (
+            <div className="flex justify-center items-center my-5 min-h-[100px]">
+                <Loader className="w-26 h-26 animate-spin" />
             </div>
         )}
       </div>

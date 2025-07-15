@@ -110,7 +110,7 @@ export default function EventLinting({
       </div>
       <div className="flex flex-col items-center justify-center gap-9 w-full">
         {loading && (
-          <Loader className="w-26 h-26 absolute animate-spin bg-blend-overlay" />
+          <Loader className="w-26 h-26 animate-spin" />
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-full">

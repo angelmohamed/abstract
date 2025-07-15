@@ -9,6 +9,7 @@ import PaginationComp from '../components/customComponents/PaginationComp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import config from "../../config/config"
+import { Loader } from 'lucide-react';
 
 interface Deposit {
     amount: number;
@@ -33,7 +34,7 @@ interface PaginationState {
 
 const WithdrawTable = () => {
     const [Withdraw, setWithdraw] = useState<Deposit[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState<boolean>(false);
     const [copiedRowId, setCopiedRowId] = useState<number | null>(null);
     const [copiedRowId1, setCopiedRowId1] = useState<number | null>(null);
@@ -50,6 +51,7 @@ const WithdrawTable = () => {
     useEffect(() => {
         const fetchDepositHistory = async () => {
             try {
+                setLoading(true)
                 let data = {
                     type: "withdraw",
                     id: uniqueId, ...pagination
@@ -69,9 +71,9 @@ const WithdrawTable = () => {
         fetchDepositHistory();
     }, [uniqueId, pagination]);
 
-    if (loading) {
-        return <div className="text-center py-4">Loading...</div>;
-    }
+    // if (loading) {
+    //     return <div className="text-center py-4">Loading...</div>;
+    // }
 
 
     const handleCopy = async (text: string, rowId: number) => {
@@ -111,7 +113,7 @@ const WithdrawTable = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {Withdraw && Withdraw.length > 0 && Withdraw.map((withdraw, index) => (
+                    {!loading && Withdraw && Withdraw.length > 0 && Withdraw.map((withdraw, index) => (
                         <Fragment key={index}>
                             <tr className="border-b border-[#333333]">
                                 <td className="px-6 py-4">
@@ -194,14 +196,14 @@ const WithdrawTable = () => {
                 </tbody>
             </table>
             {
-                Withdraw.length === 0 && (
+                !loading && Withdraw.length === 0 && (
                     <div className="flex justify-center my-5 text-gray-500">
                         No Activity found
                     </div>
                 )
             }
             {
-                Withdraw.length > 0 && (
+                !loading && Withdraw.length > 0 && (
                     <PaginationComp
                         pagination={pagination}
                         setPagination={setPagination}
@@ -209,6 +211,11 @@ const WithdrawTable = () => {
                     />
                 )
             }
+            {loading &&  (
+                <div className="flex justify-center items-center my-5 min-h-[100px]">
+                    <Loader className="w-26 h-26 animate-spin" />
+                </div>
+            )}
         </div >
     );
 }
