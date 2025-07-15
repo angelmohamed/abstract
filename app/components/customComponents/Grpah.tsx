@@ -168,6 +168,8 @@ const Graph: React.FC<GraphProps> = ({
 
           if (selectedYes) {
             setChartDataYes(processedData);
+          } else {
+            setChartDataNo(processedData);
           }
         }
       } catch (error) {
@@ -242,6 +244,7 @@ const Graph: React.FC<GraphProps> = ({
     );
   };
 
+  const lastChance = chartData && chartData.length ? chartData[chartData.length - 1]?.asset1 : 0;
   const displayChance = hoveredChance !== undefined ? hoveredChance : 0;
   return (
     <Card
@@ -250,15 +253,20 @@ const Graph: React.FC<GraphProps> = ({
     >
       <div className="relative">
         <CardHeader className="p-0">
-          {displayChance !== undefined && (
+          {(displayChance !== undefined || lastChance !== undefined) && (
             <div className="flex items-center justify-between mb-3 pb-2 mt-4 w-full relative">
               <div className="flex items-center">
-                {market?.length <= 1 && (
-                  <CardTitle className="text-4xl" style={{ color: "#7dfdfe" }}>
-                    <span>{displayChance?.toFixed(1)}%</span>
-                    <span className="text-2xl font-light"> chance</span>
-                  </CardTitle>
-                )}
+                <CardTitle className="text-4xl" style={{ color: "#7dfdfe" }}>
+                  <span>
+                    {
+                      (typeof displayChance === 'number' && displayChance !== 0) 
+                        ? displayChance.toFixed(1) :
+                        (lastChance && typeof lastChance === 'number') ? lastChance?.toFixed(1) :
+                        "N/A" 
+                    }%
+                  </span>
+                  <span className="text-2xl font-light"> chance</span>
+                </CardTitle>
               </div>
               <Button
                 variant="ghost"
@@ -322,8 +330,8 @@ const Graph: React.FC<GraphProps> = ({
                   dataKey={asset.asset}
                   name={asset.label}
                   stroke={asset.color}
-                  strokeWidth={1}
-                  dot={<CustomDot />}
+                  strokeWidth={2}
+                  dot={<CustomDot color={asset.color} />}
                   label={false}
                   connectNulls
                 />
