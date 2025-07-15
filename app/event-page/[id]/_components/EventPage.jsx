@@ -61,6 +61,7 @@ export default function EventPage() {
   const [books, setBooks] = useState([]);
   const [bookLabels, setBookLabels] = useState([]);
   const [activeView, setActiveView] = React.useState("Yes");
+  const [forecastGraph, setForecastGraph] = React.useState(false);
   const [interval, setInterval] = useState("max");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedOrderBookData, setSelectedOrderBookData] = useState([
@@ -396,6 +397,8 @@ export default function EventPage() {
                               selectedMarket={markets[0]}
                               setSelectedOrder={setSelectedOrder}
                               // isResolved={events?.isResolved}
+                              forecastGraph={forecastGraph}
+                              setForecastGraph={setForecastGraph}
                             />
                           </OrderbookAccordionItem>
                         </OrderbookAccordion>
@@ -469,6 +472,9 @@ export default function EventPage() {
                                       selectedMarket={market}
                                       setSelectedOrder={setSelectedOrder}
                                       // isResolved={events?.isResolved}
+                                      forecast={events?.forecast}
+                                      forecastGraph={forecastGraph}
+                                      setForecastGraph={setForecastGraph}
                                     />
                                   </AccordionItem>
                                 ))}

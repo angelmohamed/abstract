@@ -19,6 +19,9 @@ import { OpenOrderDialog } from "../customComponents/OpenOrderDialog";
 import { SocketContext } from "@/config/socketConnectivity";
 import store from "@/store";
 import { capitalize } from "@/lib/stringCase";
+import Graph from "../customComponents/Grpah";
+import { useParams } from "next/navigation";
+import { getEventById } from "@/services/market";
 
 interface OrderBookItem {
   price: string;
@@ -113,6 +116,9 @@ interface OrderbookAccordionContentProps
     outcome: any;
   },
   setSelectedOrder: (data: any) => void;
+  forecast: boolean,
+  forecastGraph: string,
+  setForecastGraph: (s: boolean) => void,
 }
 
 // Accordion Content Component
@@ -133,6 +139,9 @@ const OrderbookAccordionContent = React.forwardRef<
       index,
       selectedMarket,
       setSelectedOrder,
+      forecast,
+      forecastGraph,
+      setForecastGraph,
       ...props
     },
     ref
@@ -145,7 +154,8 @@ const OrderbookAccordionContent = React.forwardRef<
       //   setSelectedIndex(index);
       // }
     };
-
+    const param = useParams();
+    const id = param.id;
     const [bids, setBids] = useState<any[]>([]);
     const [asks, setAsks] = useState<any[]>([]);
     const [openOrders, setOpenOrders] = useState<any[]>([]);
@@ -153,6 +163,7 @@ const OrderbookAccordionContent = React.forwardRef<
     const [selectedOpenOrder, setSelectedOpenOrder] = useState<any>(null);
     const [askBookHighest, setAskBookHighest] = useState<number>(0);
     const [bidBookHighest, setBidBookHighest] = useState<number>(0);
+    const [markets, setMarkets] = useState([]);
 
     const socketContext = useContext(SocketContext);
 
@@ -316,7 +327,28 @@ const OrderbookAccordionContent = React.forwardRef<
     
     }, [socketContext?.socket]);
   
-
+    useEffect(() => {
+      if (!id) {
+        return;
+      }
+  
+      const fetchEvents = async () => {
+        try {
+          let { success, result } = await getEventById({ id: id });
+          if (success) {
+            if (result?.marketId && result?.marketId.length > 0) {
+              setMarkets(
+                result.marketId.filter((market) =>
+                  ["active", "closed", "resolved"].includes(market.status)
+                )
+              );
+            }
+          }
+        } catch (error) {}
+      };
+      fetchEvents();
+    }, [id]);
+    
     return (
       <AccordionPrimitive.Content
         ref={ref}
@@ -326,11 +358,18 @@ const OrderbookAccordionContent = React.forwardRef<
         <div className={cn("pb-4 pt-0", className)} onClick={onClickOrderBook}>
           <Tabs
             defaultValue="Yes"
-            value={activeView}
-            onValueChange={setActiveView}
+            value={forecastGraph ? "Graph" : activeView}
+            onValueChange={(val) => {
+              if (val === "Graph") {
+                setForecastGraph(true);
+              } else {
+                setForecastGraph(false);
+                setActiveView(val);
+              }
+            }}
             className="mt-4"
           >
-            <TabsList className="flex border-b mb-4">
+            <TabsList className="border-b mb-4">
               <TabsTrigger
                 value="Yes"
                 className={cn(
@@ -353,197 +392,225 @@ const OrderbookAccordionContent = React.forwardRef<
               >
                 Trade {capitalize(selectedMarket?.outcome?.[1]?.title || "No")}
               </TabsTrigger>
+              {
+                forecast && <TabsTrigger
+                value="Graph"
+                className={cn(
+                  "flex-1 p-2 transition-colors duration-300",
+                  forecastGraph
+                    ? "bg-transparent text-pink-500"
+                    : "bg-transparent text-white hover:bg-transparent"
+                )}
+              >
+                Graph
+              </TabsTrigger>
+              }
             </TabsList>
 
-            <div className="">
-              {!asks.length && !bids.length ? (
-                <div className="flex items-center h-[320px] w-full">
-                  <div className="w-full text-center">
-                    No contracts available
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex items-center h-[35px] w-full justify-between">
-                    <div className="w-[30%] p-3">
-                      {activeView === "Yes" ? `Trade ${capitalize(selectedMarket?.outcome?.[0]?.title) || "Yes"}` : `Trade ${capitalize(selectedMarket?.outcome?.[1]?.title) || "No"}`}
-                    </div>
-                    <div className="w-[20%] text-center">Price</div>
-                    <div className="w-[25%] text-center">Shares</div>
-                    <div className="w-[25%] text-center">Total</div>
-                  </div>
-                  <div className="w-full overflow-hidden h-[fit-content]">
-                    <div
-                      className="h-[320px] w-full overflow-auto"
-                      ref={scrollContainerRef}
-                    >
-                      <div
-                        className={
-                          asks.length + bids.length <= 8
-                            ? "h-full w-full relative flex flex-col justify-center items-center"
-                            : "h-full w-full relative"
-                        }
-                      >
-                        {/* asks */}
-                        <div className="relative w-full">
-                          {asks.length > 0 &&
-                            asks.map((row: any, index: any) => {
-                              const orderBookLength = asks.length || 0;
-                              const openOrder = openOrders?.filter((order: any) => (100 - Number(order.price)) == row[0] );
-                              return (
-                                <div
-                                  key={index}
-                                  className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative cursor-pointer"
-                                  onClick={() => setSelectedOrder({ 
-                                    side: activeView, 
-                                    row, 
-                                    bidOrAsk: "ask", 
-                                    ordCost: Number(
-                                      getAccumalativeValueReverse(
-                                        asks || [],
-                                        orderBookLength - (index + 1)
-                                      ) / 100
-                                    )?.toFixed(2) 
-                                  })}
-                                >
-                                  <div className="w-[30%]">
-                                    <FillAsk
-                                      value={
-                                        (getAccumalativeValueReverse(
-                                          asks || [],
-                                          orderBookLength - (index + 1)
-                                        ) /
-                                        askBookHighest) *
-                                        100
-                                      }
-                                      className="w-full"
-                                    />
-                                  </div>
-                                  <div className="text-center w-[20%] text-[#ec4899]">
-                                    {toFixedDown(Number(row[0]), 2) + "¢"} 
-                                  </div>
-                                  <div className="w-[25%] text-center flex items-center justify-center gap-2">
-                                    {toFixedDown(Number(row[1]), 2)}
-                                    {openOrder?.length > 0 && (
-                                      <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
-                                        <Clock5 className="w-4 h-4" />
-                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="w-[25%] text-center">
-                                    {"$" +
-                                      Number(
-                                        getAccumalativeValueReverse(
-                                          asks || [],
-                                          orderBookLength - (index + 1)
-                                        ) / 100
-                                      )?.toFixed(2)}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          {/* Asks badge */}
-                          {asks.length > 0 && (
-                            <div className="flex w-full">
-                              <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1 absolute bottom-0 left-5 z-30">
-                                Asks
-                              </Badge>
-                            </div>
-                          )}{" "}
-                        </div>
-
-                        {asks && bids && asks.length > 0 && bids.length > 0 && (
-                          <div className="flex items-center h-[35px] w-full p-3">
-                            <div className="w-[30%]">Last: 
-                              {selectedMarket?.last ? (
-                                activeView == "Yes" ? selectedMarket?.last || 0 : 100 - +selectedMarket?.last
-                              ) : 0}
-                            ¢</div>
-                            <div className="w-[20%] text-center">
-                              Spread: {calcSpread(bids, asks)}
-                            </div>
-                            <div className="w-[25%]"></div>
-                            <div className="w-[25%]"></div>
-                          </div>
-                        )}
-
-                        {/* Bids badge */}
-                        <div className="relative w-full">
-                          {bids.length > 0 && (
-                            <div className="flex w-full">
-                              <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1 absolute top-0 left-5 z-30">
-                                Bids
-                              </Badge>
-                            </div>
-                          )}
-
-                          {/* bids */}
-                          {bids.length > 0 &&
-                            bids.map((row, index) => {
-                              const orderBookLength = bids.length || 0;
-                              const openOrder = openOrders?.filter((order: any) => (order.price == row[0] && order.side == activeView?.toLowerCase()));
-                              return (
-                                <div
-                                  key={index}
-                                  className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative cursor-pointer"
-                                  onClick={() => setSelectedOrder({ 
-                                    side: activeView, 
-                                    row, 
-                                    bidOrAsk: "bid", 
-                                    ordCost: Number(
-                                      getAccumalativeValue(
-                                        asks || [],
-                                        orderBookLength - (index + 1)
-                                      ) / 100
-                                    )?.toFixed(2) 
-                                  })}
-                                >
-                                  <div className="w-[30%]">
-                                    <FillBid
-                                      value={
-                                        (getAccumalativeValue(
-                                          bids || [],
-                                          index
-                                        ) /
-                                          bidBookHighest) *
-                                        100
-                                      }
-                                      className="hover:bg-[#0a0a0a]"
-                                    />
-                                  </div>
-                                  <div className="w-[20%] text-center text-[#7dfdfe]">
-                                    {toFixedDown(Number(row[0]), 2) + "¢"} 
-                                  </div>
-                                  <div className="w-[25%] text-center flex items-center justify-center gap-2">
-                                    {toFixedDown(Number(row[1]), 2)}
-                                    {openOrder?.length > 0 && (
-                                      <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
-                                        <Clock5 className="w-4 h-4" />
-                                        {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="w-[25%] text-center">
-                                    {"$" +
-                                      Number(
-                                        getAccumalativeValue(
-                                          bids || [],
-                                          index
-                                        ) / 100
-                                      )?.toFixed(2)
-                                    }
-                                  </div>
-                                </div>
-                              );
-                            })}
-                        </div>
+             {
+              !forecastGraph ? (
+                <div className="">
+                  {!asks.length && !bids.length ? (
+                    <div className="flex items-center h-[320px] w-full">
+                      <div className="w-full text-center">
+                        No contracts available
                       </div>
                     </div>
-                  </div>
-                </>
-              )}
-            </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center h-[35px] w-full justify-between">
+                        <div className="w-[30%] p-3">
+                          {activeView === "Yes" ? `Trade ${capitalize(selectedMarket?.outcome?.[0]?.title) || "Yes"}` : `Trade ${capitalize(selectedMarket?.outcome?.[1]?.title) || "No"}`}
+                        </div>
+                        <div className="w-[20%] text-center">Price</div>
+                        <div className="w-[25%] text-center">Shares</div>
+                        <div className="w-[25%] text-center">Total</div>
+                      </div>
+                      <div className="w-full overflow-hidden h-[fit-content]">
+                        <div
+                          className="h-[320px] w-full overflow-auto"
+                          ref={scrollContainerRef}
+                        >
+                          <div
+                            className={
+                              asks.length + bids.length <= 8
+                                ? "h-full w-full relative flex flex-col justify-center items-center"
+                                : "h-full w-full relative"
+                            }
+                          >
+                            {/* asks */}
+                            <div className="relative w-full">
+                              {asks.length > 0 &&
+                                asks.map((row: any, index: any) => {
+                                  const orderBookLength = asks.length || 0;
+                                  const openOrder = openOrders?.filter((order: any) => (100 - Number(order.price)) == row[0] );
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex items-center h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative cursor-pointer"
+                                      onClick={() => setSelectedOrder({ 
+                                        side: activeView, 
+                                        row, 
+                                        bidOrAsk: "ask", 
+                                        ordCost: Number(
+                                          getAccumalativeValueReverse(
+                                            asks || [],
+                                            orderBookLength - (index + 1)
+                                          ) / 100
+                                        )?.toFixed(2) 
+                                      })}
+                                    >
+                                      <div className="w-[30%]">
+                                        <FillAsk
+                                          value={
+                                            (getAccumalativeValueReverse(
+                                              asks || [],
+                                              orderBookLength - (index + 1)
+                                            ) /
+                                            askBookHighest) *
+                                            100
+                                          }
+                                          className="w-full"
+                                        />
+                                      </div>
+                                      <div className="text-center w-[20%] text-[#ec4899]">
+                                        {toFixedDown(Number(row[0]), 2) + "¢"} 
+                                      </div>
+                                      <div className="w-[25%] text-center flex items-center justify-center gap-2">
+                                        {toFixedDown(Number(row[1]), 2)}
+                                        {openOrder?.length > 0 && (
+                                          <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}}>
+                                            <Clock5 className="w-4 h-4" />
+                                            {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="w-[25%] text-center">
+                                        {"$" +
+                                          Number(
+                                            getAccumalativeValueReverse(
+                                              asks || [],
+                                              orderBookLength - (index + 1)
+                                            ) / 100
+                                          )?.toFixed(2)}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              {/* Asks badge */}
+                              {asks.length > 0 && (
+                                <div className="flex w-full">
+                                  <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1 absolute bottom-0 left-5 z-30">
+                                    Asks
+                                  </Badge>
+                                </div>
+                              )}{" "}
+                            </div>
+    
+                            {asks && bids && asks.length > 0 && bids.length > 0 && (
+                              <div className="flex items-center h-[35px] w-full p-3">
+                                <div className="w-[30%]">Last: 
+                                  {selectedMarket?.last ? (
+                                    activeView == "Yes" ? selectedMarket?.last || 0 : 100 - +selectedMarket?.last
+                                  ) : 0}
+                                ¢</div>
+                                <div className="w-[20%] text-center">
+                                  Spread: {calcSpread(bids, asks)}
+                                </div>
+                                <div className="w-[25%]"></div>
+                                <div className="w-[25%]"></div>
+                              </div>
+                            )}
+    
+                            {/* Bids badge */}
+                            <div className="relative w-full">
+                              {bids.length > 0 && (
+                                <div className="flex w-full">
+                                  <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1 absolute top-0 left-5 z-30">
+                                    Bids
+                                  </Badge>
+                                </div>
+                              )}
+    
+                              {/* bids */}
+                              {bids.length > 0 &&
+                                bids.map((row, index) => {
+                                  const orderBookLength = bids.length || 0;
+                                  const openOrder = openOrders?.filter((order: any) => (order.price == row[0] && order.side == activeView?.toLowerCase()));
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex items-center h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative cursor-pointer"
+                                      onClick={() => setSelectedOrder({ 
+                                        side: activeView, 
+                                        row, 
+                                        bidOrAsk: "bid", 
+                                        ordCost: Number(
+                                          getAccumalativeValue(
+                                            asks || [],
+                                            orderBookLength - (index + 1)
+                                          ) / 100
+                                        )?.toFixed(2) 
+                                      })}
+                                    >
+                                      <div className="w-[30%]">
+                                        <FillBid
+                                          value={
+                                            (getAccumalativeValue(
+                                              bids || [],
+                                              index
+                                            ) /
+                                              bidBookHighest) *
+                                            100
+                                          }
+                                          className="hover:bg-[#0a0a0a]"
+                                        />
+                                      </div>
+                                      <div className="w-[20%] text-center text-[#7dfdfe]">
+                                        {toFixedDown(Number(row[0]), 2) + "¢"} 
+                                      </div>
+                                      <div className="w-[25%] text-center flex items-center justify-center gap-2">
+                                        {toFixedDown(Number(row[1]), 2)}
+                                        {openOrder?.length > 0 && (
+                                          <div className="flex items-center gap-2" onClick={() => {setOpenOrderDialog(true); setSelectedOpenOrder(openOrder)}} style={{cursor: 'pointer'}}>
+                                            <Clock5 className="w-4 h-4" />
+                                            {toFixedDown(openOrder.reduce((acc, curr) => acc + (curr.quantity - curr.execQty), 0), 2)}
+                                          </div>
+                                        )}
+                                      </div>
+                                      <div className="w-[25%] text-center">
+                                        {"$" +
+                                          Number(
+                                            getAccumalativeValue(
+                                              bids || [],
+                                              index
+                                            ) / 100
+                                          )?.toFixed(2)
+                                        }
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) :
+              (
+                <div className="flex items-center h-[320px] w-[100%]">
+                  <Graph 
+                    id={id}
+                    selectedMarket={selectedMarket}
+                    interval={"max"}
+                    market={markets} 
+                  />
+                </div>
+              )
+             }
+
             <OpenOrderDialog 
               openOrderDialog={openOrderDialog} 
               setOpenOrderDialog={setOpenOrderDialog} 
