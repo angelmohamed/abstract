@@ -798,7 +798,8 @@ export default function PortfolioPage() {
                   <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
                   <span className="mt-2 text-3xl font-semibold">
                     {walletData?.balance
-                      ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
+                      // ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
+                      ? PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2))
                       : 0}
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
@@ -806,7 +807,10 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
-                  {walletData?.balance ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2)) : 0}
+                  {walletData?.balance 
+                  // ? PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2)) 
+                  ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
+                  : 0}
                 </Badge>
               </div>
               <div
