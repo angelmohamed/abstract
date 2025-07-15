@@ -193,7 +193,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
   }, [categoryParam]);
 
   return (
-    <div className="container mx-auto px-4 max-w-full overflow-hidden">
+    <div className="container mx-auto px-4 max-w-full overflow-hidden -mt-3">
       <div className="w-full flex justify-start mt-0 pb-3">
         {/* "LIVE" Tag - Only shown if showLiveTag is true */}
         {showLiveTag && (
@@ -234,7 +234,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             <ScrollArea.Viewport className="ScrollAreaViewport">
               <div
                 ref={categoryListRef}
-                className="flex flex-nowrap gap-2 pb-5"
+                className="flex flex-nowrap gap-2 py-4"
                 style={{ scrollBehavior: "smooth" }}
                 onScroll={handleCategoryScroll}
               >

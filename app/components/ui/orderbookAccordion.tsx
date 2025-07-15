@@ -600,7 +600,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 </div>
               ) :
               (
-                <div className="flex items-center h-[320px] w-[100%]">
+                <div className="w-full border-collapse rounded-lg"  style={{ backgroundColor: 'transparent' }}>
                   <Graph 
                     id={id}
                     selectedMarket={selectedMarket}

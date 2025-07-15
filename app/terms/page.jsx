@@ -165,30 +165,25 @@ export default function Home() {
     fetchMenuItems();
   }, []);
 
-   const fetchTags = async () => {
-      try {
-        const { success, result } = await getTagsByCategory(selectCategory);
-        if (success) {
-          setSubcategoryList(result);
-          setSelectedSubcategory("all");
-        }
-      } catch (error) {
-        console.error("Error fetching tags:", error);
+  const fetchTags = async () => {
+    try {
+      const { success, result } = await getTagsByCategory(selectCategory);
+      if (success) {
+        setSubcategoryList(result);
+        setSelectedSubcategory("all");
       }
-    };
-  
-    useEffect(() => {
-      fetchTags();
-    }, [selectCategory]);
-    
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTags();
+  }, [selectCategory]);
+
   return (
     <div className="min-h-screen flex flex-col bg-black text-white h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
       {/* Header */}
-      {/* <Link href="/">
-      <header className="mbp-header pl-4 pt-4 pb-8">
-        <Image src={SONOTRADE} alt="SONOTRADE Logo" width={220} priority />
-      </header>
-      </Link> */}
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />
         <NavigationBar
@@ -200,34 +195,82 @@ export default function Home() {
       </div>
       {/* <Header /> */}
 
-      {/* Hero Section */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4">
-        <div className="text-center pb-6">
-          <h1 className="mbp-subtitle pt-14">
-            <span
-              className={`transition-opacity duration-700 ${
-                isTextVisible ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              {currentText}
-            </span>
-          </h1>
-        </div>
-
-        {/* MacBook 3D Scroll Effect */}
-        <MacbookScroll showGradient src="https://i.ibb.co/PFPP7xq/mock.jpg" />
-      </main>
-
       {/* Features Section */}
       <section className="py-20 bg-black">
-        <div className="max-w-6xl mx-auto px-4">
-          {FEATURES.map((feature, index) => (
-            <FeatureItem
-              key={index}
-              feature={feature}
-              reverse={index % 2 !== 0}
-            />
-          ))}
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold">Terms & Conditions</h2>
+          <h3 className="text-2xl font-semibold my-4">
+            Lorem Ipsum is simply dummy
+          </h3>
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industry's standard dummy text
+            ever since the 1500s, when an unknown printer took a galley of type
+            and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged. It was popularised in the 1960s
+            with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus
+            PageMaker including versions of Lorem Ipsum.
+          </p>
+          <h3 className="text-2xl font-semibold my-4">
+            Lorem Ipsum is simply dummy
+          </h3>
+          <ul className="pl-8 list-disc leading-10">
+            <li>
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry.
+            </li>
+            <li>
+              Lorem Ipsum has been the industry's standard dummy text ever since
+              the 1500s, when an unknown printer took.
+            </li>
+            <li>
+              Lorem Ipsum has been the industry's standard dummy text ever since
+              the 1500s, when an unknown printer took a galley of type and
+              scrambled.
+            </li>
+            <li>
+              It has survived not only five centuries, but also the leap into
+              electronic typesetting, remaining essentially unchanged.
+            </li>
+            <li>
+              It was popularised in the 1960s with the release of Letraset
+              sheets containing Lorem Ipsum passages.
+            </li>
+            <li>
+              More recently with desktop publishing software like Aldus
+              PageMaker including versions of Lorem Ipsum.
+            </li>
+          </ul>
+          <h3 className="text-2xl font-semibold my-4">
+            Lorem Ipsum is simply dummy
+          </h3>
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industry's standard dummy text
+            ever since the 1500s, when an unknown printer took a galley of type
+            and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged. It was popularised in the 1960s
+            with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus
+            PageMaker including versions of Lorem Ipsum.
+          </p>
+          <h3 className="text-2xl font-semibold my-4">
+            Lorem Ipsum is simply dummy
+          </h3>
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industry's standard dummy text
+            ever since the 1500s, when an unknown printer took a galley of type
+            and scrambled it to make a type specimen book. It has survived not
+            only five centuries, but also the leap into electronic typesetting,
+            remaining essentially unchanged. It was popularised in the 1960s
+            with the release of Letraset sheets containing Lorem Ipsum passages,
+            and more recently with desktop publishing software like Aldus
+            PageMaker including versions of Lorem Ipsum.
+          </p>
         </div>
       </section>
       <Footer />
