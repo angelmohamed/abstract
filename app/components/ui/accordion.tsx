@@ -199,9 +199,9 @@ const AccordionTrigger = React.forwardRef<
             <span className="text-right">
               {outcomePrice + "%"}
             </span>
-            {outcomePrice && (
+            {/* {outcomePrice && ( */}
               <ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200" />
-            )}
+            {/* )} */}
           </div>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>

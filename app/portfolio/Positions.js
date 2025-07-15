@@ -454,7 +454,7 @@ const Positions = () => {
                     <td>{item.price}¢</td>
                     <td>{toFixedDown(item.quantity, 2)}</td>
                     <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>
-                    <td>${item?.fee ?? 0}</td>
+                    <td>${toFixedDown((item?.fee/100 ?? 0),2)}</td>
                     <td>{momentFormat(item.createdAt, "DD/MM/YYYY HH:mm")}</td>
                   </tr>
                 ))}
