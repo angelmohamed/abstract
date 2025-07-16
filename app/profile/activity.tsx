@@ -118,7 +118,7 @@ const ActivityTable = () => {
                 {formatNumber(trade.quantity)}
               </td>
               <td className="px-6 py-4">
-                ${formatNumber(trade.fee)}
+                ${formatNumber((trade.fee/100),5)}
               </td>
               <td className={`px-6 py-4 ${trade.action === 'buy' ? 'text-green-500' : 'text-red-500'} capitalize`}>
                 {trade.action}
