@@ -135,16 +135,16 @@ export default function Home({ infoCardCms }) {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
 
-  const fetchCategories = async () => {
-    try {
-      const { success, result } = await getCategories();
-      if (success) {
-        setCategoryList(result);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
+  // const fetchCategories = async () => {
+  //   try {
+  //     const { success, result } = await getCategories();
+  //     if (success) {
+  //       setCategoryList(result);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching categories:", error);
+  //   }
+  // };
 
   const fetchMenuItems = async () => {
     try {
@@ -158,7 +158,7 @@ export default function Home({ infoCardCms }) {
   };
 
   useEffect(() => {
-    fetchCategories();
+    // fetchCategories();
     fetchMenuItems();
   }, []);
 
