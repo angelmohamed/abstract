@@ -114,6 +114,7 @@ interface OrderbookAccordionContentProps
     last: number | null;
     _id: string;
     outcome: any;
+    odd: any;
   },
   setSelectedOrder: (data: any) => void;
   forecast: boolean,
@@ -510,8 +511,8 @@ const OrderbookAccordionContent = React.forwardRef<
                             {asks && bids && asks.length > 0 && bids.length > 0 && (
                               <div className="flex items-center h-[35px] w-full p-3">
                                 <div className="w-[30%]">Last: 
-                                  {selectedMarket?.last ? (
-                                    activeView == "Yes" ? selectedMarket?.last || 0 : 100 - +selectedMarket?.last
+                                  {selectedMarket?.odd ? (
+                                    activeView == "Yes" ? selectedMarket?.odd || 0 : 100 - +selectedMarket?.odd
                                   ) : 0}
                                 ¢</div>
                                 <div className="w-[20%] text-center">
