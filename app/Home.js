@@ -24,23 +24,6 @@ import { useSearchParams } from "next/navigation";
 import { isEmpty } from "@/lib/isEmpty";
 
 const InfoCards = ({ infoCardCms }) => {
-  const [cards, setCards] = useState([]);
-
-  const fetchInfoCards = async () => {
-    try {
-      const { success, result } = await getInfoCards();
-      // console.log(result, "result info cards");
-      if (success) {
-        setCards(result);
-      }
-    } catch (error) {
-      console.error("Error fetching info cards:", error);
-    }
-  };
-
-  useEffect(() => {
-    // fetchInfoCards();
-  }, []);
 
   const renderInfoCard = (emoji, title, footer) => {
     return (

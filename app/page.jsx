@@ -1,3 +1,5 @@
+export const runtime = 'edge'
+
 import { getInfoCards } from "@/services/user";
 import Home from "./Home";
 
