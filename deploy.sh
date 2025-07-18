@@ -6,7 +6,7 @@ REPO="git@gitlab.com:wealwinprojects/sonotrade-frontend-2025.git"
 SSH_KEY="/Users/mariselvam/Documents/project/sonotrade/ref/developerssh.pem"
 BRANCH="main"
 
-npx @cloudflare/next-on-pages
+# npx @cloudflare/next-on-pages
 
 # Clone repo into new temp folder
 echo "📁 Cloning repo into temp dir: $TMP_DIR"

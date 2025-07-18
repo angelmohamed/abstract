@@ -348,7 +348,7 @@ const OrderbookAccordionContent = React.forwardRef<
       };
       fetchEvents();
     }, [id]);
-    
+    console.log(activeView, forecastGraph, "forecastGraph");
     return (
       <AccordionPrimitive.Content
         ref={ref}
