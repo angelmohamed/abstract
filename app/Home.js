@@ -124,43 +124,14 @@ const SubcategoryBar = ({
   </div>
 );
 
-export default function Home({ infoCardCms }) {
+export default function Home({ infoCardCms, categories }) {
   const [selectCategory, setSelectedCategory] = useState("all");
-  const [categoryList, setCategoryList] = useState([]);
   const [showClosed, setShowClosed] = useState(false);
-  const [navigationItems, setNavigationItems] = useState([]);
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
   const [subcategoryList, setSubcategoryList] = useState([]);
 
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
-
-  // const fetchCategories = async () => {
-  //   try {
-  //     const { success, result } = await getCategories();
-  //     if (success) {
-  //       setCategoryList(result);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching categories:", error);
-  //   }
-  // };
-
-  const fetchMenuItems = async () => {
-    try {
-      const { success, result } = await getCategories();
-      if (success) {
-        setNavigationItems(result);
-      }
-    } catch (error) {
-      console.error("Error fetching menu items:", error);
-    }
-  };
-
-  useEffect(() => {
-    // fetchCategories();
-    fetchMenuItems();
-  }, []);
 
   const fetchTags = async () => {
     try {
@@ -184,7 +155,7 @@ export default function Home({ infoCardCms }) {
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
           <Header />
           <NavigationBar
-            menuItems={navigationItems}
+            menuItems={categories}
             showLiveTag={true}
             setSelectedCategory={setSelectedCategory}
             selectedCategory={selectCategory}
