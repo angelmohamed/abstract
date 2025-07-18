@@ -191,7 +191,7 @@ const Chart: React.FC<ChartProps> = ({
                         market.forEach((item: any) => {
                             const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
                             if(asset){
-                                asset.last = selectedYes ? item.last : 100 - item.last
+                                asset.odd = selectedYes ? item.odd : 100 - item.odd
                             }
                         })
                         setChartConfig(assetKeysData);
@@ -292,7 +292,7 @@ const Chart: React.FC<ChartProps> = ({
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: multiHoveredChance[index] ?? item.last
+                        last: multiHoveredChance[index] ?? item.odd
                     }
                 }));
             } else {
@@ -301,7 +301,7 @@ const Chart: React.FC<ChartProps> = ({
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: selectedYes ? item.last : 100 - item.last
+                        last: selectedYes ? item.odd : 100 - item.odd
                     }
                 }));
             }
@@ -499,7 +499,7 @@ const Chart: React.FC<ChartProps> = ({
                                         className="text-4xl"
                                         style={{ color: chanceColor }}
                                     >
-                                        <span>{typeof displayChance === 'number' ? displayChance.toFixed(1) : 'N/A'}%</span>
+                                        <span>{typeof displayChance === 'number' ? displayChance.toFixed(1) : ''}%</span>
                                         <span className="text-2xl font-light"> chance</span>
                                     </CardTitle>
                                     )}
@@ -534,11 +534,15 @@ const Chart: React.FC<ChartProps> = ({
                                                 const multiHoveredValue = e.activePayload.map((item: any) => item.value);
                                                 setMultiHoveredChance(multiHoveredValue);
                                             } else {
-                                                const hoveredValue = e.activePayload[0].payload.asset1 ;
-                                                if(hoveredValue || hoveredValue == 0){
+                                                const hoveredValue = e.activePayload[0].payload.asset1 || 0 ;
+                                                if(!isEmpty(hoveredValue)){
                                                     setHoveredChance(hoveredValue); // Convert to percentage
                                                 }else{
-                                                    setHoveredChance(undefined);
+                                                    if(hoveredValue == 0) {
+                                                        setHoveredChance(0)
+                                                    } else {
+                                                        setHoveredChance(undefined);
+                                                    }
                                                 }
                                             }
                                         }
@@ -578,7 +582,7 @@ const Chart: React.FC<ChartProps> = ({
                                             name={`${asset.label} ${
                                                 multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
                                                 ? multiDisplayChance.find((item: any) => item.label === asset.label)?.last + "%"
-                                                : (displayChance !== undefined ? displayChance.toFixed(1) + "%" : "")
+                                                : (displayChance !== undefined ? displayChance?.toFixed(1) + "%" : "")
                                             }`}
                                             stroke={asset.color}
                                             strokeWidth={2}

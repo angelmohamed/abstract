@@ -5,9 +5,10 @@ import { Button } from "../ui/button";
 interface ChartIntervalsProps {
   interval: string;
   setInterval: (interval: string) => void;
+  isAllDisable: any
 }
 
-const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval }) => {
+const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, isAllDisable }) => {
   return (
     <div className="mt-2 flex gap-2">
       <Button
@@ -50,14 +51,16 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval }
       >
         1M
       </Button>
-      <Button
-        id="All"
-        variant={interval === "max" ? "default" : "outline"}
-        onClick={() => setInterval("max")}
-        className="rounded-full px-3 py-1 text-sm"
-      >
-        ALL
-      </Button>
+      {!isAllDisable && (
+        <Button
+          id="All"
+          variant={interval === "max" ? "default" : "outline"}
+          onClick={() => setInterval("max")}
+          className="rounded-full px-3 py-1 text-sm"
+        >
+          ALL
+        </Button>
+      )}
     </div>
   );
 };

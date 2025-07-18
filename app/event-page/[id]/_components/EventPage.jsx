@@ -313,7 +313,7 @@ export default function EventPage() {
                         endDate={events?.endDate}
                         market={markets}
                         interval={interval}
-                        chance={markets[0]?.last}
+                        chance={markets[0]?.odd || 0}
                         series={events?.seriesId}
                       />
                     )}
@@ -418,7 +418,7 @@ export default function EventPage() {
                                     <AccordionTrigger
                                       marketId="market-1"
                                       outcomePrice={
-                                        market?.last || 0
+                                        market?.odd || 0
                                       }
                                       className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
                                       setSelectedOrderBookData={

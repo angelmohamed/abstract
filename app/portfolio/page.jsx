@@ -102,7 +102,7 @@ export default function PortfolioPage() {
   const [profitAmount, setProfitAmount] = useState(0);
   const [coin, setCoin] = useState([]);
   const [walletsetting, setWalletsetting] = useState({});
-  const [interval, setInterval] = useState("max");
+  const [interval, setInterval] = useState("1m");
   const [copied, setCopied] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -1347,7 +1347,7 @@ export default function PortfolioPage() {
                   </span>
                 </div>
                 <div className="justify-center items-center">
-                  <ChartIntervals interval={interval} setInterval={setInterval} />
+                  <ChartIntervals interval={interval} setInterval={setInterval} isAllDisable={true}/>
                 </div>
               </div>
             </div>
