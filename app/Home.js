@@ -124,11 +124,11 @@ const SubcategoryBar = ({
   </div>
 );
 
-export default function Home({ infoCardCms, categories }) {
+export default function Home({ infoCardCms, categories, tags }) {
   const [selectCategory, setSelectedCategory] = useState("all");
   const [showClosed, setShowClosed] = useState(false);
   const [selectedSubcategory, setSelectedSubcategory] = useState("all");
-  const [subcategoryList, setSubcategoryList] = useState([]);
+  const [subcategoryList, setSubcategoryList] = useState(tags);
 
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
