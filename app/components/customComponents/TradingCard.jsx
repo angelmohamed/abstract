@@ -250,6 +250,8 @@ export function TradingCard({
                     status={status}
                     selectedOrder={selectedOrder}
                     outcomes = {market?.outcome}
+                    makerFee = {market?.makerFee}
+                    takerFee = {market?.takerFee}
                   />
                 )}
               </Options>
