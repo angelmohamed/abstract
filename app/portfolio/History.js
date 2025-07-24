@@ -47,7 +47,8 @@ const History = () => {
           exit: 0,
           pnl: 0,
           groupItemTitle: groupItemTitle,
-          outcome: outcome
+          outcome: outcome,
+          qty: 0
         };
         if (event.status === "resolved") {
           const isBinaryMarket = event?.marketId?.length >= 2;
@@ -65,6 +66,7 @@ const History = () => {
       marketGroup[marketId].entry += (item.entryPrice * item.qty) / 100;
       marketGroup[marketId].exit += (item.exitPrice * item.qty) / 100;
       marketGroup[marketId].pnl += item.pnl / 100;
+      marketGroup[marketId].qty += item.qty
       
       if(item.exitType == "resolution"){
         marketGroup[marketId].shares = item.qty

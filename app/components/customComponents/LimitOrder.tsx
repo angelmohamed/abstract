@@ -20,6 +20,8 @@ interface LimitOrderProps {
   buyorsell: "buy" | "sell";
   selectedOrder: any;
   outcomes:any;
+  makerFee: any;
+  takerFee: any;
 }
 
 interface FormState {
@@ -43,7 +45,7 @@ const errorState = {
 };
 
 const LimitOrder: React.FC<LimitOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell, selectedOrder, outcomes } = props;
+  const { activeView, marketId, buyorsell, selectedOrder, outcomes, makerFee, takerFee } = props;
 
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
