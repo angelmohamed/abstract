@@ -95,6 +95,7 @@ const CommentList: React.FC<CommentListProps> = (props) => {
                                 eventId={eventId}
                                 onReplyAdded={onReplyAdded}
                                 onCancel={() => onReply("")}
+                                comments={comments}
                             />
                         )}
 

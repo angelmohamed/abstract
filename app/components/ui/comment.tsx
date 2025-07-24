@@ -1,5 +1,5 @@
 "use client";
-import React, { useState,useEffect, useContext } from "react";
+import React, { useState,useEffect, useContext, useRef } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/app/components/ui/avatar";
 import { Button } from "@/app/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,7 @@ import { deleteComment } from "@/services/user";
 import PopupModal from "./usernameModal";
 import { isEmpty } from "@/lib/isEmpty";
 import { addUserName } from "@/services/user";
+import Link from "next/link";
 
 const avatarColors = [
   'bg-blue-500',
@@ -49,10 +50,11 @@ export function Comment({
   }
 
   // Format time, e.g. "3 hours ago"
-  const timeAgo = comment.createdAt 
+  let timeAgo = comment.createdAt 
     ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
     : "";
-    
+  timeAgo = timeAgo.replace(/hours?/g, 'hr').replace(/minutes?/g, 'min');
+  
   // Check if the current user is the author of this comment
   const isAuthor = currentUserWallet && comment.wallet_address === currentUserWallet;
   
@@ -77,21 +79,26 @@ export function Comment({
     <div className={cn("w-full pt-4 pb-4 flex items-start space-x-3", className)} {...props}>
       {/* Avatar */}
       <div className="flex-shrink-0">
-        <Avatar>
-          {comment?.userId?.profileImg ? (
-            <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.userName} />
-          ) : (
-            <AvatarFallback className={getColorFromUsername(comment?.userId?.userName)}>
-              {comment?.userId?.userName?comment?.userId?.userName.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
-            </AvatarFallback>
-          )}
-        </Avatar>
+        <Link href={`/profile/${comment?.userId?.userName}`}>
+          <Avatar>
+            {comment?.userId?.profileImg ? (
+              <AvatarImage src={comment?.userId?.profileImg} alt={comment?.userId?.userName} />
+            ) : (
+              <AvatarFallback className={getColorFromUsername(comment?.userId?.userName)}>
+                {comment?.userId?.userName?comment?.userId?.userName.charAt(0).toUpperCase():"unknown".charAt(0).toUpperCase()}
+              </AvatarFallback>
+            )}
+          </Avatar>
+        </Link>
       </div>
 
       <div className="flex-1 min-w-0">
         {/* Username and time */}
         <div className="flex items-center mb-1 flex-wrap gap-2">
-          <span className="font-medium text-white truncate">{comment?.userId?.userName||"Unknown user"}</span>
+          <span className="font-medium text-white truncate">
+            <Link href={`/profile/${comment?.userId?.userName}`}>{comment?.userId?.userName||"Unknown user"}</Link>
+          </span>
+          <span className="ml-1 px-2 py-0.5 rounded text-xs font-semibold" style={{ background: '#152632', color: '#7DFDFE' }}>125 Yes</span>
           <span className="text-xs text-gray-400">{timeAgo}</span>
         </div>
 
@@ -131,9 +138,10 @@ interface ReplyFormProps {
   eventId: string;
   onReplyAdded: (newReply: CommentProps["comment"]) => void;
   onCancel: () => void;
+  comments: CommentProps["comment"][];
 }
 
-export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFormProps) {
+export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel, comments }: ReplyFormProps) {
  
   const { address } = useSelector((state : any) => state?.walletconnect?.walletconnect);
   const [reply, setReply] = useState("");
@@ -142,6 +150,8 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
   const [modelError, setModelError] = useState("");
   const [account, setaccount] = useState("");
   const user = useSelector((state: any) => state?.auth?.user || {});
+  const formRef = useRef<HTMLFormElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const dispatch = useDispatch();
 
@@ -237,31 +247,43 @@ export function ReplyForm({ parentId, eventId, onReplyAdded, onCancel }: ReplyFo
     }
   };
 
+    // Set initial reply text with username mention
+    useEffect(() => {
+      // Find the parent comment to get the username
+      const parentComment: any = comments?.find((c: any) => c?._id === parentId);
+      console.log(parentComment, "parentComment", parentId, "parentId", comments, "comments");
+      if (parentComment?.userId?.userName) {
+        setReply(`@${parentComment?.userId?.userName} `);
+      }
+    }, [parentId, comments]);
+  
+    // Auto-focus the input when the form is rendered
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, []);
+
   return (
     <>
-      <form onSubmit={handleSubmit} className="mt-2 mb-3 ml-10">
-        <textarea
-          value={reply}
-          onChange={onchangeReply}
-          placeholder="Write your reply..."
-          className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white mb-2 min-h-[80px] focus:border-blue-500 focus:outline-none"
-          disabled={isSubmitting}
-        />
-        <div className="flex justify-end space-x-2">
-          <Button 
-            type="button" 
-            onClick={onCancel}
-            className="w-auto border border-gray-700 bg-transparent text-gray-400 hover:bg-gray-800 hover:text-white transition-colors duration-300"
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
+      <form ref={formRef} onSubmit={handleSubmit} className="mt-2 mb-3 ml-10 transition-all duration-300 ease-in-out transform origin-top">
+        <div className="relative w-full flex items-center">
+          <input
+            ref={inputRef}
+            type="text"
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            placeholder="Add comment..."
+            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 pr-32 transition-all duration-200"
+            disabled={isSubmitting}
+            maxLength={300}
+          />
+          <Button
+            type="submit"
             disabled={isSubmitting || !reply.trim()}
-            onClick={handleSubmit}
-            className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
+            className="absolute right-2 top-2 bottom-2 h-auto px-4 bg-transparent border-none text-white hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md"
           >
-            {isSubmitting ? "Posting..." : "Post Reply"}
+            {isSubmitting ? "Posting..." : "Reply"}
           </Button>
         </div>
       </form>

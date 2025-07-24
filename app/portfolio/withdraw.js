@@ -41,7 +41,7 @@ export default function Withdraw() {
     const [coin, setCoin] = useState({})
     // const minWithdraw = 0.01
     const availableBalance = walletData?.balance
-        ? formatNumber(walletData?.balance - walletData?.locked + walletData?.position, 2)
+        ? formatNumber(walletData?.balance - walletData?.locked, 2)
         : 0
 
     let { amount, userAddress } = withdraw

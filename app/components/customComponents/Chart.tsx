@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import Ye from "/public/images/Ye.png";
 // import Polymarket from "/public/images/polymarket.png";
 import Image from "next/image";
@@ -18,6 +18,8 @@ import {
 import {
     processSingleChartData,
     ChartDataPoint,
+    processSingleChartDataNew,
+    processMultiChartDataNew,
 } from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
 import { HoverCard } from "radix-ui";
@@ -29,6 +31,7 @@ import Link from "next/link";
 import { momentFormat } from "@/app/helper/date";
 import { useRouter } from "next/navigation";
 import { isEmpty } from "@/lib/isEmpty";
+import { SocketContext } from "@/config/socketConnectivity";
 
 interface MarketData {
     clobTokenIds: string;
@@ -92,6 +95,7 @@ const Chart: React.FC<ChartProps> = ({
     chance,
     series
 }) => {
+    const socketContext = useContext(SocketContext);
     const [chartDataYes, setChartDataYes] = useState<ChartDataPoint[]>([]);
     const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
     const [selectedYes, setSelectedYes] = useState<boolean>(true);
@@ -160,94 +164,84 @@ const Chart: React.FC<ChartProps> = ({
         }
     }, [selectedYes, chartDataYes, chartDataNo]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = {
-                    market: selectedYes ? "yes" : "no",
-                    interval,
-                    fidelity: 30
-                }
-                const { success, result } = await getPriceHistory(id, data);
-                if (success) {
-                    // result["no"] = result["yes"].map((item: any) => ({
-                    //     ...item,
-                    //     p: 100 - item.p
-                    // }));
-                    // result["bids"] = result["no"].map((item: any) => ({
-                    //     ...item,
-                    //     p: 5 + item.p
-                    // }));
-                    let assetKeysData = result.map((item: any,index: any) => 
-                        {
-                            return {
-                                label: item.groupItemTitle,
-                                color: ChartColors[index],
-                                asset: `asset${index+1}`,
-                            }
+    const fetchData = async () => {
+        try {
+            const data = {
+                market: selectedYes ? "yes" : "no",
+                interval,
+                fidelity: 30
+            }
+            const { success, result } = await getPriceHistory(id, data);
+            if (success) {
+                // result["no"] = result["yes"].map((item: any) => ({
+                //     ...item,
+                //     p: 100 - item.p
+                // }));
+                // result["bids"] = result["no"].map((item: any) => ({
+                //     ...item,
+                //     p: 5 + item.p
+                // }));
+                let assetKeysData = result.map((item: any,index: any) => 
+                    {
+                        return {
+                            label: item.groupItemTitle,
+                            color: ChartColors[index],
+                            asset: `asset${index+1}`,
                         }
-                    );
-                    if (market.length > 1){
-                        market.forEach((item: any) => {
-                            const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
-                            if(asset){
-                                asset.odd = selectedYes ? item.odd : 100 - item.odd
-                            }
-                        })
-                        setChartConfig(assetKeysData);
-                    }else{
-                        setChartConfig([{
-                            label: capitalize(selectedYes ? (market?.[0]?.outcome?.[0]?.title || "yes") : (market?.[0]?.outcome?.[1]?.title || "no")),
-                            color: selectedYes ? "#7dfdfe" : "#ec4899",
-                            asset: "asset1"
-                        }]);
                     }
-                    let processedData = processSingleChartData(result, interval);
+                );
+                if (market.length > 1) {
+                    market.forEach((item: any) => {
+                        const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
+                        if (asset) {
+                            asset.odd = selectedYes ? item.odd : 100 - item.odd
+                        }
+                    })
+                    setChartConfig(assetKeysData);
+                    const t = result.map(item => item.data);
+                    let processedData = processMultiChartDataNew(t, interval);
+                    if (selectedYes) {
+                        setChartDataYes(processedData);
+                    } else {
+                        setChartDataNo(processedData);
+                    }
+                } else {
+                    setChartConfig([{
+                        label: capitalize(selectedYes ? (market?.[0]?.outcome?.[0]?.title || "yes") : (market?.[0]?.outcome?.[1]?.title || "no")),
+                        color: selectedYes ? "#7dfdfe" : "#ec4899",
+                        asset: "asset1"
+                    }]);
+
+                    let processedData = processSingleChartDataNew(result[0].data, interval);
                     if(selectedYes){
                         setChartDataYes(processedData);
                     } else {
                         setChartDataNo(processedData);
                     }
                 }
-            } catch (error) {
-                console.log(error);
             }
-          
-            //   if (market && market.length > 0) {
-            //     const yes = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds || "")[0] : "";
-            //     const no = market?.[0]?.clobTokenIds ? JSON.parse(market?.[0]?.clobTokenIds || "")[1] : "";
-            //     try {
-            //       const data = {
-            //         market: yes,
-            //         interval,
-            //         fidelity: 30
-            //       }
-            //       const { success, result } = await getPriceHistory(id, data);
-            //       setChartDataYes(processSingleChartData(data.history, interval));
-            //     } catch (error) {
-            //       console.error("Error fetching PriceHistory:", error);
-            //     }
-            //     try {
-            //       // const response = await fetch(
-            //       //   `/api/event-data/price-history?interval=${interval}&market=${no}&fidelity=${30}`,
-            //       //   {
-            //       //     method: "GET",
-            //       //     headers: {
-            //       //       "Content-Type": "application/x-www-form-urlencoded",
-            //       //     },
-            //       //   }
-            //       // );
-            //       // const data = await response.json();
-            //       const data = {
-            //         history:[]
-            //       }
-            //       setChartDataNo(processSingleChartData(data.history, interval));
-            //     } catch (error) {
-            //       console.error("Error fetching PriceHistory:", error);
-            //     }
-            //   }
-        };
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    
+    useEffect(() => {
         fetchData();
+    }, [market, interval, selectedYes]);
+
+    useEffect(() => {
+        const socket = socketContext?.socket;
+        if (!socket) return;
+    
+        const chartUpdate = () => {
+            fetchData();
+        };
+        
+        socket.on("chart-update", chartUpdate);
+        return () => {
+          socket.off("asset");
+        };
+
     }, [market, interval, selectedYes]);
 
     const getSeriesData = async(id:any)=>{

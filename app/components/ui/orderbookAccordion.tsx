@@ -22,6 +22,7 @@ import { capitalize } from "@/lib/stringCase";
 import Graph from "../customComponents/Grpah";
 import { useParams } from "next/navigation";
 import { getEventById } from "@/services/market";
+import OrderbookChart from "../customComponents/OrderbookChart";
 
 interface OrderBookItem {
   price: string;
@@ -164,6 +165,16 @@ const OrderbookAccordionContent = React.forwardRef<
     const [askBookHighest, setAskBookHighest] = useState<number>(0);
     const [bidBookHighest, setBidBookHighest] = useState<number>(0);
     const [markets, setMarkets] = useState([]);
+    const [chartInterval, setChartInterval] = React.useState<string>("1d");
+    
+    type ChartDataItem = { timestamp: string; asset1: number };
+    const randomChartData: ChartDataItem[] = React.useMemo(() => {
+      const arr: ChartDataItem[] = [];
+      for (let i = 0; i < 20; i++) {
+        arr.push({ timestamp: `T${i+1}`, asset1: Math.round(Math.random() * 100) });
+      }
+      return arr;
+    }, []);
 
     const socketContext = useContext(SocketContext);
 
@@ -367,9 +378,9 @@ const OrderbookAccordionContent = React.forwardRef<
                 setActiveView(val);
               }
             }}
-            className="mt-4"
+            // className="mt-4"
           >
-            <TabsList className="border-b mb-4">
+            <TabsList className="flex justify-start w-1/4 min-w-[150px]">
               <TabsTrigger
                 value="Yes"
                 className={cn(
@@ -406,7 +417,7 @@ const OrderbookAccordionContent = React.forwardRef<
               </TabsTrigger>
               }
             </TabsList>
-
+            <hr className="border-t border-[#222] m-0" />
              {
               !forecastGraph ? (
                 <div className="">
@@ -600,13 +611,8 @@ const OrderbookAccordionContent = React.forwardRef<
                 </div>
               ) :
               (
-                <div className="w-full border-collapse rounded-lg"  style={{ backgroundColor: 'transparent' }}>
-                  <Graph 
-                    id={id}
-                    selectedMarket={selectedMarket}
-                    interval={"max"}
-                    market={markets} 
-                  />
+                <div className="w-full border-collapse rounded-lg px-4 pt-0" style={{ backgroundColor: 'transparent' }}>
+                  <OrderbookChart id={id} selectedMarket={selectedMarket} title={0} market={markets} interval={chartInterval} setInterval={setChartInterval} customData={randomChartData} />
                 </div>
               )
              }
