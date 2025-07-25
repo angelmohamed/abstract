@@ -85,47 +85,49 @@ export function MultipleOptionCard({
     e.stopPropagation();
     setBookmarked((prev) => !prev);
   };
-  
+
   return (
     <Card
-      className="flex flex-col w-full h-[200px] sm:h-[200px] justify-between"
-      style={{ backgroundColor: "#161616", position: "relative", zIndex: 1001 }}
+      className="flex flex-col w-full h-[160px] sm:h-[180px] justify-between"
+      style={{
+        backgroundColor: "#000000",
+        position: "relative",
+        zIndex: 1001,
+        boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
+      }}
     >
-      <CardHeader className="sm:pt-3 sm:pl-3 pl-3 sm:pr-3 pr-3 pt-3 pb-0">
+      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div
               style={{
-                width: "38px",
-                height: "38px",
+                width: "40px",
+                height: "40px",
                 overflow: "hidden",
-                borderRadius: "4px",
+                borderRadius: "6px",
                 flexShrink: 0,
               }}
             >
               <img
                 src={imageSrc}
                 alt="Event"
-                width={38}
-                height={38}
+                width={40}
+                height={40}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
 
-            <div
-              className="pl-1 text-[14px]"
-              style={{ paddingLeft: "8px", marginRight: "10px" }}
-            >
+            <div className="pl-2 text-[13px]" style={{ marginRight: "8px" }}>
               {question}
             </div>
           </div>
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-3 pl-3 sm:pr-3 pr-3">
+      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 sm:pt-3">
         <div className="relative group">
-          <ScrollArea className="p-2 sm:h-[85px] h-[80px] group-hover:h-[95px] overflow-hidden top-0 relative ease-in-out absolute bottom-full left-0 w-full border bg-[#0f0f0f] pb-0 transition-all z-10 duration-200">
-            <div className="space-y-1 top-0">
+          <ScrollArea className="sm:h-[75px] h-[70px] group-hover:h-[78px] overflow-hidden top-0 ease-in-out absolute bottom-full left-0 w-full border bg-[#0f0f0f] pb-0 transition-all z-10 duration-200 rounded-sm">
+            <div className="space-y-1 top-0 pr-2">
               {options?.map((option, index) => {
                 const question =
                   option.groupItemTitle ||
@@ -147,62 +149,63 @@ export function MultipleOptionCard({
                     {/* Artist Name Display */}
                     <div
                       className="text-[12px] w-full mb-0 text-bold pb-0 pt-1"
-                      style={{ width: "31%", textAlign: "left" }}
+                      style={{ width: "31%", textAlign: "center" }}
                     >
                       {question}
                     </div>
 
-                    {
-                      status == "active" ? (
-                        <div className="flex justify-center items-center align-middle gap-1">
-                          <p>
-                            {option.last ?
-                              // decimalToPercentage(
+                    {status == "active" ? (
+                      <div className="flex justify-center items-center align-middle gap-1">
+                        <p>
+                          {option.last
+                            ? // decimalToPercentage(
                               //   JSON.parse(option.outcomePrices)[0]
                               // ) + "%"
-                              `${option.last}%` : ""}
-                          </p>
-                          {/* Yes Button */}
-                          {/* Yes Button */}
-                          <div
-                            className="text-[8px]"
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              width: "45%", // increased from 31%
-                            }}
+                              `${option.last}%`
+                            : ""}
+                        </p>
+                        {/* Yes Button */}
+                        {/* Yes Button */}
+                        <div
+                          className="text-[8px]"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            width: "45%", // increased from 31%
+                          }}
+                        >
+                          <Button
+                            onClick={() => handleYesClick(option)}
+                            className="w-full h-[12px] py-[13px] mb-1 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#7DFDFE] hover:border-[1.5px] capitalize"
                           >
-                            <Button
-                              onClick={() => handleYesClick(option)}
-                              className="w-full h-[12px] py-[13px] mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] text-[10px] transition-colors duration-300 rounded-full capitalize"
-                            >
-                              {(option.outcome && option.outcome?.[0]?.title) ||
-                                "Yes"}
-                            </Button>
-                          </div>
+                            {(option.outcome && option.outcome?.[0]?.title) ||
+                              "Yes"}
+                          </Button>
+                        </div>
 
-                          {/* No Button */}
-                          <div
-                            className="text-[8px]"
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              width: "45%", // same width for symmetry
-                            }}
+                        {/* No Button */}
+                        <div
+                          className="text-[8px]"
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            width: "45%", // same width for symmetry
+                          }}
+                        >
+                          <Button
+                            onClick={() => handleNoClick(option)}
+                            className="w-full h-[12px] py-[13px] mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#ec4899] hover:border-[1.5px] capitalize"
                           >
-                            <Button
-                              onClick={() => handleNoClick(option)}
-                              className="w-full h-[12px] py-[13px] mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] text-[10px] transition-colors duration-300 rounded-full capitalize"
-                            >
-                              {(option.outcome && option.outcome?.[1]?.title) ||
-                                "No"}
-                            </Button>
-                          </div>
-                        </div>) :
-                        <span className="text-[#ec4899] text-[10px]">NBA</span>
-                    }
+                            {(option.outcome && option.outcome?.[1]?.title) ||
+                              "No"}
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[#ec4899] text-[10px]">NBA</span>
+                    )}
                   </div>
                 );
               })}
@@ -210,9 +213,9 @@ export function MultipleOptionCard({
           </ScrollArea>
         </div>
       </CardContent>
-      <CardFooter className="relative z-0 sm:pl-3 pl-3 sm:pr-3 pr-3 pb-2 overflow-hidden">
+      <CardFooter className="relative z-0 sm:pl-3 pl-2 s:pr-3 pr-2 pb-2 px-2 overflow-hidden">
         <div
-          className="pb-0 w-full"
+          className="pt-2 sm:pt-2 pb-0 w-full"
           style={{
             display: "flex",
             justifyContent: "space-between",
@@ -228,16 +231,27 @@ export function MultipleOptionCard({
               textOverflow: "ellipsis",
             }}
           >
-            {status == "active" && <CardDescription>${totalPool ? (parseFloat(totalPool)/100)?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"} Vol</CardDescription>}
+            {status == "active" && (
+              <CardDescription>
+                $
+                {totalPool
+                  ? (parseFloat(totalPool) / 100)?.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  : "0.00"}{" "}
+                Vol
+              </CardDescription>
+            )}
           </span>
           <div className="flex gap-2 items-center justify-end">
             {forecast && (
               <div className="">
-                <Image 
-                  src={SpotifyLogo} 
-                  alt="Spotify" 
-                  width={20} 
-                  height={20} 
+                <Image
+                  src={SpotifyLogo}
+                  alt="Spotify"
+                  width={20}
+                  height={20}
                   className="opacity-70 hover:opacity-100 transition-opacity duration-200"
                 />
               </div>

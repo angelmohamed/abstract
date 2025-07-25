@@ -83,36 +83,46 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[200px] sm:h-[200px]"
-      style={{ backgroundColor: "#161616" }}
+      className="flex flex-col justify-between w-full h-[160px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      style={{
+        backgroundColor: "#000000",
+        boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
+      }}
     >
-      <CardHeader className="sm:pt-3 sm:pl-3 pl-3 sm:pr-3 pr-3 pt-3 pb-0">
+      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
           <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
             <div
               style={{
-                width: "38px",
-                height: "38px",
+                width: "40px",
+                height: "40px",
                 overflow: "hidden",
-                borderRadius: "4px",
+                borderRadius: "6px",
                 flexShrink: 0,
               }}
             >
               <img
                 src={imageSrc}
                 alt="Event"
-                width={38}
-                height={38}
+                width={40}
+                height={40}
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
 
             <div
-              className="pl-1 text-[14px]"
+              className="pl-1 text-[13px] line-clamp-2"
               style={{
                 paddingLeft: "8px",
-                marginRight: "10px",
-                flexGrow: 1, // Push probability to the end
+                marginRight: "8px",
+                flexGrow: 1,
+                minWidth: 0,
+                overflow: "hidden",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                textOverflow: "ellipsis",
+                whiteSpace: "normal",
               }}
             >
               {question}
@@ -125,7 +135,7 @@ const EventCard: React.FC<EventCardProps> = ({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-3 pl-3 sm:pr-3 pr-3">
+      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-4 sm:pt-4">
         {status == "active" ? (
           <>
             <div className="pb-4 pt-1">
@@ -144,7 +154,7 @@ const EventCard: React.FC<EventCardProps> = ({
               )}
             </div>
             <div
-              className="pb-0"
+              className="pb-0 mt-3"
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -161,12 +171,37 @@ const EventCard: React.FC<EventCardProps> = ({
                   width: "48%",
                 }}
               >
-                <Button
-                  onClick={handleYesClick}
-                  className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#152632] transition-colors duration-300 rounded-full capitalize"
-                >
-                  {yesButtonLabel}
-                </Button>
+                <div className="relative w-full mb-1 group">
+                  <Button
+                    onClick={handleYesClick}
+                    className="w-full bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                  >
+                    {yesButtonLabel}
+                  </Button>
+                  {/* Tron blue border animation - hover only */}
+                  <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
+                    <div className="absolute inset-0 rounded-md">
+                      {/* Flowing lines */}
+                      <div
+                        className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                        style={{ animationDelay: "0.7s" }}
+                      ></div>
+                      <div
+                        className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                        style={{ animationDelay: "1.2s" }}
+                      ></div>
+                      <div
+                        className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                        style={{ animationDelay: "1.7s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* No Button */}
@@ -179,12 +214,37 @@ const EventCard: React.FC<EventCardProps> = ({
                   width: "48%",
                 }}
               >
-                <Button
-                  onClick={handleNoClick}
-                  className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#ec4899] hover:text-[#321b29] transition-colors duration-300 rounded-full capitalize"
-                >
-                  {noButtonLabel}
-                </Button>
+                <div className="relative w-full mb-1 group">
+                  <Button
+                    onClick={handleNoClick}
+                    className="w-full mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                  >
+                    {noButtonLabel}
+                  </Button>
+                  {/* Pink border animation - hover only */}
+                  <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
+                    <div className="absolute inset-0 rounded-md">
+                      {/* Flowing lines */}
+                      <div
+                        className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                        style={{ animationDelay: "0.2s" }}
+                      ></div>
+                      <div
+                        className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                        style={{ animationDelay: "0.7s" }}
+                      ></div>
+                      <div
+                        className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                        style={{ animationDelay: "1.2s" }}
+                      ></div>
+                      <div
+                        className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                        style={{ animationDelay: "1.7s" }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </>
@@ -192,7 +252,13 @@ const EventCard: React.FC<EventCardProps> = ({
           <>
             <div className="pb-4 pt-1 capitalize">
               <p>Outcome</p>
-              <p className={outcome == "YES" ? "text-[#7dfdfe]": "text-[#ec4899]"}>{outcome}</p>
+              <p
+                className={
+                  outcome == "YES" ? "text-[#7dfdfe]" : "text-[#ec4899]"
+                }
+              >
+                {outcome}
+              </p>
             </div>
           </>
         ) : (
@@ -200,9 +266,9 @@ const EventCard: React.FC<EventCardProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="sm:pl-3 pl-3 sm:pr-3 pr-3 pb-2 overflow-hidden">
+      <CardFooter className="sm:pl-3 sm:pr-3 pl-2 pr-2 pb-2 px-2 overflow-hidden">
         <div
-          className="pb-0 w-full"
+          className="w-full"
           style={{
             display: "flex",
             justifyContent: "space-between",
