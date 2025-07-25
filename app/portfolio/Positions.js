@@ -300,13 +300,13 @@ const Positions = () => {
                                             {data.side}
                                             </Badge> */}
                               <span className="text-xs font-normal">
-                                {data?.quantity?.toFixed(2)} Shares
+                                {toFixedDown(data?.quantity, 2)} Shares
                               </span>
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td>{data?.quantity?.toFixed(0)}</td>
+                      <td>{toFixedDown(data?.quantity, 0)}</td>
                       <td>{toFixedDown(data?.filled?.[0]?.price, 0)}¢</td>
                       <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}</td>
                       <td>
@@ -317,7 +317,7 @@ const Positions = () => {
                         ${toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) * data?.quantity) / 100, 2)}
                         ({toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) - data?.filled?.[0]?.price) / data?.filled?.[0]?.price * 100, 2)}%)
                       </td>
-                      <td>${data?.quantity?.toFixed(2)}</td>
+                      <td>${toFixedDown(data?.quantity, 2)}</td>
                       {/* <td>
                                     <div className="flex items-center space-x-2">
                                         <Dialog.Root>
@@ -521,7 +521,7 @@ const Positions = () => {
                 <div>
                   <h5 className="text-gray-400">To win</h5>
                   <p className="text-[#7dfdfe] mb-0 font-semibold">
-                    ${selectedMarketData?.quantity?.toFixed(2)}
+                    ${toFixedDown(selectedMarketData?.quantity, 2)}
                   </p>
                 </div>
               </div>
