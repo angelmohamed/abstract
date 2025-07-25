@@ -96,10 +96,10 @@ const Chart: React.FC<ChartProps> = ({
     series
 }) => {
     const socketContext = useContext(SocketContext);
-    const [chartDataYes, setChartDataYes] = useState<ChartDataPoint[]>([]);
-    const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
+    const [chartDataYes, setChartDataYes] = useState<any[]>([]);
+    const [chartDataNo, setChartDataNo] = useState<any[]>([]);
     const [selectedYes, setSelectedYes] = useState<boolean>(true);
-    const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+    const [chartData, setChartData] = useState<any[]>([]);
     const [chartConfig, setChartConfig] = useState<any>([]);
     const [assetKeys, setAssetKeys] = useState<any>([]);
     const [seriesData, setSeriesData] = useState<any>([])

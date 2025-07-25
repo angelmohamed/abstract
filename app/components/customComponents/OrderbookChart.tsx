@@ -72,8 +72,8 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
   setInterval,
   selectedMarket,
 }) => {
-  const [chartDataYes, setChartDataYes] = useState<ChartDataItem[]>([]);
-  const [chartDataNo, setChartDataNo] = useState<ChartDataItem[]>([]);
+  const [chartDataYes, setChartDataYes] = useState<any[]>([]);
+  const [chartDataNo, setChartDataNo] = useState<any[]>([]);
   const [selectedYes, setSelectedYes] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [chartConfig, setChartConfig] = useState<UIChartConfig>({
