@@ -89,9 +89,10 @@ const SubcategoryBar = ({
           <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap pb-5">
             <Button
               className={cn(
+                "px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
                 selectedSubcategory === "all"
-                  ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
-                  : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+                  ? "text-[#7dfdfe] bg-[#0d1a26] border-[#7dfdfe]"
+                  : "text-muted-foreground border-[#222] bg-black hover:text-gray-300"
               )}
               onClick={() => setSelectedSubcategory("all")}
             >
@@ -100,10 +101,10 @@ const SubcategoryBar = ({
             {subcategories?.map((subcategory) => (
               <Button
                 key={subcategory.slug}
-                className={cn(
+                className={cn("px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
                   selectedSubcategory === subcategory.slug
-                    ? "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-blue-500"
-                    : "text-white text-[13px] font-normal px-4 py-2 hover:bg-gray-800 transition duration-300 h-[95%] bg-[#131212]"
+                    ? "text-[#7dfdfe] bg-[#0d1a26] border-[#7dfdfe]"
+                    : "text-muted-foreground border-[#222] bg-black hover:text-gray-300"
                 )}
                 onClick={() => setSelectedSubcategory(subcategory.slug)}
               >

@@ -460,7 +460,7 @@ export default function Authentication() {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-blue-500"
+                className="bg-[#eeeef0] text-[#131418]"
                 onClick={() => {
                   setOpen(true)
                   setUserData({ email: "" })

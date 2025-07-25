@@ -239,7 +239,7 @@ const Chart: React.FC<ChartProps> = ({
         
         socket.on("chart-update", chartUpdate);
         return () => {
-          socket.off("asset");
+          socket.off("chart-update");
         };
 
     }, [market, interval, selectedYes]);

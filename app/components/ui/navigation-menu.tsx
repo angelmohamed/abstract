@@ -239,9 +239,9 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 onScroll={handleCategoryScroll}
               >
                 <div
-                  className={cn(
-                    "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
-                    selectedCategory === "all" && "text-white bg-slate-700"
+                  className={cn("px-3 py-1 rounded-md transition-colors text-sm font-medium whitespace-nowrap text-left pl-0 shadow-lg cursor-pointer",
+                    "text-[#666] hover:text-gray-400",
+                    selectedCategory === "all" && "text-white"
                   )}
                   onClick={() => handleCategoryClick("all")}
                 >
@@ -251,10 +251,10 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   menuItems.map((item) => (
                     <div
                       key={item.title}
-                      className={cn(
-                        "flex-shrink-0 px-3 py-2 bg-[transparent] rounded-md text-gray-300 hover:text-white text-sm font-semibold cursor-pointer",
+                      className={cn("px-3 py-1 rounded-md transition-colors text-sm font-medium whitespace-nowrap text-left pl-0 shadow-lg cursor-pointer",
+                        "text-[#666] hover:text-gray-400",
                         selectedCategory === item.slug &&
-                          "text-white bg-slate-700"
+                          "text-white"
                       )}
                       onClick={() => router.push(`/?category=${item.slug}`)}
                     >
