@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import Header from "./Header";
+import HeaderFixed from "./HeaderFixed";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import {
   Carousel,
@@ -43,7 +44,7 @@ const InfoCards = ({ infoCardCms }) => {
   };
 
   return (
-    <div className="flex justify-center mb-8 mt-8 pt-2 pb-8">
+    <div className="justify-center mb-8 mt-8 pt-2 pb-8 lg:block hidden">
       <div className="w-full">
         {/* Desktop view */}
         <div className="hidden md:grid md:grid-cols-4 gap-4">
@@ -227,6 +228,7 @@ export default function Home({ infoCardCms, categories, tags }) {
         </div>
       </div>
       <Footer />
+      <HeaderFixed />
     </>
   );
 }

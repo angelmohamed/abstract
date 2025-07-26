@@ -13,7 +13,7 @@ export const Footer: React.FC = () => {
 
   return (
     // Footer with black background and white text
-    <div className="w-full py-10 lg:py-20 bg-black text-white">
+    <div className="w-full py-10 lg:py-20 bg-black text-white lg:pb-10 pb-[100px]">
       <div className="container mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">

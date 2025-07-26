@@ -88,7 +88,7 @@ export function MultipleOptionCard({
 
   return (
     <Card
-      className="flex flex-col w-full h-[160px] sm:h-[180px] justify-between"
+      className="flex flex-col w-full h-[180px] justify-between"
       style={{
         backgroundColor: "#000000",
         position: "relative",
