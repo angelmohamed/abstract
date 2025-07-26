@@ -521,7 +521,7 @@ export default function PortfolioPage() {
               userDeposit: userDepositPDA,
               systemProgram: web3.SystemProgram.programId,
             }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
-            .rpc();
+            .rpc({ skipPreflight: false });
         } else {
           tx = await program.methods
             .transferToken(amount)
@@ -535,7 +535,8 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               systemProgram: web3.SystemProgram.programId,
-            }).rpc();
+            }).rpc({ skipPreflight: false });
+            console.log(tx,"dataaaaatxxxx");
         }
 
         settransactionHash(tx);
@@ -556,6 +557,7 @@ export default function PortfolioPage() {
         const preTokenBalances = meta?.preTokenBalances || [];
         const postTokenBalances = meta?.postTokenBalances || [];
         let depositdata = {}
+        console.log(depositdata,preTokenBalances,postTokenBalances,"depositdata");
         // Loop through and compare
         for (let i = 0; i < preTokenBalances.length; i++) {
           const pre = preTokenBalances[i];
@@ -636,7 +638,7 @@ export default function PortfolioPage() {
               userDeposit: userDepositPDA,
               pythPriceAccount: PYTH_PRICE_ACCOUNT,
             }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
-            .rpc();
+            .rpc({ skipPreflight: false });
         } else {
           console.log(walletsetting?.priority, "priority");
           tx = await program.methods
@@ -648,7 +650,7 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               pythPriceAccount: PYTH_PRICE_ACCOUNT,
-            }).rpc();
+            }).rpc({ skipPreflight: false });
         }
         console.log(tx, "tx")
 
