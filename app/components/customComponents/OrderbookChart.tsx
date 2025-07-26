@@ -13,6 +13,7 @@ import { processSingleChartDataNew } from "@/utils/processChartData";
 import { getPriceHistory } from "@/services/market";
 import { SocketContext } from "@/config/socketConnectivity";
 import { isEmpty } from "@/lib/isEmpty";
+import { toFixedDown } from "@/lib/roundOf";
 
 interface Market {
   clobTokenIds: string;
@@ -229,8 +230,8 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         <div className="flex items-center justify-between mb-3 pb-2 mt-4 w-full relative">
           <div className="flex items-center">
             <CardTitle className="text-4xl text-left ml-0" style={{ color: chanceColor }}>
-              <span>{(displayChance)?.toFixed(1)}%</span>
-              <span className="text-2xl font-light">{title} chance</span>
+              <span>{toFixedDown(displayChance,1)}%</span>
+              <span className="text-2xl font-light">chance</span>
             </CardTitle>
           </div>
           <Button variant="ghost" size="icon" className="h-6 w-6 p-0 mr-0" onClick={() => setSelectedYes(!selectedYes)}>

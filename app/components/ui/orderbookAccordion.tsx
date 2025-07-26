@@ -613,7 +613,7 @@ const OrderbookAccordionContent = React.forwardRef<
               ) :
               (
                 <div className="w-full border-collapse rounded-lg px-4 pt-0" style={{ backgroundColor: 'transparent' }}>
-                  <OrderbookChart id={id} selectedMarket={selectedMarket} title={0} market={markets} interval={chartInterval} setInterval={setChartInterval} customData={randomChartData} />
+                  <OrderbookChart id={id} selectedMarket={selectedMarket} title={selectedMarket?.odd} market={markets} interval={chartInterval} setInterval={setChartInterval} customData={randomChartData} />
                 </div>
               )
              }
