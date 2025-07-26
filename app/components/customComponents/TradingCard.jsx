@@ -114,34 +114,36 @@ export function TradingCard({
   return (
     <Card
       className="w-[100%] trading_card"
-      style={{ backgroundColor: "#161616" }}
+      style={{ backgroundColor: "#000000", boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
     >
       <div className="w-[100%]">
-        <CardHeader>
+        <CardHeader className="p-5">
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
                 style={{
-                  width: "55px",
-                  height: "55px",
+                  width: "45px",
+                  height: "45px",
                   overflow: "hidden",
-                  borderRadius: "8px",
+                  borderRadius: "6px",
                   flexShrink: 0,
                 }}
               >
                 <img
                   src={image}
                   alt="Event"
-                  width={55}
-                  height={55}
+                  width={45}
+                  height={45}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               </div>
               <div
-                className="text-[16px]"
+                className="text-[14px]"
                 style={{ paddingLeft: "8px", marginRight: "0px" }}
               >
-                {market?.groupItemTitle != "" ? firstLetterCase(market?.groupItemTitle) : firstLetterCase(title)}
+                {market?.groupItemTitle != ""
+                  ? firstLetterCase(market?.groupItemTitle)
+                  : firstLetterCase(title)}
               </div>
             </div>
           </CardTitle>
@@ -149,7 +151,7 @@ export function TradingCard({
             {" "}
             $
             {market?.volume
-              ? (market.volume/100).toLocaleString(undefined, {
+              ? (market.volume / 100).toLocaleString(undefined, {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })
@@ -157,7 +159,7 @@ export function TradingCard({
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-5 pb-5 pt-0">
           <Tabs
             defaultValue="buy"
             className="w-full"
@@ -184,8 +186,12 @@ export function TradingCard({
                 }}
               >
                 {toFixedDown(positions?.quantity, 2)} &middot;{" "}
-                {capitalize(positions?.side == "yes" ? firstLetterCase(market?.outcome?.[0]?.title || "yes") : firstLetterCase(market?.outcome?.[1]?.title || "no") )} (
-                {positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
+                {capitalize(
+                  positions?.side == "yes"
+                    ? firstLetterCase(market?.outcome?.[0]?.title || "yes")
+                    : firstLetterCase(market?.outcome?.[1]?.title || "no")
+                )}{" "}
+                ({positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
               </h1>
             )}
             <div className="pt-2">
@@ -197,7 +203,7 @@ export function TradingCard({
               >
                 <OptionsList className="grid w-full grid-cols-2 gap-2">
                   <OptionsTrigger
-                    className=" border-transparent hover:bg-[#282828] data-[state=active]:bg-[#152632] data-[state=active]:text-[#7dfdfe] data-[state=active]:border-[#152632]"
+                    className="rounded-md border-transparent hover:bg-[#0d1a26] hover:text-[#7dfdfe] data-[state=active]:bg-[#0d1a26] data-[state=active]:text-[#7dfdfe] data-[state=active]:border-[#0d1a26] relative group"
                     value="Yes"
                   >
                     {firstLetterCase(market?.outcome?.[0]?.title) || "Yes"}{" "}
@@ -206,9 +212,32 @@ export function TradingCard({
                         `${toFixedDown(100 - buyYes?.[0], 2)}¢`
                       : sellYes?.length > 0 &&
                         `${toFixedDown(sellYes?.[0], 2)}¢`}
+                    {/* Tron blue border animation - hover and active states */}
+                    <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
+                      <div className="absolute inset-0 rounded-md">
+                        {/* Flowing lines */}
+                        <div
+                          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                        <div
+                          className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                          style={{ animationDelay: "0.7s" }}
+                        ></div>
+                        <div
+                          className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                          style={{ animationDelay: "1.2s" }}
+                        ></div>
+                        <div
+                          className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                          style={{ animationDelay: "1.7s" }}
+                        ></div>
+                      </div>
+                    </div>
                   </OptionsTrigger>
                   <OptionsTrigger
-                    className="hover:bg-[#282828] data-[state=active]:border-[#321b29] data-[state=active]:text-[#ec4899] data-[state=active]:bg-[#321b29]"
+                    className="rounded-md hover:bg-[#210d1a] hover:text-[#ec4899] data-[state=active]:bg-[#210d1a] data-[state=active]:text-[#ec4899] data-[state=active]:border-[#210d1a] relative group"
                     value="No"
                   >
                     {firstLetterCase(market?.outcome?.[1]?.title) || "No"}{" "}
@@ -216,6 +245,29 @@ export function TradingCard({
                       ? buyNo?.length > 0 &&
                         `${toFixedDown(100 - buyNo?.[0], 2)}¢`
                       : sellNo?.length > 0 && `${toFixedDown(sellNo?.[0], 2)}¢`}
+                    {/* Pink border animation - hover and active states */}
+                    <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
+                      <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
+                      <div className="absolute inset-0 rounded-md">
+                        {/* Flowing lines */}
+                        <div
+                          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
+                        <div
+                          className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                          style={{ animationDelay: "0.7s" }}
+                        ></div>
+                        <div
+                          className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                          style={{ animationDelay: "1.2s" }}
+                        ></div>
+                        <div
+                          className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                          style={{ animationDelay: "1.7s" }}
+                        ></div>
+                      </div>
+                    </div>
                   </OptionsTrigger>
                 </OptionsList>
 
@@ -229,16 +281,18 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
-                    lastYesOrder = {tab == "buy"
-                      ? buyYes?.length > 0 &&
-                        toFixedDown(100 - buyYes?.[0], 2)
-                      : sellYes?.length > 0 &&
-                        toFixedDown(sellYes?.[0], 2)}
-                    lastNoOrder = {tab == "buy"
-                      ? buyNo?.length > 0 &&
-                        toFixedDown(100 - buyNo?.[0], 2)
-                      : sellNo?.length > 0 && toFixedDown(sellNo?.[0], 2)}
-                    outcomes = {market?.outcome}
+                    lastYesOrder={
+                      tab == "buy"
+                        ? buyYes?.length > 0 &&
+                          toFixedDown(100 - buyYes?.[0], 2)
+                        : sellYes?.length > 0 && toFixedDown(sellYes?.[0], 2)
+                    }
+                    lastNoOrder={
+                      tab == "buy"
+                        ? buyNo?.length > 0 && toFixedDown(100 - buyNo?.[0], 2)
+                        : sellNo?.length > 0 && toFixedDown(sellNo?.[0], 2)
+                    }
+                    outcomes={market?.outcome}
                   />
                 )}
 
@@ -249,9 +303,9 @@ export function TradingCard({
                     buyorsell={tab}
                     status={status}
                     selectedOrder={selectedOrder}
-                    outcomes = {market?.outcome}
-                    makerFee = {market?.makerFee}
-                    takerFee = {market?.takerFee}
+                    outcomes={market?.outcome}
+                    makerFee={market?.makerFee}
+                    takerFee={market?.takerFee}
                   />
                 )}
               </Options>
