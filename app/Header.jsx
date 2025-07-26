@@ -145,7 +145,7 @@ export default function Header() {
       </div>
 
       {/* Search Section */}
-      <div className="w-full px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0">
+      <div className="w-full px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0 hidden lg:block">
         <div
           className={`relative lg:max-w-[600px] min-w-[300px] sm:min-w-[400px]`}
           tabIndex={-1}

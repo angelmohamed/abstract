@@ -17,15 +17,16 @@ export default function HeaderFixed() {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState("home");
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
-    if (isOpen) document.body.style.overflow = "hidden";
+    if (isOpen || isSearchOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isOpen, isSearchOpen]);
 
   return (
     <>
@@ -33,13 +34,17 @@ export default function HeaderFixed() {
       <div
         className={cn(
           "fixed inset-0 bg-black z-50 transition-opacity duration-500",
-          isOpen
+          isOpen || isSearchOpen
             ? "opacity-80 pointer-events-auto"
             : "opacity-0 pointer-events-none"
         )}
-        onClick={() => setIsOpen(false)}
+        onClick={() => {
+          setIsOpen(false);
+          setIsSearchOpen(false);
+        }}
       />
-      {/* Drawer */}
+
+      {/* Side Drawer */}
       <div
         className={cn(
           "fixed top-0 left-0 w-[85vw] max-w-[320px] h-full bg-[#1F1F1F] z-50 shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
@@ -116,51 +121,82 @@ export default function HeaderFixed() {
         </nav>
       </div>
 
+      {/* Search Bar */}
+      <div
+        className={cn(
+          "fixed left-0 bottom-0 w-full h-[80vh] bg-[#181818] z-50 rounded-t-2xl shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
+          isSearchOpen ? "translate-y-0" : "translate-y-full"
+        )}
+        style={{ minHeight: "300px" }}
+      >
+        <div className="flex justify-between items-center px-4 py-3 border-b border-[#232b3a]">
+          <span className="text-lg font-semibold text-white">Search</span>
+          <button
+            className="text-gray-400 hover:text-white text-2xl"
+            onClick={() => setIsSearchOpen(false)}
+          >
+            &times;
+          </button>
+        </div>
+        <div className="p-4">
+          {/* Your search input and results go here */}
+          <input
+            type="text"
+            className="w-full p-2 rounded bg-[#232b3a] text-white"
+            placeholder="Type to search..."
+            autoFocus
+          />
+        </div>
+      </div>
+
       {/* Bottom Nav */}
       <div className="h-16 flex justify-between items-center lg:hidden fixed bottom-0 w-full bg-black border-t border-[#1E1E1E] z-50 px-8 md:px-20">
         <Link
           href="/"
           className={cn(
-            "w-8 h-9 flex flex-col items-center",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "home" ? "text-white" : "text-gray-500"
           )}
           onClick={() => setActiveMenu("home")}
         >
-          <HomeIcon className="text-2xl" />
+          <HomeIcon className="text-3xl" />
           <span className="text-xs font-normal">Home</span>
         </Link>
-        <Link
-          href="#"
+        <button
           className={cn(
-            "w-8 h-9 flex flex-col items-center",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "search" ? "text-white" : "text-gray-500"
           )}
+          onClick={() => {
+            setActiveMenu("search");
+            setIsSearchOpen(true);
+          }}
         >
-          <MagnifyingGlassIcon className="text-2xl" />
+          <MagnifyingGlassIcon className="text-3xl" />
           <span className="text-xs font-normal">Search</span>
-        </Link>
+        </button>
         <Link
           href="/profile"
           className={cn(
-            "w-8 h-9 flex flex-col items-center",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "profile" ? "text-white" : "text-zinc-600"
           )}
           onClick={() => setActiveMenu("profile")}
         >
-          <PersonIcon className="text-2xl" />
+          <PersonIcon className="text-3xl" />
           <span className="text-xs font-normal">Profile</span>
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            "w-8 h-9 flex flex-col items-center",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "more" ? "text-white" : "text-gray-500"
           )}
         >
           {!isOpen ? (
-            <HamburgerMenuIcon className="text-2xl" />
+            <HamburgerMenuIcon className="text-3xl" />
           ) : (
-            <Cross1Icon className="text-2xl" />
+            <Cross1Icon className="text-3xl" />
           )}
           <span className="text-xs font-normal">More</span>
         </button>
