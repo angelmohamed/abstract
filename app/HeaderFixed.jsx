@@ -12,6 +12,7 @@ import {
   PersonIcon,
 } from "@radix-ui/react-icons";
 import { Button } from "./components/ui/button";
+import SearchComponent from "./components/customComponents/SearchComponent";
 
 export default function HeaderFixed() {
   const router = useRouter();
@@ -139,13 +140,14 @@ export default function HeaderFixed() {
           </button>
         </div>
         <div className="p-4">
+          <SearchComponent />
           {/* Your search input and results go here */}
-          <input
+          {/* <input
             type="text"
             className="w-full p-2 rounded bg-[#232b3a] text-white"
             placeholder="Type to search..."
             autoFocus
-          />
+          /> */}
         </div>
       </div>
 

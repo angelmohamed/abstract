@@ -6,8 +6,8 @@ import store from "../store/index";
 // import { useSelector } from "react-redux";
 // import lib
 let connectionOptions = {
-  transports: ["polling"],
-  // transports: ["websocket"],
+  // transports: ["polling"],
+  transports: ["websocket"],
   cookie: false,
   forceNew: true,
   reconnection: true,
