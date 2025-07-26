@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { Legend, Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ArrowRightLeft } from "lucide-react";
@@ -11,6 +11,9 @@ import Image from "next/image";
 import SONOTRADE from "/images/SONOTRADE.png";
 import { processSingleChartDataNew } from "@/utils/processChartData";
 import { getPriceHistory } from "@/services/market";
+import { SocketContext } from "@/config/socketConnectivity";
+import { isEmpty } from "@/lib/isEmpty";
+import { toFixedDown } from "@/lib/roundOf";
 
 interface Market {
   clobTokenIds: string;
@@ -72,8 +75,8 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
   setInterval,
   selectedMarket,
 }) => {
-  const [chartDataYes, setChartDataYes] = useState<ChartDataItem[]>([]);
-  const [chartDataNo, setChartDataNo] = useState<ChartDataItem[]>([]);
+  const [chartDataYes, setChartDataYes] = useState<any[]>([]);
+  const [chartDataNo, setChartDataNo] = useState<any[]>([]);
   const [selectedYes, setSelectedYes] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [chartConfig, setChartConfig] = useState<UIChartConfig>({
@@ -82,6 +85,10 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
       color: "#7DFDFE",
     },
   });
+  const socketContext = useContext(SocketContext);
+  const [hoveredChance, setHoveredChance] = useState<number | undefined>(
+          undefined
+      );
 
   // State to track screen width
   const [screenWidth, setScreenWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -110,30 +117,49 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
     return arr;
   })();
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const data = {
-          market: selectedYes ? "yes" : "no",
-          interval,
-          fidelity: 30,
-        };
-        const { success, result } = await getPriceHistory(id, data);
-        if (success) {
-          const filteredResult = result.find(
-            (item: any) => item.groupItemTitle === selectedMarket.groupItemTitle
-          );
-          // Always use fixed sample data, but process it with processSingleChartData and the selected interval
+  const fetchData = async() => {
+    try {
+      const data = {
+        market: selectedYes ? "yes" : "no",
+        interval,
+        fidelity: 30,
+      };
+      const { success, result } = await getPriceHistory(id, data);
+      if (success) {
+        const filteredResult = result.find(
+          (item: any) => item.groupItemTitle === selectedMarket.groupItemTitle
+        );
+        // Always use fixed sample data, but process it with processSingleChartData and the selected interval
+        if(selectedYes){
           setChartDataYes(processSingleChartDataNew(filteredResult?.data || [], interval));
-          setChartDataNo(processSingleChartDataNew(filteredResult?.data?.map(d => ({ t: d.t, p: 100 - d.p })) || [], interval));
+        } 
+        if(!selectedYes){
+          // setChartDataNo(processSingleChartDataNew(filteredResult?.data?.map(d => ({ t: d.t, p: 100 - d.p })) || [], interval));
+          setChartDataNo(processSingleChartDataNew(filteredResult?.data || [], interval));
         }
-      } catch (error) {
-        console.log(error)
       }
+    } catch (error) {
+      console.log(error)
     }
+  }
 
+  useEffect(() => {
     fetchData();
-  }, [id, market, selectedMarket, interval]);
+  }, [id, market, selectedMarket, interval, selectedYes]);
+
+  useEffect(() => {
+      const socket = socketContext?.socket;
+      if (!socket) return;
+  
+      const chartUpdate = () => {
+          fetchData();
+      };
+      
+      socket.on("chart-update", chartUpdate);
+      return () => {
+        socket.off("chart-update");
+      };
+  }, [market, interval, selectedYes]);
 
   useEffect(() => {
     if (selectedYes) {
@@ -146,7 +172,17 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
   }, [selectedYes, chartDataYes, chartDataNo]);
 
   // Calculate the current displayed chance value and color
-  const displayChance = selectedYes ? title : 1 - title;
+  // const displayChance = selectedYes ? title : 1 - title;
+  const displayChance =
+        hoveredChance !== undefined
+            ? hoveredChance
+            : selectedYes
+                ? title
+                : title == 0
+                    ? 0
+                    : title !== undefined
+                        ? 100 - title
+                        : undefined;
   const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
 
   // Custom dot component that only shows on the last data point
@@ -194,8 +230,8 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         <div className="flex items-center justify-between mb-3 pb-2 mt-4 w-full relative">
           <div className="flex items-center">
             <CardTitle className="text-4xl text-left ml-0" style={{ color: chanceColor }}>
-              <span>{(displayChance * 100).toFixed(1)}%</span>
-              <span className="text-2xl font-light"> chance</span>
+              <span>{toFixedDown(displayChance,1)}%</span>
+              <span className="text-2xl font-light">chance</span>
             </CardTitle>
           </div>
           <Button variant="ghost" size="icon" className="h-6 w-6 p-0 mr-0" onClick={() => setSelectedYes(!selectedYes)}>
@@ -205,7 +241,28 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
           <CardContent className="pt-0 pb-0 pl-0 pr-0">
             <div className="w-full p-0 m-0 pb-0" style={{ width: '102%', paddingBottom: 0 }}>
               <ChartContainer className="h-[300px] w-full p-0 m-0 flex justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none pb-0 mb-0" style={{ marginBottom: 0, paddingBottom: 0 }} config={chartConfig}>
-                <LineChart data={chartData} className="pl-0" margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+                <LineChart 
+                  data={chartData} 
+                  className="pl-0" 
+                  margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                  onMouseMove={(e) => {
+                      if (e && e.activePayload && e.activePayload.length > 0) { 
+                        const hoveredValue = e.activePayload[0].payload.asset1 || 0 ;
+                        if(!isEmpty(hoveredValue)){
+                            setHoveredChance(hoveredValue); // Convert to percentage
+                        }else{
+                            if(hoveredValue == 0) {
+                                setHoveredChance(0)
+                            } else {
+                                setHoveredChance(undefined);
+                            }
+                        }
+                      }
+                  }}
+                  onMouseLeave={() => {
+                      setHoveredChance(undefined)
+                  }}
+                >
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1a1a1a" />
                   <XAxis
                     dataKey="rawTimestamp"

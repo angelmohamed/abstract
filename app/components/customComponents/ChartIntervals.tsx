@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 interface ChartIntervalsProps {
   interval: string;
   setInterval: (interval: string) => void;
-  isAllDisable: any
+  isAllDisable?: any
 }
 
 const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, isAllDisable }) => {

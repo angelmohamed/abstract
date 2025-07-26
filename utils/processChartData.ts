@@ -332,9 +332,9 @@ export function processSingleChartDataNew(
   let t = startTime + step;
   let ffValue = lastValue;
   let ffIdx = dataIdx;
-  for (; t < now; t += step) {
+  for (let i=0; t < now; t += step) {
     // Forward-fill for each generated point
-    while (ffIdx < sorted.length && sorted[ffIdx].t <= t) {
+    while (ffIdx < sorted.length && new Date(sorted[ffIdx]?.t).getTime() <= t * 1000) {
       ffValue = sorted[ffIdx].p;
       ffIdx++;
     }
@@ -362,7 +362,7 @@ export function processSingleChartDataNew(
   // 3. Always add a point at now (guaranteed)
   {
     // Forward-fill for now
-    while (ffIdx < sorted.length && sorted[ffIdx].t <= now) {
+    while (ffIdx < sorted.length && new Date(sorted[ffIdx]?.t).getTime() <= now * 1000) {
       ffValue = sorted[ffIdx].p;
       ffIdx++;
     }

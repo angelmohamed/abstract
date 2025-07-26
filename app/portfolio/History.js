@@ -13,8 +13,11 @@ import {
   CopyIcon,
 } from "@radix-ui/react-icons";
 import { momentFormat } from "../helper/date";
+import { getTimeframeDate } from "../../lib/dateTimeHelper";
 
 const History = () => {
+  const fromDate = getTimeframeDate("1d");
+
   const [ClosedPnL, setClosedPnL] = useState({});
   const [tradeHistory, setTradeHistory] = useState([])
   const [tradeOpen, setTradeOpen] = useState(false)
@@ -65,7 +68,9 @@ const History = () => {
       }
       marketGroup[marketId].entry += (item.entryPrice * item.qty) / 100;
       marketGroup[marketId].exit += (item.exitPrice * item.qty) / 100;
-      marketGroup[marketId].pnl += item.pnl / 100;
+      if (new Date(item.createdAt).getTime() > fromDate.getTime()) {
+        marketGroup[marketId].pnl += item.pnl / 100;
+      }
       marketGroup[marketId].qty += item.qty
       
       if(item.exitType == "resolution"){
