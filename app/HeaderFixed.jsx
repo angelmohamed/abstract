@@ -48,7 +48,7 @@ export default function HeaderFixed() {
       {/* Side Drawer */}
       <div
         className={cn(
-          "fixed top-0 left-0 w-[85vw] max-w-[320px] h-full bg-[#1F1F1F] z-50 shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
+          "fixed top-0 left-0 w-[85vw] max-w-[320px] h-full bg-[#1F1F1F] z-[56] shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -125,7 +125,7 @@ export default function HeaderFixed() {
       {/* Search Bar */}
       <div
         className={cn(
-          "fixed left-0 bottom-0 w-full h-[80vh] bg-[#181818] z-50 rounded-t-2xl shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
+          "fixed left-0 bottom-0 w-full h-[80vh] bg-[#181818] z-[56] rounded-t-2xl shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
           isSearchOpen ? "translate-y-0" : "translate-y-full"
         )}
         style={{ minHeight: "300px" }}
@@ -165,13 +165,11 @@ export default function HeaderFixed() {
           <span className="text-xs font-normal">Home</span>
         </Link>
         <button
-          className={cn(
-            "w-9 h-9 flex flex-col items-center gap-1",
-            activeMenu === "search" ? "text-white" : "text-gray-500"
-          )}
+          className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
           onClick={() => {
             setActiveMenu("search");
             setIsSearchOpen(true);
+            setIsOpen(false);
           }}
         >
           <MagnifyingGlassIcon className="text-3xl" />
@@ -189,11 +187,12 @@ export default function HeaderFixed() {
           <span className="text-xs font-normal">Profile</span>
         </Link>
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            "w-9 h-9 flex flex-col items-center gap-1",
-            activeMenu === "more" ? "text-white" : "text-gray-500"
-          )}
+          onClick={() => {
+            setActiveMenu("more");
+            setIsOpen(!isOpen);
+            setIsSearchOpen(false);
+          }}
+          className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
         >
           {!isOpen ? (
             <HamburgerMenuIcon className="text-3xl" />

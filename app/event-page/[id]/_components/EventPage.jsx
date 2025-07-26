@@ -50,6 +50,7 @@ import MonthlyListenersChart from "@/app/components/customComponents/MonthlyList
 import Jackboys2 from "@/public/images/jackboys2.png";
 import Astroworld from "@/public/images/astroworld.png";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
+import HeaderFixed from "@/app/HeaderFixed";
 
 export default function EventPage() {
   const param = useParams();
@@ -171,9 +172,13 @@ export default function EventPage() {
                 ["active", "closed", "resolved"].includes(market.status)
               )
             );
-            console.log(result?.marketId, result.marketId.filter((market) =>
+            console.log(
+              result?.marketId,
+              result.marketId.filter((market) =>
                 ["active", "closed", "resolved"].includes(market.status)
-              ), "active.Iad")
+              ),
+              "active.Iad"
+            );
           }
         }
         setEventsLoading(false);
@@ -417,9 +422,7 @@ export default function EventPage() {
                                   >
                                     <AccordionTrigger
                                       marketId="market-1"
-                                      outcomePrice={
-                                        market?.odd || 0
-                                      }
+                                      outcomePrice={market?.odd || 0}
                                       className="flex sm:text-[18px] text-[18px] items-center sm:gap-2 gap-0"
                                       setSelectedOrderBookData={
                                         setSelectedOrderBookData
@@ -645,7 +648,7 @@ export default function EventPage() {
               </div>
 
               {/* Trading Card Drawer for Mobile */}
-              <div className="lg:hidden w-[100%] justify-center pr-20 pl-20 pt-5 pb-10 items-center mt-0">
+              <div className="lg:hidden justify-center pt-5 pb-10 items-center mt-0 fixed bottom-[24px] left-0 w-full z-50">
                 {isDrawerOpen && (
                   <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -657,8 +660,11 @@ export default function EventPage() {
                 ) : (
                   <>
                     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                      <DrawerTrigger className="w-full py-2 font-semibold bg-white text-black rounded-lg">
-                        Trade
+                      <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg">
+                        <div className="flex items-center justify-between gap-5 w-full pr-5 pl-5">
+                          <Button className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight">Yes</Button>
+                          <Button className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight">No</Button>
+                        </div>
                       </DrawerTrigger>
                       <DrawerContent className="h-[80vh] z-50">
                         {/* Hidden DrawerTitle to satisfy component requirements */}
@@ -669,7 +675,7 @@ export default function EventPage() {
                         </div>
 
                         {/* Main Content */}
-                        <div className="p-4">
+                        <div className="p-0">
                           <TradingCard
                             activeView={activeView}
                             setActiveView={setActiveView}
@@ -708,6 +714,7 @@ export default function EventPage() {
         </div>
       </div>
       <Footer />
+      <HeaderFixed />
     </>
   );
 }
