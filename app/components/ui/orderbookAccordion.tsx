@@ -522,9 +522,9 @@ const OrderbookAccordionContent = React.forwardRef<
                             {asks && bids && asks.length > 0 && bids.length > 0 && (
                               <div className="flex items-center h-[35px] w-full p-3">
                                 <div className="w-[30%]">Last: 
-                                  {selectedMarket?.odd ? (
-                                    activeView == "Yes" ? selectedMarket?.odd || 0 : 100 - +selectedMarket?.odd
-                                  ) : 0}
+                                  {selectedMarket?.last ? (
+                                    activeView == "Yes" ? selectedMarket?.last || 0 : 100 - (selectedMarket?.last || 0)
+                                  ) : "--"}
                                 ¢</div>
                                 <div className="w-[20%] text-center">
                                   Spread: {calcSpread(bids, asks)}
