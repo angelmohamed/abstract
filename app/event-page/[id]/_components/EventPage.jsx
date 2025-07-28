@@ -271,10 +271,10 @@ export default function EventPage() {
               Loading...
             </div>
           ) : (
-            <div className="sm:mx-auto mx-0 sm:px-4 px-0 sm:pt-4 pt-0">
+            <div className="sm:mx-auto mx-0 sm:pt-4 pt-0">
               {/* Preview Card Section */}
               <div className="flex justify-center items-center">
-                <div className="flex justify-center sm:max-w-8xl mb-0 w-full pl-5 pr-5 gap-5">
+                <div className="flex justify-center sm:max-w-8xl mb-0 w-full gap-5">
                   {/* Main Content (Charts, Accordion, etc.) */}
                   <div className="w-full lg:w-[70%]">
                     {events?.forecast ? (
@@ -355,14 +355,14 @@ export default function EventPage() {
                         endDate={events.endDate}
                         interval={interval}
                       /> */}
-                    <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 flex justify-center items-center mb-8">
+                    <div className="flex justify-center items-center mb-8">
                       <ChartIntervals
                         interval={interval}
                         setInterval={setInterval}
                       />
                     </div>
 
-                    <div className="pr-10 pl-10 sm:pr-5 sm:pl-0">
+                    <div className="">
                       {events?.status == "resolved" && <hr className="mt-4" />}
                       {markets?.length < 2 &&
                       books &&
@@ -612,7 +612,7 @@ export default function EventPage() {
                     </div>
                   ) : (
                     <div className="hidden lg:block lg:w-[30%] relative">
-                      <div className="fixed top-[147px] z-60 w-[30%] xl:w-[350px]">
+                      <div className="fixed top-[147px] z-60 w-[300px] xl:w-[350px]">
                         <TradingCard
                           activeView={activeView}
                           setActiveView={setActiveView}

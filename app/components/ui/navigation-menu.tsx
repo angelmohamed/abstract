@@ -197,7 +197,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
       <div className="w-full flex justify-start mt-0 pb-3">
         {/* "LIVE" Tag - Only shown if showLiveTag is true */}
         {showLiveTag && (
-          <div className="sm:pl-0 pl-3 flex items-center flex-shrink-0">
+          <div className="flex items-center flex-shrink-0">
             <h1 className="pb-[2%] text-xl leading-tight pl-2">
               <span
                 className="font-semibold text-red-500"

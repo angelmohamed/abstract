@@ -113,7 +113,7 @@ export function TradingCard({
 
   return (
     <Card
-      className="w-[100%] trading_card"
+      className="w-[100%] trading_card border border-[#282828]"
       style={{ backgroundColor: "#000000", boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
     >
       <div className="w-[100%]">
