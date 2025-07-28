@@ -68,7 +68,7 @@ const OpenOrders = () => {
                             findOrder.createdAt = resData.createdAt
                             findOrder.userSide = resData.userSide
                             findOrder.status = resData.status
-                            findOrder.currentPrice = resData.marketId.last
+                            findOrder.currentPrice = resData.marketId.odd
                             findOrder.timeInForce = resData.timeInForce
                             findOrder.expiration = resData.expiration
                             findOrder.action = resData.action
@@ -87,7 +87,7 @@ const OpenOrders = () => {
                     } else {
                         const newOrder = {
                             ...resData,
-                            currentPrice: resData.marketId.last,
+                            currentPrice: resData.marketId.odd,
                             timeInForce: resData.timeInForce,
                             expiration: resData.expiration,
                             action: resData.action,
@@ -109,7 +109,7 @@ const OpenOrders = () => {
                 } else {
                     let orderData = {
                         ...resData,
-                        currentPrice: resData.marketId.last,
+                        currentPrice: resData.marketId.odd,
                         timeInForce: resData.timeInForce,
                         expiration: resData.expiration,
                         action: resData.action,
