@@ -435,7 +435,7 @@ export default function Authentication() {
       )} */}
       {signedIn && (
         <button
-          className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
+          className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors hidden lg:block"
           onClick={() => navigateToPortfolioPage()}
         >
           <div className="text-l text-[#33ff4c]">{PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2))}</div>

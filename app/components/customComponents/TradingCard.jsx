@@ -114,7 +114,10 @@ export function TradingCard({
   return (
     <Card
       className="w-[100%] trading_card border border-[#282828]"
-      style={{ backgroundColor: "#000000", boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
+      style={{
+        backgroundColor: "#000000",
+        boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
+      }}
     >
       <div className="w-[100%]">
         <CardHeader className="p-5">
@@ -166,8 +169,8 @@ export function TradingCard({
             value={tab}
             onValueChange={setTab}
           >
-            <div className="flex justify-between gap-3">
-              <TabsList className="grid grid-cols-2">
+            <div className="flex justify-between">
+              <TabsList className="grid w-auto grid-cols-2">
                 <TabsTrigger value="buy">Buy</TabsTrigger>
                 <TabsTrigger value="sell">Sell</TabsTrigger>
               </TabsList>
@@ -176,6 +179,7 @@ export function TradingCard({
                 setOrderType={setOrderType}
               />
             </div>
+            <div className="w-full h-px bg-gray-600"></div>
             <TabsContent value="buy"></TabsContent>
             <TabsContent value="sell"></TabsContent>
             {!isEmptyObject(positions) && (

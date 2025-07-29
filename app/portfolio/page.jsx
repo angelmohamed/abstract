@@ -1,5 +1,6 @@
 "use client";
 import Header from "@/app/Header";
+import HeaderFixed from "@/app/HeaderFixed";
 // import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
@@ -17,7 +18,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 import { Dialog, Accordion, Checkbox, Separator } from "radix-ui";
 import { shortText, numberFloatOnly } from "../helper/custommath";
-import { toastAlert } from "../../lib/toast"
+import { toastAlert } from "../../lib/toast";
 import isEmpty from "is-empty";
 import {
   Cross2Icon,
@@ -41,33 +42,36 @@ import {
   Transaction,
   LAMPORTS_PER_SOL,
   TransactionMessage,
-  ComputeBudgetProgram
+  ComputeBudgetProgram,
 } from "@solana/web3.js";
-import {
-  AnchorProvider,
-  Program,
-  web3,
-  BN,
-} from "@project-serum/anchor";
+import { AnchorProvider, Program, web3, BN } from "@project-serum/anchor";
 import {
   getAssociatedTokenAddress,
   getAccount,
   createAssociatedTokenAccountInstruction,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { reset } from "@/store/slices/auth/userSlice"
+import { reset } from "@/store/slices/auth/userSlice";
 import { signOut } from "@/store/slices/auth/sessionSlice";
-import OpenOrders from "./OpenOrders"
-import Positions from "./Positions"
-import History from "./History"
+import OpenOrders from "./OpenOrders";
+import Positions from "./Positions";
+import History from "./History";
 import { Footer } from "../components/customComponents/Footer";
 import { setWalletConnect } from "@/store/slices/walletconnect/walletSlice";
 import { PnLFormatted } from "@/utils/helpers";
 import { parsePriceData } from "@pythnetwork/client";
 import { getWalletSettings, getCoinList } from "@/services/user";
-import depositIDL from "../../components/IDL/DEPOSITIDL.json"
-import Withdraw from "./withdraw"
+import depositIDL from "../../components/IDL/DEPOSITIDL.json";
+import Withdraw from "./withdraw";
 import { getUserPnL } from "@/services/portfolio";
+import { NavigationBar } from "@/app/components/ui/navigation-menu";
+import { getCategories } from "@/services/market";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/app/components/ui/tooltip";
 
 let initialValue = {
   currency: "",
@@ -77,14 +81,15 @@ let initialValue = {
 };
 
 export default function PortfolioPage() {
-
   const programID = new PublicKey(config?.programID);
   const connection = new Connection(config?.rpcUrl, "confirmed");
   const PYTH_PRICE_ACCOUNT = new PublicKey(config?.PYTH_PRICE_ACCOUNT);
 
-  const { isConnected, address } = useSelector((state) => state?.walletconnect?.walletconnect);
-  const walletData = useSelector(state => state?.wallet?.data);
-  const data = useSelector(state => state?.auth?.user);
+  const { isConnected, address } = useSelector(
+    (state) => state?.walletconnect?.walletconnect
+  );
+  const walletData = useSelector((state) => state?.wallet?.data);
+  const data = useSelector((state) => state?.auth?.user);
 
   const [open, setOpen] = useState(false);
   const [check, setCheck] = useState(false);
@@ -106,13 +111,14 @@ export default function PortfolioPage() {
   const [copied, setCopied] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+  const [selectCategory, setSelectedCategory] = useState("all");
+  const [navigationItems, setNavigationItems] = useState([]);
 
   const PRIORITY_FEES = {
     low: 5000,
     medium: 30000,
     high: 75000,
   };
-
 
   const router = useRouter();
   const dispatch = useDispatch();
@@ -123,23 +129,23 @@ export default function PortfolioPage() {
   });
   const [gasAmt, setGasAmt] = useState({ gasCost: 0, marketGasCost: 0 });
 
-  var { currency, amount, walletAddress,minDeposit } = depositData;
+  var { currency, amount, walletAddress, minDeposit } = depositData;
 
   useEffect(() => {
-    getPnl()
+    getPnl();
   }, [walletData, interval]);
 
   const getPnl = async () => {
     try {
-      const { success, result } = await getUserPnL(interval)
-      console.log("success,result", success, result)
+      const { success, result } = await getUserPnL(interval);
+      console.log("success,result", success, result);
       if (success) {
         setProfitAmount(result?.totalPnl / 100);
       }
     } catch (err) {
-      console.log("error ", err)
+      console.log("error ", err);
     }
-  }
+  };
 
   useEffect(() => {
     if (!wallet) return;
@@ -194,11 +200,11 @@ export default function PortfolioPage() {
           network: "",
           type: "",
           rpc: "",
-          balance: 0
-        }));
+          balance: 0,
+        })
+      );
     }
   }
-
 
   async function ConnectPhantomWallet() {
     if (window.solana && window.solana.isPhantom) {
@@ -213,23 +219,31 @@ export default function PortfolioPage() {
         const publicKey = new PublicKey(response.publicKey.toString());
         const balanceLamports = await connection.getBalance(publicKey);
         const balanceSOL = balanceLamports / 1e9;
-        console.log(balanceSOL, balanceLamports, 'balanceSOLbalanceSOL')
-        const connectedAddress = response.publicKey.toString()
+        console.log(balanceSOL, balanceLamports, "balanceSOLbalanceSOL");
+        const connectedAddress = response.publicKey.toString();
 
         const { result } = await addressCheck({ address: connectedAddress });
 
-        if ((isEmpty(data?.walletAddress) && result === true)) {
+        if (isEmpty(data?.walletAddress) && result === true) {
           toastAlert(
             "error",
-            `This address is already exists. Please connect another new address.`, "wallet"
-          )
+            `This address is already exists. Please connect another new address.`,
+            "wallet"
+          );
           setOpen(false);
-          disconnectWallet()
+          disconnectWallet();
           return;
-        } else if (!isEmpty(data?.walletAddress) && connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()) {
-          toastAlert("error", `Please connect your wallet address ${data?.walletAddress}`, "logout");
+        } else if (
+          !isEmpty(data?.walletAddress) &&
+          connectedAddress?.toLowerCase() !== data?.walletAddress?.toLowerCase()
+        ) {
+          toastAlert(
+            "error",
+            `Please connect your wallet address ${data?.walletAddress}`,
+            "logout"
+          );
           setOpen(false);
-          disconnectWallet()
+          disconnectWallet();
           return;
         }
 
@@ -240,7 +254,7 @@ export default function PortfolioPage() {
             network: config.network,
             type: config.networkType,
             rpc: config?.rpcUrl,
-            balance: balanceSOL
+            balance: balanceSOL,
           })
         );
         setOpen(false);
@@ -258,15 +272,15 @@ export default function PortfolioPage() {
             network: "",
             type: "",
             rpc: "",
-            balance: 0
-          }));
+            balance: 0,
+          })
+        );
         toastAlert("error", "Failed to connect wallet", "wallet");
       }
     } else {
       toastAlert("error", "Phantom wallet extension is not installed", "error");
     }
   }
-
 
   const getWalletSettingsData = async () => {
     try {
@@ -277,8 +291,7 @@ export default function PortfolioPage() {
     } catch (error) {
       console.error("Error getting wallet settings:", error);
     }
-  }
-
+  };
 
   const getCoinData = async () => {
     try {
@@ -289,13 +302,12 @@ export default function PortfolioPage() {
     } catch (error) {
       console.error("Error getting coin list:", error);
     }
-  }
+  };
 
   useEffect(() => {
     getWalletSettingsData();
-    getCoinData()
+    getCoinData();
   }, []);
-
 
   const getSolanaTxFee = async () => {
     const publicKey = new PublicKey(address);
@@ -311,10 +323,10 @@ export default function PortfolioPage() {
       const microLamports = PRIORITY_FEES[walletsetting?.priority];
       const priorityFeeSol = microLamports / 1e9;
       console.log(priorityFeeSol, "priorityFeeSol");
-      feeInSol = feeInSol + priorityFeeSol
+      feeInSol = feeInSol + priorityFeeSol;
     }
     const feeInUSD = feeInSol * tokenValue;
-    setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD })
+    setGasAmt({ gasCost: feeInSol, marketGasCost: feeInUSD });
 
     const accountInfo = await connection.getAccountInfo(PYTH_PRICE_ACCOUNT);
     if (!accountInfo) throw new Error("Pyth price account not found");
@@ -322,28 +334,31 @@ export default function PortfolioPage() {
     const priceData = parsePriceData(accountInfo.data);
     console.log("📈 SOL/USD price:", priceData.price);
 
-    setTokenValue(priceData.price)
+    setTokenValue(priceData.price);
   };
-
 
   const getAddress = async (address) => {
     try {
       const { result } = await addressCheck({ address });
-      if ((isEmpty(data?.walletAddress) && result === true)) {
+      if (isEmpty(data?.walletAddress) && result === true) {
         toastAlert(
           "error",
-          `This address is already exists. Please connect another address.`, "wallet"
+          `This address is already exists. Please connect another address.`,
+          "wallet"
         );
-        disconnect()
+        disconnect();
       } else if (
         (!isEmpty(data?.walletAddress) && result === true) ||
-        !isEmpty(data?.walletAddress) && data?.walletAddress.toString() != address?.toString() && isConnected
+        (!isEmpty(data?.walletAddress) &&
+          data?.walletAddress.toString() != address?.toString() &&
+          isConnected)
       ) {
         toastAlert(
           "error",
-          `Please connect your wallet address ${data?.walletAddress}`, "wallet"
+          `Please connect your wallet address ${data?.walletAddress}`,
+          "wallet"
         );
-        disconnect()
+        disconnect();
       } else if (
         (!isEmpty(data?.walletAddress) && result === false) ||
         (isEmpty(data?.walletAddress) && result === false)
@@ -355,7 +370,6 @@ export default function PortfolioPage() {
     }
   };
 
-
   useEffect(() => {
     balanceData();
   }, [address]);
@@ -363,8 +377,8 @@ export default function PortfolioPage() {
   var step2Click = () => {
     if (!isEmpty(currency)) {
       setStep("2");
-      setDepositAmt()
-      getSolanaTxFee()
+      setDepositAmt();
+      getSolanaTxFee();
       if (currency == "USDC" && tokenbalance == 0) {
         setStep("1");
         toastAlert("error", "Insufficient Balance", "wallet");
@@ -385,20 +399,18 @@ export default function PortfolioPage() {
       var depositBalance = currency == "USDC" ? tokenbalance : balance;
       if (depositBalance > 0) {
         if (isEmpty(depsoitAmt)) {
-          toastAlert(
-            "error",
-            "Enter the amount", "deposit"
-          );
+          toastAlert("error", "Enter the amount", "deposit");
         } else if (depsoitAmt < minDeposit) {
           toastAlert(
             "error",
-            `Enter an amount greater than or equal to the minimum deposit amount.`, "deposit"
+            `Enter an amount greater than or equal to the minimum deposit amount.`,
+            "deposit"
           );
-        }  else if (depsoitAmt > depositBalance) {
+        } else if (depsoitAmt > depositBalance) {
           toastAlert("error", "Insufficient Balance", "deposit");
         } else if (depsoitAmt > 0) {
           setStep("3");
-          getSolanaTxFee()
+          getSolanaTxFee();
         }
       } else if (depositBalance <= 0) {
         toastAlert("error", "Insufficient Balance", "deposit");
@@ -426,7 +438,7 @@ export default function PortfolioPage() {
     if (!provider || !provider.isPhantom) {
       throw new Error("Phantom wallet not found");
     }
-    console.log(provider.publicKey, "provider")
+    console.log(provider.publicKey, "provider");
     return new AnchorProvider(
       connection,
       {
@@ -442,7 +454,7 @@ export default function PortfolioPage() {
     try {
       setloader(true);
       if (currency == "USDC") {
-        console.log("USDCUSDC")
+        console.log("USDCUSDC");
         const provider = await getAnchorProvider();
         const program = new Program(depositIDL, programID, provider);
         const connection = provider.connection;
@@ -450,21 +462,32 @@ export default function PortfolioPage() {
         const mint = new PublicKey(config?.tokenMint);
         const receiverPubKey = new PublicKey(config?.adminAdd);
 
-        const fromTokenAccount = await getAssociatedTokenAddress(mint, provider.publicKey);
-        const toTokenAccount = await getAssociatedTokenAddress(mint, receiverPubKey);
+        const fromTokenAccount = await getAssociatedTokenAddress(
+          mint,
+          provider.publicKey
+        );
+        const toTokenAccount = await getAssociatedTokenAddress(
+          mint,
+          receiverPubKey
+        );
 
-        console.log(fromTokenAccount, toTokenAccount, provider.publicKey, "toTokenAccount")
+        console.log(
+          fromTokenAccount,
+          toTokenAccount,
+          provider.publicKey,
+          "toTokenAccount"
+        );
 
         // ✅ Check and create receiver ATA if it doesn't exist
         try {
           await getAccount(connection, toTokenAccount);
         } catch (err) {
-          console.log(err, "errrr")
+          console.log(err, "errrr");
           const ataIx = createAssociatedTokenAccountInstruction(
-            provider.publicKey,        // payer
-            toTokenAccount,            // ATA to create
-            receiverPubKey,            // token account owner
-            mint                       // mint address
+            provider.publicKey, // payer
+            toTokenAccount, // ATA to create
+            receiverPubKey, // token account owner
+            mint // mint address
           );
 
           const ataTx = new Transaction().add(ataIx);
@@ -474,7 +497,9 @@ export default function PortfolioPage() {
           ataTx.recentBlockhash = blockhash.blockhash;
 
           const signedTx = await window.solana.signTransaction(ataTx);
-          const ataTxSig = await connection.sendRawTransaction(signedTx.serialize());
+          const ataTxSig = await connection.sendRawTransaction(
+            signedTx.serialize()
+          );
 
           // ✅ Use finalized commitment for reliable confirmation
           await connection.confirmTransaction(
@@ -502,11 +527,15 @@ export default function PortfolioPage() {
           [Buffer.from("user"), provider.publicKey.toBuffer()],
           program.programId
         );
-        let tx = ""
+        let tx = "";
         if (!isEmpty(walletsetting?.priority)) {
           const microLamports = PRIORITY_FEES[walletsetting?.priority];
-          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
-          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports });
+          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+            units: 400_000,
+          });
+          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports,
+          });
 
           tx = await program.methods
             .transferToken(amount)
@@ -520,7 +549,8 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               systemProgram: web3.SystemProgram.programId,
-            }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
+            })
+            .preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
             .rpc({ skipPreflight: false });
         } else {
           tx = await program.methods
@@ -535,8 +565,9 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               systemProgram: web3.SystemProgram.programId,
-            }).rpc({ skipPreflight: false });
-            console.log(tx,"dataaaaatxxxx");
+            })
+            .rpc({ skipPreflight: false });
+          console.log(tx, "dataaaaatxxxx");
         }
 
         settransactionHash(tx);
@@ -556,8 +587,13 @@ export default function PortfolioPage() {
         // Get all token balance changes
         const preTokenBalances = meta?.preTokenBalances || [];
         const postTokenBalances = meta?.postTokenBalances || [];
-        let depositdata = {}
-        console.log(depositdata,preTokenBalances,postTokenBalances,"depositdata");
+        let depositdata = {};
+        console.log(
+          depositdata,
+          preTokenBalances,
+          postTokenBalances,
+          "depositdata"
+        );
         // Loop through and compare
         for (let i = 0; i < preTokenBalances.length; i++) {
           const pre = preTokenBalances[i];
@@ -565,26 +601,31 @@ export default function PortfolioPage() {
 
           if (!pre || !post) continue;
 
-          const change = Number(post.uiTokenAmount.amount) - Number(pre.uiTokenAmount.amount);
+          const change =
+            Number(post.uiTokenAmount.amount) -
+            Number(pre.uiTokenAmount.amount);
           if (change !== 0) {
             console.log("✅ SPL Token Transfer Detected:");
             console.log("📤 Owner:", pre.owner);
             console.log("🪙 Mint:", pre.mint);
-            console.log("💰 Amount:", Math.abs(change) / 10 ** pre.uiTokenAmount.decimals);
-            const tokenAmt = Math.abs(change) / (10 ** pre.uiTokenAmount.decimals)
+            console.log(
+              "💰 Amount:",
+              Math.abs(change) / 10 ** pre.uiTokenAmount.decimals
+            );
+            const tokenAmt =
+              Math.abs(change) / 10 ** pre.uiTokenAmount.decimals;
             depositdata = {
               hash: tx,
               from: pre.owner,
               to: config?.adminAdd.toString(),
               amount: tokenAmt,
               usdAmt: tokenAmt,
-              symbol: "USDC"
-            }
+              symbol: "USDC",
+            };
           }
         }
 
-
-        var { message, status } = await userDeposit(depositdata, dispatch)
+        var { message, status } = await userDeposit(depositdata, dispatch);
         if (status) {
           toastAlert("success", message, "deposit");
           setDepositAmt(0);
@@ -605,11 +646,10 @@ export default function PortfolioPage() {
         setloader(false);
       } else if (currency == "SOL") {
         const provider = await getAnchorProvider();
-        console.log(provider.publicKey.toBase58(), "toTokenAccount")
+        console.log(provider.publicKey.toBase58(), "toTokenAccount");
         const program = new Program(depositIDL, programID, provider);
         const lamports = new BN(parseFloat(depsoitAmt) * web3.LAMPORTS_PER_SOL);
         const receiverPubKey = new PublicKey(config?.adminAdd);
-
 
         // Derive PDAs
         const [statePDA] = PublicKey.findProgramAddressSync(
@@ -621,11 +661,15 @@ export default function PortfolioPage() {
           [Buffer.from("user"), provider.publicKey.toBuffer()],
           program.programId
         );
-        let tx = ""
+        let tx = "";
         if (!isEmpty(walletsetting?.priority)) {
           const microLamports = PRIORITY_FEES[walletsetting?.priority]; // 0.00002 SOL tip
-          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({ units: 400_000 });
-          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({ microLamports });
+          const computeUnitLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+            units: 400_000,
+          });
+          const priorityFeeIx = ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports,
+          });
 
           // ✅ Call the transferSol method
           tx = await program.methods
@@ -637,7 +681,8 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               pythPriceAccount: PYTH_PRICE_ACCOUNT,
-            }).preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
+            })
+            .preInstructions([computeUnitLimitIx, priorityFeeIx]) // ✅ Add here
             .rpc({ skipPreflight: false });
         } else {
           console.log(walletsetting?.priority, "priority");
@@ -650,9 +695,10 @@ export default function PortfolioPage() {
               state: statePDA,
               userDeposit: userDepositPDA,
               pythPriceAccount: PYTH_PRICE_ACCOUNT,
-            }).rpc({ skipPreflight: false });
+            })
+            .rpc({ skipPreflight: false });
         }
-        console.log(tx, "tx")
+        console.log(tx, "tx");
 
         settransactionHash(tx);
         setloader(true);
@@ -683,12 +729,13 @@ export default function PortfolioPage() {
         }
 
         // 🧮 Calculate lamports sent
-        const lamportsSentTotal = meta.preBalances[senderIndex] - meta.postBalances[senderIndex];
+        const lamportsSentTotal =
+          meta.preBalances[senderIndex] - meta.postBalances[senderIndex];
         const feePaid = meta.fee;
         const lamportsSent = lamportsSentTotal - feePaid;
 
         const solAmt = lamports / LAMPORTS_PER_SOL;
-        const usdValue = formatNumber(solAmt * tokenValue, 6)
+        const usdValue = formatNumber(solAmt * tokenValue, 6);
 
         console.log("TX Hash:", tx);
         console.log("From:", provider.publicKey.toBase58());
@@ -705,9 +752,9 @@ export default function PortfolioPage() {
           to: receiverPubKey.toBase58(),
           amount: solAmt,
           usdAmt: usdValue,
-          symbol: "SOL"
-        }
-        var { message, status } = await userDeposit(depositdata, dispatch)
+          symbol: "SOL",
+        };
+        var { message, status } = await userDeposit(depositdata, dispatch);
         if (status) {
           toastAlert("success", message, "deposit");
           setDepositAmt(0);
@@ -728,7 +775,7 @@ export default function PortfolioPage() {
         setloader(false);
       }
     } catch (err) {
-      console.log(err, "errr")
+      console.log(err, "errr");
       setloader(false);
       const button = document.querySelector(".modal_close_brn");
       if (button) {
@@ -736,8 +783,6 @@ export default function PortfolioPage() {
       }
     }
   }
-
-
 
   const handlechange = async (e) => {
     let value = e.target.value;
@@ -755,16 +800,20 @@ export default function PortfolioPage() {
     if (isConnected == true) {
       setStep("1");
       setDepositAmt(0);
-      balanceData()
-      getSolanaTxFee()
+      balanceData();
+      getSolanaTxFee();
       setTxOpen(false);
-      getCoinData()
-      setloader(false)
-    } else if (!isEmpty(data?.walletAddress) &&
-      data?.walletAddress.toString() != address?.toString() && isConnected) {
+      getCoinData();
+      setloader(false);
+    } else if (
+      !isEmpty(data?.walletAddress) &&
+      data?.walletAddress.toString() != address?.toString() &&
+      isConnected
+    ) {
       toastAlert(
         "error",
-        `Please connect your wallet address ${data?.walletAddress}`, "wallet"
+        `Please connect your wallet address ${data?.walletAddress}`,
+        "wallet"
       );
     } else {
       toastAlert("error", "Connect Your Wallet", "deposit");
@@ -772,15 +821,62 @@ export default function PortfolioPage() {
   };
 
   console.log(address, data, tokenValue, coin, "datadatadata");
+  const fetchCategories = async () => {
+    try {
+      const { success, result } = await getCategories();
+      if (success) {
+        setCategoryList(result);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchMenuItems = async () => {
+    try {
+      const { success, result } = await getCategories();
+      if (success) {
+        setNavigationItems(result);
+      }
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+    fetchMenuItems();
+  }, []);
+  const fetchTags = async () => {
+    try {
+      const { success, result } = await getTagsByCategory(selectCategory);
+      if (success) {
+        setSubcategoryList(result);
+        setSelectedSubcategory("all");
+      }
+    } catch (error) {
+      console.error("Error fetching tags:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTags();
+  }, [selectCategory]);
+
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
         <div className="sticky top-0 z-50 w-full backdrop-blur-md">
           <Header />
-          {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
+          <NavigationBar
+            menuItems={navigationItems}
+            showLiveTag={true}
+            setSelectedCategory={setSelectedCategory}
+            selectedCategory={selectCategory}
+          />
         </div>
-        <div className="container mx-auto py-10 px-4 container-sm">
-          <div className="flex justify-end mb-4">
+        <div className="container mx-auto px-4 container-sm">
+          {/* <div className="flex justify-end mb-4">
             {isConnected ? (
               <>
                 <Button className="mr-2">{shortText(address)}</Button>
@@ -789,31 +885,77 @@ export default function PortfolioPage() {
             ) : (
               <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
             )}
-          </div>
+          </div> */}
           {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
           <br></br>
           {/* 2. Key metrics card area */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <div className="bg-[#131212] p-4 rounded-lg">
+            <div
+              className="flex-1 bg-black rounded-lg p-4 border relative"
+              style={{ boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)" }}
+            >
+              <div className="absolute top-4 right-4 bg-[#051505] text-green-400 text-xs px-2 py-1 rounded-md border border-green-400 flex items-center">
+                <Image
+                  src="/images/cash.png"
+                  alt="cash"
+                  width={16}
+                  height={16}
+                  className="mr-1"
+                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-pointer">
+                        {walletData?.balance
+                          ? PnLFormatted(
+                              formatNumber(
+                                walletData?.balance - walletData?.locked,
+                                2
+                              )
+                            )
+                          : 0}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      sideOffset={8}
+                      className="text-xs"
+                    >
+                      Available Balance
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
               <div className="flex items-start justify-between">
                 <div className="flex flex-col items-left">
                   <span className="text-sm text-gray-500 mt-1">PORTFOLIO</span>
                   <span className="mt-2 text-3xl font-semibold">
                     {walletData?.balance
-                      // ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
-                      ? PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2))
+                      ? // ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
+                        PnLFormatted(
+                          formatNumber(
+                            walletData?.balance + walletData?.position,
+                            2
+                          )
+                        )
                       : 0}
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
                     <span className="text-green-500">$0.00 (0.00%)</span> Today
                   </span>
                 </div>
-                <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
-                  {walletData?.balance 
-                  // ? PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2)) 
-                  ? PnLFormatted(formatNumber(walletData?.balance - walletData?.locked, 2))
-                  : 0}
-                </Badge>
+                {/* <Badge className="z-10 text-sm text-white bg-[#00c735] font-normal">
+                  {walletData?.balance
+                    ? 
+                      PnLFormatted(
+                        formatNumber(
+                          walletData?.balance - walletData?.locked,
+                          2
+                        )
+                      )
+                    : 0}
+                </Badge> */}
               </div>
               <div
                 className="pb-0 mt-3"
@@ -836,8 +978,9 @@ export default function PortfolioPage() {
                     <Dialog.Trigger asChild>
                       <Button
                         onClick={() => iniDepsotClick()}
-                        className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#7dfdfe] hover:text-[#000000] transition-colors duration-300 rounded-full"
+                        className="w-full flex-1 h-10 px-4 py-2 rounded-md border border-white bg-white text-black hover:bg-gray-300 hover:border-gray-300 transition-colors duration-300 text-sm font-medium flex items-center justify-center"
                       >
+                        <span className="mr-2 text-lg">+</span>
                         Deposit
                       </Button>
                     </Dialog.Trigger>
@@ -852,7 +995,7 @@ export default function PortfolioPage() {
                           )}
                           {(step == "1" || step == "2" || step == "3") && (
                             <p className="text-center text-[12px] text-gray-400 mb-0">
-                              Available Balance: {" "}
+                              Available Balance:{" "}
                               {currency === "USDC"
                                 ? `${tokenbalance} ${currency}`
                                 : `${balance} ${currency ? currency : "SOL"}`}
@@ -866,8 +1009,7 @@ export default function PortfolioPage() {
                                 <p className="text-[12px] text-gray-400 mb-0">
                                   Deposit from
                                 </p>
-                                <div className="flex items-center gap-2"
-                                >
+                                <div className="flex items-center gap-2">
                                   <Image
                                     src="/images/wallet_icon_02.png"
                                     alt="Profile Icon"
@@ -875,18 +1017,22 @@ export default function PortfolioPage() {
                                     height={16}
                                     className="rounded-full"
                                   />
-                                  <span className="text-[14px] text-gray-200"
+                                  <span
+                                    className="text-[14px] text-gray-200"
                                     onClick={async () => {
-                                      await navigator.clipboard.writeText(address);
+                                      await navigator.clipboard.writeText(
+                                        address
+                                      );
                                       setCopied(true);
                                       setTimeout(() => setCopied(false), 1000);
-                                    }}>
+                                    }}
+                                  >
                                     Wallet {shortText(address)}
-                                    {copied &&
+                                    {copied && (
                                       <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
                                         Copied!
                                       </span>
-                                    }
+                                    )}
                                   </span>
                                   <span className="text-[13px] text-gray-400">
                                     {/* $10.20 */}
@@ -894,47 +1040,68 @@ export default function PortfolioPage() {
                                   </span>
                                 </div>
                               </Button>
-                              {coin && coin.length > 0 && coin.map((value, i) => {
-                                const isSelected = depositData.currency === value?.symbol;
-                                const tokenIcon = value?.symbol === 'USDC' ? '/images/usdc.svg' : '/images/solana.png';
-                                const tokenAmount = value?.symbol === 'USDC' ? tokenbalance : balance;
-                                const tokenValueUSD = value?.symbol === 'USDC'
-                                  ? tokenbalance
-                                  : formatNumber(balance * tokenValue, 4);
+                              {coin &&
+                                coin.length > 0 &&
+                                coin.map((value, i) => {
+                                  const isSelected =
+                                    depositData.currency === value?.symbol;
+                                  const tokenIcon =
+                                    value?.symbol === "USDC"
+                                      ? "/images/usdc.svg"
+                                      : "/images/solana.png";
+                                  const tokenAmount =
+                                    value?.symbol === "USDC"
+                                      ? tokenbalance
+                                      : balance;
+                                  const tokenValueUSD =
+                                    value?.symbol === "USDC"
+                                      ? tokenbalance
+                                      : formatNumber(balance * tokenValue, 4);
 
-                                return (
-                                  <div key={i} className="wallet_coin_list">
-                                    <div
-                                      className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${isSelected ? "border-[#4f99ff] bg-[#1a1a1a]" : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
+                                  return (
+                                    <div key={i} className="wallet_coin_list">
+                                      <div
+                                        className={`flex items-center justify-between my-3 border px-3 py-1 rounded cursor-pointer transition ${
+                                          isSelected
+                                            ? "border-[#4f99ff] bg-[#1a1a1a]"
+                                            : "border-[#3d3d3d] hover:bg-[#1e1e1e]"
                                         }`}
-                                      onClick={() =>
-                                        setDepositData((prev) => ({
-                                          ...prev,
-                                          currency: value?.symbol,
-                                          minDeposit: value?.minDeposit
-                                        }))
-                                      }
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <Image
-                                          src={isEmpty(value?.image) ? tokenIcon : value?.image} 
-                                          alt={`${value?.symbol} Icon`}
-                                          width={24}
-                                          height={24}
-                                          className="rounded-full"
-                                        />
-                                        <div className="flex flex-col">
-                                          <span className="text-[14px]">{value?.symbol}</span>
-                                          <span className="text-[12px] text-gray-400">
-                                            {tokenAmount} {value?.symbol}
-                                          </span>
+                                        onClick={() =>
+                                          setDepositData((prev) => ({
+                                            ...prev,
+                                            currency: value?.symbol,
+                                            minDeposit: value?.minDeposit,
+                                          }))
+                                        }
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <Image
+                                            src={
+                                              isEmpty(value?.image)
+                                                ? tokenIcon
+                                                : value?.image
+                                            }
+                                            alt={`${value?.symbol} Icon`}
+                                            width={24}
+                                            height={24}
+                                            className="rounded-full"
+                                          />
+                                          <div className="flex flex-col">
+                                            <span className="text-[14px]">
+                                              {value?.symbol}
+                                            </span>
+                                            <span className="text-[12px] text-gray-400">
+                                              {tokenAmount} {value?.symbol}
+                                            </span>
+                                          </div>
                                         </div>
+                                        <span className="text-[14px]">
+                                          ${tokenValueUSD}
+                                        </span>
                                       </div>
-                                      <span className="text-[14px]">${tokenValueUSD}</span>
                                     </div>
-                                  </div>
-                                );
-                              })}
+                                  );
+                                })}
                               <Button
                                 className="mt-4 w-full"
                                 onClick={() => step2Click()}
@@ -986,8 +1153,7 @@ export default function PortfolioPage() {
                                 </Button>
                               </div>
                               <p className="text-[12px] text-gray-400 text-center mt-8">
-                                {`${minDeposit} ${currency} minimum deposit`
-                                  }
+                                {`${minDeposit} ${currency} minimum deposit`}
                                 {/* `${minDeposit} ${currency} minimum deposit`} */}
                               </p>
                               <div
@@ -1071,7 +1237,10 @@ export default function PortfolioPage() {
                                   onComplete={() => {
                                     console.log("Timer completed!");
                                     setStep("");
-                                    const button = document.querySelector(".modal_close_brn");
+                                    const button =
+                                      document.querySelector(
+                                        ".modal_close_brn"
+                                      );
                                     if (button) {
                                       button.click();
                                     }
@@ -1155,7 +1324,10 @@ export default function PortfolioPage() {
                                   <span className="text-[14px] text-gray-200">
                                     {currency == "USDC"
                                       ? `${depsoitAmt} USDC`
-                                      : `${formatNumber(depsoitAmt * tokenValue, 4)} USDC`}
+                                      : `${formatNumber(
+                                          depsoitAmt * tokenValue,
+                                          4
+                                        )} USDC`}
                                     {/* tokenAmt */}
                                   </span>
                                 </div>
@@ -1176,10 +1348,10 @@ export default function PortfolioPage() {
                                           height={18}
                                         />
                                         <span className="text-[14px] text-gray-200">
-
                                           {gasAmt?.gasCost
                                             ? formatNumber(gasAmt?.gasCost, 6)
-                                            : 0} SOL
+                                            : 0}{" "}
+                                          SOL
                                         </span>
                                         <ChevronDownIcon
                                           className="AccordionChevron"
@@ -1194,10 +1366,10 @@ export default function PortfolioPage() {
                                         Your gas costs
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-
                                         {gasAmt?.gasCost
                                           ? formatNumber(gasAmt?.gasCost, 6)
-                                          : 0} SOL
+                                          : 0}{" "}
+                                        SOL
                                       </span>
                                     </div>
 
@@ -1206,8 +1378,12 @@ export default function PortfolioPage() {
                                         Market gas price
                                       </span>
                                       <span className="text-[13px] text-gray-200">
-                                        $ {""}{gasAmt?.marketGasCost
-                                          ? formatNumber(gasAmt?.marketGasCost, 6)
+                                        $ {""}
+                                        {gasAmt?.marketGasCost
+                                          ? formatNumber(
+                                              gasAmt?.marketGasCost,
+                                              6
+                                            )
                                           : 0}{" "}
                                         {/* Gwei */}
                                       </span>
@@ -1339,17 +1515,39 @@ export default function PortfolioPage() {
                 <Withdraw />
               </div>
             </div>
-            <div className="bg-[#131212] p-4 rounded-lg">
+            <div
+              className="flex-1 bg-black rounded-lg p-4 flex flex-col justify-between border relative"
+              style={{ boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)" }}
+            >
               <div className="flex items-start justify-between flex-wrap">
                 <div className="flex flex-col items-left">
-                  <span className="text-sm text-gray-500 mt-1">PROFIT/LOSS</span>
-                  <span className={`mt-2 text-3xl font-semibold ${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>{PnLFormatted(formatNumber(profitAmount, 2))}</span>
                   <span className="text-sm text-gray-500 mt-1">
-                    <span className={`${profitAmount >= 0 ? "text-green-600" : "text-red-500"}`}>$0.00 (0.00%)</span> Today
+                    PROFIT/LOSS
+                  </span>
+                  <span
+                    className={`mt-2 text-3xl font-semibold ${
+                      profitAmount >= 0 ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {PnLFormatted(formatNumber(profitAmount, 2))}
+                  </span>
+                  <span className="text-sm text-gray-500 mt-1">
+                    <span
+                      className={`${
+                        profitAmount >= 0 ? "text-green-400" : "text-red-400"
+                      }`}
+                    >
+                      $0.00 (0.00%)
+                    </span>{" "}
+                    Today
                   </span>
                 </div>
                 <div className="justify-center items-center">
-                  <ChartIntervals interval={interval} setInterval={setInterval} isAllDisable={true}/>
+                  <ChartIntervals
+                    interval={interval}
+                    setInterval={setInterval}
+                    isAllDisable={true}
+                  />
                 </div>
               </div>
             </div>
@@ -1786,6 +1984,7 @@ export default function PortfolioPage() {
         </Dialog.Root>
       </div>
       <Footer />
+      <HeaderFixed />
     </>
   );
 }

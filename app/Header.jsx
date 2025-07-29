@@ -23,7 +23,7 @@ export default function Header() {
   return (
     <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 pt-2 container mx-auto">
       {/* Logo and Mobile Auth */}
-      <div className="flex w-full md:w-auto items-center justify-between md:ml-6">
+      <div className="flex w-full lg:w-auto items-center justify-between md:ml-6">
         <Link href="/">
           <Image
             src={SONOTRADE}
@@ -34,8 +34,8 @@ export default function Header() {
           />
         </Link>
 
-        <div className="flex md:hidden items-center gap-2 pr-3">
-          {signedIn && (
+        <div className="flex lg:hidden items-center gap-2 pr-3">
+          {/* {signedIn && (
             <button
               className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
               onClick={navigateToPortfolioPage}
@@ -45,16 +45,24 @@ export default function Header() {
               </div>
               <div className="text-xs text-grey">Cash</div>
             </button>
-          )}
+          )} */}
           <Authentication />
         </div>
       </div>
-      <div className = "w-full px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0 hidden lg:block" >
+      <div className="w-full px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0 hidden lg:block">
         <SearchComponent />
-      </div >
+      </div>
+      <Link
+        href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="ml-4 text-white text-sm font-semibold px-3 py-1 rounded hover:text-gray-400 transition-colors whitespace-nowrap hidden lg:block"
+      >
+        Beginner’s Guide
+      </Link>
 
       {/* Desktop Auth Buttons */}
-      <div className="hidden md:flex items-center gap-2 ml-auto pr-3">
+      <div className="hidden lg:flex items-center gap-2 ml-auto pr-3">
         {signedIn && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"

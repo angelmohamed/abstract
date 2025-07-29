@@ -13,12 +13,17 @@ import {
 } from "@radix-ui/react-icons";
 import { Button } from "./components/ui/button";
 import SearchComponent from "./components/customComponents/SearchComponent";
+import { useSelector } from "@/store";
+import { availableBalance, PnLFormatted, formatNumber } from "@/lib/utils";
 
 export default function HeaderFixed() {
   const router = useRouter();
   const [activeMenu, setActiveMenu] = useState("home");
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { signedIn } = useSelector((state) => state?.auth?.session);
+  const walletData = useSelector((state) => state?.wallet?.data);
+  const navigateToPortfolioPage = () => router.push("/portfolio");
 
   // Lock body scroll when drawer is open
   useEffect(() => {
@@ -28,6 +33,20 @@ export default function HeaderFixed() {
       document.body.style.overflow = "";
     };
   }, [isOpen, isSearchOpen]);
+
+  function formatNumber(num, decimals = 2) {
+    if (typeof num !== "number") return "0.00";
+    return num.toFixed(decimals);
+  }
+
+  function PnLFormatted(val) {
+    // Example: add $ and green/red color
+    return (
+      <span className={val >= 0 ? "text-green-500" : "text-red-500"}>
+        ${val}
+      </span>
+    );
+  }
 
   return (
     <>
@@ -61,64 +80,71 @@ export default function HeaderFixed() {
         </button> */}
 
         {/* Menu Items */}
-        <nav className="flex flex-col gap-1 mt-2 px-2">
-          <Link
-            href="/markets"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Markets
-          </Link>
-          <Link
-            href="/portfolio"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Portfolio
-          </Link>
-          <Link
-            href="/leaderboard"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Leaderboard
-          </Link>
-          <Link
-            href="/settings"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
-            onClick={() => setIsOpen(false)}
-          >
-            Settings
-          </Link>
-          <div className="flex flex-col gap-2 mt-1 px-2">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => {
-                setOpen(true);
-                setUserData({ email: "" });
-                setExpireTime(0);
-                setError({});
-                disconnectWallet();
-              }}
+
+        {signedIn && (
+          <div className="flex flex-col items-start gap-2 mt-4 mb-0 pl-3">
+            <button
+              className="px-3 py-2 text-left w-full"
+              onClick={navigateToPortfolioPage}
             >
-              Log In
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="bg-[#eeeef0] text-[#131418]"
-              onClick={() => {
-                setOpen(true);
-                setUserData({ email: "" });
-                setExpireTime(0);
-                setError({});
-                disconnectWallet();
-              }}
+              <div className="text-xs text-grey">Cash</div>
+              <div className="text-lg text-[#33ff4c]">
+                ${availableBalance(walletData)}
+              </div>
+            </button>
+            <button
+              className="px-3 py-2 text-left w-full"
+              onClick={() => navigateToPortfolioPage()}
             >
-              Sign Up
-            </Button>
+              <div className="text-xs text-grey">Portfolio</div>
+              <div className="text-lg text-[#33ff4c]">
+                {PnLFormatted(
+                  formatNumber(walletData?.balance + walletData?.position, 2)
+                )}
+              </div>
+            </button>
           </div>
+        )}
+
+        <nav className="flex flex-col gap-1 mt-1 px-2">
+          {signedIn && (
+            <Link
+              href="/settings"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
+              onClick={() => setIsOpen(false)}
+            >
+              Settings
+            </Link>
+          )}
+          <Link
+            href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
+          >
+            Beginner’s Guide
+          </Link>
+          <Link
+            href="/about"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
+            onClick={() => setIsOpen(false)}
+          >
+            About
+          </Link>
+          <Link
+            href="/waitlist"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
+            onClick={() => setIsOpen(false)}
+          >
+            Waitlist
+          </Link>
+          <Link
+            href="/terms"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
+            onClick={() => setIsOpen(false)}
+          >
+            Terms of Use
+          </Link>
         </nav>
       </div>
 
@@ -141,13 +167,6 @@ export default function HeaderFixed() {
         </div>
         <div className="p-4">
           <SearchComponent />
-          {/* Your search input and results go here */}
-          {/* <input
-            type="text"
-            className="w-full p-2 rounded bg-[#232b3a] text-white"
-            placeholder="Type to search..."
-            autoFocus
-          /> */}
         </div>
       </div>
 

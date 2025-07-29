@@ -27,7 +27,8 @@ html ::-webkit-scrollbar {
   border-radius: 10px;
 } */
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Inter", Arial, Helvetica, sans-serif !important;
+  padding-top: 0.5rem;
 }
 
 @layer utilities {
@@ -166,7 +167,122 @@ body {
     opacity: 1;
   }
 }
+@keyframes pulse-subtle {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+@keyframes border-glow {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  25% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes corner-pulse {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes line-flow {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes line-flow-vertical {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes corner-turn {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(90deg);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1) rotate(90deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(90deg);
+  }
+}
+
+.animate-border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+.animate-corner-pulse {
+  animation: corner-pulse 2s ease-in-out infinite;
+}
+
+.animate-line-flow {
+  animation: line-flow 2.5s ease-in-out infinite;
+}
+
+.animate-line-flow-vertical {
+  animation: line-flow-vertical 2.5s ease-in-out infinite;
+}
+
+.animate-corner-turn {
+  animation: corner-turn 2.5s ease-in-out infinite;
+}
 .modal-backdrop {
   opacity: 0;
   pointer-events: none; /* Prevent interaction when hidden */

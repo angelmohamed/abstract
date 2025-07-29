@@ -10,12 +10,12 @@ interface ChartIntervalsProps {
 
 const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, isAllDisable }) => {
   return (
-    <div className="mt-2 flex gap-2">
+    <div className="mt-2 mb-0 flex gap-2 justify-center">
       <Button
         id="1h"
         variant={interval === "1h" ? "default" : "outline"}
         onClick={() => setInterval("1h")}
-        className="rounded-full px-3 py-1 text-sm"
+        className="rounded-full px-3 py-1 text-xs"
       >
         1H
       </Button>
@@ -23,7 +23,7 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, 
         id="6h"
         variant={interval === "6h" ? "default" : "outline"}
         onClick={() => setInterval("6h")}
-        className="rounded-full px-3 py-1 text-sm"
+        className="rounded-full px-3 py-1 text-xs"
       >
         6H
       </Button>
@@ -31,7 +31,7 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, 
         id="1d"
         variant={interval === "1d" ? "default" : "outline"}
         onClick={() => setInterval("1d")}
-        className="rounded-full px-3 py-1 text-sm"
+        className="rounded-full px-3 py-1 text-xs"
       >
         1D
       </Button>
@@ -39,7 +39,7 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, 
         id="1w"
         variant={interval === "1w" ? "default" : "outline"}
         onClick={() => setInterval("1w")}
-        className="rounded-full px-3 py-1 text-sm"
+        className="rounded-full px-3 py-1 text-xs"
       >
         1W
       </Button>
@@ -47,7 +47,7 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, 
         id="1m"
         variant={interval === "1m" ? "default" : "outline"}
         onClick={() => setInterval("1m")}
-        className="rounded-full px-3 py-1 text-sm"
+        className="rounded-full px-3 py-1 text-xs"
       >
         1M
       </Button>
@@ -56,7 +56,7 @@ const ChartIntervals: React.FC<ChartIntervalsProps> = ({ interval, setInterval, 
           id="All"
           variant={interval === "max" ? "default" : "outline"}
           onClick={() => setInterval("max")}
-          className="rounded-full px-3 py-1 text-sm"
+          className="rounded-full px-3 py-1 text-xs"
         >
           ALL
         </Button>

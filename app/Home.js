@@ -28,14 +28,14 @@ const InfoCards = ({ infoCardCms }) => {
 
   const renderInfoCard = (emoji, title, footer) => {
     return (
-      <div className="h-full border border-white p-4 rounded-md">
-        <div className="flex">
-          <h3 className="text-3xl font-semibold mb-2">{emoji}</h3>
-          <p className="text-sm font-extrabold pl-2">{title}</p>
+      <div className="h-28 p-3 rounded-md" style={{ backgroundColor: '#00111a', height: '7rem' }}>
+        <div className="flex items-center">
+          <h3 className="text-xl font-semibold mb-1">{emoji}</h3>
+          <p className="text-xs font-bold pl-2 leading-tight">{title}</p>
         </div>
         <div>
           <p
-            className="text-sm pt-3"
+            className="text-xs pt-2 leading-snug"
             dangerouslySetInnerHTML={{ __html: footer }}
           ></p>
         </div>
@@ -44,10 +44,10 @@ const InfoCards = ({ infoCardCms }) => {
   };
 
   return (
-    <div className="justify-center mb-8 mt-8 pt-2 pb-8 lg:block hidden">
-      <div className="w-full">
+    <div className="justify-center mb-4 mt-2 pt-0 w-full lg:flex hidden">
+      <div className="w-full flex flex-col items-center justify-center">
         {/* Desktop view */}
-        <div className="hidden md:grid md:grid-cols-4 gap-4">
+        <div className="hidden md:grid md:grid-cols-4 gap-4 justify-items-center items-center">
           {infoCardCms &&
             infoCardCms?.length > 0 &&
             infoCardCms?.map((card, index) => (

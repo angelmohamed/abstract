@@ -64,7 +64,7 @@ export default function EventCarousel() {
   }
 
   return (
-    <div className="w-full max-w-screen overflow-hidden pb-10 lg:block hidden">
+    <div className="w-full max-w-screen overflow-hidden pb-6 lg:block hidden">
       <Carousel autoPlayInterval={8000}>
         <CarouselContent>
           {events?.map((event, index) => {
