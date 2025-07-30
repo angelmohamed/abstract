@@ -1,7 +1,21 @@
 export const runtime = 'edge';
 
 import EventPage from "./_components/EventPage";
+import { getCategories } from "@/services/market";
 
-export default function Page() {
-  return <EventPage />
+export default async function Page() {
+  const categories = await fetchCategories();
+  return <EventPage categories={categories} />
 }
+
+const fetchCategories = async () => {
+  try {
+    const { success, result } = await getCategories();
+    if (success) {
+      return result;
+    }
+    return [];
+  } catch (error) {
+    return [];
+  }
+};
