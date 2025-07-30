@@ -146,10 +146,10 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
     }
      if( buyorsell === "sell"){
       if (!amount) {
-        errors.amount = "Shares field is required";
+        errors.amount = "Contracts field is required";
       }
       if (Number(amount) <= 0) {
-        errors.amount = "Shares must be greater than 0";
+        errors.amount = "Contracts must be greater than 0";
       }
     }
     // if (customDate && customDate <= new Date()) {
@@ -216,28 +216,29 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
   return (
     <>
       <div className="pt-2">
-        <p className="text-muted-foreground text-sm text-right mb-1">
+        {/* <p className="text-muted-foreground text-sm text-right mb-1">
           Balance {signedIn ? `$${availableBalance(asset)}`: "--"}
-        </p>
-        <div className="flex justify-between mt-3">
-          <div className="flex flex-col">
-            <span className="text-[#fff] text-[16px]">{buyorsell == "buy" ? "Amount" : "Shares"}</span>
-            {/* <p className="text-muted-foreground text-sm cursor-pointer">{userPosition} Shares</p> */}
-          </div>
-          <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+        </p> */}
+        <div className="flex justify-between">
+          {/* <div className="flex flex-col">
+            <span className="text-[#fff] text-[16px]">{buyorsell == "buy" ? "Amount" : "Shares"}</span>            
+          </div> */}
+          <div className="w-full flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
             <Input 
               type="text" 
               value={buyorsell == "buy" ? ordVal: amount}
               name={buyorsell == "buy" ? "ordVal": "amount"}
-              placeholder={buyorsell == "buy"  ? "0 $": "0"}
+              // placeholder={buyorsell == "buy"  ? "0 $": "0"}
+              placeholder="Amount"
               onChange={handleChange}
-              className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+              className="border-0 text-left bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
             />
+            <span className="cursor-default text-[16px] p-3">{buyorsell == "buy" ? "USD" : "Contracts"}</span>
           </div>
         </div>
         {errors.ordVal && <p className="text-red-500 text-sm">{errors.ordVal}</p>}
         {errors.amount && <p className="text-red-500 text-sm">{errors.amount}</p>}
-        <div className="flex gap-2 pt-2 justify-between">
+        {/* <div className="flex gap-2 pt-2 justify-between">
           <Button 
             className="text-[13px] w-full h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
             onClick={() => handleChangeBtn("+", buyorsell == "buy" ? "ordVal": "amount", 1)}
@@ -262,13 +263,13 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
           >
             Max
           </Button>
-        </div>
+        </div> */}
       </div>
     {(activeView === "Yes" ? lastYesOrder : lastNoOrder) && (
-      <div className="pt-4 space-y-2 pb-2">
+      <div className="pt-2 space-y-2 pb-2">
         {/* Shares */}
         <div className="flex justify-between text-sm pt-2">
-          <span className="text-muted-foreground">Shares</span>
+          <span className="text-muted-foreground">Contracts</span>
           <span className="text-foreground">
             {buyorsell == "sell" && (amount || 0)}
             {buyorsell === "buy"
@@ -283,7 +284,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
 
         {/* Average Price */}
         <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Average price</span>
+          <span className="text-muted-foreground">Average price per contract</span>
           <span className="text-foreground">
             {activeView == "Yes" ? lastYesOrder : lastNoOrder}¢
           </span>{" "}
@@ -292,7 +293,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
         {/* Potential Return */}
         <div className="flex justify-between text-sm">
           <div>
-            <span className="text-muted-foreground">Potential return if</span>
+            <span className="text-muted-foreground">Total return if</span>
             <span className="text-white">  {`${activeView == "Yes" ? (firstLetterCase(outcomes?.[0]?.title || "yes")) : firstLetterCase(outcomes?.[1]?.title || "no")}
             `} </span>
             <span className="text-muted-foreground"> wins</span>

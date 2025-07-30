@@ -5,10 +5,21 @@ export interface AmountProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   setAmount: (value: string) => void;
   amount?: number | string;
+  rightLabel?: string;
 }
 
 const Amount = React.forwardRef<HTMLInputElement, AmountProps>(
-  ({ className, type = "number", setAmount, amount = 0, ...props }, ref) => {
+  (
+    {
+      className,
+      type = "number",
+      setAmount,
+      amount = 0,
+      rightLabel = "USD",
+      ...props
+    },
+    ref
+  ) => {
     return (
       <div className="flex items-center border border-input rounded-md bg-background px-3 py-2">
         <input
@@ -19,14 +30,28 @@ const Amount = React.forwardRef<HTMLInputElement, AmountProps>(
           )}
           ref={ref}
           {...props}
-          placeholder="Amount" // "Amount" is now a placeholder instead of a span
+          placeholder={rightLabel === "¢" ? "Limit Price" : "Amount"}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            setAmount(e.target.value);
+            const value = e.target.value;
+
+            if (rightLabel === "¢") {
+              // For cents: no decimals, max 99
+              const cleanValue = value.replace(/[^\d]/g, "");
+              const limitedValue = Math.min(parseInt(cleanValue) || 0, 99);
+              setAmount(limitedValue === 0 ? "" : limitedValue.toString());
+            } else {
+              // For USD: max 2 decimal places
+              const regex = /^\d*\.?\d{0,2}$/;
+              if (regex.test(value) || value === "") {
+                setAmount(value);
+              }
+            }
           }}
-          value={amount}
+          value={amount || ""}
         />
-        <span className="text-muted-foreground ml-2 text-right">USD</span>{" "}
-        {/* Move USD to the right */}
+        <span className="text-foreground ml-2 text-right font-medium">
+          {rightLabel}
+        </span>
       </div>
     );
   }

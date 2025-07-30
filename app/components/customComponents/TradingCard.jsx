@@ -25,8 +25,14 @@ import {
   OptionsList,
   OptionsTrigger,
 } from "@/app/components/ui/optionsToggle";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/app/components/ui/tooltip";
 import { useSelector } from "@/store";
-
+import { availableBalance } from "@/lib/utils";
 import LimitOrder from "./LimitOrder";
 import MarketOrder from "./MarketOrder";
 import OrderTypeDropdown from "./OrderTypeDropdown";
@@ -110,6 +116,8 @@ export function TradingCard({
       socket.off("pos-update", handlePositions);
     };
   }, [socketContext]);
+  const { signedIn } = useSelector((state) => state?.auth.session);
+  const asset = useSelector((state) => state?.wallet?.data);
 
   return (
     <Card
@@ -150,7 +158,7 @@ export function TradingCard({
               </div>
             </div>
           </CardTitle>
-          <CardDescription>
+          {/* <CardDescription>
             {" "}
             $
             {market?.volume
@@ -159,7 +167,7 @@ export function TradingCard({
                   maximumFractionDigits: 2,
                 })
               : "0.00"}
-          </CardDescription>
+          </CardDescription> */}
         </CardHeader>
 
         <CardContent className="px-5 pb-5 pt-0">
@@ -180,24 +188,63 @@ export function TradingCard({
               />
             </div>
             <div className="w-full h-px bg-gray-600"></div>
-            <TabsContent value="buy"></TabsContent>
-            <TabsContent value="sell"></TabsContent>
-            {!isEmptyObject(positions) && (
-              <h1
-                className="pt-2"
-                style={{
-                  color: positions?.side === "yes" ? "#7dfdfe" : "#ec4899",
-                }}
-              >
-                {toFixedDown(positions?.quantity, 2)} &middot;{" "}
-                {capitalize(
-                  positions?.side == "yes"
-                    ? firstLetterCase(market?.outcome?.[0]?.title || "yes")
-                    : firstLetterCase(market?.outcome?.[1]?.title || "no")
-                )}{" "}
-                ({positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
+            <TabsContent value="buy">
+              <h1 className="pb-2 flex justify-between items-center">
+                <span>
+                  Pick side{" "}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className="text-xs text-gray-400"
+                          style={{ cursor: "pointer" }}
+                        >
+                          ⓘ
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        sideOffset={8}
+                        className="max-w-xs text-left text-xs"
+                      >
+                        {orderType === "limit"
+                          ? "Please select Yes or No and specify a limit price between 1¢ and 99¢, reflecting the odds you believe, where a higher price indicates greater confidence. With a limit order, your investment is matched with other users taking the opposite side at the complementary price (100¢ minus your limit price, since the odds sum to 100%). The higher your limit price, the cheaper and more likely it is for the opposite side to match. If your prediction is correct, your shares settle at $1 (100% chance); if not, they expire at $0 (0% chance). You can sell your shares at any time for a price you choose to realize profits before resolution."
+                          : "A market order will match you with the cheapest available ask price when buying, or the highest available bid price when selling. These prices reflect the odds other users have set for the outcome. If there are no contracts available in the order book at the moment, please place a limit order specifying your desired price, which represents the odds you believe in."}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </span>
               </h1>
-            )}
+            </TabsContent>
+            <TabsContent value="sell">
+              <h1 className="pb-2 flex justify-between items-center">
+                <span>
+                  Your position{" "}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span
+                          className="text-xs text-gray-400"
+                          style={{ cursor: "pointer" }}
+                        >
+                          ⓘ
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="bottom"
+                        sideOffset={8}
+                        className="max-w-xs text-left text-xs"
+                      >
+                        {orderType === "limit"
+                          ? "Please select Yes or No and specify a limit price between 1¢ and 99¢, reflecting the odds you believe, where a higher price indicates greater confidence. With a limit order, your investment is matched with other users taking the opposite side at the complementary price (100¢ minus your limit price, since the odds sum to 100%). The higher your limit price, the cheaper and more likely it is for the opposite side to match. If your prediction is correct, your shares settle at $1 (100% chance); if not, they expire at $0 (0% chance). You can sell your shares at any time for a price you choose to realize profits before resolution."
+                          : "A market order will match you with the cheapest available ask price when buying, or the highest available bid price when selling. These prices reflect the odds other users have set for the outcome. If there are no contracts available in the order book at the moment, please place a limit order specifying your desired price, which represents the odds you believe in."}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </span>
+              </h1>
+            </TabsContent>
+
             <div className="pt-2">
               <Options
                 defaultValue={activeView}
@@ -277,6 +324,30 @@ export function TradingCard({
 
                 <OptionsContent value="Yes"></OptionsContent>
                 <OptionsContent value="No"></OptionsContent>
+
+                <div className="flex justify-between mt-4 mb-0">
+                  <div>
+                    {!isEmptyObject(positions) && (
+                      <h1 className="text-xs text-gray-500">
+                        {toFixedDown(positions?.quantity, 2)} &middot;{" "}
+                        {capitalize(
+                          positions?.side == "yes"
+                            ? firstLetterCase(
+                                market?.outcome?.[0]?.title || "yes"
+                              )
+                            : firstLetterCase(
+                                market?.outcome?.[1]?.title || "no"
+                              )
+                        )}{" "}
+                        ({positions?.filled?.[0]?.price?.toFixed(0)}¢) owned
+                      </h1>
+                    )}
+                  </div>
+
+                  <span className="text-xs text-gray-500">
+                    Balance {signedIn ? `$${availableBalance(asset)}` : "$0.00"}
+                  </span>
+                </div>
 
                 {orderType === "market" && (
                   <MarketOrder

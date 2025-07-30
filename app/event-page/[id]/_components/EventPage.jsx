@@ -549,7 +549,7 @@ export default function EventPage() {
                         Rules
                       </h3>
                       <SelectSeparator className="my-4" />
-                      <div className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
+                      <div className="sm:text-base pb-0 text-[14px]">
                         {events?.description?.length > 250 ? (
                           <div className="space-y-0">
                             <div
@@ -591,7 +591,7 @@ export default function EventPage() {
                     </div>
 
                     {/* 评论区 Comment Section */}
-                    <div className="pl-12 pr-0 sm:pl-0 sm:pr-0 mt-6">
+                    <div className="mt-6">
                       <CommentSection eventId={events?._id} />
                     </div>
                   </div>

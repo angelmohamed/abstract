@@ -8,8 +8,8 @@ interface OrderTypeProps {
 }
 
 const options = [
-  { value: "limit", label: "Limit" },
-  { value: "market", label: "Market" },
+  { value: "limit", label: "Limit Order" },
+  { value: "market", label: "Market Order" },
 ];
 
 const OrderTypeDropdown: React.FC<OrderTypeProps> = (props) => {
@@ -21,7 +21,9 @@ const OrderTypeDropdown: React.FC<OrderTypeProps> = (props) => {
           className="flex items-center gap-2 p-2 text-[14px] font-normal"
           aria-label="Customise options"
         >
-          {orderType.charAt(0).toUpperCase() + orderType.slice(1)}
+          <span>
+            {orderType.charAt(0).toUpperCase() + orderType.slice(1)} Order
+          </span>
           <ChevronDownIcon className="w-4 h-4" />
         </button>
       </DropdownMenu.Trigger>

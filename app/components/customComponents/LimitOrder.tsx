@@ -19,7 +19,7 @@ interface LimitOrderProps {
   marketId: string;
   buyorsell: "buy" | "sell";
   selectedOrder: any;
-  outcomes:any;
+  outcomes: any;
   makerFee: any;
   takerFee: any;
 }
@@ -45,7 +45,15 @@ const errorState = {
 };
 
 const LimitOrder: React.FC<LimitOrderProps> = (props) => {
-  const { activeView, marketId, buyorsell, selectedOrder, outcomes, makerFee, takerFee } = props;
+  const {
+    activeView,
+    marketId,
+    buyorsell,
+    selectedOrder,
+    outcomes,
+    makerFee,
+    takerFee,
+  } = props;
 
   const { signedIn } = useSelector((state) => state?.auth.session);
   const user = useSelector((state) => state?.auth.user);
@@ -59,7 +67,9 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   const [customDate, setCustomDate] = useState<any>("");
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
   const [userPosition, setUserPosition] = useState<number>(0);
-  const [expirationSeconds, setExpirationSeconds] = useState<number | null>(null);
+  const [expirationSeconds, setExpirationSeconds] = useState<number | null>(
+    null
+  );
 
   const { price, amount } = formValue;
 
@@ -68,17 +78,16 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     if (op === "+") {
       setFormValue((prev) => {
         let maxNum = {
-          "price":100,
-          "amount":100001
-        }
-        console.log("maxNum[key]",maxNum[key])
-        if ((Number(prev[key]) + increment >= maxNum[key])){
-          return {...prev, [key]: maxNum[key] - 1 }
+          price: 100,
+          amount: 100001,
+        };
+        console.log("maxNum[key]", maxNum[key]);
+        if (Number(prev[key]) + increment >= maxNum[key]) {
+          return { ...prev, [key]: maxNum[key] - 1 };
         } else {
-          return { ...prev, [key]: Number(prev[key]) + increment }
+          return { ...prev, [key]: Number(prev[key]) + increment };
         }
       });
-
     } else if (op === "-") {
       setFormValue((prev) => {
         if (Number(prev[key]) - increment > 0) {
@@ -92,14 +101,14 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     setFormValue((prev: any) => {
       if (name === "price") {
-        const numericValue = value.replace(/[^0-9]/g, '');
+        const numericValue = value.replace(/[^0-9]/g, "");
         const priceNum = parseInt(numericValue);
-        
-        if (numericValue === '') {
-          return { ...prev, [name]: '' };
+
+        if (numericValue === "") {
+          return { ...prev, [name]: "" };
         } else if (priceNum >= 1 && priceNum <= 99) {
           return { ...prev, [name]: numericValue };
         } else {
@@ -107,18 +116,18 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         }
       } else if (name === "amount") {
         // const numericValue = value.replace(/[^0-9.]/g, '');
-        
+
         // const parts = numericValue.split('.');
         // if (parts.length > 2) {
         //   return prev;
         // }
-        
+
         // if (parts[1] && parts[1].length > 2) {
         //   return prev;
         // }
-        
+
         // const amountNum = parseInt(numericValue);
-        
+
         // if (numericValue === '' || numericValue === '.') {
         //   return { ...prev, [name]: numericValue };
         // } else if (amountNum >= 0 && amountNum <= 100000) {
@@ -127,18 +136,18 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         //   return prev;
         // }
 
-        const numericValue = value.replace(/[^0-9]/g, ''); // Only digits, no decimal point
+        const numericValue = value.replace(/[^0-9]/g, ""); // Only digits, no decimal point
 
-        if (numericValue === '') {
-          return { ...prev, [name]: '' };
+        if (numericValue === "") {
+          return { ...prev, [name]: "" };
         }
-        
+
         const amountNum = parseInt(numericValue, 10);
-        
+
         if (!isNaN(amountNum) && amountNum >= 0 && amountNum <= 100000) {
           return { ...prev, [name]: numericValue };
         }
-        
+
         return prev;
       } else {
         return prev;
@@ -157,10 +166,10 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       errors.price = "Amount must be less than 99";
     }
     if (!amount) {
-      errors.amount = "Shares field is required";
+      errors.amount = "Contracts field is required";
     }
     if (Number(amount) <= 0) {
-      errors.amount = "Shares must be greater than 0";
+      errors.amount = "Contracts must be greater than 0";
     }
     // if (customDate && customDate <= new Date()) {
     //   errors.customDate = "Custom date must be in the future";
@@ -168,7 +177,6 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
     setErrors(errors);
     return Object.keys(errors).length > 0 ? false : true;
   };
-
 
   const handlePlaceOrder = async (action: any) => {
     let activeTab = activeView?.toLowerCase();
@@ -201,7 +209,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
 
   const handlePercentageClick = (percentage: number) => {
     if (userPosition <= 0) {
-      toastAlert("error", "You don't have any shares to sell", "no-position");
+      toastAlert("error", "You don't have any Contracts to sell", "no-position");
       return;
     }
 
@@ -212,9 +220,9 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
       amount = Math.floor((userPosition * percentage) / 100);
     }
 
-    setFormValue(prev => ({
+    setFormValue((prev) => ({
       ...prev,
-      amount
+      amount,
     }));
   };
 
@@ -266,63 +274,53 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
   return (
     <>
       <div className="flex justify-between mt-3">
-        <div className="flex flex-col">
-          <span className="text-[#fff] text-[16px]">Limit Price</span>
-          <p className="text-muted-foreground text-sm">
-            Balance {signedIn ? `$${availableBalance(asset)}` : "--"}
-          </p>
+        <div className="w-full flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
+          <Input
+            type="text"
+            name="amount"
+            placeholder="Amount"
+            value={amount}
+            onChange={handleChange}
+            className="border-0 text-left bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+          />
+          <span className="cursor-default text-[16px] p-3">Contracts</span>
         </div>
-        <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-          <span
-            className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("-", "price", 1)}
-          >
-            -
-          </span>
+      </div>
+      <span className="text-red-500 text-sm">{errors?.amount}</span>
+
+      <div className="flex justify-between mt-3">
+        <div className="w-full flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
           <Input
             type="text"
             value={price}
             name="price"
-            placeholder="0 ¢"
+            placeholder="Limit Price"
             onChange={handleChange}
-            className="border-0 w-[100px] text-center bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+            className="border-0 text-left bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
-          <span
-            className="cursor-pointer text-[16px] p-3 hover:bg-[#262626]"
-            onClick={() => handleChangeBtn("+", "price", 1)}
-          >
-            +
-          </span>
+          <span className="cursor-default text-[16px] p-3">¢</span>
         </div>
       </div>
-      <span className="text-red-500">{errors?.price}</span>
+      <span className="text-red-500 text-sm">{errors?.price}</span>
 
-      <div className="flex justify-between mt-3">
-        <div className="flex flex-col">
-          <span className="text-[#fff] text-[16px]">Shares</span>
-          {/* <p className="text-muted-foreground text-sm cursor-pointer">{userPosition} Shares</p> */}
-        </div>
-        <div className="flex items-center border border-input rounded-md bg-background px-0 py-0 h-12 overflow-hidden">
-          <Input
-            type="text"
-            name="amount"
-            placeholder="0"
-            value={amount}
-            onChange={handleChange}
-            className="border-0 w-[150px] text-right bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-          />
-        </div>
-      </div>
-      <span className="text-red-500">{errors?.amount}</span>
-      {buyorsell == "sell" ? (
+      {/* {buyorsell == "sell" ? (
         <div className="flex gap-2 pt-2 justify-end">
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(25)}>
+          <Button
+            className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
+            onClick={() => handlePercentageClick(25)}
+          >
             25%
           </Button>
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(50)}>
+          <Button
+            className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
+            onClick={() => handlePercentageClick(50)}
+          >
             50%
           </Button>
-          <Button className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]" onClick={() => handlePercentageClick(100)}>
+          <Button
+            className="text-[13px] h-8 rounded bg-[trasparent] border border-[#262626] text-[#fff] hover:bg-[#262626]"
+            onClick={() => handlePercentageClick(100)}
+          >
             Max
           </Button>
         </div>
@@ -341,7 +339,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
             +10
           </Button>
         </div>
-      )}
+      )} */}
 
       <div className="flex items-center justify-between mt-3">
         <label className="Label" htmlFor="expiry" style={{ paddingRight: 15 }}>
@@ -365,7 +363,7 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
 
       {isExpirationEnabled && (
         <select
-          className="border bg-[#131212] border-[#262626] bg-black rounded w-full p-3 mt-2 text-[14px]"
+          className="border bg-[#131212] border-[#262626] rounded w-full p-3 mt-2 text-[14px]"
           onChange={(e) => {
             if (e.target.value === "Custom") {
               setShowCustomDialog(true);
@@ -387,42 +385,66 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
         </div>
       )}
 
-      {
-        buyorsell == "buy" ? (
-          <>
-            <div className="pt-1 pb-1 mt-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Total</span>
-                <span className="text-foreground">
-                  {/* You can add logic for limit order shares */}
-                  ${" "}{Number(price) * Number(amount) / 100}
-                </span>
-              </div>
+      {buyorsell == "buy" ? (
+        <>
+          <div className="pt-2 space-y-2 pb-2">
+            <div className="flex justify-between text-sm pt-2">
+              <span className="text-muted-foreground">Contracts</span>
+              <span className="text-foreground">
+                {Number(amount || 0)}
+              </span>{" "}
             </div>
 
-            <div className="pt-1 pb-1">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">To Win</span>
-                <span className="text-foreground">
-                  {/* You can add logic for limit order shares */}
-                  ${" "}{Number(amount)}
-                </span>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="pt-1 pb-1 mt-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">
-                You&apos;ll receive
+                Average price per contract
               </span>
               <span className="text-foreground">
-                ${" "}{Number(amount)}
+                {Number(amount || 0).toFixed(1)}¢
+              </span>{" "}
+              {/* Replace with actual number */}
+            </div>
+
+            {/* <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Total</span>
+              <span className="text-foreground">
+                ${" "}
+                {(Number(price) * Number(amount)) / 100}
+              </span>
+            </div>
+            */}
+
+            <div className="flex justify-between text-sm">
+              <div>
+                <span className="text-muted-foreground">Total return if</span>
+                <span className="text-white">
+                  {" "}
+                  {` ${
+                    activeView == "Yes"
+                      ? firstLetterCase(outcomes?.[0]?.title || "yes")
+                      : firstLetterCase(outcomes?.[1]?.title || "no")
+                  }`}{" "}
+                </span>
+                <span className="text-muted-foreground"> wins</span>
+              </div>
+              <span className="text-green-500">
+                $ {Number(amount || 0).toFixed(2)}
               </span>
             </div>
           </div>
-        )
-      }
+        </>
+      ) : (
+        <div className="pt-1 pb-1 mt-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-muted-foreground">
+              Estimated amount to receive
+            </span>
+            <span className="text-foreground text-green-500">
+              $ {Number(amount)}
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className="pt-4">
         {signedIn ? (
@@ -430,7 +452,11 @@ const LimitOrder: React.FC<LimitOrderProps> = (props) => {
             className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
             onClick={() => handlePlaceOrder(buyorsell)}
           >
-            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${activeView == "Yes" ? (firstLetterCase(outcomes?.[0]?.title || "yes")) : firstLetterCase(outcomes?.[1]?.title || "no")}`}
+            {`${buyorsell === "buy" ? "Buy" : "Sell"} ${
+              activeView == "Yes"
+                ? firstLetterCase(outcomes?.[0]?.title || "yes")
+                : firstLetterCase(outcomes?.[1]?.title || "no")
+            }`}
           </Button>
         ) : (
           <Button className="w-full border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300">
