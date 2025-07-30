@@ -1,7 +1,7 @@
 import { Dialog } from "radix-ui";
 import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
-import { setHours, setMinutes } from "date-fns";
+import { addHours, isSameDay, setMinutes, setSeconds, setMilliseconds } from "date-fns";
 import { Button } from "../ui/button";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
@@ -12,11 +12,40 @@ interface CustomDateProps {
   setCustomDate: (value: any) => void;
 }
 
+const now = new Date();
+const minDateTime = setMilliseconds(setSeconds(setMinutes(addHours(now, 1), 0), 0), 0); // round to next full hour
+
 const CustomDateComponent: React.FC<CustomDateProps> = (props) => {
   const { showCustomDialog, setShowCustomDialog, customDate, setCustomDate } = props;
+  const [selectedDateTime, setSelectedDateTime] = useState<any>(null);
+  
+  // Calculate the minimum allowed time (current time + 1 hour)
+  const getOneHourAhead = () => {
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    return now;
+  };
+
+  // Set the initial selected date and time to be valid
+  useEffect(() => {
+    if (!selectedDateTime) {
+      setSelectedDateTime(getOneHourAhead()); // Initialize to a valid future time on mount
+    }
+  }, [selectedDateTime]); // Only run once on component mount
+
+  const filterPassedTime = (time) => {
+    const oneHourAhead = getOneHourAhead();
+    // Compare selected time with the one hour ahead time for the current day
+    return selectedDateTime && 
+           selectedDateTime.getDate() === new Date().getDate() && 
+           selectedDateTime.getMonth() === new Date().getMonth() && 
+           selectedDateTime.getFullYear() === new Date().getFullYear()
+      ? time.getTime() > oneHourAhead.getTime()
+      : true; // Allow any time for other days
+  };
 
   // state 
-  const [date, setDate] = useState<Date | null>(null);
+  const [date, setDate] = useState<Date | null>(minDateTime);
   return (
     <Dialog.Root open={showCustomDialog} onOpenChange={setShowCustomDialog}>
       <Dialog.Portal>
@@ -27,25 +56,18 @@ const CustomDateComponent: React.FC<CustomDateProps> = (props) => {
           </Dialog.Title>
           <div className="mt-4">
             <label className="block mb-2">Pick a date and time:</label>
-            {/* <Input
-                type="datetime-local"
-                className="border p-2 rounded w-full justify-center"
-                value={customDate}
-                onChange={(e) => setCustomDate(e.target.value)}
-              /> */}
             <DatePicker
               className="custom_datepicker border p-2 rounded w-full"
-              selected={date as any}
-              onChange={(date) => setDate(date)}
+              selected={selectedDateTime}
+              onChange={(date) => setSelectedDateTime(date)}
               showTimeSelect
-              minDate={new Date()}
-              minTime={setHours(setMinutes(new Date(), 0), 17)}
-              maxTime={setHours(setMinutes(new Date(), 30), 20)}
-              dateFormat="MMMM d, yyyy h:mm aa"
+              dateFormat="Pp"
+              minDate={new Date()} // Prevents selection of dates before today
+              filterTime={filterPassedTime} // Conditionally disables times based on selected date
             />
           </div>
           <div className="flex justify-end mt-4">
-            <Button onClick={() => {setCustomDate(date), setShowCustomDialog(false)}}>Apply</Button>
+            <Button onClick={() => {setCustomDate(selectedDateTime), setShowCustomDialog(false)}}>Apply</Button>
           </div>
           <Dialog.Close asChild>
             <button className="modal_close_brn" aria-label="Close">

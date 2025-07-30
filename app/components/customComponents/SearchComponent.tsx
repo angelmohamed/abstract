@@ -14,7 +14,7 @@ export default function SearchComponent() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedQuery, setDebouncedQuery] = useState("");
     const [isRecentActivity, setIsRecentActivity] = useState(true);
-    const [recentActivity, setRecentActivity] = useState([]);
+    const [recentActivity, setRecentActivity] = useState<any[]>([]);
   
     const handleInputChange = (e) => {
         setSearchQuery(e.target.value);
@@ -30,7 +30,7 @@ export default function SearchComponent() {
     const clickEvent = (event) => {
     //   const eventPath = `/event-page/${event.slug}`;
     //   console.log("router.asPath", router.asPath);
-      setRecentActivity((prev: any) => {
+      setRecentActivity(prev => {
         const updatedActivity = [event, ...prev];
         if (updatedActivity.length > 5) {
           updatedActivity.pop();
