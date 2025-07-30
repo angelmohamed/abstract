@@ -52,7 +52,7 @@ import Astroworld from "@/public/images/astroworld.png";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import HeaderFixed from "@/app/HeaderFixed";
 
-export default function EventPage() {
+export default function EventPage({ categories }) {
   const param = useParams();
   const id = param.id;
   const socketContext = useContext(SocketContext);
@@ -74,7 +74,6 @@ export default function EventPage() {
   const [openOrders, setOpenOrders] = useState([]);
   const [openOrderDialog, setOpenOrderDialog] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
-  const [navigationItems, setNavigationItems] = useState([]);
   const [selectCategory, setSelectedCategory] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState({});
 
@@ -235,21 +234,6 @@ export default function EventPage() {
     }
   };
 
-  const fetchMenuItems = async () => {
-    try {
-      const { success, result } = await getCategories();
-      if (success) {
-        setNavigationItems(result);
-      }
-    } catch (error) {
-      console.error("Error fetching menu items:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
-
   return (
     <>
       {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0"> */}
@@ -257,7 +241,7 @@ export default function EventPage() {
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
           <Header />
           <NavigationBar
-            menuItems={navigationItems}
+            menuItems={categories}
             showLiveTag={true}
             setSelectedCategory={setSelectedCategory}
             selectedCategory={selectCategory}
@@ -556,6 +540,7 @@ export default function EventPage() {
                               className={`line-clamp-5 transition-all duration-300 ${
                                 showFullText ? "line-clamp-none" : ""
                               }`}
+                              style={{ whiteSpace: "pre-line" }}
                             >
                               {showFullText
                                 ? events?.description
