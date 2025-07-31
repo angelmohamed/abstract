@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 
 export const Footer: React.FC = () => {
   // Dynamic Year
-  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+  const [currentYear, setCurrentYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   useEffect(() => {
     const year = new Date().getFullYear();
@@ -13,8 +15,8 @@ export const Footer: React.FC = () => {
 
   return (
     // Footer with black background and white text
-    <div className="w-full py-10 lg:py-20 bg-black text-white lg:pb-10 pb-[100px]">
-      <div className="container mx-auto px-4">
+    <div className="w-full py-10 lg:py-20 bg-black text-white">
+      <div className="mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           {/* Brand and Description */}
@@ -28,13 +30,10 @@ export const Footer: React.FC = () => {
               </p>
             </div>
             {/* Address and Quick Links */}
-            <div className="flex flex-col md:flex-row gap-8">
-
-            </div>
+            <div className="flex flex-col md:flex-row gap-8"></div>
           </div>
           {/* Navigation Links */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </div>
 
         {/* Divider Line */}
@@ -48,10 +47,18 @@ export const Footer: React.FC = () => {
               About
             </Link>
             <span>|</span>
-            {/* <Link href="/register" className="hover:underline">
+            <Link href="/" className="hover:underline">
               Waitlist
-            </Link> */}
-            <span>Waitlist</span>
+            </Link>
+            <span>|</span>
+            <a
+              href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
+              className="hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Docs
+            </a>
           </div>
         </div>
       </div>

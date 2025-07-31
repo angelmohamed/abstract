@@ -83,7 +83,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      className="flex flex-col justify-between w-full h-[160px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
       style={{
         backgroundColor: "#000000",
         boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
@@ -127,10 +127,47 @@ const EventCard: React.FC<EventCardProps> = ({
             >
               {question}
             </div>
-            {/* <div>{probability && decimalToPercentage(probability)}%</div> */}
-            {status == "active" && (
-              <div>{probability ? `${probability}%` : ""}</div>
-            )}
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                minWidth: 0,
+                width: "fit-content",
+                marginLeft: "auto",
+                flexShrink: 0,
+                marginTop: 0,
+              }}
+            >
+              <span
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  width: "100%",
+                  marginTop: 0,
+                }}
+              >
+                {status == "active" && (
+                  <>{probability ? `${probability}%` : ""}</>
+                )}
+              </span>
+              {probability && probability != 0 ? (
+                <Progress
+                  // value={probability && decimalToPercentage(probability)}
+                  value={probability}
+                  className="h-1 w-full"
+                  style={{ maxWidth: "3.5em", minWidth: "2em", marginTop: 0 }}
+                />
+              ) : (
+                <Progress
+                  // value={probability && decimalToPercentage(probability)}
+                  value={0}
+                  className="h-1 w-full"
+                  style={{ maxWidth: "3.5em", minWidth: "2em", marginTop: 0 }}
+                />
+              )}
+            </div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -138,21 +175,6 @@ const EventCard: React.FC<EventCardProps> = ({
       <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-4 sm:pt-4">
         {status == "active" ? (
           <>
-            <div className="pb-4 pt-1">
-              {probability && probability != 0 ? (
-                <Progress
-                  // value={probability && decimalToPercentage(probability)}
-                  value={probability}
-                  className="w-[100%]"
-                />
-              ) : (
-                <Progress
-                  // value={probability && decimalToPercentage(probability)}
-                  value={0}
-                  className="w-[100%]"
-                />
-              )}
-            </div>
             <div
               className="pb-0 mt-3"
               style={{
