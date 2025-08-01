@@ -21,20 +21,22 @@ export default function Header() {
   const navigateToPortfolioPage = () => router.push("/portfolio");
 
   return (
-    <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 pt-2 container mx-auto">
+    <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 pt-2 container mx-auto px-4 md:px-0">
       {/* Logo and Mobile Auth */}
-      <div className="flex w-full lg:w-auto items-center justify-between md:ml-6">
-        <Link href="/">
-          <Image
-            src={SONOTRADE}
-            alt="SONOTRADE Logo"
-            width={265}
-            className="w-48 md:w-64 pl-3 md:pl-0"
-            priority
-          />
-        </Link>
+      <div className="flex items-center justify-between md:ml-4 w-full">
+        <div className="flex items-center">
+          <Link href="/">
+            <Image
+              src={SONOTRADE}
+              alt="SONOTRADE Logo"
+              width={160}
+              className="w-28 md:w-36"
+              priority
+            />
+          </Link>
+        </div>
 
-        <div className="flex lg:hidden items-center gap-2 pr-3">
+        <div className="flex lg:hidden items-center gap-2">
           {/* {signedIn && (
             <button
               className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
@@ -49,17 +51,17 @@ export default function Header() {
           <Authentication />
         </div>
       </div>
-      <div className="w-full px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0 hidden lg:block">
+      <div className="w-[576px] md:w-[750px] px-4 pb-2 md:pb-0 md:px-[2%] mt-1 md:mt-0 hidden lg:flex items-center">
         <SearchComponent />
+        <Link
+          href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="ml-4 text-white text-sm font-semibold px-3 py-1 rounded hover:text-gray-400 transition-colors whitespace-nowrap"
+        >
+          Beginner’s Guide
+        </Link>
       </div>
-      <Link
-        href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="ml-4 text-white text-sm font-semibold px-3 py-1 rounded hover:text-gray-400 transition-colors whitespace-nowrap hidden lg:block"
-      >
-        Beginner’s Guide
-      </Link>
 
       {/* Desktop Auth Buttons */}
       <div className="hidden lg:flex items-center gap-2 ml-auto pr-3">

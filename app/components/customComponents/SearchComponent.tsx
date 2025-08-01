@@ -98,13 +98,13 @@ export default function SearchComponent() {
 
     return (
         <div
-                className={`relative lg:max-w-[600px] min-w-[300px] sm:min-w-[400px]`}
+                className={`relative w-full`}
                 tabIndex={-1}
                 onFocus={() => setIsSearchActive(true)}
                 onBlur={() => setIsSearchActive(false)}
             >
                 <SearchBar
-                    placeholder="Search events"
+                    placeholder="Search markets or artists"
                     onChange={handleInputChange}
                     className={`w-full transition-all duration-150 outline-none ${isSearchActive ? "rounded-t-lg rounded-b-none" : "rounded-lg"
                         }`}

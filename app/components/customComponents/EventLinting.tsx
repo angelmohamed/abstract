@@ -108,7 +108,7 @@ export default function EventLinting({
           </SelectContent>
         </Select>
       </div> */}
-      <div className="flex flex-col items-center justify-center gap-9 w-full mt-5">
+      <div className="flex flex-col items-center justify-center gap-9 w-full mt-3">
         {loading && (
           <Loader className="w-26 h-26 animate-spin" />
         )}
