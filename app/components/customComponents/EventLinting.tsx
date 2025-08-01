@@ -113,7 +113,7 @@ export default function EventLinting({
           <Loader className="w-26 h-26 animate-spin" />
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-[10px] w-full">
           {events &&
             events.length > 0 &&
             events.map((event) => (

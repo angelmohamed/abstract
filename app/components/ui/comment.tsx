@@ -125,7 +125,7 @@ export function Comment({
                 aria-label="Customise options"
                 style={{ background: "#152632", color: "#7DFDFE" }}
               >
-                <span>125 Yes | More than 10 Million</span>
+                <span>125 | More than 10 Million</span>
                 <ChevronDownIcon className="w-4 h-4" />
               </button>
             </DropdownMenu.Trigger>
@@ -136,15 +136,15 @@ export function Comment({
                 sideOffset={5}
               >
                 <DropdownMenu.Item className="px-2 py-0.5 cursor-pointer hover:bg-[#100f0f] text-[12px] font-normal flex gap-2 items-center justify-between">
-                  <span style={{ background: "#152632", color: "#7DFDFE" }} >15.9K Yes</span>                  
+                  <span style={{ background: "#152632", color: "#7DFDFE" }} >15.9K</span>                  
                   <span>More than 10 Million</span>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item className="px-2 py-0.5 cursor-pointer hover:bg-[#100f0f] text-[12px] font-normal flex gap-2 items-center justify-between">
-                  <span style={{ background: "#152632", color: "#7DFDFE" }} >10.2K Yes</span>                  
+                  <span style={{ background: "#152632", color: "#7DFDFE" }} >10.2K</span>                  
                   <span>More than 8 Million</span>
                 </DropdownMenu.Item>
                 <DropdownMenu.Item className="px-2 py-0.5 cursor-pointer hover:bg-[#100f0f] text-[12px] font-normal flex gap-2 items-center justify-between">
-                  <span style={{ background: "#210d1a", color: "#ec4899" }} >2.2K No</span>                  
+                  <span style={{ background: "#210d1a", color: "#ec4899" }} >2.2K</span>                  
                   <span>More than 8 Million</span>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>

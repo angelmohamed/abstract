@@ -485,7 +485,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           className="w-full"
                                         />
                                       </div>
-                                      <div className="text-center w-[20%] text-[#ec4899]">
+                                      <div className="text-center w-[20%]">
                                         {toFixedDown(Number(row[0]), 2) + "¢"} 
                                       </div>
                                       <div className="w-[25%] text-center flex items-center justify-center gap-2">
@@ -578,7 +578,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                           className="hover:bg-[#0a0a0a]"
                                         />
                                       </div>
-                                      <div className="w-[20%] text-center text-[#7dfdfe]">
+                                      <div className="w-[20%] text-center">
                                         {toFixedDown(Number(row[0]), 2) + "¢"} 
                                       </div>
                                       <div className="w-[25%] text-center flex items-center justify-center gap-2">

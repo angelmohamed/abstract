@@ -182,7 +182,7 @@ export default function Home() {
   }, [selectCategory]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+    <div className="min-h-screen flex flex-col bg-black text-white h-auto items-center justify-items-center p-0 m-0">
       {/* Header */}
       <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
         <Header />

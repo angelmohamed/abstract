@@ -149,7 +149,7 @@ export default function Home({ infoCardCms, categories, tags }) {
 
   return (
     <>
-      <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <NavigationBar

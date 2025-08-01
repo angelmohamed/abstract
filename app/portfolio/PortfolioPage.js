@@ -822,7 +822,7 @@ export default function PortfolioPage({ categories }) {
 
   return (
     <>
-      <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
         <div className="sticky top-0 z-50 w-full backdrop-blur-md">
           <Header />
           <NavigationBar

@@ -13,6 +13,7 @@ import { FillAsk } from "@/app/components/ui/fillAsk";
 import { FillBid } from "@/app/components/ui/fillBid";
 import { Badge } from "@/app/components/ui/badge";
 import { decimalToPercentage } from "@/utils/helpers";
+import { Button } from "@/app/components/ui/button";
 
 // 定义订单簿项的接口
 interface OrderBookItem {
@@ -95,7 +96,7 @@ const AccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border border-muted rounded-2xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border-t border-[#222] first:border-t last:border-b border-b-0",
       className
     )} // Add hover effect for the entire item
     {...props}
@@ -186,20 +187,114 @@ const AccordionTrigger = React.forwardRef<
             triggerRef.current = node;
           }}
           className={cn(
-            "h-[80px] w-full pr-3 pl-4 flex flex-1 items-center justify-between py-4 font-medium transition-all",
+            "h-full md:h-[86px] w-full flex flex-1 items-center justify-between py-4 font-medium data-[state=closed]:hover:bg-[#0a0a0a] transition-colors duration-300 flex-col md:flex-row !gap-3",
             className
           )}
           {...props}
         >
-          <span className="text-xl flex max-w-auto">{children}</span>
-          <div className="flex-1" />
-          {/* This will push the "25%" to the right */}
-          <div className="text-l text-right pr-3 flex items-center gap-1">           
-            {/* Add padding for spacing */}
-            <span className="text-right">
-              {outcomePrice + "%"}
+          <div className="w-full md:w-auto flex flex-row items-center justify-between">
+            <span className="flex flex-row items-center max-w-auto gap-0 w-[320px]">
+              {/* Icon on the left, if present in children[0] */}
+              {Array.isArray(children) && children[0] ? (
+                <span className="flex-shrink-0">{children[0]}</span>
+              ) : null}
+              <span className="flex flex-col items-start justify-center h-full">
+                {/* Market name: children[1] or children if not array */}
+                <span className="text-[16px] lg:text-sm text-left">
+                  {Array.isArray(children) ? children[1] : children}
+                </span>
+                <span className="text-xs text-gray-400 mt-0.5 text-left">
+                  Vol $1,498.27
+                </span>
+              </span>
             </span>
-            {<ChevronDown className="h-3 w-3 shrink-0 transition-transform duration-200" />}
+
+            {/* Centered odds value */}
+            <span className="flex-1 flex justify-end md:justify-center">
+              <span className="text-l text-center font-bold text-2xl">
+                {outcomePrice + "%"}
+              </span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full md:w-auto">
+            {/* Yes/No buttons to the right of the odds */}
+            <div className="relative group w-full md:w-auto">
+              <Button
+                asChild
+                variant="ghost"
+                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+              >
+                <span className="flex items-center">
+                  <span className="pr-0">Yes</span>
+                  {outcomePrice !== undefined && (
+                    <span className="ml-0.5 text-xl">{outcomePrice}¢</span>
+                  )}
+                </span>
+              </Button>
+              {/* Tron blue border animation - hover only */}
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+                <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
+                <div className="absolute inset-0 rounded-md">
+                  {/* Flowing lines */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "0.7s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                    style={{ animationDelay: "1.2s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "1.7s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="relative group w-full md:w-auto">
+              <Button
+                asChild
+                variant="ghost"
+                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+              >
+                <span className="flex items-center">
+                  <span className="pr-0">No</span>
+                  {outcomePrice !== undefined && (
+                    <span className="ml-0.5 text-xl">
+                      {100 - outcomePrice}¢
+                    </span>
+                  )}
+                </span>
+              </Button>
+              {/* Pink border animation - hover only */}
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+                <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
+                <div className="absolute inset-0 rounded-md">
+                  {/* Flowing lines */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "0.7s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                    style={{ animationDelay: "1.2s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "1.7s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
           </div>
         </AccordionPrimitive.Trigger>
       </AccordionPrimitive.Header>

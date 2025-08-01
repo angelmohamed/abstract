@@ -22,7 +22,7 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
   const [modelError, setModelError] = useState("");
 
   const { signedIn } = useSelector((state) => state?.auth?.session);
-  const {_id,userName} = useSelector((state) => state?.auth?.user || {});
+  const { _id, userName } = useSelector((state) => state?.auth?.user || {});
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
     }
 
     try {
-      if(!_id) {
+      if (!_id) {
         toastAlert("error", "Failed to post comment. Please try again later.");
         return;
       }
@@ -41,14 +41,14 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
         userId: _id,
         eventId: eventId,
         content: newComment,
-        parentId:null,
-      }
-      console.log('reqData: ', reqData);
+        parentId: null,
+      };
+      console.log("reqData: ", reqData);
 
-      const {success, comment} = await postComment(reqData);
+      const { success, comment } = await postComment(reqData);
       if (!success) {
         toastAlert("error", "Failed to post comment. Please try again later.");
-        return
+        return;
       }
       toastAlert("success", "Comment posted successfully!");
       // onCommentAdded(comment);
@@ -65,19 +65,19 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
     return (
       <div className="text-center my-4 min-h-12">
         <p className="text-sm text-gray-300 mb-2">
-            You need to be logged in to comment.
+          You need to be logged in to comment.
         </p>
       </div>
     );
   }
 
-  const onchangeComment = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if(isEmpty(userName)){
+  const onchangeComment = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isEmpty(userName)) {
       setIsModalOpen(true);
       return;
     }
     setNewComment(e.target.value);
-  }
+  };
 
   const handleSaveUsername = async (username: string): Promise<boolean> => {
     try {
@@ -94,27 +94,28 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
         return false;
       }
       if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-        setModelError("Username can only contain letters, numbers, and underscores.");
+        setModelError(
+          "Username can only contain letters, numbers, and underscores."
+        );
         return false;
       }
-  
+
       const reqData = {
         userName: username,
       };
-      const { status, message,result } = await addUserName(reqData);
-  
+      const { status, message, result } = await addUserName(reqData);
+
       if (!status) {
         if (message) {
           toastAlert("error", message);
         }
         return false;
       }
-      console.log('result: ', result);
+      console.log("result: ", result);
 
       setModelError("");
       dispatch(setUser(result));
 
-      
       toastAlert("success", "Username saved successfully!");
       return true;
     } catch (error) {
@@ -126,32 +127,33 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
 
   return (
     <>
-    <form onSubmit={handleSubmit} className="mt-4 mb-6">
-      <textarea
-        value={newComment}
-        onChange={onchangeComment}
-        placeholder="Write your comment..."
-        className="w-full px-3 py-2 bg-black border border-gray-700 rounded-lg text-white mb-2 min-h-[100px] focus:border-blue-500 focus:outline-none"
-        disabled={isSubmitting}
-      />
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          disabled={isSubmitting || !newComment.trim()}
-          onClick={handleSubmit}
-          className="w-auto border border-white bg-transparent text-white hover:bg-white hover:text-black transition-colors duration-300"
-        >
-          {isSubmitting ? "Posting..." : "Post Comment"}
-        </Button>
-      </div>
-    </form>
-    <PopupModal
+      <form onSubmit={handleSubmit} className="mt-4 mb-6 w-full">
+        <div className="relative w-full flex items-center">
+          <input
+            type="text"
+            value={newComment}
+            onChange={onchangeComment}
+            placeholder="Add comment..."
+            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 pr-32"
+            disabled={isSubmitting}
+            maxLength={300}
+          />
+          <Button
+            type="submit"
+            disabled={isSubmitting || !newComment.trim()}
+            className="absolute right-2 top-2 bottom-2 h-auto px-4 bg-transparent border-none text-white hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md"
+          >
+            {isSubmitting ? "Posting..." : "Post"}
+          </Button>
+        </div>
+      </form>
+      <PopupModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveUsername}
         error={modelError}
         setError={setModelError}
-      />    
+      />
     </>
   );
 };

@@ -355,7 +355,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
       style={{ backgroundColor: "transparent", borderColor: "transparent" }}
     >
       <div>
-        <CardHeader className="pt-0 pl-10 sm:pl-0 pb-0">
+        <CardHeader className="p-0">
           {/* Title Row: Title and Event Image */}
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
@@ -369,7 +369,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                 }}
               >
                 <Image
-                  src={image}
+                  src="/images/logo_icon.png"
                   alt="Event"
                   width={screenWidth < 640 ? 50 : 75}
                   height={screenWidth < 640 ? 50 : 75}
@@ -382,7 +382,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                 />
               </div>
               <div
-                className="text-[22px] lg:text-[26px] sm:text-[20px]"
+                className="text-[19px] lg:text-[26px] sm:text-[20px]"
                 style={{ paddingLeft: "15px", marginRight: "10px" }}
               >
                 {title || ""}
@@ -428,9 +428,9 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
               <CardHeader className="p-0 sm:pb-4">
                 {/* Removed the chance value div here */}
               </CardHeader>
-            <CardContent className="p-0 sm:pl-0 pl-10 pr-8 sm:pr-0 pr-0">
+            <CardContent className="p-0">
               <ChartContainer
-                className="h-[350px] p-0 pr-5 lg:h-[300px] sm:h-[200px] w-full" // No left padding
+                className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[200px] w-full" // No left padding
                 config={chartConfig}
               >
                 <LineChart

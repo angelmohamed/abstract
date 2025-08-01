@@ -234,17 +234,19 @@ export default function EventPage({ categories }) {
 
   return (
     <>
-      {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] m-0"> */}
-      <div className="text-white bg-black h-auto items-center justify-items-center font-[family-name:var(--font-geist-sans)] p-0 m-0">
+      {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center m-0"> */}
+      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
           <Header />
-          <NavigationBar
-            menuItems={categories}
-            showLiveTag={true}
-            setSelectedCategory={setSelectedCategory}
-            selectedCategory={selectCategory}
-            redirect={true}
-          />
+          <div className="hidden lg:block">
+            <NavigationBar
+              menuItems={categories}
+              showLiveTag={true}
+              setSelectedCategory={setSelectedCategory}
+              selectedCategory={selectCategory}
+              redirect={true}              
+            />
+          </div>
         </div>
         <div className="container mx-auto px-4 max-w-full overflow-hidden">
           {eventsLoading ? (
@@ -325,7 +327,7 @@ export default function EventPage({ categories }) {
                         endDate={events.endDate}
                         interval={interval}
                       /> */}
-                    <div className="flex justify-center items-center mb-8">
+                    <div className="flex justify-center items-center mb-4 md:mb-8 -mt-8 md:mt-0">
                       <ChartIntervals
                         interval={interval}
                         setInterval={setInterval}
@@ -515,7 +517,7 @@ export default function EventPage({ categories }) {
                           </Link>
                         </p> 
                       </ExpandableTextView> */}
-                      <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
+                      <h3 className="sm:text-[22px] text-[18px] font-bold sm:mt-6 sm:mb-4 sm:mr-4 mt-2">
                         Rules
                       </h3>
                       <SelectSeparator className="my-4" />
@@ -632,9 +634,13 @@ export default function EventPage({ categories }) {
                   <>
                     <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                       <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg">
-                        <div className="flex items-center justify-between gap-5 w-full pr-5 pl-5">
-                          <Button className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight">Yes</Button>
-                          <Button className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight">No</Button>
+                        <div className="flex items-center justify-between gap-2.5 w-full px-4">
+                          <Button className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight">
+                            Yes
+                          </Button>
+                          <Button className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight">
+                            No
+                          </Button>
                         </div>
                       </DrawerTrigger>
                       <DrawerContent className="h-[80vh] z-50">

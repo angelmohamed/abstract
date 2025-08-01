@@ -83,7 +83,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[160px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      className="flex flex-col justify-between w-full h-[188px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
       style={{
         backgroundColor: "#000000",
         boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
@@ -111,7 +111,7 @@ const EventCard: React.FC<EventCardProps> = ({
             </div>
 
             <div
-              className="pl-1 text-[13px] line-clamp-2"
+              className="pl-1 text-[14px] sm:text-[13px] line-clamp-2"
               style={{
                 paddingLeft: "8px",
                 marginRight: "8px",
@@ -172,7 +172,7 @@ const EventCard: React.FC<EventCardProps> = ({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-4 sm:pt-4">
+      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-6 sm:pt-4">
         {status == "active" ? (
           <>
             <div
@@ -196,7 +196,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleYesClick}
-                    className="w-full bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 sm:h10 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {yesButtonLabel}
                   </Button>
@@ -239,7 +239,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleNoClick}
-                    className="w-full mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 sm:h10 mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {noButtonLabel}
                   </Button>

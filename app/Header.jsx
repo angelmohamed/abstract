@@ -21,9 +21,9 @@ export default function Header() {
   const navigateToPortfolioPage = () => router.push("/portfolio");
 
   return (
-    <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 pt-2 container mx-auto px-4 md:px-0">
+    <header className="flex flex-col md:flex-row items-center w-full bg-transparent md:h-16 pt-2 container mx-auto px-4 lg:px-0">
       {/* Logo and Mobile Auth */}
-      <div className="flex items-center justify-between md:ml-4 w-full">
+      <div className="flex items-center justify-between lg:ml-4 w-full lg:w-auto">
         <div className="flex items-center">
           <Link href="/">
             <Image
