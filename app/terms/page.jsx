@@ -14,6 +14,7 @@ import { Footer } from "../components/customComponents/Footer";
 import Header from "../Header";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import { getCategories } from "@/services/market";
+import HeaderFixed from "@/app/HeaderFixed";
 
 // If these images are in the `public` folder under `/public/images`, reference them as strings.
 const Frame4 = "/images/Frame4.png";
@@ -184,7 +185,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-black text-white h-auto items-center justify-items-center p-0 m-0">
       {/* Header */}
-      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+      <div  className="sticky top-0 z-50 w-[100%] backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0 pb-2" style={{ borderBottomWidth: '1px' }}>
         <Header />
         <NavigationBar
           menuItems={navigationItems}
@@ -196,7 +197,7 @@ export default function Home() {
       {/* <Header /> */}
 
       {/* Features Section */}
-      <section className="py-20 bg-black">
+      <section className="py-10 bg-black">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold">Terms & Conditions</h2>
           <h3 className="text-2xl font-semibold my-4">
@@ -274,6 +275,7 @@ export default function Home() {
         </div>
       </section>
       <Footer />
+      <HeaderFixed />
     </div>
   );
 }
