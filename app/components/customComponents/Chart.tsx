@@ -5,7 +5,7 @@ import Ye from "/public/images/Ye.png";
 // import Polymarket from "/public/images/polymarket.png";
 import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
-import { Legend, Line, LineChart, Tooltip, XAxis, YAxis } from "recharts";
+import { Legend, Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { ArrowRightLeft, Clock } from "lucide-react";
 import { ChartContainer, ChartConfig } from "@/app/components/ui/chart";
 import {
@@ -15,16 +15,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/app/components/ui/card";
-import {
-    processSingleChartData,
-    ChartDataPoint,
-    processSingleChartDataNew,
-    processMultiChartDataNew,
-} from "@/utils/processChartData";
+import { processSingleChartData, processMultiChartData } from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
 import { HoverCard } from "radix-ui";
 import { CountdownTimerIcon } from "@radix-ui/react-icons";
-import { getPriceHistory, getSeriesByEvent } from "@/services/market";
+import { getPriceHistory, getSeriesByEvent, getForecastHistory } from "@/services/market";
 import { capitalize } from "@/lib/stringCase";
 import * as Popover from "@radix-ui/react-popover";
 import Link from "next/link";
@@ -103,6 +98,9 @@ const Chart: React.FC<ChartProps> = ({
     const [chartConfig, setChartConfig] = useState<any>([]);
     const [assetKeys, setAssetKeys] = useState<any>([]);
     const [seriesData, setSeriesData] = useState<any>([])
+    const [allChartData, setAllChartData] = useState<any>([]);
+    const [allChartDataYes, setAllChartDataYes] = useState<any[]>([]);
+    const [allChartDataNo, setAllChartDataNo] = useState<any[]>([]);
     const route = useRouter()
 
     const [hoveredChance, setHoveredChance] = useState<number | undefined>(
@@ -164,70 +162,180 @@ const Chart: React.FC<ChartProps> = ({
         }
     }, [selectedYes, chartDataYes, chartDataNo]);
 
+    // Add getIntervalDate function for consistent interval handling
+    const getIntervalDate = (interval: string) => {
+        const now = new Date();
+        const endOfToday = new Date(now);
+        endOfToday.setHours(23, 59, 59, 999);
+        
+        switch (interval) {
+            case "1h":
+                return new Date(now.getTime() - 60 * 60 * 1000).getTime();
+            case "6h":
+                return new Date(now.getTime() - 6 * 60 * 60 * 1000).getTime();
+            case "1d":
+                // Start from exactly 24 hours ago from now
+                return new Date(now.getTime() - 24 * 60 * 60 * 1000).getTime();
+            case "1w":
+                return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).getTime();
+            case "1m":
+                return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).getTime();
+            case "all":
+                return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).getTime();
+            default:
+                return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).getTime();
+        }
+    };
+
+    // Update fetchData logic to fetch all data once like MonthlyListenersChart2
     const fetchData = async () => {
         try {
+            // Fetch all data without timestamp filtering (like MonthlyListenersChart2)
             const data = {
                 market: selectedYes ? "yes" : "no",
-                interval,
-                fidelity: 30
-            }
+                interval: "all", // Always fetch all data
+                fidelity: 30,
+                // Remove timestamp parameters to get all available data
+            };
+            console.log('Chart fetchData - Request data:', data);
+            
             const { success, result } = await getPriceHistory(id, data);
+            console.log('Chart fetchData - API response:', { success, result });
+            
             if (success) {
-                // result["no"] = result["yes"].map((item: any) => ({
-                //     ...item,
-                //     p: 100 - item.p
-                // }));
-                // result["bids"] = result["no"].map((item: any) => ({
-                //     ...item,
-                //     p: 5 + item.p
-                // }));
-                let assetKeysData = result.map((item: any,index: any) => 
-                    {
+                let assetKeysData = result.map((item: any, index: any) => {
+                    return {
+                        label: item.groupItemTitle,
+                        color: ChartColors[index],
+                        asset: `asset${index + 1}`,
+                    };
+                });
+                if (market.length > 1) {
+                    // Sort markets by odds to get the top 4 with highest odds
+                    const sortedMarkets = [...market].sort((a, b) => {
+                        const aOdd = selectedYes ? a.odd : 100 - a.odd;
+                        const bOdd = selectedYes ? b.odd : 100 - b.odd;
+                        return bOdd - aOdd; // Sort descending (highest first)
+                    });
+                    
+                    // Take only the top 4 markets with highest odds
+                    const top4Markets = sortedMarkets.slice(0, 4);
+                    
+                    console.log('Market sorting debug:', {
+                        selectedYes,
+                        originalMarkets: market.map(m => ({ 
+                            label: m.groupItemTitle, 
+                            originalOdd: m.odd, 
+                            calculatedOdd: selectedYes ? m.odd : 100 - m.odd 
+                        })),
+                        sortedMarkets: sortedMarkets.map(m => ({ 
+                            label: m.groupItemTitle, 
+                            originalOdd: m.odd, 
+                            calculatedOdd: selectedYes ? m.odd : 100 - m.odd 
+                        })),
+                        top4Markets: top4Markets.map(m => ({ 
+                            label: m.groupItemTitle, 
+                            originalOdd: m.odd, 
+                            calculatedOdd: selectedYes ? m.odd : 100 - m.odd 
+                        })),
+                        resultLabels: result.map(r => r.groupItemTitle)
+                    });
+                    
+                    // Update assetKeysData to match the top 4 markets
+                    const top4AssetKeys = top4Markets.map((marketItem: any, index: any) => {
                         return {
-                            label: item.groupItemTitle,
-                            color: ChartColors[index],
-                            asset: `asset${index+1}`,
+                            label: marketItem.groupItemTitle,
+                            color: ChartColors[index], // Use sequential colors for top 4
+                            asset: `asset${index + 1}`,
+                            odd: selectedYes ? marketItem.odd : 100 - marketItem.odd,
+                            fullLabel: `${marketItem.groupItemTitle} ${selectedYes ? 'Yes' : 'No'}` // Add full label with Yes/No
+                        };
+                    });
+                    
+                    setChartConfig(top4AssetKeys);
+                    
+                    // Filter and reorder result data to match the top 4 markets
+                    const orderedResultData: (any | null)[] = [];
+                    for (const marketItem of top4Markets) {
+                        const matchingResult: any | undefined = result.find((resultItem: any) => 
+                            resultItem.groupItemTitle === marketItem.groupItemTitle
+                        );
+                        if (matchingResult) {
+                            orderedResultData.push(matchingResult);
+                        } else {
+                            console.warn(`No data found for market: ${marketItem.groupItemTitle}`);
+                            // Push null to maintain array structure
+                            orderedResultData.push(null);
                         }
                     }
-                );
-                if (market.length > 1) {
-                    market.forEach((item: any) => {
-                        const asset = assetKeysData.find((asset: any) => asset.label === item.groupItemTitle)
-                        if (asset) {
-                            asset.odd = selectedYes ? item.odd : 100 - item.odd
-                        }
-                    })
-                    setChartConfig(assetKeysData);
-                    let t = result.map(item => item.data);
-                    let formattedData = t.map(innerArray => {
+                    
+                    console.log('Data matching debug:', {
+                        orderedResultDataCount: orderedResultData.length,
+                        hasNulls: orderedResultData.some(item => item === null),
+                        dataLengths: orderedResultData.map(item => item ? item.data?.length : 0)
+                    });
+                    
+                    let t = orderedResultData.map((item) => item ? item.data : []);
+                    let formattedData = t.map((innerArray) => {
+                        if (!innerArray || innerArray.length === 0) return [];
                         return innerArray.map((item) => {
                             let formattedTime = Math.floor(new Date(item.t).getTime() / 1000);
-                            return { t: formattedTime, p: item.p };
+                            // Divide by 100 to get proper percentage (0-1 range)
+                            return { t: formattedTime, p: item.p / 100 }; 
                         });
                     });
-                    let processedData = processMultiChartDataNew(formattedData, interval);
+                    
+                    // Store all data for current selection
+                    if (selectedYes) {
+                        setAllChartDataYes(formattedData);
+                    } else {
+                        setAllChartDataNo(formattedData);
+                    }
+                    
+                    // Process data with current interval
+                    let processedData = processMultiChartData(
+                        formattedData[0] || [],
+                        formattedData[1] || [],
+                        formattedData[2] || [],
+                        formattedData[3] || [],
+                        interval
+                    );
                     if (selectedYes) {
                         setChartDataYes(processedData);
                     } else {
                         setChartDataNo(processedData);
                     }
                 } else {
-                    setChartConfig([{
-                        label: capitalize(selectedYes ? (market?.[0]?.outcome?.[0]?.title || "yes") : (market?.[0]?.outcome?.[1]?.title || "no")),
-                        color: selectedYes ? "#7dfdfe" : "#ec4899",
-                        asset: "asset1"
-                    }]);
+                    setChartConfig([
+                        {
+                            label: capitalize(
+                                selectedYes
+                                    ? market?.[0]?.outcome?.[0]?.title || "yes"
+                                    : market?.[0]?.outcome?.[1]?.title || "no"
+                            ),
+                            color: selectedYes ? "#7dfdfe" : "#ec4899",
+                            asset: "asset1",
+                        },
+                    ]);
                     const t = result[0]?.data;
-                    let formettedData = t.map((item:any) => {
-                        let formetTime: any = Math.floor(new Date(item.t).getTime() / 1000);
-                        // let formetTime = item.createdAt;
+                    let formattedData = t.map((item: any) => {
+                        let formattedTime: any = Math.floor(new Date(item.t).getTime() / 1000);
                         return {
-                          t: formetTime,
-                          p: item.p
-                        }
-                      });
-                    let processedData = processSingleChartDataNew(formettedData, interval);
-                    if(selectedYes){
+                            t: formattedTime,
+                            p: item.p / 100, // Divide by 100 to get proper percentage
+                        };
+                    });
+                    
+                    // Store all data for current selection
+                    if (selectedYes) {
+                        setAllChartDataYes(formattedData);
+                    } else {
+                        setAllChartDataNo(formattedData);
+                    }
+                    
+                    // Process data with current interval
+                    let processedData = processSingleChartData(formattedData, interval);
+                    if (selectedYes) {
                         setChartDataYes(processedData);
                     } else {
                         setChartDataNo(processedData);
@@ -241,7 +349,44 @@ const Chart: React.FC<ChartProps> = ({
     
     useEffect(() => {
         fetchData();
-    }, [market, interval, selectedYes]);
+    }, [market, selectedYes]); // Remove interval from dependencies
+
+    // Add separate effect to handle interval changes using stored data (like MonthlyListenersChart2)
+    useEffect(() => {
+        if (selectedYes && allChartDataYes.length > 0) {
+            if (market.length > 1 && Array.isArray(allChartDataYes[0])) {
+                // Multi-chart data processing - allChartDataYes is an array of arrays
+                let processedData = processMultiChartData(
+                    allChartDataYes[0] || [],
+                    allChartDataYes[1] || [],
+                    allChartDataYes[2] || [],
+                    allChartDataYes[3] || [],
+                    interval
+                );
+                setChartDataYes(processedData);
+            } else if (market.length <= 1) {
+                // Single chart data processing - allChartDataYes is a single array
+                let processedData = processSingleChartData(allChartDataYes, interval);
+                setChartDataYes(processedData);
+            }
+        } else if (!selectedYes && allChartDataNo.length > 0) {
+            if (market.length > 1 && Array.isArray(allChartDataNo[0])) {
+                // Multi-chart data processing - allChartDataNo is an array of arrays
+                let processedData = processMultiChartData(
+                    allChartDataNo[0] || [],
+                    allChartDataNo[1] || [],
+                    allChartDataNo[2] || [],
+                    allChartDataNo[3] || [],
+                    interval
+                );
+                setChartDataNo(processedData);
+            } else if (market.length <= 1) {
+                // Single chart data processing - allChartDataNo is a single array
+                let processedData = processSingleChartData(allChartDataNo, interval);
+                setChartDataNo(processedData);
+            }
+        }
+    }, [interval, allChartDataYes, allChartDataNo, selectedYes, market]);
 
     useEffect(() => {
         const socket = socketContext?.socket;
@@ -256,7 +401,7 @@ const Chart: React.FC<ChartProps> = ({
           socket.off("chart-update");
         };
 
-    }, [market, interval, selectedYes]);
+    }, [market, selectedYes]); // Remove interval from dependencies here too
 
     const getSeriesData = async(id:any)=>{
         try{
@@ -294,21 +439,31 @@ const Chart: React.FC<ChartProps> = ({
     const [multiDisplayChance, setMultiDisplayChance] = useState<any>([]);
     useEffect(() => {
         if (market?.length > 1) {
+            // Sort markets by odds to get the top 4 with highest odds (matching chart logic)
+            const sortedMarkets = [...market].sort((a, b) => {
+                const aOdd = selectedYes ? a.odd : 100 - a.odd;
+                const bOdd = selectedYes ? b.odd : 100 - b.odd;
+                return bOdd - aOdd; // Sort descending (highest first)
+            });
+            const top4Markets = sortedMarkets.slice(0, 4);
+            
             if(multiHoveredChance.length > 0){
-                setMultiDisplayChance(market.map((item: any,index: any) => {
+                setMultiDisplayChance(top4Markets.map((item: any,index: any) => {
                     return {
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
-                        last: multiHoveredChance[index] ?? item.odd
+                        fullLabel: `${item.groupItemTitle} ${selectedYes ? 'Yes' : 'No'}`, // Add full label with Yes/No
+                        last: multiHoveredChance[index] ?? (selectedYes ? item.odd : 100 - item.odd)
                     }
                 }));
             } else {
-                setMultiDisplayChance(market.map((item: any,index: any) => {
+                setMultiDisplayChance(top4Markets.map((item: any,index: any) => {
                     return {
                         label: item.groupItemTitle,
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
+                        fullLabel: `${item.groupItemTitle} ${selectedYes ? 'Yes' : 'No'}`, // Add full label with Yes/No
                         last: selectedYes ? item.odd : 100 - item.odd
                     }
                 }));
@@ -560,6 +715,7 @@ const Chart: React.FC<ChartProps> = ({
                                         setMultiHoveredChance([])
                                     }}
                                 >
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                                     <XAxis
                                         dataKey="timestamp"
                                         interval={xAxisInterval} // Dynamic interval based on screen width
@@ -587,9 +743,9 @@ const Chart: React.FC<ChartProps> = ({
                                             key={asset.asset}
                                             type="step" // step bump
                                             dataKey={asset.asset}
-                                            name={`${asset.label} ${
+                                            name={`${asset.fullLabel || `${asset.label} ${selectedYes ? 'Yes' : 'No'}`} ${
                                                 multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
-                                                ? multiDisplayChance.find((item: any) => item.label === asset.label)?.last + "%"
+                                                ? multiDisplayChance.find((item: any) => item.label === asset.label)?.last.toFixed(1) + "%"
                                                 : (displayChance !== undefined ? displayChance?.toFixed(1) + "%" : "")
                                             }`}
                                             stroke={asset.color}
