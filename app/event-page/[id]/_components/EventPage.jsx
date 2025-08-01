@@ -39,12 +39,10 @@ import { getOrderBook, getEventById, getCategories } from "@/services/market";
 import { isEmpty } from "@/lib/isEmpty";
 import { getOpenOrdersByEvtId } from "@/services/user";
 import { OpenOrderDialog } from "@/app/components/customComponents/OpenOrderDialog";
-import MultiLineChart from "@/app/components/customComponents/MultiLineChart";
-import SingleLineChart from "@/app/components/customComponents/SingleLineChart";
 import { Footer } from "@/app/components/customComponents/Footer";
 import { Button } from "@/app/components/ui/button";
 import ResolutionCard from "@/app/components/customComponents/ResolutionCard";
-import MonthlyListenersChart from "@/app/components/customComponents/MonthlyListenersChart";
+import MonthlyListenersChart2 from "@/app/components/customComponents/MonthlyListenersChart2";
 // import TravisScott from "../../../public/images/travis.png";
 // import SpotifyLogo from "../../../public/images/spotifylogo.png";
 import Jackboys2 from "@/public/images/jackboys2.png";
@@ -63,7 +61,7 @@ export default function EventPage({ categories }) {
   const [bookLabels, setBookLabels] = useState([]);
   const [activeView, setActiveView] = React.useState("Yes");
   const [forecastGraph, setForecastGraph] = React.useState(false);
-  const [interval, setInterval] = useState("max");
+  const [interval, setInterval] = useState("all");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [selectedOrderBookData, setSelectedOrderBookData] = useState([
     books[0],
@@ -262,7 +260,7 @@ export default function EventPage({ categories }) {
                   {/* Main Content (Charts, Accordion, etc.) */}
                   <div className="w-full lg:w-[70%]">
                     {events?.forecast ? (
-                      <MonthlyListenersChart
+                      <MonthlyListenersChart2
                         title={events?.title}
                         volume={
                           markets?.reduce(
@@ -275,18 +273,6 @@ export default function EventPage({ categories }) {
                         eventId={events?._id}
                         eventSlug={events?.slug}
                         interval={interval}
-                        albumReleases={[
-                          {
-                            date: "Feb 12",
-                            title: "ASTROWORLD",
-                            cover: Astroworld,
-                          },
-                          {
-                            date: "Apr 16",
-                            title: "JACKBOYS 2",
-                            cover: Jackboys2,
-                          },
-                        ]}
                       />
                     ) : (
                       <Chart

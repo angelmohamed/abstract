@@ -198,8 +198,14 @@ const Chart: React.FC<ChartProps> = ({
                         }
                     })
                     setChartConfig(assetKeysData);
-                    const t = result.map(item => item.data);
-                    let processedData = processMultiChartDataNew(t, interval);
+                    let t = result.map(item => item.data);
+                    let formattedData = t.map(innerArray => {
+                        return innerArray.map((item) => {
+                            let formattedTime = Math.floor(new Date(item.t).getTime() / 1000);
+                            return { t: formattedTime, p: item.p };
+                        });
+                    });
+                    let processedData = processMultiChartDataNew(formattedData, interval);
                     if (selectedYes) {
                         setChartDataYes(processedData);
                     } else {
@@ -211,8 +217,16 @@ const Chart: React.FC<ChartProps> = ({
                         color: selectedYes ? "#7dfdfe" : "#ec4899",
                         asset: "asset1"
                     }]);
-
-                    let processedData = processSingleChartDataNew(result[0].data, interval);
+                    const t = result[0]?.data;
+                    let formettedData = t.map((item:any) => {
+                        let formetTime: any = Math.floor(new Date(item.t).getTime() / 1000);
+                        // let formetTime = item.createdAt;
+                        return {
+                          t: formetTime,
+                          p: item.p
+                        }
+                      });
+                    let processedData = processSingleChartDataNew(formettedData, interval);
                     if(selectedYes){
                         setChartDataYes(processedData);
                     } else {
