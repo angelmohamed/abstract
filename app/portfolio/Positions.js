@@ -47,7 +47,7 @@ const Positions = () => {
     } catch (error) {
       console.error("Error fetching Position History:", error);
     } finally {
-        setLoading(false)
+      setLoading(false)
     }
   }
 
@@ -96,7 +96,7 @@ const Positions = () => {
     }
   }
 
-  const handleTradeOpen = async (id,outcomes) => {
+  const handleTradeOpen = async (id, outcomes) => {
     setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
@@ -246,180 +246,83 @@ const Positions = () => {
               <th>Position Now</th>
               <th>To Win</th>
               {/* <th>Action</th> */}
-              <th>History</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {
               positionHistory?.map((item, index) => (
-                <React.Fragment key={item._id}>
-                  <tr>
-                    <td colSpan={8}>
-                      <div className="flex items-center justify-between">
-                        <Link href={`/event-page/${item?.eventSlug}`} className="cursor-pointer">{item.eventTitle}</Link>
-                        <div>
-                          <button className="text-blue-500" onClick={() => handleShareOpen(item)}>
-                            <ShareIcon />
-                          </button>
-
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-
-                  {item.positions?.map((data, index) => (
-                    <tr key={index}>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl">
-                            {/* <Image
-                                            src={item.eventImage}
-                                            alt="Icon"
-                                            width={42}
-                                            height={42}
-                                        /> */}
-                            {/* {item.eventImage} */}
+                <>
+                  <React.Fragment key={item._id}>
+                    <tr>
+                      <td colSpan={8}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
                             <img
-                              //  priority={true}
                               src={item.eventImage}
                               alt="Icon"
-                              width={42}
-                              height={42}
-                              className="mb-2 cursor-pointer"
+                              width={45}
+                              height={45}
+                              className="rounded-[6px] object-cover aspect-square"
                               onClick={() => router.push(`/event-page/${item?.eventSlug}`)}
                             />
-                          </span>
-                          <div className="flex flex-col gap-1">
-                            <Link className="text-sm font-normal" href={`/event-page/${item?.eventSlug}`}>
-                              <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                                {capitalize(data.side == "yes" ? data?.outcomes?.[0]?.title : data?.outcomes?.[1]?.title )}
-                              </Badge> {data.marketGroupTitle}
-                            </Link>
-                            <div className="flex items-center gap-2">
-                              {/* <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                                            {data.side}
-                                            </Badge> */}
-                              <span className="text-xs font-normal">
-                                {toFixedDown(data?.quantity, 2)} Shares
-                              </span>
-                            </div>
+                            <Link href={`/event-page/${item?.eventSlug}`} className="text-base font-semibold leading-tight cursor-pointer">{item.eventTitle}</Link>
+                          </div>
+
+                          <div className='flex items-center gap-2'>
+                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleTradeOpen(data.marketId, data?.outcomes)}>
+                              <HistoryIcon className='w-5 h-5' />
+                            </button>
+                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleShareOpen(item)}>
+                              <ShareIcon className='w-5 h-5' />
+                            </button>
                           </div>
                         </div>
                       </td>
-                      <td>{toFixedDown(data?.quantity, 0)}</td>
-                      <td>{toFixedDown(data?.filled?.[0]?.price, 0)}¢</td>
-                      <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}</td>
-                      <td>
-                        {data.side == "no" ? (100 - data?.last) : data?.last}¢ 
-                        {/* <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price) / data?.filled?.[0]?.price * 100).toFixed(2)}%)</span> */}
-                      </td>
-                      <td className={`${(data.side == "no" ? (100 - data?.last) : data?.last) >= data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}`}>
-                        ${toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) * data?.quantity) / 100, 2)}
-                        ({toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) - data?.filled?.[0]?.price) / data?.filled?.[0]?.price * 100, 2)}%)
-                      </td>
-                      <td>${toFixedDown(data?.quantity, 2)}</td>
-                      {/* <td>
-                                    <div className="flex items-center space-x-2">
-                                        <Dialog.Root>
-                                      <Dialog.Trigger asChild>
-                                        <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000] w-[80px]">
-                                          Sell
-                                        </Button>
-                                      </Dialog.Trigger>
-                                    
-                                    </Dialog.Root>
-            
-                                    <Dialog.Root>
-                                      <Dialog.Trigger asChild>
-                                        <Button className="w-[80px]">Share</Button>
-                                      </Dialog.Trigger>
-                                      <Dialog.Portal>
-                                        <Dialog.Overlay className="DialogOverlay" />
-                                        <Dialog.Content className="DialogContent">
-                                          <Dialog.Title className="DialogTitle">
-                                            Shill Your Bag
-                                          </Dialog.Title>
-                                          <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
-                                            <div className="flex gap-3 mb-4 items-center">
-                                              <Image
-                                                src={item.eventImage}
-                                                alt="Icon"
-                                                width={60}
-                                                height={21}
-                                                className="mb-2"
-                                              />
-                                              <h4 className="font-semibold">
-                                                {item.eventTitle}
-                                              </h4>
-                                            </div>
-                                            <div className="flex items-center justify-between mb-4">
-                                              
-                                              <Badge className="z-10 text-[16px] text-[#7dfdfe] bg-[#152632] font-normal rounded">
-                                                56x Chennai Super Kings
-                                              </Badge>
-                                              <span>Avg {toFixedDown(data.filled?.[0]?.price,1)}¢</span>
-                                            </div>
-            
-                                            <Separator.Root
-                                              className="SeparatorRoot"
-                                              style={{ margin: "20px 0 15px" }}
-                                            />
-            
-                                            <div className="flex items-center justify-between">
-                                              <div>
-                                                <h5 className="text-gray-400">Trade</h5>
-                                                <p className="text-[#fff] mb-0 font-medium">
-                                                  ${toFixedDown((data?.filled?.[0]?.price * data?.quantity)/100,2)}
-                                                </p>
-                                              </div>
-                                              <div>
-                                                <h5 className="text-gray-400">To win</h5>
-                                                <p className="text-[#7dfdfe] mb-0 font-semibold">
-                                                  ${data.quantity?.toFixed(2)}
-                                                </p>
-                                              </div>
-                                            </div>
-                                          </div>
-                                          <div className="flex justify-between items-center mt-4 gap-3">
-                                            <Button className="w-full bg-[transparent] border border-[#2d2d2d] text-[#fff] hover:text-[#000]">
-                                              <CopyIcon className="h-4 w-4" />
-                                              <span>Copy Image</span>
-                                            </Button>
-                                            <Button className="w-full">Share</Button>
-                                          </div>
-                                          <Dialog.Close asChild>
-                                            <button
-                                              className="modal_close_brn"
-                                              aria-label="Close"
-                                            >
-                                              <Cross2Icon />
-                                            </button>
-                                          </Dialog.Close>
-                                        </Dialog.Content>
-                                      </Dialog.Portal>
-                                    </Dialog.Root>
-                                    </div>
-                                    </td> */}
-                      <td>
-                        <div className='flex justify-start items-center gap-2'>
-                        <button className="text-blue-500" onClick={()=>handleTradeOpen(data.marketId,data?.outcomes)}>
-                          <HistoryIcon />
-                        </button>
-                        {data.claim && (
-                          <Button size="sm" className="bg-[#37ce37] text-[#fff] hover:text-[#000]" onClick={()=>marketPositionClaim(data.marketId)}>
-                            Claim
-                          </Button>
-                        )}
-                        </div>
-                      </td>
                     </tr>
-                  ))}
-                </React.Fragment>
+
+                    {item.positions?.map((data, index) => (
+                      <tr key={index}>
+                        <td>
+                          <div className="z-10 text-sm font-medium">
+                            {data.marketGroupTitle} <span style={{ color: data.userSide == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span>
+                          </div>
+                        </td>
+                        <td>{toFixedDown(data?.quantity, 0)}</td>
+                        <td>{toFixedDown(data?.filled?.[0]?.price, 0)}¢</td>
+                        <td>${toFixedDown((data?.filled?.[0]?.price * data?.quantity) / 100, 2)}</td>
+                        <td>
+                          {data.side == "no" ? (100 - data?.last) : data?.last}¢
+                          {/* <span className={(data.side == "no" ? (100 - data?.last) : data?.last) > data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}>({((((data.side == "no" ? (100 - data?.last) : data?.last) || data.filled?.[0]?.price) - data.filled?.[0]?.price) / data?.filled?.[0]?.price * 100).toFixed(2)}%)</span> */}
+                        </td>
+                        <td className={`${(data.side == "no" ? (100 - data?.last) : data?.last) >= data?.filled?.[0]?.price ? "text-green-500" : "text-red-500"}`}>
+                          ${toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) * data?.quantity) / 100, 2)}
+                          ({toFixedDown(((data.side == "no" ? (100 - data?.last) : data?.last) - data?.filled?.[0]?.price) / data?.filled?.[0]?.price * 100, 2)}%)
+                        </td>
+                        <td>${toFixedDown(data?.quantity, 2)}</td>
+
+                        <td>
+                          <div className='flex justify-start items-center gap-2'>
+
+                            {data.claim && (
+                              <Button size="sm" className="bg-[#37ce37] text-[#fff] hover:text-[#000]" onClick={() => marketPositionClaim(data.marketId)}>
+                                Claim
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                  <tr>
+                    <td colSpan={9} className='border-b border-[#262626]'></td>
+                  </tr>
+                </>
               ))
             }
           </tbody>
         </table>
-        {positionHistory.length === 0 && !loading &&   (
+        {positionHistory.length === 0 && !loading && (
           <div className="flex justify-center my-5 text-gray-500">
             No positions found
           </div>
@@ -450,11 +353,11 @@ const Positions = () => {
               <tbody>
                 {tradeHistory?.map((item, index) => (
                   <tr key={index}>
-                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side == "yes" ? (selectedMarketOutcome?.[0]?.title || "yes") : (selectedMarketOutcome?.[1]?.title || "no") } ({item.type} at {item.price}¢)</td>
+                    <td style={{ textTransform: "capitalize" }} className={`${item.side === 'yes' ? 'text-green-500' : 'text-red-500'} text-capitalize`}>{capitalize(item.action)} {item.side == "yes" ? (selectedMarketOutcome?.[0]?.title || "yes") : (selectedMarketOutcome?.[1]?.title || "no")} ({item.type} at {item.price}¢)</td>
                     <td>{item.price}¢</td>
                     <td>{toFixedDown(item.quantity, 2)}</td>
                     <td>${toFixedDown((item.price * item.quantity) / 100, 2)}</td>
-                    <td>${toFixedDown((item?.fee/100 ?? 0),5)}</td>
+                    <td>${toFixedDown((item?.fee / 100 ?? 0), 5)}</td>
                     <td>{momentFormat(item.createdAt, "DD/MM/YYYY HH:mm")}</td>
                   </tr>
                 ))}

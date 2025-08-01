@@ -91,8 +91,8 @@ const DepositTable = () => {
   
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-gray-100 mb-3">
-        <thead className=" capitalize bg-[#1A1A1A]">
+      <table className="w-full text-left custom_table">
+        <thead>
           <tr>
             <th className="px-6 py-3">Date</th>
             <th className="px-6 py-3">Amount</th>

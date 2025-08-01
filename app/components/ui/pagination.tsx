@@ -14,7 +14,7 @@ const Pagination = React.forwardRef<HTMLElement, PaginationProps>(
       ref={ref}
       role="navigation"
       aria-label="pagination"
-      className={cn("mx-auto flex w-full justify-center", className)}
+      className={cn("mt-5 flex w-full justify-end", className)}
       {...props} />
   )
 )

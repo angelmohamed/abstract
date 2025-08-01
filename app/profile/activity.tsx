@@ -70,8 +70,8 @@ const ActivityTable = () => {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-gray-100 mb-3">
-        <thead className=" capitalize bg-[#1A1A1A]">
+      <table className="w-full text-left custom_table">
+        <thead>
           <tr>
             <th className="px-6 py-3">Time</th>
             {/* <th className="px-6 py-3">User</th> */}
@@ -91,9 +91,9 @@ const ActivityTable = () => {
                     <img
                       src={trade.marketId?.eventId?.image}
                       alt="Icon"
-                      width={42}
-                      height={42}
-                      className="cursor-pointer"
+                      width={45}
+                      height={45}
+                      className="rounded-[6px] object-cover aspect-square cursor-pointer"
                       onClick={()=>route.push(`/event-page/${trade.marketId?.eventId?.slug}`)}
                     />
                     <Link href={`/event-page/${trade.marketId?.eventId?.slug}`} className="cursor-pointer">

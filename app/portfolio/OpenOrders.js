@@ -162,55 +162,62 @@ const OpenOrders = () => {
                     </thead>
                     <tbody>
                         {openOrders?.length > 0 && !loading && openOrders.map((item) => (
-                            <React.Fragment key={item._id}>
-                                <tr>
-                                    <td colSpan={8}>
-                                        <div className="flex items-center space-x-2 cursor-pointer" onClick={() => route.push(`/event-page/${item?.eventSlug}`)}>
-                                            <span className="text-2xl">
-                                                <img
-                                                    src={item?.eventImage}
-                                                    alt="Icon"
-                                                    width={42}
-                                                    height={42}
-                                                />
-                                            </span>
-                                            <span className="text-sm font-normal">
-                                                {item?.eventTitle}
-                                            </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {item?.orders
-                                    ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                                    .map((data, index) => (
-                                        <tr key={index}>
-                                            <td>{data.marketGroupTitle} <span style={{ color: data.userSide == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span></td>
-                                            {/* <td>{data.side}</td> */}
-                                            {/* <td>{data.side}</td> */}
-                                            <td>{data.filledQuantity ?? 0}</td>
-                                            <td>{data.quantity}</td>
-                                            <td>{data.action == "sell" ? (100 - data.price) : data.price}¢</td>
-                                            <td>
-                                                {!isEmpty(data.currentPrice)
-                                                    ? data.userSide === "no"
-                                                        ? `${100 - data.currentPrice}¢`
-                                                        : `${data.currentPrice}¢`
-                                                    : '-'}
+                            <>
+                                <React.Fragment key={item._id}>
+                                    <tr>
+                                        <td colSpan={8}>
+                                            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => route.push(`/event-page/${item?.eventSlug}`)}>
+                                                <span className="text-2xl">
+                                                    <img
+                                                        src={item?.eventImage}
+                                                        alt="Icon"
+                                                        width={45}
+                                                        height={45}
+                                                        className='rounded-[6px] object-cover aspect-square'
+                                                    />
+                                                </span>
+                                                <span className="text-sm font-normal">
+                                                    {item?.eventTitle}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {item?.orders
+                                        ?.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                                        .map((data, index) => (
+                                            <tr key={index}>
+                                                <td>{data.marketGroupTitle} <span style={{ color: data.userSide == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span></td>
+                                                {/* <td>{data.side}</td> */}
+                                                {/* <td>{data.side}</td> */}
+                                                <td>{data.filledQuantity ?? 0}</td>
+                                                <td>{data.quantity}</td>
+                                                <td>{data.action == "sell" ? (100 - data.price) : data.price}¢</td>
+                                                <td>
+                                                    {!isEmpty(data.currentPrice)
+                                                        ? data.userSide === "no"
+                                                            ? `${100 - data.currentPrice}¢`
+                                                            : `${data.currentPrice}¢`
+                                                        : '-'}
 
-                                            </td>
-                                            <td>${toFixedDown((data.price * data.quantity) / 100, 2)}</td>
-                                            <td>{momentFormat(data.createdAt, "DD/MM/YYYY HH:mm")}</td>
-                                            <td>{data.timeInForce == "GTC" ? "Good 'til canceled" : momentFormat(data.expiration, "DD/MM/YYYY HH:mm")}</td>
-                                            <td>
-                                                <button className="text-red-500" onClick={() => handleCancelOrder(data._id)}>
-                                                    <X size={20} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                            </React.Fragment>
+                                                </td>
+                                                <td>${toFixedDown((data.price * data.quantity) / 100, 2)}</td>
+                                                <td>{momentFormat(data.createdAt, "DD/MM/YYYY HH:mm")}</td>
+                                                <td>{data.timeInForce == "GTC" ? "Good 'til canceled" : momentFormat(data.expiration, "DD/MM/YYYY HH:mm")}</td>
+                                                <td>
+                                                    <button className="text-red-500" onClick={() => handleCancelOrder(data._id)}>
+                                                        <X size={20} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                </React.Fragment>
+                                <tr>
+                                    <td colSpan={9} className='border-b border-[#262626]'></td>
+                                </tr>
+                            </>
                         )
                         )}
+
                     </tbody>
                 </table>
                 {openOrders.length === 0 && !loading && (

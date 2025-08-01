@@ -3,6 +3,7 @@ import Header from "@/app/Header";
 // import { Nav as NavigationComponent } from "@/app/components/ui/navigation-menu";
 // import { navigationItems } from "@/constants";
 import React, { useState, useEffect, useCallback } from "react";
+import HeaderFixed from "@/app/HeaderFixed";
 import {
   Avatar,
   AvatarImage,
@@ -146,7 +147,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-      <div className="sticky top-0 z-50 w-full backdrop-blur-md">
+      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0 pb-2" style={{ borderBottomWidth: '1px' }}>
         <Header />
         {/* <NavigationComponent menuItems={navigationItems} showLiveTag={true} /> */}
       </div>
@@ -304,6 +305,7 @@ export default function PortfolioPage() {
 
         </Tabs>
         <Footer />
+        <HeaderFixed />
       </div>
     </div>
   );

@@ -823,7 +823,7 @@ export default function PortfolioPage({ categories }) {
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div className="sticky top-0 z-50 w-full backdrop-blur-md">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <NavigationBar
             menuItems={categories}
@@ -1518,8 +1518,8 @@ export default function PortfolioPage({ categories }) {
             onValueChange={setCurrentTab}
             className="mb-4"
           >
-            <div className="flex justify-between items-center mb-4">
-              <TabsList className="flex space-x-4">
+            <div className="flex justify-between items-center">
+              <TabsList className="flex space-x-4 w-full justify-start">
                 <TabsTrigger value="positions">Positions</TabsTrigger>
                 <TabsTrigger value="openorders">Open Orders</TabsTrigger>
                 <TabsTrigger value="history">History</TabsTrigger>
