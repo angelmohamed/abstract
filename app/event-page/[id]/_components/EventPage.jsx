@@ -538,7 +538,7 @@ export default function EventPage({ categories }) {
                               <Button
                                 variant="link"
                                 onClick={() => setShowFullText(!showFullText)}
-                                className="text-sm text-primary"
+                                className="text-sm text-primary px-0 mt-1 !no-underline"
                               >
                                 {showFullText ? "Show Less" : "Show More"}
                               </Button>

@@ -41,6 +41,7 @@ import { getPositionsByEvtId } from "@/services/user";
 import { capitalize } from "@/app/helper/string";
 import { isEmptyObject } from "@/app/helper/isEmpty";
 import { SocketContext } from "@/config/socketConnectivity";
+import { InfoCircledIcon } from "@radix-ui/react-icons";
 
 export function TradingCard({
   market,
@@ -190,7 +191,7 @@ export function TradingCard({
             <div className="w-full h-px bg-gray-600"></div>
             <TabsContent value="buy">
               <h1 className="pb-2 flex justify-between items-center">
-                <span>
+                <span className="flex items-center gap-1">
                   Pick side{" "}
                   <TooltipProvider>
                     <Tooltip>
@@ -199,7 +200,7 @@ export function TradingCard({
                           className="text-xs text-gray-400"
                           style={{ cursor: "pointer" }}
                         >
-                          ⓘ
+                          <InfoCircledIcon />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent
@@ -218,7 +219,7 @@ export function TradingCard({
             </TabsContent>
             <TabsContent value="sell">
               <h1 className="pb-2 flex justify-between items-center">
-                <span>
+                <span className="flex items-center gap-1">
                   Your position{" "}
                   <TooltipProvider>
                     <Tooltip>
@@ -227,7 +228,7 @@ export function TradingCard({
                           className="text-xs text-gray-400"
                           style={{ cursor: "pointer" }}
                         >
-                          ⓘ
+                          <InfoCircledIcon />
                         </span>
                       </TooltipTrigger>
                       <TooltipContent
