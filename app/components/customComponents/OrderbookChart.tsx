@@ -129,13 +129,20 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         const filteredResult = result.find(
           (item: any) => item.groupItemTitle === selectedMarket.groupItemTitle
         );
+        let formattedData = filteredResult?.data.map((item:any)=>{
+          let formetTime: any = Math.floor(new Date(item.t).getTime() / 1000);
+          // let formetTime = item.createdAt;
+          return {
+            t: formetTime,
+            p: item.p
+          }
+        });
         // Always use fixed sample data, but process it with processSingleChartData and the selected interval
         if(selectedYes){
-          setChartDataYes(processSingleChartDataNew(filteredResult?.data || [], interval));
+          setChartDataYes(processSingleChartDataNew(formattedData || [], interval));
         } 
         if(!selectedYes){
-          // setChartDataNo(processSingleChartDataNew(filteredResult?.data?.map(d => ({ t: d.t, p: 100 - d.p })) || [], interval));
-          setChartDataNo(processSingleChartDataNew(filteredResult?.data || [], interval));
+          setChartDataNo(processSingleChartDataNew(formattedData || [], interval));
         }
       }
     } catch (error) {
