@@ -833,7 +833,7 @@ export default function PortfolioPage({ categories }) {
           />
         </div>
         <div className="container mx-auto px-4 container-sm">
-          {/* <div className="flex justify-end mb-4">
+          <div className="flex justify-end mb-4">
             {isConnected ? (
               <>
                 <Button className="mr-2">{shortText(address)}</Button>
@@ -842,7 +842,7 @@ export default function PortfolioPage({ categories }) {
             ) : (
               <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
             )}
-          </div> */}
+          </div>
           {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
           <br></br>
           {/* 2. Key metrics card area */}
