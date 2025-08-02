@@ -233,7 +233,7 @@ const AccordionTrigger = React.forwardRef<
                 </span>
               </Button>
               {/* Tron blue border animation - hover only */}
-              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}
@@ -272,7 +272,7 @@ const AccordionTrigger = React.forwardRef<
                 </span>
               </Button>
               {/* Pink border animation - hover only */}
-              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}

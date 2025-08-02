@@ -132,7 +132,7 @@ export default function HeaderFixed() {
             About
           </Link>
           <Link
-            href="/waitlist"
+            href="/"
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-white text-base hover:bg-[#232b3a] transition"
             onClick={() => setIsOpen(false)}
           >
