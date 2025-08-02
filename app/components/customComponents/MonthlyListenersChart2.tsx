@@ -4,10 +4,10 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/app/components/ui/button";
 import { Legend, Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
-import { ArrowRightLeft, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { ChartContainer, ChartConfig } from "@/app/components/ui/chart";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
-import { ChartDataPoint, processSingleChartDataNew } from "@/utils/processChartData";
+import { processSingleChartData, ChartDataPoint } from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
 import { getForecastHistory } from "@/services/market";
@@ -16,19 +16,19 @@ const getIntervalDate = (interval: string) => {
   const now = new Date();
   switch (interval) {
     case "1h":
-      return new Date(now.setHours(now.getHours() - 1)).getTime();
+      return new Date(now.getTime() - 60 * 60 * 1000).getTime();
     case "6h":
-      return new Date(now.setHours(now.getHours() - 6)).getTime();
+      return new Date(now.getTime() - 6 * 60 * 60 * 1000).getTime();
     case "1d":
-      return new Date(now.setDate(now.getDate() - 1)).getTime();
+      return new Date(now.getTime() - 24 * 60 * 60 * 1000).getTime();
     case "1w":
-      return new Date(now.setDate(now.getDate() - 7)).getTime();
+      return new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).getTime();
     case "1m":
-      return new Date(now.setMonth(now.getMonth() - 1)).getTime();
+      return new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).getTime();
     case "all":
-      return new Date(now.setFullYear(now.getFullYear() - 1)).getTime();
+      return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).getTime();
     default:
-      return new Date(now.setFullYear(now.getFullYear() - 1)).getTime();
+      return new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000).getTime();
   }
 }
 
@@ -125,7 +125,7 @@ const CustomTooltip: React.FC<CustomTooltipProps & { isCustomData?: boolean; dat
           (entry, index) =>
             entry.value !== null && (
               <p key={index} style={{ color: entry.color }} className="text-sm">
-                {entry.name} {isCustomData ? `${entry.value}M listeners` : `${entry.value?.toFixed(1)}¢`}
+                {entry.name} {isCustomData ? `${entry.value}M` : `${entry.value?.toFixed(1)}M`}
               </p>
             )
         )}
@@ -146,17 +146,16 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
   interval
 }) => {
   const [chartDataYes, setChartDataYes] = useState<ChartDataPoint[]>([]);
-  const [chartDataNo, setChartDataNo] = useState<ChartDataPoint[]>([]);
-  const [selectedYes, setSelectedYes] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [chartConfig, setChartConfig] = useState<ChartConfig>({
     asset1: {
-      label: "Yes",
+      label: "Forecast",
       color: "#7DFDFE",
     },
   });
   const [currentChance, setCurrentChance] = useState<number | undefined>(undefined);
   const [isHovering, setIsHovering] = useState<boolean>(false);
+  const [allChartData, setAllChartData] = useState<ChartDataPoint[]>([]);
 
   // State to track screen width
   const [screenWidth, setScreenWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1024);
@@ -178,86 +177,65 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
       : Math.floor(chartData.length / 12);
 
   useEffect(() => {
-    if (selectedYes) {
-      setChartData(chartDataYes);
-      setChartConfig({
-        asset1: { label: "Yes", color: "#7DFDFE" },
-      });
-    } else {
-      // Invert the data for "No" view: 100 - original value
-      const invertedData = chartDataYes.map((point: any) => ({
-        ...point,
-        asset1: point.asset1 !== null ? 100 - point.asset1 : null
-      }));
-      setChartData(invertedData);
-      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
-    }
-  }, [selectedYes, chartDataYes, chartDataNo]);
+    setChartData(chartDataYes);
+  }, [chartDataYes]);
 
   useEffect(() => {
-    // If custom data is provided, use it instead of fetching from API
-    if (customData && customData.length > 0) {
-      setChartDataYes(customData);
-      setChartDataNo(customData); // Use same data for both Yes/No in this case
-      return;
-    }
-
     const fetchAllPriceHistories = async () => {
-      
-        try {
-          let startDate = getIntervalDate(interval);
-          let end_ts = new Date().getTime();
-          const payload = {
-              start_ts:startDate,
-              end_ts:end_ts
-          }
-          const { success, result } = await getForecastHistory(eventSlug, payload);
-          if (success) {
-            let formettedData = result.map((item:any)=>{
-              let formetTime: any = Math.floor(new Date(item.createdAt).getTime() / 1000);
-              // let formetTime = item.createdAt;
-              return {
-                t: formetTime,
-                p: item.forecast
-              }
-            });
-            const processedData = processSingleChartDataNew(formettedData, interval);
-            if (processedData && processedData.length > 0) {
-              setChartDataYes(processedData);
-            } else {
-              console.warn("No processed data for Yes market");
-            }
-          }
+      try {
+        const payload = {
+          start_ts: getIntervalDate("all"),
+          end_ts: new Date().getTime(),
+        };
+        const { success, result } = await getForecastHistory(eventSlug, payload);
+        if (success) {
+          const formattedData = result.map((item: any) => ({
+            t: Math.floor(new Date(item.createdAt).getTime() / 1000),
+            p: item.forecast / 100,
+          }));
+          setAllChartData(formattedData);
+          const processedData = processSingleChartData(formattedData, interval);
+          setChartDataYes(processedData);
+        } else {
+          console.error("MonthlyListenersChart2: Failed to fetch data");
+        }
       } catch (error) {
-        console.error("Error parsing market data:", error);
+        console.error("Error fetching all market data:", error);
       }
     };
-    fetchAllPriceHistories();
-  }, [market, interval, customData]);
 
-  // Set initial chance from chart data when it changes (for both API and custom data)
+    fetchAllPriceHistories();
+  }, [eventSlug]);
+
+  useEffect(() => {
+    if (allChartData.length > 0) {
+      const dataPoints = allChartData.map(({ t, p }) => ({ t, p }));
+      const processedData = processSingleChartData(dataPoints, interval);
+      setChartDataYes(processedData);
+    }
+  }, [interval, allChartData]);
+
   useEffect(() => {
     if (chartDataYes && chartDataYes.length > 0 && currentChance === undefined) {
       const lastDataPoint: any = chartDataYes[chartDataYes.length - 1];
       if (lastDataPoint && lastDataPoint.asset1 !== null) {
-        setCurrentChance(lastDataPoint.asset1 / 100);
+        setCurrentChance(lastDataPoint.asset1);
       }
     }
   }, [chartDataYes, currentChance]);
 
-  // Set current chance from the last data point when chartData changes
   useEffect(() => {
     if (chartData && chartData.length > 0) {
       const lastPoint: any = chartData[chartData.length - 1];
       if (lastPoint && lastPoint.asset1 !== null && lastPoint.asset1 !== undefined) {
-        setCurrentChance(lastPoint.asset1 / 100); // Convert from percentage to decimal
+        setCurrentChance(lastPoint.asset1);
       }
     }
   }, [chartData]);
 
   const handleMouseEnter = (data: any) => {
     if (data && data.activePayload && data.activePayload[0]) {
-      const value = data.activePayload[0].value / 100; // Convert from percentage to decimal
+      const value = data.activePayload[0].value;
       setCurrentChance(value);
       setIsHovering(true);
     }
@@ -265,31 +243,27 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
 
   const handleMouseLeave = () => {
     setIsHovering(false);
-    // Reset to the last data point value
     if (chartData && chartData.length > 0) {
       const lastPoint: any = chartData[chartData.length - 1];
       if (lastPoint && lastPoint.asset1 !== null && lastPoint.asset1 !== undefined) {
-        setCurrentChance(lastPoint.asset1 / 100);
+        setCurrentChance(lastPoint.asset1);
       }
     }
   };
 
-  // Calculate the current displayed chance value and color - use actual chart data
   const displayChance = currentChance;
-  const chanceColor = selectedYes ? '#7DFDFE' : '#EC4899';
+  const chanceColor = '#7DFDFE';
 
-  // Custom dot component that only shows on the last data point
   const CustomDot = (props: any) => {
     const { cx, cy, payload, index } = props;
     const isLastPoint = index === chartData.length - 1;
     
     if (!isLastPoint) return null;
     
-    const dotColor = selectedYes ? "#7DFDFE" : "#EC4899";
+    const dotColor = "#7DFDFE";
     
     return (
       <g>
-        {/* Animated pulsing ring */}
         <circle
           cx={cx}
           cy={cy}
@@ -312,8 +286,6 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
             repeatCount="indefinite"
           />
         </circle>
-        
-        {/* Main dot */}
         <circle
           cx={cx}
           cy={cy}
@@ -333,7 +305,6 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
     );
   };
 
-  // Don't render if no chart data
   if (!chartData || chartData.length === 0) {
     return (
       <Card
@@ -351,12 +322,11 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
 
   return (
     <Card
-      className="h-auto" // Wider on mobile
+      className="h-auto"
       style={{ backgroundColor: "transparent", borderColor: "transparent" }}
     >
       <div>
         <CardHeader className="p-0">
-          {/* Title Row: Title and Event Image */}
           <CardTitle style={{ lineHeight: "1.5" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div
@@ -389,7 +359,6 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
               </div>
             </div>
           </CardTitle>
-          {/* Volume and Date info (should be above chance/logo row) */}
           <CardDescription className="py-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
             <div className="flex pb-1 flex-wrap gap-3 items-center">
               <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
@@ -407,18 +376,14 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
               )}
             </div>
           </CardDescription>
-          {/* Chance/Forecast Row: Value left, toggle button right */}
           {displayChance !== undefined && (
             <div className="flex items-center justify-between mt-6 mb-6 w-full">
               <div className="flex items-center">
                 <span className="text-3xl lg:text-4xl font-semibold" style={{ color: chanceColor }}>
-                  {(displayChance * 100).toFixed(1)}M
+                  {displayChance !== undefined ? displayChance.toFixed(1) : '0.0'}M
                 </span>
                 <span className="text-lg font-light ml-2" style={{ color: chanceColor }}>forecast</span>
               </div>
-              <Button variant="ghost" size="icon" className="h-6 w-6 p-0" onClick={() => setSelectedYes(!selectedYes)}>
-                <ArrowRightLeft size={16} />
-              </Button>
             </div>
           )}
         </CardHeader>
@@ -426,11 +391,10 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
         <CardContent className="gap-0 sm:gap-2 p-0">
             <div className="w-full test">
               <CardHeader className="p-0 sm:pb-4">
-                {/* Removed the chance value div here */}
               </CardHeader>
             <CardContent className="p-0">
               <ChartContainer
-                className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[200px] w-full" // No left padding
+                className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[200px] w-full"
                 config={chartConfig}
               >
                 <LineChart
@@ -453,12 +417,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                     }}
                   />
                   <YAxis
-                    // domain={(() => {
-                    //   const domain = calculateYAxisDomain(chartData, 'asset1');
-                    //   console.log('ForecastChart Y-axis domain:', domain, 'for data length:', chartData.length);
-                    //   return domain;
-                    // })()}
-                    domain={[0, 1]}                    
+                    domain={[0, 'dataMax']}                    
                     tickFormatter={(tick) => customData ? `${tick}M` : `${tick}M`}
                     tickLine={false}
                     axisLine={false}
@@ -472,19 +431,16 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                     wrapperStyle={{ top: "-30px", paddingBottom: 32 }}
                     iconSize={8}
                   />
-                  {["asset1"].map((asset, _) => (
-                    <Line
-                      key={asset}
-                      type="step"
-                      dataKey={asset}
-                      name={chartConfig[asset].label}
-                      stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
-                      strokeWidth={1}
-                      dot={<CustomDot />}
-                      label={false}
-                      connectNulls
-                    />
-                  ))}
+                  <Line
+                    type="step"
+                    dataKey="asset1"
+                    name={chartConfig.asset1.label}
+                    stroke="#7DFDFE"
+                    strokeWidth={1}
+                    dot={<CustomDot />}
+                    label={false}
+                    connectNulls
+                  />
                 </LineChart>
               </ChartContainer>
             </CardContent>
