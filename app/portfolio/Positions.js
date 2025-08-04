@@ -97,6 +97,7 @@ const Positions = () => {
   }
 
   const handleTradeOpen = async (id, outcomes) => {
+    console.log(id, outcomes, "handleTradeOpen")
     setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
@@ -268,9 +269,8 @@ const Positions = () => {
                             />
                             <Link href={`/event-page/${item?.eventSlug}`} className="text-base font-semibold leading-tight cursor-pointer">{item.eventTitle}</Link>
                           </div>
-
                           <div className='flex items-center gap-2'>
-                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleTradeOpen(data.marketId, data?.outcomes)}>
+                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleTradeOpen(item?.positions[0]?.marketId, item?.positions[0]?.outcomes)}>
                               <HistoryIcon className='w-5 h-5' />
                             </button>
                             <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleShareOpen(item)}>
