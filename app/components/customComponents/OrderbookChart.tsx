@@ -9,7 +9,7 @@ import { Card, CardContent, CardTitle, CardDescription } from "@/app/components/
 import Logo from "../../../public/images/logo.png";
 import Image from "next/image";
 import SONOTRADE from "/images/SONOTRADE.png";
-import { processSingleChartDataNew } from "@/utils/processChartData";
+import { processSingleChartData } from "@/utils/processChartData";
 import { getPriceHistory } from "@/services/market";
 import { SocketContext } from "@/config/socketConnectivity";
 import { isEmpty } from "@/lib/isEmpty";
@@ -139,10 +139,10 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         });
         // Always use fixed sample data, but process it with processSingleChartData and the selected interval
         if(selectedYes){
-          setChartDataYes(processSingleChartDataNew(formattedData || [], interval));
+          setChartDataYes(processSingleChartData(formattedData || [], interval));
         } 
         if(!selectedYes){
-          setChartDataNo(processSingleChartDataNew(formattedData || [], interval));
+          setChartDataNo(processSingleChartData(formattedData || [], interval));
         }
       }
     } catch (error) {
