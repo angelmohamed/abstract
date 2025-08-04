@@ -83,13 +83,13 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[188px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      className="flex flex-col justify-between w-full h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
       style={{
-        backgroundColor: "#000000",
+        backgroundColor: "#000000ff",
         boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
       }}
     >
-      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 pb-0">
+      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-3 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
           <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
             <div
@@ -172,7 +172,7 @@ const EventCard: React.FC<EventCardProps> = ({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-6 sm:pt-4">
+      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-3 sm:pt-6">
         {status == "active" ? (
           <>
             <div
@@ -196,7 +196,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleYesClick}
-                    className="w-full h-12 sm:h10 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 sm:h-10 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {yesButtonLabel}
                   </Button>
@@ -239,7 +239,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleNoClick}
-                    className="w-full h-12 sm:h10 mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 sm:h-10 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {noButtonLabel}
                   </Button>
@@ -288,7 +288,7 @@ const EventCard: React.FC<EventCardProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="sm:pl-3 sm:pr-3 pl-2 pr-2 pb-2 px-2 overflow-hidden">
+      <CardFooter className="sm:pl-3 sm:pr-3 pl-3 pr-3 pb-3 sm:pb-2 overflow-hidden">
         <div
           className="w-full"
           style={{

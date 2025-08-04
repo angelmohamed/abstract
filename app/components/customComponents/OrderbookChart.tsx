@@ -9,7 +9,7 @@ import { Card, CardContent, CardTitle, CardDescription } from "@/app/components/
 import Logo from "../../../public/images/logo.png";
 import Image from "next/image";
 import SONOTRADE from "/images/SONOTRADE.png";
-import { processSingleChartDataNew } from "@/utils/processChartData";
+import { processSingleChartData } from "@/utils/processChartData";
 import { getPriceHistory } from "@/services/market";
 import { SocketContext } from "@/config/socketConnectivity";
 import { isEmpty } from "@/lib/isEmpty";
@@ -35,31 +35,29 @@ interface OrderbookChartProps {
   selectedMarket: any;
 }
 
-const CustomTooltip = ({ active, payload, label, data }: any) => {
+const CustomTooltip = ({ active, payload, label }: any) => {
   let formattedLabel = label;
-  if (label && data) {
-    const found = data.find((d: any) => String(d.rawTimestamp) === String(label));
-    if (found && found.rawTimestamp) {
-      const date = new Date(found.rawTimestamp * 1000);
-      formattedLabel = date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
+  if (label) {
+    // label is the rawTimestamp value, format it directly
+    const date = new Date(label * 1000);
+    formattedLabel = date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
   }
   if (active && payload && payload.length) {
+    console.log('OrderbookChart Tooltip payload:', payload); // Debug log
+    const entry = payload[0]; // Only use the first entry
     return (
       <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
         <p className="text-sm font-semibold">{formattedLabel}</p>
-        {payload.map(
-          (entry: any, index: number) =>
-            entry.value !== null && (
-              <p key={index} style={{ color: entry.color }} className="text-sm">
-                {entry.name} {entry.value?.toFixed(1)}¢
-              </p>
-            )
+        {entry.value !== null && (
+          <p style={{ color: entry.color }} className="text-sm">
+            {entry.name} {entry.value?.toFixed(1)}%
+          </p>
         )}
       </div>
     );
@@ -77,6 +75,8 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
 }) => {
   const [chartDataYes, setChartDataYes] = useState<any[]>([]);
   const [chartDataNo, setChartDataNo] = useState<any[]>([]);
+  const [allChartDataYes, setAllChartDataYes] = useState<any[]>([]);
+  const [allChartDataNo, setAllChartDataNo] = useState<any[]>([]);
   const [selectedYes, setSelectedYes] = useState<boolean>(true);
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [chartConfig, setChartConfig] = useState<UIChartConfig>({
@@ -99,50 +99,46 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
-  // Determine X-axis interval based on screen width
-  const xAxisInterval = screenWidth < 640 
-    ? Math.floor(chartData.length / 6) 
-    : Math.floor(chartData.length / 12);
-
-  // Fixed sample data for consistent chart
-  const SAMPLE_DATA: { t: number; p: number }[] = (() => {
-    const arr: { t: number; p: number }[] = [];
-    const now = Math.floor(Date.now() / 1000);
-    const step = 60 * 60; // 1 hour step
-    for (let i = 0; i < 20; i++) {
-      const t = now - (19 - i) * step;
-      const p = 0.2 + 0.6 * Math.sin(i / 3); // some smooth variation
-      arr.push({ t, p });
-    }
-    return arr;
-  })();
 
   const fetchData = async() => {
     try {
+      // Fetch all data without timestamp filtering (like Chart.tsx)
       const data = {
         market: selectedYes ? "yes" : "no",
-        interval,
+        interval: "all", // Always fetch all data
         fidelity: 30,
       };
       const { success, result } = await getPriceHistory(id, data);
       if (success) {
+        // Find the specific market data that matches selectedMarket
         const filteredResult = result.find(
           (item: any) => item.groupItemTitle === selectedMarket.groupItemTitle
         );
-        let formattedData = filteredResult?.data.map((item:any)=>{
-          let formetTime: any = Math.floor(new Date(item.t).getTime() / 1000);
-          // let formetTime = item.createdAt;
-          return {
-            t: formetTime,
-            p: item.p
-          }
-        });
-        // Always use fixed sample data, but process it with processSingleChartData and the selected interval
+        
+        if (filteredResult) {
+          let formattedData = filteredResult.data?.map((item: any) => {
+            let formattedTime: any = Math.floor(new Date(item.t).getTime() / 1000);
+            return {
+              t: formattedTime,
+              p: item.p / 100, // Divide by 100 to get proper percentage (like Chart.tsx)
+            };
+          });
+        
+        
+        // Store all data for current selection (like Chart.tsx)
         if(selectedYes){
-          setChartDataYes(processSingleChartDataNew(formattedData || [], interval));
-        } 
-        if(!selectedYes){
-          setChartDataNo(processSingleChartDataNew(formattedData || [], interval));
+          setAllChartDataYes(formattedData || []);
+        } else {
+          setAllChartDataNo(formattedData || []);
+        }
+        
+        // Process data with current interval (like Chart.tsx)
+        let processedData = processSingleChartData(formattedData || [], interval);
+        if(selectedYes){
+          setChartDataYes(processedData);
+        } else {
+          setChartDataNo(processedData);
+        }
         }
       }
     } catch (error) {
@@ -152,7 +148,26 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
 
   useEffect(() => {
     fetchData();
-  }, [id, market, selectedMarket, interval, selectedYes]);
+  }, [id, market, selectedMarket, selectedYes]); // Remove interval from dependencies like Chart.tsx
+
+  // Add separate effect to handle interval changes using stored data (like Chart.tsx)
+  useEffect(() => {
+    console.log('OrderbookChart interval changed:', interval);
+    console.log('OrderbookChart allChartDataYes length:', allChartDataYes.length);
+    console.log('OrderbookChart allChartDataNo length:', allChartDataNo.length);
+    
+    if (selectedYes && allChartDataYes.length > 0) {
+      console.log('Processing Yes data with interval:', interval);
+      let processedData = processSingleChartData(allChartDataYes, interval);
+      console.log('Processed Yes data length:', processedData.length);
+      setChartDataYes(processedData);
+    } else if (!selectedYes && allChartDataNo.length > 0) {
+      console.log('Processing No data with interval:', interval);
+      let processedData = processSingleChartData(allChartDataNo, interval);
+      console.log('Processed No data length:', processedData.length);
+      setChartDataNo(processedData);
+    }
+  }, [interval, allChartDataYes, allChartDataNo, selectedYes]);
 
   useEffect(() => {
       const socket = socketContext?.socket;
@@ -164,9 +179,9 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
       
       socket.on("chart-update", chartUpdate);
       return () => {
-        socket.off("chart-update");
+        socket.off("chart-update", chartUpdate);
       };
-  }, [market, interval, selectedYes]);
+  }, [market, selectedYes]); // Remove interval from dependencies like Chart.tsx
 
   useEffect(() => {
     if (selectedYes) {
@@ -246,41 +261,55 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
           </Button>
         </div>
           <CardContent className="pt-0 pb-0 pl-0 pr-0">
-            <div className="w-full p-0 m-0 pb-0" style={{ width: '102%', paddingBottom: 0 }}>
-              <ChartContainer className="h-[300px] w-full p-0 m-0 flex justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none pb-0 mb-0" style={{ marginBottom: 0, paddingBottom: 0 }} config={chartConfig}>
+            <div className="w-full p-0 m-0 pb-0" style={{ width: '100%', paddingBottom: 0 }}>
+              <ChartContainer className="h-[300px] w-full p-0 m-0 flex justify-center text-xs [&_.recharts-cartesian-axis-tick_text]:fill-muted-foreground [&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-curve.recharts-tooltip-cursor]:stroke-border [&_.recharts-dot[stroke='#fff']]:stroke-transparent [&_.recharts-layer]:outline-none [&_.recharts-polar-grid_[stroke='#ccc']]:stroke-border [&_.recharts-radial-bar-background-sector]:fill-muted [&_.recharts-rectangle.recharts-tooltip-cursor]:fill-muted [&_.recharts-reference-line_[stroke='#ccc']]:stroke-border [&_.recharts-sector[stroke='#fff']]:stroke-transparent [&_.recharts-sector]:outline-none [&_.recharts-surface]:outline-none pb-0 mb-0" style={{ marginBottom: 0, paddingBottom: 0, overflow: 'visible' }} config={chartConfig}>
                 <LineChart 
                   data={chartData} 
                   className="pl-0" 
                   margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                  syncId="chart"
+                  syncMethod="value"
                   onMouseMove={(e) => {
-                      if (e && e.activePayload && e.activePayload.length > 0) { 
-                        const hoveredValue = e.activePayload[0].payload.asset1 || 0 ;
-                        if(!isEmpty(hoveredValue)){
-                            setHoveredChance(hoveredValue); // Convert to percentage
-                        }else{
-                            if(hoveredValue == 0) {
-                                setHoveredChance(0)
-                            } else {
-                                setHoveredChance(undefined);
-                            }
-                        }
-                      }
+                    if (e.activePayload && e.activePayload.length > 0) {
+                      setHoveredChance(e.activePayload[0].value);
+                    }
                   }}
                   onMouseLeave={() => {
-                      setHoveredChance(undefined)
+                    setHoveredChance(undefined);
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1a1a1a" />
                   <XAxis
                     dataKey="rawTimestamp"
-                    interval={xAxisInterval}
+                    type="number"
+                    scale="time"
+                    domain={['dataMin', 'dataMax']}
                     tickLine={false}
                     axisLine={false}
                     tickMargin={8}
                     width={100}
+                    ticks={chartData.length > 0 ? (() => {
+                      const minTime = Math.min(...chartData.map(d => d.rawTimestamp || 0));
+                      const maxTime = Math.max(...chartData.map(d => d.rawTimestamp || 0));
+                      const tickCount = screenWidth < 640 ? 4 : 6;
+                      const step = (maxTime - minTime) / (tickCount - 1);
+                      return Array.from({ length: tickCount }, (_, i) => minTime + (step * i));
+                    })() : undefined}
+                    allowDuplicatedCategory={false}
                     tickFormatter={(t) => {
-                      const found = chartData.find(d => d.rawTimestamp === t);
-                      return found ? found.timestamp : '';
+                      const date = new Date(t * 1000);
+                      if (interval === "all" || interval === "1m" || interval === "1w") {
+                        return date.toLocaleString("en-US", {
+                          day: "numeric",
+                          month: "short",
+                        });
+                      } else {
+                        return date.toLocaleString("en-US", {
+                          hour: "numeric",
+                          minute: "numeric",
+                          hour12: true
+                        });
+                      }
                     }}
                   />
                   <YAxis
@@ -291,21 +320,31 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
                     tickMargin={8}
                     orientation="right"
                   />
-                  <Tooltip content={<CustomTooltip data={chartData} />} />
+                  <Tooltip 
+                    content={<CustomTooltip />}
+                    allowEscapeViewBox={{ x: true, y: false }}
+                    isAnimationActive={false}
+                    shared={true}
+                    cursor={false}
+                  />
                   <Legend height={36} iconType="rect" wrapperStyle={{ top: "-30px", paddingBottom: 32 }} iconSize={8} />
                   <Line
-                    type="step"
+                    type="stepAfter"
                     dataKey="asset1"
                     name={chartConfig.asset1.label}
                     stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
                     strokeWidth={1}
                     dot={<CustomDot />}
+                    activeDot={{ r: 4, fill: selectedYes ? "#7DFDFE" : "#EC4899", stroke: "#fff", strokeWidth: 2 }}
                     label={false}
-                    connectNulls
+                    connectNulls={false}
+                    isAnimationActive={false}
+                    animationBegin={0}
+                    animationDuration={0}
                   />
                 </LineChart>
               </ChartContainer>
-              <div className="flex justify-center items-center m-0" style={{ minHeight: 0, paddingTop: 0, marginTop: 0, marginBottom: 0 }}>
+              <div className="flex justify-center items-center mt-4 mb-2" style={{ position: 'relative', zIndex: 20, pointerEvents: 'auto' }}>
                 <ChartIntervals interval={interval} setInterval={setInterval} />
               </div>
             </div>

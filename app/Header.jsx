@@ -64,7 +64,7 @@ export default function Header() {
       </div>
 
       {/* Desktop Auth Buttons */}
-      <div className="hidden lg:flex items-center gap-2 ml-auto pr-3">
+      <div className="hidden lg:flex items-center gap-2 ml-auto pr-4">
         {signedIn && (
           <button
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"

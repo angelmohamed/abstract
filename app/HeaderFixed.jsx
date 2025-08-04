@@ -151,7 +151,7 @@ export default function HeaderFixed() {
       {/* Search Bar */}
       <div
         className={cn(
-          "fixed left-0 bottom-0 w-full h-[80vh] bg-[#181818] z-[56] rounded-t-2xl shadow-2xl transition-transform duration-500 ease-in-out will-change-transform",
+          "fixed left-0 bottom-0 w-full h-[80vh] bg-[#181818] z-[56] rounded-t-2xl shadow-2xl transition-transform duration-500 ease-in-out will-change-transform lg:hidden",
           isSearchOpen ? "translate-y-0" : "translate-y-full"
         )}
         style={{ minHeight: "300px" }}
@@ -171,7 +171,9 @@ export default function HeaderFixed() {
       </div>
 
       {/* Bottom Nav */}
-      <div className="h-16 flex justify-between items-center lg:hidden fixed bottom-0 w-full bg-black border-t border-[#1E1E1E] z-50 px-8 md:px-20">
+      <div 
+        className="bottom-nav-fixed h-16 flex justify-between items-center lg:hidden fixed bottom-0 left-0 right-0 w-full bg-black border-t border-[#1E1E1E] z-[9999] px-8 md:px-20"
+      >
         <Link
           href="/"
           className={cn(
@@ -185,10 +187,15 @@ export default function HeaderFixed() {
         </Link>
         <button
           className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
-          onClick={() => {
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
             setActiveMenu("search");
             setIsSearchOpen(true);
             setIsOpen(false);
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
           }}
         >
           <MagnifyingGlassIcon className="text-3xl" />

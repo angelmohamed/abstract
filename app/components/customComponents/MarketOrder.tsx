@@ -215,7 +215,7 @@ const MarketOrder: React.FC<MarketOrderProps> = (props) => {
 
   return (
     <>
-      <div className="pt-2">
+      <div className="mt-3">
         {/* <p className="text-muted-foreground text-sm text-right mb-1">
           Balance {signedIn ? `$${availableBalance(asset)}`: "--"}
         </p> */}

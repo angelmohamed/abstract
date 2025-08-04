@@ -33,14 +33,14 @@ export function processMultiChartData(
   const now = Math.floor(Date.now() / 1000);
   
   // Calculate actual data range
-  const allTimestamps = [
+  const allDataTimestamps = [
     ...data1.map(d => d.t),
     ...data2.map(d => d.t),
     ...data3.map(d => d.t),
     ...data4.map(d => d.t)
   ].filter(t => t !== undefined);
   
-  const firstDataPoint = Math.min(...allTimestamps);
+  const firstDataPoint = Math.min(...allDataTimestamps);
   const actualRangeSec = now - firstDataPoint;
   
   // Check if selected interval is greater than data range, if so use "all"
@@ -63,43 +63,127 @@ export function processMultiChartData(
   const sorted3 = [...data3].sort((a, b) => a.t - b.t);
   const sorted4 = [...data4].sort((a, b) => a.t - b.t);
 
-  // Find the last values before or at startTime for forward-filling
-  let last1 = sorted1.length > 0 ? sorted1[0].p * 100 : null;
-  let last2 = sorted2.length > 0 ? sorted2[0].p * 100 : null;
-  let last3 = sorted3.length > 0 ? sorted3[0].p * 100 : null;
-  let last4 = sorted4.length > 0 ? sorted4[0].p * 100 : null;
-
+    // Find forward-fill baseline values from the last data point before startTime for each dataset
+  let last1 = sorted1[0]?.p * 100 || 0;
+  let last2 = sorted2[0]?.p * 100 || 0;
+  let last3 = sorted3[0]?.p * 100 || 0;
+  let last4 = sorted4[0]?.p * 100 || 0;
   let idx1 = 0, idx2 = 0, idx3 = 0, idx4 = 0;
-  for (let i = 0; i < sorted1.length; i++) {
-    if (sorted1[i].t <= startTime) {
-      last1 = sorted1[i].p * 100;
-      idx1 = i + 1;
-    } else break;
-  }
-  for (let i = 0; i < sorted2.length; i++) {
-    if (sorted2[i].t <= startTime) {
-      last2 = sorted2[i].p * 100;
-      idx2 = i + 1;
-    } else break;
-  }
-  for (let i = 0; i < sorted3.length; i++) {
-    if (sorted3[i].t <= startTime) {
-      last3 = sorted3[i].p * 100;
-      idx3 = i + 1;
-    } else break;
-  }
-  for (let i = 0; i < sorted4.length; i++) {
-    if (sorted4[i].t <= startTime) {
-      last4 = sorted4[i].p * 100;
-      idx4 = i + 1;
-    } else break;
+
+  // Handle baseline values based on interval type
+  if (adjustedInterval === "all" || intervalSec > actualRangeSec) {
+    // Start from the very first data points
+    idx1 = 0; idx2 = 0; idx3 = 0; idx4 = 0;
+    last1 = sorted1[0]?.p * 100 || 0;
+    last2 = sorted2[0]?.p * 100 || 0;
+    last3 = sorted3[0]?.p * 100 || 0;
+    last4 = sorted4[0]?.p * 100 || 0;
+    // Use the earliest data point as start time
+    const allFirstPoints = [
+      sorted1[0]?.t,
+      sorted2[0]?.t,
+      sorted3[0]?.t,
+      sorted4[0]?.t
+    ].filter(t => t !== undefined);
+    if (allFirstPoints.length > 0) {
+      startTime = Math.min(...allFirstPoints);
+    }
+  } else {
+    // For specific intervals, find the last value before our start time
+    for (let i = 0; i < sorted1.length; i++) {
+      if (sorted1[i].t < startTime) {
+        last1 = sorted1[i].p * 100;
+        idx1 = i + 1;
+      } else break;
+    }
+    for (let i = 0; i < sorted2.length; i++) {
+      if (sorted2[i].t < startTime) {
+        last2 = sorted2[i].p * 100;
+        idx2 = i + 1;
+      } else break;
+    }
+    for (let i = 0; i < sorted3.length; i++) {
+      if (sorted3[i].t < startTime) {
+        last3 = sorted3[i].p * 100;
+        idx3 = i + 1;
+      } else break;
+    }
+    for (let i = 0; i < sorted4.length; i++) {
+      if (sorted4[i].t < startTime) {
+        last4 = sorted4[i].p * 100;
+        idx4 = i + 1;
+      } else break;
+    }
   }
 
   let result: (ChartDataItem & { rawTimestamp: number; formattingInterval?: string })[] = [];
 
-  // 1. Always add a point at startTime (guaranteed)
-  {
-    const date = new Date(startTime * 1000);
+  // Collect all unique timestamps from all datasets
+  const allTimestamps = new Set<number>();
+  
+  // Add starting point timestamp
+  allTimestamps.add(startTime);
+  
+  if (adjustedInterval === "all" || intervalSec > actualRangeSec) {
+    // For "all" or when timeframe is smaller than interval, include ALL data points
+    for (let i = 0; i < sorted1.length && sorted1[i].t <= now; i++) {
+      allTimestamps.add(sorted1[i].t);
+    }
+    for (let i = 0; i < sorted2.length && sorted2[i].t <= now; i++) {
+      allTimestamps.add(sorted2[i].t);
+    }
+    for (let i = 0; i < sorted3.length && sorted3[i].t <= now; i++) {
+      allTimestamps.add(sorted3[i].t);
+    }
+    for (let i = 0; i < sorted4.length && sorted4[i].t <= now; i++) {
+      allTimestamps.add(sorted4[i].t);
+    }
+  } else {
+    // For specific intervals, include data points from idx onwards
+    for (let i = idx1; i < sorted1.length && sorted1[i].t <= now; i++) {
+      allTimestamps.add(sorted1[i].t);
+    }
+    for (let i = idx2; i < sorted2.length && sorted2[i].t <= now; i++) {
+      allTimestamps.add(sorted2[i].t);
+    }
+    for (let i = idx3; i < sorted3.length && sorted3[i].t <= now; i++) {
+      allTimestamps.add(sorted3[i].t);
+    }
+    for (let i = idx4; i < sorted4.length && sorted4[i].t <= now; i++) {
+      allTimestamps.add(sorted4[i].t);
+    }
+  }
+  
+  // Add current time
+  allTimestamps.add(now);
+
+  // Sort all unique timestamps
+  const sortedTimestamps = Array.from(allTimestamps).sort((a, b) => a - b);
+
+  // Process each timestamp and forward-fill values
+  let currentIdx1 = idx1, currentIdx2 = idx2, currentIdx3 = idx3, currentIdx4 = idx4;
+  let currentVal1 = last1, currentVal2 = last2, currentVal3 = last3, currentVal4 = last4;
+
+  for (const timestamp of sortedTimestamps) {
+    // Update values based on any new data points up to this timestamp
+    while (currentIdx1 < sorted1.length && sorted1[currentIdx1].t <= timestamp) {
+      currentVal1 = sorted1[currentIdx1].p * 100;
+      currentIdx1++;
+    }
+    while (currentIdx2 < sorted2.length && sorted2[currentIdx2].t <= timestamp) {
+      currentVal2 = sorted2[currentIdx2].p * 100;
+      currentIdx2++;
+    }
+    while (currentIdx3 < sorted3.length && sorted3[currentIdx3].t <= timestamp) {
+      currentVal3 = sorted3[currentIdx3].p * 100;
+      currentIdx3++;
+    }
+    while (currentIdx4 < sorted4.length && sorted4[currentIdx4].t <= timestamp) {
+      currentVal4 = sorted4[currentIdx4].p * 100;
+      currentIdx4++;
+    }
+
+    const date = new Date(timestamp * 1000);
     let timestampString = "";
     if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
       timestampString = date.toLocaleString("en-US", {
@@ -110,109 +194,22 @@ export function processMultiChartData(
       timestampString = date.toLocaleString("en-US", {
         hour: "numeric",
         minute: "numeric",
+        hour12: true
       });
     }
+
     result.push({
-      rawTimestamp: startTime,
+      rawTimestamp: timestamp,
       timestamp: timestampString,
-      asset1: last1,
-      asset2: last2,
-      asset3: last3,
-      asset4: last4,
+      asset1: currentVal1,
+      asset2: currentVal2,
+      asset3: currentVal3,
+      asset4: currentVal4,
       formattingInterval,
     });
   }
 
-  // 2. Generate points at fixed step between startTime and now (excluding startTime and now)
-  let t = startTime + step;
-  let ff1 = last1, ff2 = last2, ff3 = last3, ff4 = last4;
-  let ffIdx1 = idx1, ffIdx2 = idx2, ffIdx3 = idx3, ffIdx4 = idx4;
-  for (; t < now; t += step) {
-    // Forward-fill for each generated point
-    while (ffIdx1 < sorted1.length && sorted1[ffIdx1].t <= t) {
-      ff1 = sorted1[ffIdx1].p * 100;
-      ffIdx1++;
-    }
-    while (ffIdx2 < sorted2.length && sorted2[ffIdx2].t <= t) {
-      ff2 = sorted2[ffIdx2].p * 100;
-      ffIdx2++;
-    }
-    while (ffIdx3 < sorted3.length && sorted3[ffIdx3].t <= t) {
-      ff3 = sorted3[ffIdx3].p * 100;
-      ffIdx3++;
-    }
-    while (ffIdx4 < sorted4.length && sorted4[ffIdx4].t <= t) {
-      ff4 = sorted4[ffIdx4].p * 100;
-      ffIdx4++;
-    }
-    const date = new Date(t * 1000);
-      let timestampString = "";
-    if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
-        timestampString = date.toLocaleString("en-US", {
-          day: "numeric",
-          month: "short",
-        });
-      } else {
-        timestampString = date.toLocaleString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-      });
-    }
-    result.push({
-      rawTimestamp: t,
-      timestamp: timestampString,
-      asset1: ff1,
-      asset2: ff2,
-      asset3: ff3,
-      asset4: ff4,
-      formattingInterval,
-    });
-  }
-
-  // 3. Always add a point at now (guaranteed)
-  {
-    // Forward-fill for now
-    while (ffIdx1 < sorted1.length && sorted1[ffIdx1].t <= now) {
-      ff1 = sorted1[ffIdx1].p * 100;
-      ffIdx1++;
-    }
-    while (ffIdx2 < sorted2.length && sorted2[ffIdx2].t <= now) {
-      ff2 = sorted2[ffIdx2].p * 100;
-      ffIdx2++;
-    }
-    while (ffIdx3 < sorted3.length && sorted3[ffIdx3].t <= now) {
-      ff3 = sorted3[ffIdx3].p * 100;
-      ffIdx3++;
-    }
-    while (ffIdx4 < sorted4.length && sorted4[ffIdx4].t <= now) {
-      ff4 = sorted4[ffIdx4].p * 100;
-      ffIdx4++;
-    }
-    const date = new Date(now * 1000);
-    let timestampString = "";
-    if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
-      timestampString = date.toLocaleString("en-US", {
-        day: "numeric",
-        month: "short",
-      });
-    } else {
-      timestampString = date.toLocaleString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-      });
-    }
-    result.push({
-      rawTimestamp: now,
-        timestamp: timestampString,
-      asset1: ff1,
-      asset2: ff2,
-      asset3: ff3,
-      asset4: ff4,
-      formattingInterval,
-    });
-  }
-
-  // Remove duplicates (in case)
+  // Remove duplicates and sort
   const seen = new Set();
   result = result.filter(pt => {
     if (seen.has(pt.rawTimestamp)) return false;
@@ -256,20 +253,20 @@ function getFormattingInterval(rangeSec: number): string {
 
 function getFixedStep(interval: string, rangeSec: number): number {
   switch (interval) {
-    case "1h": return 60; // 1 minute
-    case "6h": return 2 * 60; // 2 minutes
-    case "1d": return 5 * 60; // 5 minutes
-    case "1w": return 30 * 60; // 30 minutes
-    case "1m": return 3 * 60 * 60; // 3 hours
+    case "1h": return 2 * 60; // 2 minutes (increased from 30 seconds)
+    case "6h": return 10 * 60; // 10 minutes (increased from 1 minute)
+    case "1d": return 30 * 60; // 30 minutes (increased from 2 minutes)
+    case "1w": return 2 * 60 * 60; // 2 hours (increased from 10 minutes)
+    case "1m": return 6 * 60 * 60; // 6 hours (increased from 1 hour)
     case "all":
-      // Use range-based thresholds for "all"
-      if (rangeSec <= 60 * 60) return 60; // 0-1h: 1 minute
-      if (rangeSec <= 6 * 60 * 60) return 2 * 60; // 1h-6h: 2 minutes
-      if (rangeSec <= 24 * 60 * 60) return 5 * 60; // 6h-1d: 5 minutes
-      if (rangeSec <= 7 * 24 * 60 * 60) return 30 * 60; // 1d-1w: 30 minutes
-      if (rangeSec <= 30 * 24 * 60 * 60) return 3 * 60 * 60; // 1w-1m: 3 hours
-      if (rangeSec <= 3 * 30 * 24 * 60 * 60) return 6 * 60 * 60; // 1m-3m: 6 hours
-      return 12 * 60 * 60; // >3m: 12 hours
+      // Use range-based thresholds for "all" with more frequent points
+      if (rangeSec <= 60 * 60) return 2 * 60; // 0-1h: 2 minutes
+      if (rangeSec <= 6 * 60 * 60) return 10 * 60; // 1h-6h: 10 minutes
+      if (rangeSec <= 24 * 60 * 60) return 30 * 60; // 6h-1d: 30 minutes
+      if (rangeSec <= 7 * 24 * 60 * 60) return 2 * 60 * 60; // 1d-1w: 2 hours
+      if (rangeSec <= 30 * 24 * 60 * 60) return 6 * 60 * 60; // 1w-1m: 6 hours
+      if (rangeSec <= 3 * 30 * 24 * 60 * 60) return 12 * 60 * 60; // 1m-3m: 12 hours
+      return 24 * 60 * 60; // >3m: 24 hours
     default: return 60 * 60; // fallback 1 hour
   }
 }
@@ -286,32 +283,70 @@ export function processSingleChartData(
   const adjustedInterval = getAdjustedInterval(interval, actualRangeSec);
   const intervalSec = getIntervalSeconds(adjustedInterval);
 
+  // Start exactly X hours ago for specific intervals
   let startTime = adjustedInterval === "all" ? firstDataPoint : now - intervalSec;
   if (adjustedInterval !== "all" && intervalSec > actualRangeSec) {
     startTime = firstDataPoint;
   }
 
   const rangeSec = now - startTime;
-  const step = getFixedStep(adjustedInterval, rangeSec);
   const formattingInterval = getFormattingInterval(rangeSec);
 
   const sorted = [...data1].sort((a, b) => a.t - b.t);
 
-  let lastValue = sorted[0].p * 100;
+  // For "all" or when interval is larger than data range, start from first data point
+  let lastValue = sorted[0]?.p * 100 || 0;
   let dataIdx = 0;
-  for (let i = 0; i < sorted.length; i++) {
-    if (sorted[i].t <= startTime) {
-      lastValue = sorted[i].p * 100;
-      dataIdx = i + 1;
-    } else {
-      break;
+  
+  if (adjustedInterval === "all" || intervalSec > actualRangeSec) {
+    // Start from the very first data point
+    dataIdx = 0;
+    lastValue = sorted[0]?.p * 100 || 0;
+    startTime = sorted[0]?.t || startTime;
+  } else {
+    // For specific intervals, find the last value before our start time
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i].t < startTime) {
+        lastValue = sorted[i].p * 100;
+        dataIdx = i + 1;
+      } else {
+        break;
+      }
     }
   }
 
   let result: (ChartDataPoint & { rawTimestamp: number; formattingInterval?: string })[] = [];
 
-  {
-    const date = new Date(startTime * 1000);
+  // Only include real data points - let step chart handle the connections
+  const realDataPoints: { timestamp: number; value: number }[] = [];
+  
+  // Add start point with baseline value (only if not starting from first data point)
+  if (adjustedInterval !== "all" && intervalSec <= actualRangeSec) {
+    realDataPoints.push({ timestamp: startTime, value: lastValue });
+  }
+  
+  // Add all real data points within range
+  if (adjustedInterval === "all" || intervalSec > actualRangeSec) {
+    // For "all" or when timeframe is smaller than interval, include ALL data points
+    for (let i = 0; i < sorted.length && sorted[i].t <= now; i++) {
+      realDataPoints.push({ timestamp: sorted[i].t, value: sorted[i].p * 100 });
+    }
+  } else {
+    // For specific intervals, include data points from dataIdx onwards
+    for (let i = dataIdx; i < sorted.length && sorted[i].t <= now; i++) {
+      realDataPoints.push({ timestamp: sorted[i].t, value: sorted[i].p * 100 });
+    }
+  }
+  
+  // Add current time point with final value
+  const finalValue = sorted.length > 0 ? sorted[sorted.length - 1].p * 100 : lastValue;
+  if (realDataPoints.length === 0 || realDataPoints[realDataPoints.length - 1].timestamp !== now) {
+    realDataPoints.push({ timestamp: now, value: finalValue });
+  }
+
+  // Convert to final format
+  for (const point of realDataPoints) {
+    const date = new Date(point.timestamp * 1000);
     let timestampString = "";
     if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
       timestampString = date.toLocaleString("en-US", {
@@ -322,71 +357,19 @@ export function processSingleChartData(
       timestampString = date.toLocaleString("en-US", {
         hour: "numeric",
         minute: "numeric",
+        hour12: true
       });
     }
+
     result.push({
-      rawTimestamp: startTime,
+      rawTimestamp: point.timestamp,
       timestamp: timestampString,
-      asset1: lastValue,
+      asset1: point.value,
       formattingInterval,
     });
   }
 
-  let t = startTime + step;
-  let ffValue = lastValue;
-  let ffIdx = dataIdx;
-  for (; t < now; t += step) {
-    while (ffIdx < sorted.length && sorted[ffIdx].t <= t) {
-      ffValue = sorted[ffIdx].p * 100;
-      ffIdx++;
-    }
-    const date = new Date(t * 1000);
-    let timestampString = "";
-    if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
-      timestampString = date.toLocaleString("en-US", {
-        day: "numeric",
-        month: "short",
-      });
-    } else {
-      timestampString = date.toLocaleString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-      });
-    }
-    result.push({
-      rawTimestamp: t,
-      timestamp: timestampString,
-      asset1: ffValue,
-      formattingInterval,
-    });
-  }
-
-  {
-    while (ffIdx < sorted.length && sorted[ffIdx].t <= now) {
-      ffValue = sorted[ffIdx].p * 100;
-      ffIdx++;
-    }
-    const date = new Date(now * 1000);
-    let timestampString = "";
-    if (formattingInterval === "all" || formattingInterval === "1m" || formattingInterval === "1w") {
-      timestampString = date.toLocaleString("en-US", {
-        day: "numeric",
-        month: "short",
-      });
-    } else {
-      timestampString = date.toLocaleString("en-US", {
-        hour: "numeric",
-        minute: "numeric",
-      });
-    }
-    result.push({
-      rawTimestamp: now,
-      timestamp: timestampString,
-      asset1: ffValue,
-      formattingInterval,
-    });
-  }
-
+  // Remove duplicates and sort
   const seen = new Set();
   result = result.filter(pt => {
     if (seen.has(pt.rawTimestamp)) return false;

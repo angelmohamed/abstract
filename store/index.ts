@@ -3,37 +3,31 @@ import { configureStore, type Action, type ThunkAction } from "@reduxjs/toolkit"
 import { FLUSH, PAUSE, PERSIST, persistReducer, persistStore, PURGE, REGISTER, REHYDRATE } from "redux-persist";
 // import { encryptTransform } from "redux-persist-transform-encrypt";
 import autoMergeLevel1 from "redux-persist/lib/stateReconciler/autoMergeLevel1";
-import storage from "redux-persist/lib/storage";
+import storage from "./storage";
 import { useDispatch as useReduxDispatch, useSelector as useReduxSelector, type TypedUseSelectorHook } from "react-redux";
 
 import rootReducer from "./rootReducer";
 
 const isClient = typeof window !== "undefined";
 
-let mainReducer: any;
-let persistConfig: any;
+const persistConfig = {
+	key: "user",
+	version: 1,
+	storage,
+	stateReconciler: autoMergeLevel1,
+	whitelist: ["auth","wallet","walletconnect"],
+	debug: false, // Set to false to reduce console noise
+	// transforms: [
+	// 	encryptTransform({
+	// 		secretKey: "my-super-secret-key",
+	// 		onError: function () {
+	// 			// Handle the error.
+	// 		},
+	// 	}),
+	// ],
+};
 
-if (isClient) {
-	persistConfig = {
-		key: "user",
-		version: 1,
-		storage,
-		stateReconciler: autoMergeLevel1,
-		whitelist: ["auth","wallet","walletconnect"],
-		debug: true,
-		// transforms: [
-		// 	encryptTransform({
-		// 		secretKey: "my-super-secret-key",
-		// 		onError: function () {
-		// 			// Handle the error.
-		// 		},
-		// 	}),
-		// ],
-	};
-	mainReducer = persistReducer(persistConfig, rootReducer());
-} else {
-	mainReducer = rootReducer();
-}
+const mainReducer = persistReducer(persistConfig, rootReducer());
 
 export const reduxStore: any = configureStore({
 	reducer: mainReducer,
@@ -48,7 +42,7 @@ export const reduxStore: any = configureStore({
 });
 
 reduxStore.asyncReducers = {};
-export const persistor = persistStore(reduxStore);
+export const persistor = isClient ? persistStore(reduxStore) : null;
 
 export const injectReducer = (key: any, reducer: any) => {
 	if (!isClient) {

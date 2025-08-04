@@ -61,15 +61,27 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({
     payload,
     label,
 }) => {
+    let formattedLabel = label;
+    if (label && typeof label === 'number') {
+        // label is the rawTimestamp value, format it directly
+        const date = new Date(label * 1000);
+        formattedLabel = date.toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true
+        });
+    }
     if (active && payload && payload.length) {
         return (
             <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
-                <p className="text-sm font-semibold">{label}</p>
+                <p className="text-sm font-semibold">{formattedLabel}</p>
                 {payload.map(
                     (entry, index) =>
                         entry.value !== null && (
                             <p key={index} style={{ color: entry.color }} className="text-sm">
-                                {entry.name} 
+                                {entry.name} {entry.value?.toFixed(1)}%
                             </p>
                         )
                 )}
@@ -108,6 +120,42 @@ const Chart: React.FC<ChartProps> = ({
     );
     const [multiHoveredChance, setMultiHoveredChance] = useState<any>([]);
 
+    // Create a custom tooltip component that can access the Chart component's state
+    const CustomTooltipWithState: React.FC<CustomTooltipProps> = ({
+        active,
+        payload,
+        label,
+    }) => {
+        let formattedLabel = label;
+        if (label && typeof label === 'number') {
+            const date = new Date(label * 1000);
+            formattedLabel = date.toLocaleString("en-US", {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true
+            });
+        }
+        
+        if (active && payload && payload.length) {
+            return (
+                <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
+                    <p className="text-sm font-semibold">{formattedLabel}</p>
+                    {payload.map(
+                        (entry, index) =>
+                            entry.value !== null && (
+                                <p key={index} style={{ color: entry.color }} className="text-sm">
+                                    {entry.name} {entry.value?.toFixed(1)}%
+                                </p>
+                            )
+                    )}
+                </div>
+            );
+        }
+        return null;
+    };
+
     // State to track screen width
     const [screenWidth, setScreenWidth] = useState<number>(
         typeof window !== "undefined" ? window.innerWidth : 1024
@@ -143,12 +191,6 @@ const Chart: React.FC<ChartProps> = ({
             return () => window.removeEventListener("resize", handleResize);
         }
     }, []);
-
-    // Determine X-axis interval based on screen width
-    const xAxisInterval =
-        screenWidth < 640
-            ? Math.floor(chartData.length / 6)
-            : Math.floor(chartData.length / 12);
 
     useEffect(() => {
         if (selectedYes) {
@@ -425,7 +467,7 @@ const Chart: React.FC<ChartProps> = ({
     // Calculate the current displayed chance value and color
     const displayChance =
         hoveredChance !== undefined
-            ? hoveredChance
+            ? hoveredChance // Data is already in 0-100 range
             : selectedYes
                 ? chance
                 : chance == 0
@@ -454,7 +496,7 @@ const Chart: React.FC<ChartProps> = ({
                         color: ChartColors[index],
                         asset: `asset${index+1}`,
                         fullLabel: `${item.groupItemTitle} ${selectedYes ? 'Yes' : 'No'}`, // Add full label with Yes/No
-                        last: multiHoveredChance[index] ?? (selectedYes ? item.odd : 100 - item.odd)
+                        last: (multiHoveredChance[index] !== undefined ? multiHoveredChance[index] : (selectedYes ? item.odd : 100 - item.odd))
                     }
                 }));
             } else {
@@ -557,7 +599,7 @@ const Chart: React.FC<ChartProps> = ({
                             </div>
                             <div
                                 className="text-[18px] lg:text-[24px] sm:text-[16px]"
-                                style={{ paddingLeft: "15px", marginRight: "10px" }}
+                                style={{ paddingLeft: "15px" }}
                             >
                                 {title || ""}
                             </div>
@@ -565,8 +607,8 @@ const Chart: React.FC<ChartProps> = ({
                     </CardTitle>
 
                     {/* 显示 Vol 和时间等信息 */}
-                    <CardDescription className="py-2">
-                        {/* First line - Volume and Date */}
+                    <CardDescription className="py-1 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                        {/* First line - Volume, Date, and Toggle */}
                         <div className="flex flex-wrap gap-3 items-center">
                             <p>Vol ${(volume && toTwoDecimal(volume/100)?.toLocaleString()) || "0.00"}</p>
                             {endDate && (
@@ -581,18 +623,29 @@ const Chart: React.FC<ChartProps> = ({
                                     })}
                                 </p>
                             )}
+                            {/* Toggle switch - hide on mobile when multiple markets */}
+                            {market?.length <= 1 && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setSelectedYes(!selectedYes)}
+                                    size="sm"
+                                >
+                                    <ArrowRightLeft />
+                                </Button>
+                            )}
+                            {/* Toggle switch - show on desktop for all markets */}
+                            {market?.length > 1 && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setSelectedYes(!selectedYes)}
+                                    size="sm"
+                                    className="hidden sm:block"
+                                >
+                                    <ArrowRightLeft />
+                                </Button>
+                            )}
                         </div>
-
-                        {/* Second line (mobile) - Polymarket and Swap Button */}
-                        <div className="flex gap-1 items-center">
-                            <Button
-                                variant="ghost"
-                                onClick={() => setSelectedYes(!selectedYes)}
-                            >
-                                <ArrowRightLeft />
-                            </Button>
-                        </div>
-                        <div className="flex items-center gap-2 mt-3">
+                        <div className="flex items-center gap-2 mt-2">
                             {seriesData?.length > 0 && (
                                 <Popover.Root>
                                     <Popover.Trigger asChild>
@@ -648,11 +701,24 @@ const Chart: React.FC<ChartProps> = ({
                             </Button> */}
                         </div>
                     </CardDescription>
+                    {/* Single market chance display - inside CardHeader like MonthlyListenersChart2 */}
+                    {market?.length <= 1 && displayChance !== undefined && (
+                        <div className="flex items-center justify-between mt-3 mb-3 w-full">
+                            <div className="flex items-center">
+                                <span className="text-3xl lg:text-4xl font-semibold" style={{ color: chanceColor }}>
+                                    {typeof displayChance === 'number' ? displayChance.toFixed(1) : '0.0'}%
+                                </span>
+                                <span className="text-lg font-light ml-2" style={{ color: chanceColor }}>
+                                    chance
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </CardHeader>
 
                 <CardContent className="gap-0 sm:gap-2 p-0">
                     <div className="w-full test">
-                        <CardHeader className="sm:pb-4 p-0 mt-3">
+                        <CardHeader className="p-0 sm:pb-4">
                             {displayChance !== undefined && isEmpty(displayChance) && (
                                 <div className="flex justify-start mb-4">
                                     {" "}
@@ -686,43 +752,63 @@ const Chart: React.FC<ChartProps> = ({
                         </CardHeader>
                         <CardContent className="p-0">
                             <ChartContainer
-                                className="h-[550px] lg:h-[350px] sm:h-[400px] w-full" // Shorter on mobile
+                                className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[250px] w-full"
                                 config={chartConfig}
+                                onMouseLeave={() => {
+                                    setHoveredChance(undefined);
+                                    setMultiHoveredChance([]);
+                                }}
                             >
                                 <LineChart
                                     data={chartData}
+                                    syncId="chart"
+                                    syncMethod="value"
                                     onMouseMove={(e) => {
                                         if (e && e.activePayload && e.activePayload.length > 0) {
-                                            if(market?.length > 1){
-                                                const multiHoveredValue = e.activePayload.map((item: any) => item.value);
-                                                setMultiHoveredChance(multiHoveredValue);
+                                            // For single market charts
+                                            if (market.length <= 1) {
+                                                setHoveredChance(e.activePayload[0].value);
                                             } else {
-                                                const hoveredValue = e.activePayload[0].payload.asset1 || 0 ;
-                                                if(!isEmpty(hoveredValue)){
-                                                    setHoveredChance(hoveredValue); // Convert to percentage
-                                                }else{
-                                                    if(hoveredValue == 0) {
-                                                        setHoveredChance(0)
-                                                    } else {
-                                                        setHoveredChance(undefined);
-                                                    }
-                                                }
+                                                // For multi-market charts
+                                                const values = e.activePayload.map(payload => payload.value);
+                                                setMultiHoveredChance(values);
                                             }
                                         }
                                     }}
-                                    onMouseLeave={() => {
-                                        setHoveredChance(undefined)
-                                        setMultiHoveredChance([])
-                                    }}
                                 >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1f1f1f" />
                                     <XAxis
-                                        dataKey="timestamp"
-                                        interval={xAxisInterval} // Dynamic interval based on screen width
+                                        dataKey="rawTimestamp"
+                                        type="number"
+                                        scale="time"
+                                        domain={['dataMin', 'dataMax']}
                                         tickLine={false}
                                         axisLine={false}
                                         tickMargin={8}
                                         width={100}
+                                        ticks={chartData.length > 0 ? (() => {
+                                          const minTime = Math.min(...chartData.map(d => d.rawTimestamp || 0));
+                                          const maxTime = Math.max(...chartData.map(d => d.rawTimestamp || 0));
+                                          const tickCount = screenWidth < 640 ? 4 : 6;
+                                          const step = (maxTime - minTime) / (tickCount - 1);
+                                          return Array.from({ length: tickCount }, (_, i) => minTime + (step * i));
+                                        })() : undefined}
+                                        allowDuplicatedCategory={false}
+                                        tickFormatter={(t) => {
+                                          const date = new Date(t * 1000);
+                                          if (interval === "all" || interval === "1m" || interval === "1w") {
+                                            return date.toLocaleString("en-US", {
+                                              day: "numeric",
+                                              month: "short",
+                                            });
+                                          } else {
+                                            return date.toLocaleString("en-US", {
+                                              hour: "numeric",
+                                              minute: "numeric",
+                                              hour12: true
+                                            });
+                                          }
+                                        }}
                                     />
                                     <YAxis
                                         domain={[0, 100]}
@@ -731,8 +817,15 @@ const Chart: React.FC<ChartProps> = ({
                                         axisLine={false}
                                         tickMargin={8}
                                         orientation="right"
+                                        width={40}
                                     />
-                                    <Tooltip content={<CustomTooltip />} />
+                                    <Tooltip 
+                                        content={<CustomTooltipWithState />}
+                                        allowEscapeViewBox={{ x: true, y: false }}
+                                        isAnimationActive={false}
+                                        shared={true}
+                                        cursor={false}
+                                    />
                                     <Legend
                                         height={36}
                                         iconType="circle"
@@ -741,18 +834,22 @@ const Chart: React.FC<ChartProps> = ({
                                     {chartConfig.map((asset: any, idx: any) => (
                                         <Line
                                             key={asset.asset}
-                                            type="step" // step bump
+                                            type="stepAfter" // stepAfter for proper odds representation
                                             dataKey={asset.asset}
-                                            name={`${asset.fullLabel || `${asset.label} ${selectedYes ? 'Yes' : 'No'}`} ${
-                                                multiDisplayChance.length > 0 && multiDisplayChance.find((item: any) => item.label === asset.label)
-                                                ? multiDisplayChance.find((item: any) => item.label === asset.label)?.last.toFixed(1) + "%"
-                                                : (displayChance !== undefined ? displayChance?.toFixed(1) + "%" : "")
-                                            }`}
+                                            name={asset.fullLabel || asset.label}
                                             stroke={asset.color}
                                             strokeWidth={2}
                                             dot={<CustomDot color={asset.color}/>}
+                                            activeDot={{ 
+                                                r: 6, 
+                                                fill: asset.color, 
+                                                stroke: "#fff", 
+                                                strokeWidth: 2,
+                                                style: { filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.3))' }
+                                            }}
                                             label={false}
                                             connectNulls
+                                            isAnimationActive={false}
                                         />
                                     ))}
                                 </LineChart>

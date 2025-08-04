@@ -213,7 +213,7 @@ export function MultipleOptionCard({
           </ScrollArea>
         </div>
       </CardContent>
-      <CardFooter className="relative z-0 sm:pl-3 pl-2 s:pr-3 pr-2 pb-2 px-2 overflow-hidden">
+      <CardFooter className="relative z-0 sm:pl-3 pl-2 sm:pr-3 pr-2 pb-2 px-2 overflow-hidden">
         <div
           className="pt-2 sm:pt-2 pb-0 w-full"
           style={{

@@ -6,8 +6,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/app/components/ui/tabs";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toFixedDown } from "@/lib/roundOf";
 import { useState } from "react";
 import { FillAsk } from "@/app/components/ui/fillAsk";
 import { FillBid } from "@/app/components/ui/fillBid";
@@ -21,6 +22,12 @@ interface OrderBookItem {
   price: string;
   contracts: string;
   total: string;
+}
+
+// 定义订单簿数据结构的接口
+interface OrderBookData {
+  asks: any[][];
+  bids: any[][];
 }
 
 // Order book data
@@ -117,10 +124,13 @@ interface AccordionTriggerProps
   className?: string;
   marketId: string;
   outcomePrice?: number;
-  setSelectedOrderBookData: (orderBook: OrderBookItem[][]) => void;
-  orderBook: OrderBookItem[][];
+  setSelectedOrderBookData: (orderBook: any) => void;
+  orderBook: any;
   setSelectedIndex: (index: number) => void;
   index: number;
+  isMultiMarket?: boolean;
+  setIsDrawerOpen?: (open: boolean) => void;
+  setActiveView?: (view: string) => void;
 }
 
 const AccordionTrigger = React.forwardRef<
@@ -137,12 +147,31 @@ const AccordionTrigger = React.forwardRef<
       orderBook,
       setSelectedIndex,
       index,
+      isMultiMarket,
+      setIsDrawerOpen,
+      setActiveView,
       ...props
     },
     ref
   ) => {
     const { activeMarket, activeSelection, setSelection } = useSelection();
     const triggerRef = React.useRef<HTMLButtonElement | null>(null);
+
+    // Calculate prices from order book data (same logic as TradingCard)
+    const descending = (a, b) => Number(b[0]) - Number(a[0]);
+    
+    const calculateYesPrice = () => {
+      const yesAsk = orderBook?.asks?.[0]?.sort(descending)?.[0];
+      return yesAsk?.length > 0 ? toFixedDown(100 - yesAsk[0], 2) : null;
+    };
+    
+    const calculateNoPrice = () => {
+      const noAsk = orderBook?.bids?.[0]?.sort(descending)?.[0];
+      return noAsk?.length > 0 ? toFixedDown(100 - noAsk[0], 2) : null;
+    };
+
+    const yesPrice = calculateYesPrice();
+    const noPrice = calculateNoPrice();
 
     const handleSelection = (value: string, e: React.MouseEvent) => {
       e.stopPropagation(); // Prevent event from bubbling
@@ -192,8 +221,9 @@ const AccordionTrigger = React.forwardRef<
           )}
           {...props}
         >
-          <div className="w-full md:w-auto flex flex-row items-center justify-between">
-            <span className="flex flex-row items-center max-w-auto gap-0 w-[320px]">
+          {/* Mobile layout - single row with title, volume, and odds */}
+          <div className="flex md:hidden items-center justify-between w-full">
+            <div className="flex items-center pr-6">
               {/* Icon on the left, if present in children[0] */}
               {Array.isArray(children) && children[0] ? (
                 <span className="flex-shrink-0">{children[0]}</span>
@@ -207,33 +237,72 @@ const AccordionTrigger = React.forwardRef<
                   Vol $1,498.27
                 </span>
               </span>
-            </span>
-
-            {/* Centered odds value */}
-            <span className="flex-1 flex justify-end md:justify-center">
+            </div>
+            {/* Odds positioned at the end of the row on mobile */}
+            <div className="flex justify-end">
               <span className="text-l text-center font-bold text-2xl">
-                {outcomePrice + "%"}
+                {outcomePrice !== undefined ? outcomePrice + "%" : "--"}
               </span>
-            </span>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {/* Desktop layout - matches header structure exactly */}
+          <div className="hidden md:flex items-center w-full">
+            <div className="flex items-center pr-6" style={{ width: 320 }}>
+              {/* Icon on the left, if present in children[0] */}
+              {Array.isArray(children) && children[0] ? (
+                <span className="flex-shrink-0">{children[0]}</span>
+              ) : null}
+              <span className="flex flex-col items-start justify-center h-full">
+                {/* Market name: children[1] or children if not array */}
+                <span className="text-[16px] lg:text-sm text-left">
+                  {Array.isArray(children) ? children[1] : children}
+                </span>
+                <span className="text-xs text-gray-400 mt-0.5 text-left">
+                  Vol $1,498.27
+                </span>
+              </span>
+            </div>
+
+            {/* Centered odds value - matches header structure exactly */}
+            <div className="flex-1 flex justify-center md:justify-center justify-end pl-0">
+              <span className="text-l text-center font-bold text-2xl">
+                {outcomePrice !== undefined ? outcomePrice + "%" : "--"}
+              </span>
+            </div>
+          </div>
+
+          {/* Desktop buttons - hidden on mobile to match header */}
+          <div className="hidden md:flex items-center gap-2.5" style={{minWidth: 300}}>
             {/* Yes/No buttons to the right of the odds */}
             <div className="relative group w-full md:w-auto">
               <Button
-                asChild
                 variant="ghost"
-                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] hover:text-[#7dfdfe] rounded-md border border-transparent relative z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMultiMarket && setIsDrawerOpen && setActiveView) {
+                    // For multi-market: always open accordion, plus drawer on mobile
+                    handleSelection("yes", e);
+                    if (window.innerWidth < 1024) {
+                      setActiveView("Yes");
+                      setIsDrawerOpen(true);
+                    }
+                  } else {
+                    // For single market: handle selection normally
+                    handleSelection("yes", e);
+                  }
+                }}
               >
                 <span className="flex items-center">
                   <span className="pr-0">Yes</span>
-                  {outcomePrice !== undefined && (
-                    <span className="ml-0.5 text-xl">{outcomePrice}¢</span>
+                  {yesPrice !== null && (
+                    <span className="ml-0.5 text-xl">{yesPrice}¢</span>
                   )}
                 </span>
               </Button>
               {/* Tron blue border animation - hover only */}
-              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}
@@ -258,21 +327,140 @@ const AccordionTrigger = React.forwardRef<
             </div>
             <div className="relative group w-full md:w-auto">
               <Button
-                asChild
                 variant="ghost"
-                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] hover:text-[#ec4899] rounded-md border border-transparent relative z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMultiMarket && setIsDrawerOpen && setActiveView) {
+                    // For multi-market: always open accordion, plus drawer on mobile
+                    handleSelection("no", e);
+                    if (window.innerWidth < 1024) {
+                      setActiveView("No");
+                      setIsDrawerOpen(true);
+                    }
+                  } else {
+                    // For single market: handle selection normally
+                    handleSelection("no", e);
+                  }
+                }}
               >
                 <span className="flex items-center">
                   <span className="pr-0">No</span>
-                  {outcomePrice !== undefined && (
+                  {noPrice !== null && (
                     <span className="ml-0.5 text-xl">
-                      {100 - outcomePrice}¢
+                      {noPrice}¢
                     </span>
                   )}
                 </span>
               </Button>
               {/* Pink border animation - hover only */}
-              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-2">
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
+                <div className="absolute inset-0 rounded-md">
+                  {/* Flowing lines */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "0.7s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
+                    style={{ animationDelay: "1.2s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "1.7s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile buttons - shown only on mobile */}
+          <div className="flex md:hidden items-center gap-2.5 w-full mt-2">
+            <div className="relative group w-full">
+              <Button
+                variant="ghost"
+                className="w-full px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] hover:text-[#7dfdfe] rounded-md border border-transparent relative z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMultiMarket && setIsDrawerOpen && setActiveView) {
+                    // For multi-market: always open accordion, plus drawer on mobile
+                    handleSelection("yes", e);
+                    if (window.innerWidth < 1024) {
+                      setActiveView("Yes");
+                      setIsDrawerOpen(true);
+                    }
+                  } else {
+                    // For single market: handle selection normally
+                    handleSelection("yes", e);
+                  }
+                }}
+              >
+                <span className="flex items-center">
+                  <span className="pr-0">Yes</span>
+                  {yesPrice !== null && (
+                    <span className="ml-0.5 text-xl">{yesPrice}¢</span>
+                  )}
+                </span>
+              </Button>
+              {/* Tron blue border animation - hover only */}
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
+                <div className="absolute inset-0 rounded-md">
+                  {/* Flowing lines */}
+                  <div
+                    className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "0.7s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
+                    style={{ animationDelay: "1.2s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "1.7s" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+            <div className="relative group w-full">
+              <Button
+                variant="ghost"
+                className="w-full px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] hover:text-[#ec4899] rounded-md border border-transparent relative z-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (isMultiMarket && setIsDrawerOpen && setActiveView) {
+                    // For multi-market: always open accordion, plus drawer on mobile
+                    handleSelection("no", e);
+                    if (window.innerWidth < 1024) {
+                      setActiveView("No");
+                      setIsDrawerOpen(true);
+                    }
+                  } else {
+                    // For single market: handle selection normally
+                    handleSelection("no", e);
+                  }
+                }}
+              >
+                <span className="flex items-center">
+                  <span className="pr-0">No</span>
+                  {noPrice !== null && (
+                    <span className="ml-0.5 text-xl">
+                      {noPrice}¢
+                    </span>
+                  )}
+                </span>
+              </Button>
+              {/* Pink border animation - hover only */}
+              <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}
@@ -318,12 +506,12 @@ const AccordionContent = React.forwardRef<
   const isActive = activeMarket === marketId;
   const selection = isActive ? activeSelection : null;
 
-  const selectedOrderBook =
+  const selectedOrderBook: OrderBookData =
     selection === "yes"
-      ? [yesAskBook, yesBidBook]
+      ? { asks: [yesAskBook], bids: [yesBidBook] }
       : selection === "no"
-      ? [noAskBook, noBidBook]
-      : [[] as OrderBookItem[], [] as OrderBookItem[]]; // Empty order book when no selection
+      ? { asks: [noAskBook], bids: [noBidBook] }
+      : { asks: [[]], bids: [[]] }; // Empty order book when no selection
 
   return (
     <AccordionPrimitive.Content

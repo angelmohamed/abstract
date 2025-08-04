@@ -65,7 +65,7 @@ const OrderbookAccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border border-muted rounded-2xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border border-muted rounded-xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
       className
     )}
     {...props}
@@ -121,6 +121,7 @@ interface OrderbookAccordionContentProps
   forecast: boolean,
   forecastGraph: string,
   setForecastGraph: (s: boolean) => void,
+  interval?: string,
 }
 
 // Accordion Content Component
@@ -144,6 +145,7 @@ const OrderbookAccordionContent = React.forwardRef<
       forecast,
       forecastGraph,
       setForecastGraph,
+      interval = "1d",
       ...props
     },
     ref
@@ -166,7 +168,16 @@ const OrderbookAccordionContent = React.forwardRef<
     const [askBookHighest, setAskBookHighest] = useState<number>(0);
     const [bidBookHighest, setBidBookHighest] = useState<number>(0);
     const [markets, setMarkets] = useState([]);
-    const [chartInterval, setChartInterval] = React.useState<string>("1d");
+    
+    // Add proper interval state management
+    const [chartInterval, setChartInterval] = useState<string>(interval || "1d");
+    
+    // Update chartInterval when interval prop changes
+    useEffect(() => {
+      if (interval) {
+        setChartInterval(interval);
+      }
+    }, [interval]);
     
     type ChartDataItem = { timestamp: string; asset1: number };
     const randomChartData: ChartDataItem[] = React.useMemo(() => {
@@ -384,23 +395,13 @@ const OrderbookAccordionContent = React.forwardRef<
             <TabsList className="flex justify-start w-1/4 min-w-[150px]">
               <TabsTrigger
                 value="Yes"
-                className={cn(
-                  "flex-1 p-2 transition-colors duration-300",
-                  activeView === "Yes"
-                    ? "bg-transparent !text-[#7dfdfe] !border-[#7dfdfe]"
-                    : "bg-transparent text-white hover:bg-transparent"
-                )}
+                className="flex-1 px-2 py-2 transition-all duration-300 border-b-2 border-transparent"
               >
                 Trade {capitalize(selectedMarket?.outcome?.[0]?.title || "Yes")}
               </TabsTrigger>
               <TabsTrigger
                 value="No"
-                className={cn(
-                  "flex-1 p-2 transition-colors duration-300",
-                  activeView === "No"
-                    ? "bg-transparent !text-pink-500 !border-pink-500"
-                    : "bg-transparent text-white hover:bg-transparent"
-                )}
+                className="flex-1 px-2 py-2 transition-all duration-300 border-b-2 border-transparent"
               >
                 Trade {capitalize(selectedMarket?.outcome?.[1]?.title || "No")}
               </TabsTrigger>
@@ -612,7 +613,7 @@ const OrderbookAccordionContent = React.forwardRef<
                 </div>
               ) :
               (
-                <div className="w-full border-collapse rounded-lg px-4 pt-0" style={{ backgroundColor: 'transparent' }}>
+                <div className="w-full border-collapse rounded-xl px-4 pt-0" style={{ backgroundColor: 'transparent' }}>
                   <OrderbookChart id={id} selectedMarket={selectedMarket} title={selectedMarket?.odd} market={markets} interval={chartInterval} setInterval={setChartInterval} customData={randomChartData} />
                 </div>
               )

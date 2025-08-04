@@ -21,7 +21,8 @@ axios.interceptors.request.use(
     } else {
       try {
         const { cookies } = await import("next/headers");
-        const token = cookies().get("user-token");
+        const cookieStore = await cookies();
+        const token = cookieStore.get("user-token");
         if (token) {
           authorizationToken = token.value;
         }

@@ -1,10 +1,10 @@
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "@radix-ui/colors/black-alpha.css";
+@import "@radix-ui/colors/mauve.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import "@radix-ui/colors/black-alpha.css";
-@import "@radix-ui/colors/mauve.css";
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -204,11 +204,11 @@ body {
   0%,
   100% {
     opacity: 0;
-    transform: scale(0.8);
+    /* transform: scale(0.8); */
   }
   50% {
     opacity: 1;
-    transform: scale(1.2);
+    /* transform: scale(1.2); */
   }
 }
 
@@ -245,23 +245,23 @@ body {
 @keyframes corner-turn {
   0% {
     opacity: 0;
-    transform: scale(0) rotate(0deg);
+    /* transform: scale(0) rotate(0deg); */
   }
   25% {
     opacity: 1;
-    transform: scale(1) rotate(0deg);
+    /* transform: scale(1) rotate(0deg); */
   }
   50% {
     opacity: 1;
-    transform: scale(1) rotate(90deg);
+    /* transform: scale(1) rotate(90deg); */
   }
   75% {
     opacity: 1;
-    transform: scale(1) rotate(90deg);
+    /* transform: scale(1) rotate(90deg); */
   }
   100% {
     opacity: 0;
-    transform: scale(0) rotate(90deg);
+    /* transform: scale(0) rotate(90deg); */
   }
 }
 
@@ -295,16 +295,6 @@ body {
   pointer-events: all; /* Allow interaction when visible */
 }
 
-.modal-content {
-  transform: scale(0.9);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.modal-content.active {
-  transform: scale(1);
-  opacity: 1;
-}
 
 .mbp-subtitle {
   @apply text-xl sm:text-5xl pb-[18%] h-[3rem] overflow-hidden;

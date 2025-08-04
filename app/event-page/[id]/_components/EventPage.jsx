@@ -49,6 +49,7 @@ import Jackboys2 from "@/public/images/jackboys2.png";
 import Astroworld from "@/public/images/astroworld.png";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import HeaderFixed from "@/app/HeaderFixed";
+import { toFixedDown } from "@/lib/roundOf";
 
 export default function EventPage({ categories }) {
   const param = useParams();
@@ -74,6 +75,22 @@ export default function EventPage({ categories }) {
   const [showFullText, setShowFullText] = useState(false);
   const [selectCategory, setSelectedCategory] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState({});
+
+  // Helper functions for price calculation (same as TradingCard)
+  const descending = (a, b) => Number(b[0]) - Number(a[0]);
+  const ascending = (a, b) => Number(a[0]) - Number(b[0]);
+
+  // Function to calculate the lowest ask price for a market
+  const getLowestAskPrice = (marketId) => {
+    const orderBook = books?.find(book => book.marketId === marketId);
+    if (!orderBook) return null;
+    
+    // Get Yes ask price (100 - lowest yes ask)
+    const yesAsk = orderBook?.asks?.[0]?.sort(descending)?.[0];
+    const yesPrice = yesAsk?.length > 0 ? toFixedDown(100 - yesAsk[0], 2) : null;
+    
+    return yesPrice;
+  };
 
   useEffect(() => {
     const eventId = events?._id;
@@ -236,7 +253,7 @@ export default function EventPage({ categories }) {
     <>
       {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center m-0"> */}
       <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-black/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <div className="hidden lg:block">
             <NavigationBar
@@ -248,14 +265,14 @@ export default function EventPage({ categories }) {
             />
           </div>
         </div>
-        <div className="container mx-auto px-4 max-w-full overflow-hidden">
+        <div className="container mx-auto px-0 sm:px-4 max-w-full overflow-hidden">
           {eventsLoading ? (
             <div className="flex justify-center items-center h-[80vh] w-[80vw]">
               <Loader className="w-26 h-26 animate-spin bg-blend-overlay" />
               Loading...
             </div>
           ) : (
-            <div className="sm:mx-auto mx-0 sm:pt-4 pt-0">
+            <div className="sm:mx-auto mx-0 sm:pt-4 pt-0 px-1 sm:px-0">
               {/* Preview Card Section */}
               <div className="flex justify-center items-center">
                 <div className="flex justify-center sm:max-w-8xl mb-0 w-full gap-5">
@@ -376,12 +393,25 @@ export default function EventPage({ categories }) {
                               // isResolved={events?.isResolved}
                               forecastGraph={forecastGraph}
                               setForecastGraph={setForecastGraph}
+                              interval={interval}
                             />
                           </OrderbookAccordionItem>
                         </OrderbookAccordion>
                       ) : (
                         <>
                           <Accordion type="single" collapsible>
+                            <div className="flex items-center w-full py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider border-t-2 border-b border-[#222] bg-black">
+                              <div className="flex items-center pr-6" style={{ width: 320 }}>
+                                Outcome
+                              </div>
+                              <div className="flex-1 flex justify-end md:justify-center md:justify-end md:pl-0">
+                                Chance
+                              </div>
+                              <div className="hidden md:flex items-center gap-1" style={{minWidth: 300}}>
+                                {/* Empty for Yes/No buttons - hidden on mobile */}
+                              </div>
+                            </div>
+
                             {markets &&
                               markets?.length > 0 &&
                               events?.status != "resolved" &&
@@ -409,6 +439,9 @@ export default function EventPage({ categories }) {
                                       }
                                       setSelectedIndex={setSelectedIndex}
                                       index={index}
+                                      isMultiMarket={markets?.length > 1}
+                                      setIsDrawerOpen={setIsDrawerOpen}
+                                      setActiveView={setActiveView}
                                     >
                                       <div className="pr-6">
                                         <img
@@ -632,48 +665,87 @@ export default function EventPage({ categories }) {
                   <ResolutionCard />
                 ) : (
                   <>
-                    <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                      <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg">
-                        <div className="flex items-center justify-between gap-2.5 w-full px-4">
-                          <Button className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight">
-                            Yes
-                          </Button>
-                          <Button className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight">
-                            No
-                          </Button>
-                        </div>
-                      </DrawerTrigger>
-                      <DrawerContent className="h-[80vh] z-50">
-                        {/* Hidden DrawerTitle to satisfy component requirements */}
-                        <div hidden>
-                          <DrawerHeader>
-                            <DrawerTitle>Hidden Title</DrawerTitle>
-                          </DrawerHeader>
-                        </div>
+                    {/* Only show drawer trigger for single markets */}
+                    {markets?.length <= 1 && (
+                      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                        <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg">
+                          <div className="flex items-center justify-between gap-2.5 w-full px-4">
+                            <div className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                              Yes
+                            </div>
+                            <div className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                              No
+                            </div>
+                          </div>
+                        </DrawerTrigger>
+                        <DrawerContent className="h-[80vh] z-50">
+                          {/* Hidden DrawerTitle to satisfy component requirements */}
+                          <div hidden>
+                            <DrawerHeader>
+                              <DrawerTitle>Hidden Title</DrawerTitle>
+                            </DrawerHeader>
+                          </div>
 
-                        {/* Main Content */}
-                        <div className="p-0">
-                          <TradingCard
-                            activeView={activeView}
-                            setActiveView={setActiveView}
-                            selectedOrderBookData={
-                              selectedOrderBookData ||
-                              books?.find(
-                                (book) =>
-                                  book.marketId ==
-                                  // JSON?.parse(market?.clobTokenIds)[0]
-                                  markets[selectedIndex]?._id
-                              ) ||
-                              {}
-                            }
-                            market={markets[selectedIndex]}
-                            status={events?.status}
-                            image={events?.image}
-                            title={events?.title}
-                          />
-                        </div>
-                      </DrawerContent>
-                    </Drawer>
+                          {/* Main Content */}
+                          <div className="p-0">
+                            <TradingCard
+                              activeView={activeView}
+                              setActiveView={setActiveView}
+                              selectedOrderBookData={
+                                selectedOrderBookData ||
+                                books?.find(
+                                  (book) =>
+                                    book.marketId ==
+                                    // JSON?.parse(market?.clobTokenIds)[0]
+                                    markets[selectedIndex]?._id
+                                ) ||
+                                {}
+                              }
+                              market={markets[selectedIndex]}
+                              status={events?.status}
+                              image={events?.image}
+                              title={events?.title}
+                            />
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                    )}
+                    
+                    {/* Drawer for multiple markets - controlled by accordion buttons */}
+                    {markets?.length > 1 && (
+                      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+                        <DrawerContent className="h-[80vh] z-50">
+                          {/* Hidden DrawerTitle to satisfy component requirements */}
+                          <div hidden>
+                            <DrawerHeader>
+                              <DrawerTitle>Hidden Title</DrawerTitle>
+                            </DrawerHeader>
+                          </div>
+
+                          {/* Main Content */}
+                          <div className="p-0">
+                            <TradingCard
+                              activeView={activeView}
+                              setActiveView={setActiveView}
+                              selectedOrderBookData={
+                                selectedOrderBookData ||
+                                books?.find(
+                                  (book) =>
+                                    book.marketId ==
+                                    // JSON?.parse(market?.clobTokenIds)[0]
+                                    markets[selectedIndex]?._id
+                                ) ||
+                                {}
+                              }
+                              market={markets[selectedIndex]}
+                              status={events?.status}
+                              image={events?.image}
+                              title={events?.title}
+                            />
+                          </div>
+                        </DrawerContent>
+                      </Drawer>
+                    )}
                   </>
                 )}
               </div>

@@ -171,7 +171,7 @@ export function TradingCard({
           </CardDescription> */}
         </CardHeader>
 
-        <CardContent className="px-5 pb-5 pt-0">
+        <CardContent className="p-4 pt-0">
           <Tabs
             defaultValue="buy"
             className="w-full"
@@ -190,7 +190,7 @@ export function TradingCard({
             </div>
             <div className="w-full h-px bg-gray-600"></div>
             <TabsContent value="buy">
-              <h1 className="pb-2 flex justify-between items-center">
+              <h1 className="pb-1 flex justify-between items-center min-h-[40px]">
                 <span className="flex items-center gap-1">
                   Pick side{" "}
                   <TooltipProvider>
@@ -218,7 +218,7 @@ export function TradingCard({
               </h1>
             </TabsContent>
             <TabsContent value="sell">
-              <h1 className="pb-2 flex justify-between items-center">
+              <h1 className="pb-1 flex justify-between items-center min-h-[40px]">
                 <span className="flex items-center gap-1">
                   Your position{" "}
                   <TooltipProvider>
@@ -246,7 +246,7 @@ export function TradingCard({
               </h1>
             </TabsContent>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <Options
                 defaultValue={activeView}
                 value={activeView}
@@ -265,7 +265,7 @@ export function TradingCard({
                       : sellYes?.length > 0 &&
                         `${toFixedDown(sellYes?.[0], 2)}¢`}
                     {/* Tron blue border animation - hover and active states */}
-                    <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
+                    <div className="absolute -inset-0.5 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
                       <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
                       <div className="absolute inset-0 rounded-md">
                         {/* Flowing lines */}
@@ -298,7 +298,7 @@ export function TradingCard({
                         `${toFixedDown(100 - buyNo?.[0], 2)}¢`
                       : sellNo?.length > 0 && `${toFixedDown(sellNo?.[0], 2)}¢`}
                     {/* Pink border animation - hover and active states */}
-                    <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
+                    <div className="absolute -inset-0.5 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
                       <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
                       <div className="absolute inset-0 rounded-md">
                         {/* Flowing lines */}

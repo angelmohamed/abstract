@@ -6,7 +6,7 @@ import { Button } from "@/app/components/ui/button";
 import { Legend, Line, LineChart, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
 import { Clock } from "lucide-react";
 import { ChartContainer, ChartConfig } from "@/app/components/ui/chart";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/app/components/ui/card";
 import { processSingleChartData, ChartDataPoint } from "@/utils/processChartData";
 import { toTwoDecimal } from "@/utils/helpers";
 import ChartIntervals from "@/app/components/customComponents/ChartIntervals";
@@ -97,44 +97,6 @@ function calculateYAxisDomain(data: any[], assetKey: string = 'asset1'): [number
   return [roundedMin, roundedMax];
 }
 
-const CustomTooltip: React.FC<CustomTooltipProps & { isCustomData?: boolean; data: ChartDataPoint[] }> = ({ 
-  active, 
-  payload, 
-  label, 
-  isCustomData = false, 
-  data = []
-}) => {
-  let formattedLabel = label;
-  if (label && data) {
-    const found: any = data.find(d => String(d.rawTimestamp) === String(label));
-    if (found && found.rawTimestamp) {
-      const date = new Date(found.rawTimestamp * 1000);
-      formattedLabel = date.toLocaleString("en-US", {
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    }
-  }
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
-        <p className="text-sm font-semibold">{formattedLabel}</p>
-        {payload.map(
-          (entry, index) =>
-            entry.value !== null && (
-              <p key={index} style={{ color: entry.color }} className="text-sm">
-                {entry.name} {isCustomData ? `${entry.value}M` : `${entry.value?.toFixed(1)}M`}
-              </p>
-            )
-        )}
-      </div>
-    );
-  }
-  return null;
-};
-
 const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
   title,
   volume,
@@ -153,8 +115,44 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
       color: "#7DFDFE",
     },
   });
-  const [currentChance, setCurrentChance] = useState<number | undefined>(undefined);
-  const [isHovering, setIsHovering] = useState<boolean>(false);
+  const [hoveredChance, setHoveredChance] = useState<number | undefined>(undefined);
+
+  // Create a custom tooltip component that can access the Chart component's state
+  const CustomTooltipWithState: React.FC<CustomTooltipProps & { isCustomData?: boolean }> = ({ 
+    active, 
+    payload, 
+    label, 
+    isCustomData = false
+  }) => {
+    let formattedLabel = label;
+    if (label && typeof label === 'number') {
+      const date = new Date(label * 1000);
+      formattedLabel = date.toLocaleString("en-US", {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    }
+    
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-transparent p-2 border border-transparent rounded shadow text-white">
+          <p className="text-sm font-semibold">{formattedLabel}</p>
+          {payload.map(
+            (entry, index) =>
+              entry.value !== null && (
+                <p key={index} style={{ color: entry.color }} className="text-sm">
+                  {entry.name} {isCustomData ? `${entry.value}M` : `${entry.value?.toFixed(1)}M`}
+                </p>
+              )
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
   const [allChartData, setAllChartData] = useState<ChartDataPoint[]>([]);
 
   // State to track screen width
@@ -168,13 +166,6 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
       return () => window.removeEventListener("resize", handleResize);
     }
   }, []);
-
-  // Determine X-axis interval based on screen width and custom data
-  const xAxisInterval = customData 
-    ? 3 // Show every 4th label (monthly labels for weekly data)
-    : screenWidth < 640 
-      ? Math.floor(chartData.length / 6) 
-      : Math.floor(chartData.length / 12);
 
   useEffect(() => {
     setChartData(chartDataYes);
@@ -216,42 +207,31 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
   }, [interval, allChartData]);
 
   useEffect(() => {
-    if (chartDataYes && chartDataYes.length > 0 && currentChance === undefined) {
+    if (chartDataYes && chartDataYes.length > 0 && hoveredChance === undefined) {
       const lastDataPoint: any = chartDataYes[chartDataYes.length - 1];
       if (lastDataPoint && lastDataPoint.asset1 !== null) {
-        setCurrentChance(lastDataPoint.asset1);
+        // Don't auto-set hoveredChance here, let it stay undefined when not hovering
       }
     }
-  }, [chartDataYes, currentChance]);
+  }, [chartDataYes, hoveredChance]);
 
   useEffect(() => {
     if (chartData && chartData.length > 0) {
       const lastPoint: any = chartData[chartData.length - 1];
       if (lastPoint && lastPoint.asset1 !== null && lastPoint.asset1 !== undefined) {
-        setCurrentChance(lastPoint.asset1);
+        // Don't auto-set hoveredChance here, let it stay undefined when not hovering
       }
     }
   }, [chartData]);
 
-  const handleMouseEnter = (data: any) => {
-    if (data && data.activePayload && data.activePayload[0]) {
-      const value = data.activePayload[0].value;
-      setCurrentChance(value);
-      setIsHovering(true);
-    }
-  };
+  // Calculate the current displayed chance value
+  const displayChance =
+    hoveredChance !== undefined
+      ? hoveredChance
+      : chartData && chartData.length > 0
+        ? chartData[chartData.length - 1]?.asset1
+        : undefined;
 
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    if (chartData && chartData.length > 0) {
-      const lastPoint: any = chartData[chartData.length - 1];
-      if (lastPoint && lastPoint.asset1 !== null && lastPoint.asset1 !== undefined) {
-        setCurrentChance(lastPoint.asset1);
-      }
-    }
-  };
-
-  const displayChance = currentChance;
   const chanceColor = '#7DFDFE';
 
   const CustomDot = (props: any) => {
@@ -321,133 +301,200 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
   }
 
   return (
-    <Card
-      className="h-auto"
-      style={{ backgroundColor: "transparent", borderColor: "transparent" }}
-    >
-      <div>
-        <CardHeader className="p-0">
-          <CardTitle style={{ lineHeight: "1.5" }}>
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <div
-                style={{
-                  width: screenWidth < 640 ? "50px" : "75px",
-                  height: screenWidth < 640 ? "50px" : "75px",
-                  overflow: "hidden",
-                  borderRadius: "10px",
-                  flexShrink: 0,
-                }}
-              >
-                <Image
-                  src="/images/logo_icon.png"
-                  alt="Event"
-                  width={screenWidth < 640 ? 50 : 75}
-                  height={screenWidth < 640 ? 50 : 75}
-                  style={{ 
-                    width: "100%", 
-                    height: "100%", 
-                    objectFit: "cover",
-                    transition: "all 0.3s ease" 
-                  }}
-                />
-              </div>
-              <div
-                className="text-[19px] lg:text-[26px] sm:text-[20px]"
-                style={{ paddingLeft: "15px", marginRight: "10px" }}
-              >
-                {title || ""}
-              </div>
-            </div>
-          </CardTitle>
-          <CardDescription className="py-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <div className="flex pb-1 flex-wrap gap-3 items-center">
-              <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
-              {endDate && (
-                <p className="flex items-center gap-1">
-                  <Clock size={14} />{" "}
-                  {new Date(endDate)?.toLocaleString("en-US", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "numeric",
-                    minute: "numeric",
-                  })}
-                </p>
-              )}
-            </div>
-          </CardDescription>
-          {displayChance !== undefined && (
-            <div className="flex items-center justify-between mt-6 mb-6 w-full">
-              <div className="flex items-center">
-                <span className="text-3xl lg:text-4xl font-semibold" style={{ color: chanceColor }}>
-                  {displayChance !== undefined ? displayChance.toFixed(1) : '0.0'}M
-                </span>
-                <span className="text-lg font-light ml-2" style={{ color: chanceColor }}>forecast</span>
-              </div>
-            </div>
-          )}
-        </CardHeader>
+    <>
+      {/* Navigation bar restored to original position for mobile */}
+      <div className="block sm:hidden w-full z-20 sticky top-0 bg-black/90 border-b border-neutral-800 backdrop-blur-md">
+        <div className="flex items-center px-4 py-3">
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              overflow: "hidden",
+              borderRadius: "10px",
+              flexShrink: 0,
+            }}
+          >
+            <Image
+              src="/images/logo_icon.png"
+              alt="Event"
+              width={40}
+              height={40}
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          </div>
+          <div className="text-[18px] font-semibold pl-3 truncate">
+            {title || ""}
+          </div>
+        </div>
+      </div>
 
-        <CardContent className="gap-0 sm:gap-2 p-0">
-            <div className="w-full test">
-              <CardHeader className="p-0 sm:pb-4">
-              </CardHeader>
-            <CardContent className="p-0">
-              <ChartContainer
-                className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[200px] w-full"
-                config={chartConfig}
-              >
-                <LineChart
-                  data={chartData}
-                  onMouseMove={handleMouseEnter}
-                  onMouseLeave={handleMouseLeave}
-                  className="pl-0"
+      <Card
+        className="h-auto"
+        style={{ backgroundColor: "transparent", borderColor: "transparent" }}
+      >
+        <div>
+          <CardHeader className="p-0">
+            <CardTitle style={{ lineHeight: "1.5" }}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    width: screenWidth < 640 ? "50px" : "75px",
+                    height: screenWidth < 640 ? "50px" : "75px",
+                    overflow: "hidden",
+                    borderRadius: "10px",
+                    flexShrink: 0,
+                  }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1a1a1a" />
-                  <XAxis
-                    dataKey="rawTimestamp"
-                    interval={xAxisInterval}
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    width={100}
-                    tickFormatter={(t) => {
-                      const found = chartData.find(d => d.rawTimestamp === t);
-                      return found ? found.timestamp : '';
+                  <Image
+                    src="/images/logo_icon.png"
+                    alt="Event"
+                    width={screenWidth < 640 ? 50 : 75}
+                    height={screenWidth < 640 ? 50 : 75}
+                    style={{ 
+                      width: "100%", 
+                      height: "100%", 
+                      objectFit: "cover",
+                      transition: "all 0.3s ease" 
                     }}
                   />
-                  <YAxis
-                    domain={[0, 'dataMax']}                    
-                    tickFormatter={(tick) => customData ? `${tick}M` : `${tick}M`}
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    orientation="right"
-                  />
-                  <Tooltip content={<CustomTooltip isCustomData={!!customData} data={chartData} />} />
-                  <Legend
-                    height={36}
-                    iconType="rect"
-                    wrapperStyle={{ top: "-30px", paddingBottom: 32 }}
-                    iconSize={8}
-                  />
-                  <Line
-                    type="step"
-                    dataKey="asset1"
-                    name={chartConfig.asset1.label}
-                    stroke="#7DFDFE"
-                    strokeWidth={1}
-                    dot={<CustomDot />}
-                    label={false}
-                    connectNulls
-                  />
-                </LineChart>
-              </ChartContainer>
-            </CardContent>
-            </div>
-        </CardContent>
-      </div>
-    </Card>
+                </div>
+                <div
+                  className="text-[19px] lg:text-[26px] sm:text-[20px]"
+                  style={{ paddingLeft: "15px" }}
+                >
+                  {title || ""}
+                </div>
+              </div>
+            </CardTitle>
+            <CardDescription className="py-2 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <div className="flex pb-1 flex-wrap gap-3 items-center">
+                <p>Vol ${toTwoDecimal(volume)?.toLocaleString() || ""}</p>
+                {endDate && (
+                  <p className="flex items-center gap-1">
+                    <Clock size={14} />{" "}
+                    {new Date(endDate)?.toLocaleString("en-US", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "numeric",
+                      minute: "numeric",
+                    })}
+                  </p>
+                )}
+              </div>
+            </CardDescription>
+            {displayChance !== undefined && (
+              <div className="flex items-center justify-between mt-6 mb-6 w-full">
+                <div className="flex items-center">
+                  <span className="text-3xl lg:text-4xl font-semibold" style={{ color: chanceColor }}>
+                    {displayChance !== undefined && displayChance !== null ? displayChance.toFixed(1) : '0.0'}M
+                  </span>
+                  <span className="text-lg font-light ml-2" style={{ color: chanceColor }}>forecast</span>
+                </div>
+              </div>
+            )}
+          </CardHeader>
+
+          <CardContent className="gap-0 sm:gap-2 p-0">
+              <div className="w-full test">
+                <CardHeader className="p-0 sm:pb-4">
+                </CardHeader>
+              <CardContent className="p-0">
+                <ChartContainer
+                  className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[250px] w-full"
+                  config={chartConfig}
+                  onMouseLeave={() => {
+                    setHoveredChance(undefined);
+                  }}
+                >
+                  <LineChart
+                    data={chartData}
+                    syncId="chart"
+                    syncMethod="value"
+                    className="pl-0"
+                    onMouseMove={(e) => {
+                      if (e && e.activePayload && e.activePayload.length > 0) {
+                        setHoveredChance(e.activePayload[0].value);
+                      }
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#262626" />
+                    <XAxis
+                      dataKey="rawTimestamp"
+                      type="number"
+                      scale="time"
+                      domain={['dataMin', 'dataMax']}
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      width={100}
+                      ticks={chartData.length > 0 ? (() => {
+                        const minTime = Math.min(...chartData.map(d => d.rawTimestamp || 0));
+                        const maxTime = Math.max(...chartData.map(d => d.rawTimestamp || 0));
+                        const tickCount = screenWidth < 640 ? 4 : 6;
+                        const step = (maxTime - minTime) / (tickCount - 1);
+                        return Array.from({ length: tickCount }, (_, i) => minTime + (step * i));
+                      })() : undefined}
+                      allowDuplicatedCategory={false}
+                      tickFormatter={(t) => {
+                        const date = new Date(t * 1000);
+                        // For shorter intervals, show time; for longer intervals, show date
+                        if (interval === '1h' || interval === '6h' || interval === '1d') {
+                          return date.toLocaleString("en-US", {
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true
+                          });
+                        } else {
+                          return date.toLocaleString("en-US", {
+                            month: "short",
+                            day: "numeric"
+                          });
+                        }
+                      }}
+                    />
+                    <YAxis
+                      domain={[0, 'dataMax']}                    
+                      tickFormatter={(tick) => customData ? `${tick}M` : `${tick}M`}
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={8}
+                      orientation="right"
+                      width={40}
+                    />
+                    <Tooltip 
+                      content={<CustomTooltipWithState isCustomData={!!customData} />}
+                      allowEscapeViewBox={{ x: true, y: false }}
+                      isAnimationActive={false}
+                      shared={true}
+                      cursor={false}
+                    />
+                    <Legend
+                      height={36}
+                      iconType="rect"
+                      wrapperStyle={{ top: "-30px", paddingBottom: 32 }}
+                      iconSize={8}
+                    />
+                    <Line
+                      type="stepAfter"
+                      dataKey="asset1"
+                      name={chartConfig.asset1.label}
+                      stroke="#7DFDFE"
+                      strokeWidth={1}
+                      dot={<CustomDot />}
+                      activeDot={{ r: 4, fill: "#7DFDFE", stroke: "#fff", strokeWidth: 2 }}
+                      label={false}
+                      connectNulls
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </CardContent>
+              </div>
+          </CardContent>
+        </div>
+      </Card>
+    </>
   );
 };
 

@@ -9,7 +9,7 @@ import { Provider } from "react-redux";
 const isClient = typeof window !== "undefined";
 
 export const StoreProvider = (props: React.PropsWithChildren) => {
-	if (isClient) {
+	if (isClient && persistor) {
 		return (
 			<Provider store={reduxStore}>
 				<PersistGate loading={null} persistor={persistor as any}>

@@ -130,7 +130,7 @@ export function PreviewCard({
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <div className="text-[12px]" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '48%' }}>
               <Button
-                className="w-full mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
+                className="w-full h-12 sm:h-10 mb-1 bg-[#152632] text-[#7dfdfe] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
                 Buy {markets?.[0]?.outcome?.[0]?.title || "Yes"}
@@ -139,7 +139,7 @@ export function PreviewCard({
 
             <div className="text-[12px]" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '48%' }}>
               <Button
-                className="w-full mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
+                className="w-full h-12 sm:h-10 mb-1 bg-[#321b29] text-[#ec4899] hover:bg-[#e0e0e0] transition-colors duration-300 rounded-full"
                 onClick={handleCardClick}
               >
                 Buy {markets?.[0]?.outcome?.[1]?.title || "No"} 
