@@ -89,7 +89,7 @@ const SubcategoryBar = ({
 }) => (
   <div className="justify-center items-center py-1 lg:flex hidden">
     <div className="w-full max-w-7xl relative">
-      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap pb-5">
+      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto hide-scrollbar flex-nowrap pb-5">
         <Button
           className={cn(
             "px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
