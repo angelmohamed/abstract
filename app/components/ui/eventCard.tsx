@@ -83,7 +83,7 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[188px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      className="flex flex-col justify-between w-full h-[188px] sm:h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300 lg:rounded-lg rounded-[11.5px]"
       style={{
         backgroundColor: "#000000",
         boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
@@ -181,6 +181,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 display: "flex",
                 justifyContent: "space-between",
                 width: "100%",
+                gap: "10px",
               }}
             >
               {/* Yes Button */}
@@ -190,13 +191,13 @@ const EventCard: React.FC<EventCardProps> = ({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  width: "48%",
+                  width: "50%",
                 }}
               >
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleYesClick}
-                    className="w-full h-12 sm:h10 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {yesButtonLabel}
                   </Button>
@@ -233,13 +234,13 @@ const EventCard: React.FC<EventCardProps> = ({
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  width: "48%",
+                  width: "50%",
                 }}
               >
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleNoClick}
-                    className="w-full h-12 sm:h10 mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-12 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {noButtonLabel}
                   </Button>

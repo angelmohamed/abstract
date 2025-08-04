@@ -686,7 +686,7 @@ const Chart: React.FC<ChartProps> = ({
                         </CardHeader>
                         <CardContent className="p-0">
                             <ChartContainer
-                                className="h-[550px] lg:h-[350px] sm:h-[400px] w-full" // Shorter on mobile
+                                className="h-[350px] p-0 lg:h-[300px] sm:h-[200px] w-full"
                                 config={chartConfig}
                             >
                                 <LineChart

@@ -134,7 +134,7 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
             value={newComment}
             onChange={onchangeComment}
             placeholder="Add comment..."
-            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 pr-32"
+            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 !pr-16 lg:pr-32"
             disabled={isSubmitting}
             maxLength={300}
           />

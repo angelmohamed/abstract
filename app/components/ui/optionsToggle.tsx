@@ -28,7 +28,7 @@ const OptionsTrigger = React.forwardRef<
 <TabsPrimitive.Trigger
   ref={ref}
   className={cn(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium border-2 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-full px-3 py-2.5 sm:py-1.5 text-sm font-medium border-2 transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
     "bg-[#1e1e1e] text-white border-transparent hover:bg-[#2a2a2a]",
     "data-[state=active]:bg-[#244d55] data-[state=active]:text-[#7dfdfe] data-[state=active]:border-[#244d55]",
     className
