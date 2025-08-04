@@ -112,7 +112,7 @@ const CommentList: React.FC<CommentListProps> = (props) => {
                                     </button>
 
                                     {expandedComments[comment._id] && (
-                                        <div className="ml-10 border-l-2 border-gray-800 pl-4 mt-2">
+                                        <div className="ml-10 border-l-2 border-[#1f1f1f] pl-4 mt-2">
                                             {repliesForComment.map((reply: any) => (
                                                 <Comment
                                                     key={reply._id}

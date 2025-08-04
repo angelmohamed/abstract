@@ -159,7 +159,7 @@ export function Comment({
         </p>
 
         {/* Comment actions */}
-        <div className="flex mt-2 space-x-4">
+        <div className="flex mt-2 space-x-2">
           {onReply && signedIn && !comment.parentId && (
             <button
               onClick={() => onReply(comment._id)}
@@ -346,7 +346,7 @@ export function ReplyForm({
             value={reply}
             onChange={(e) => setReply(e.target.value)}
             placeholder="Add comment..."
-            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 pr-32 transition-all duration-200"
+            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 !pr-16 lg:pr-32 transition-all duration-200"
             disabled={isSubmitting}
             maxLength={300}
           />

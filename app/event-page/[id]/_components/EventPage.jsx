@@ -236,7 +236,7 @@ export default function EventPage({ categories }) {
     <>
       {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center m-0"> */}
       <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div   className="sticky top-0 z-50 w-[100%] backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+        <div   className="sticky top-0 z-50 w-[100%] bg-black lg:bg-transparent backdrop-blur-0 lg:backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0 pb-2 lg:pb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <div className="hidden lg:block">
             <NavigationBar
@@ -255,7 +255,7 @@ export default function EventPage({ categories }) {
               Loading...
             </div>
           ) : (
-            <div className="sm:mx-auto mx-0 sm:pt-4 pt-0">
+            <div className="sm:mx-auto mx-0 sm:pt-4 pt-2">
               {/* Preview Card Section */}
               <div className="flex justify-center items-center">
                 <div className="flex justify-center sm:max-w-8xl mb-0 w-full gap-5">

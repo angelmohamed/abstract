@@ -20,6 +20,7 @@ export default function RootLayout({ children }) {
         <meta name="description" content="The Music Stock Market" />
         <meta itemProp="name" content="Sonotrade" />
         <meta itemProp="description" content="The Music Stock Market" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"></meta>
         <meta
           itemProp="image"
           content="https://www.sonotrade.co/images/SONOTRADE.png"

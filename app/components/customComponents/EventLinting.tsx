@@ -119,7 +119,7 @@ export default function EventLinting({
             events.map((event) => (
               <div
                 key={event._id}
-                className={`event-card w-full rounded-lg transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer ${
+                className={`event-card w-full rounded-[11.5px] lg:rounded-lg transform transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg cursor-pointer ${
                   event.status + "_event"
                 }`}
               >

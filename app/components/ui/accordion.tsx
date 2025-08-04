@@ -223,7 +223,7 @@ const AccordionTrigger = React.forwardRef<
               <Button
                 asChild
                 variant="ghost"
-                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+                className="h-12 lg:h-10 w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] transition-colors duration-300 rounded-md border border-transparent relative z-10"
               >
                 <span className="flex items-center">
                   <span className="pr-0">Yes</span>
@@ -260,7 +260,7 @@ const AccordionTrigger = React.forwardRef<
               <Button
                 asChild
                 variant="ghost"
-                className="w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+                className="h-12 lg:h-10 w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] transition-colors duration-300 rounded-md border border-transparent relative z-10"
               >
                 <span className="flex items-center">
                   <span className="pr-0">No</span>

@@ -175,34 +175,34 @@ export default function HeaderFixed() {
         <Link
           href="/"
           className={cn(
-            "w-9 h-9 flex flex-col items-center gap-1",
+            "w-10 h-10 flex flex-col items-center gap-1",
             activeMenu === "home" ? "text-white" : "text-gray-500"
           )}
           onClick={() => setActiveMenu("home")}
         >
-          <HomeIcon className="text-3xl" />
+          <HomeIcon className="w-8 h-8" />
           <span className="text-xs font-normal">Home</span>
         </Link>
         <button
-          className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
+          className="w-10 h-10 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
           onClick={() => {
             setActiveMenu("search");
             setIsSearchOpen(true);
             setIsOpen(false);
           }}
         >
-          <MagnifyingGlassIcon className="text-3xl" />
+          <MagnifyingGlassIcon className="w-8 h-8" />
           <span className="text-xs font-normal">Search</span>
         </button>
         <Link
           href="/profile"
           className={cn(
-            "w-9 h-9 flex flex-col items-center gap-1",
+            "w-10 h-10 flex flex-col items-center gap-1",
             activeMenu === "profile" ? "text-white" : "text-zinc-600"
           )}
           onClick={() => setActiveMenu("profile")}
         >
-          <PersonIcon className="text-3xl" />
+          <PersonIcon className="w-8 h-8" />
           <span className="text-xs font-normal">Profile</span>
         </Link>
         <button
@@ -211,12 +211,12 @@ export default function HeaderFixed() {
             setIsOpen(!isOpen);
             setIsSearchOpen(false);
           }}
-          className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
+          className="w-10 h-10 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
         >
           {!isOpen ? (
-            <HamburgerMenuIcon className="text-3xl" />
+            <HamburgerMenuIcon className="w-8 h-8" />
           ) : (
-            <Cross1Icon className="text-3xl" />
+            <Cross1Icon className="w-8 h-8" />
           )}
           <span className="text-xs font-normal">More</span>
         </button>
