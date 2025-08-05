@@ -83,7 +83,7 @@ const OrderbookAccordionTrigger = React.forwardRef<
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          "h-[80px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all cursor-pointer",
+          "h-[68px] sm:h-[80px] sm:text-[18px] text-[14px] w-full pr-4 pl-4 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-4 py-2 font-medium transition-all cursor-pointer",
           className
         )}
         {...props}

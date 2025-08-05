@@ -278,6 +278,7 @@ const AccordionTrigger = React.forwardRef<
             <div className="relative group w-full md:w-auto">
               <Button
                 variant="ghost"
+<<<<<<< HEAD
                 className="w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] hover:text-[#7dfdfe] rounded-md border border-transparent relative z-10"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -293,6 +294,9 @@ const AccordionTrigger = React.forwardRef<
                     handleSelection("yes", e);
                   }
                 }}
+=======
+                className="h-12 lg:h-10 w-full md:w-[140px] px-8 py-2.5 !bg-[#0d1a26] text-[#7dfdfe] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
               >
                 <span className="flex items-center">
                   <span className="pr-0">Yes</span>
@@ -328,6 +332,7 @@ const AccordionTrigger = React.forwardRef<
             <div className="relative group w-full md:w-auto">
               <Button
                 variant="ghost"
+<<<<<<< HEAD
                 className="w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] hover:text-[#ec4899] rounded-md border border-transparent relative z-10"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -343,6 +348,9 @@ const AccordionTrigger = React.forwardRef<
                     handleSelection("no", e);
                   }
                 }}
+=======
+                className="h-12 lg:h-10 w-full md:w-[140px] px-8 py-2.5 !bg-[#210d1a] text-[#ec4899] transition-colors duration-300 rounded-md border border-transparent relative z-10"
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
               >
                 <span className="flex items-center">
                   <span className="pr-0">No</span>
@@ -355,6 +363,7 @@ const AccordionTrigger = React.forwardRef<
               </Button>
               {/* Pink border animation - hover only */}
               <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+<<<<<<< HEAD
                 <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}
@@ -461,6 +470,8 @@ const AccordionTrigger = React.forwardRef<
               </Button>
               {/* Pink border animation - hover only */}
               <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+=======
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
                 <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
                 <div className="absolute inset-0 rounded-md">
                   {/* Flowing lines */}

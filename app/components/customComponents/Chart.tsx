@@ -752,7 +752,11 @@ const Chart: React.FC<ChartProps> = ({
                         </CardHeader>
                         <CardContent className="p-0">
                             <ChartContainer
+<<<<<<< HEAD
                                 className="h-[350px] p-0 pr-0 lg:h-[300px] sm:h-[250px] w-full"
+=======
+                                className="h-[350px] p-0 lg:h-[300px] sm:h-[200px] w-full"
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
                                 config={chartConfig}
                                 onMouseLeave={() => {
                                     setHoveredChance(undefined);

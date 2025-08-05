@@ -127,6 +127,7 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         
         // Store all data for current selection (like Chart.tsx)
         if(selectedYes){
+<<<<<<< HEAD
           setAllChartDataYes(formattedData || []);
         } else {
           setAllChartDataNo(formattedData || []);
@@ -139,6 +140,12 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
         } else {
           setChartDataNo(processedData);
         }
+=======
+          setChartDataYes(processSingleChartData(formattedData || [], interval));
+        } 
+        if(!selectedYes){
+          setChartDataNo(processSingleChartData(formattedData || [], interval));
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
         }
       }
     } catch (error) {

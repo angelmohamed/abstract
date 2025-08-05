@@ -26,6 +26,7 @@ import NotificationSettings from "./NotificationSettings";
 import WalletSettings from "./WalletSettings";
 import ProfileSettings from "./ProfileSettings";
 import { Footer } from "../components/customComponents/Footer";
+import HeaderFixed from "@/app/HeaderFixed";
 
 // Helper function to upload image to Supabase storage
 const uploadToStorage = async (file: File): Promise<string> => {
@@ -97,7 +98,7 @@ export default function ProfilePage() {
 
   return (
     <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+      <div  className="sticky top-0 z-50 w-[100%] bg-black lg:bg-transparent backdrop-blur-0 lg:backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0 pb-2" style={{ borderBottomWidth: '1px' }}>
         <Header />
       </div>
 
@@ -130,6 +131,7 @@ export default function ProfilePage() {
         </Tabs.Root>
       </div>
       <Footer/>
+      <HeaderFixed />
     </div>
   );
 }

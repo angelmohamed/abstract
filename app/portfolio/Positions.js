@@ -97,6 +97,7 @@ const Positions = () => {
   }
 
   const handleTradeOpen = async (id, outcomes) => {
+    console.log(id, outcomes, "handleTradeOpen")
     setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
@@ -268,9 +269,8 @@ const Positions = () => {
                             />
                             <Link href={`/event-page/${item?.eventSlug}`} className="text-base font-semibold leading-tight cursor-pointer">{item.eventTitle}</Link>
                           </div>
-
                           <div className='flex items-center gap-2'>
-                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleTradeOpen(data.marketId, data?.outcomes)}>
+                            <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleTradeOpen(item?.positions[0]?.marketId, item?.positions[0]?.outcomes)}>
                               <HistoryIcon className='w-5 h-5' />
                             </button>
                             <button className="text-gray-400 hover:text-white transition-colors duration-300" onClick={() => handleShareOpen(item)}>
@@ -285,7 +285,7 @@ const Positions = () => {
                       <tr key={index}>
                         <td>
                           <div className="z-10 text-sm font-medium">
-                            {data.marketGroupTitle} <span style={{ color: data.userSide == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span>
+                            {data.marketGroupTitle} <span style={{ color: data.side == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action}{data.side == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span>
                           </div>
                         </td>
                         <td>{toFixedDown(data?.quantity, 0)}</td>

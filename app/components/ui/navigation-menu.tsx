@@ -233,7 +233,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
 
           <div
             ref={categoryListRef}
-            className="flex flex-nowrap gap-2 py-3"
+            className="flex flex-nowrap gap-2 py-3 overflow-x-auto snap-x scroll-px-3 snap-mandatory min-w-0 no-scrollbar"              
             style={{ scrollBehavior: "smooth" }}
             onScroll={handleCategoryScroll}
           >

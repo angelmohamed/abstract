@@ -89,7 +89,7 @@ const SubcategoryBar = ({
 }) => (
   <div className="justify-center items-center py-1 lg:flex hidden">
     <div className="w-full max-w-7xl relative">
-      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto flex-nowrap pb-5">
+      <div className="flex justify-start gap-2 sm:gap-3 overflow-x-auto hide-scrollbar flex-nowrap pb-5">
         <Button
           className={cn(
             "px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
@@ -150,7 +150,11 @@ export default function Home({ infoCardCms, categories, tags }) {
   return (
     <>
       <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
+<<<<<<< HEAD
         <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-black/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+=======
+        <div className="sticky top-0 z-50 w-[100%] bg-black lg:bg-transparent backdrop-blur-0 lg:backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+>>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
           <Header />
           <NavigationBar
             menuItems={categories}

@@ -14,6 +14,7 @@ import { Footer } from "../components/customComponents/Footer";
 import Header from "../Header";
 import { NavigationBar } from "@/app/components/ui/navigation-menu";
 import { getCategories } from "@/services/market";
+import HeaderFixed from "@/app/HeaderFixed";
 
 // If these images are in the `public` folder under `/public/images`, reference them as strings.
 const Frame4 = "/images/Frame4.png";
@@ -189,7 +190,7 @@ export default function Home() {
         <Image src={SONOTRADE} alt="SONOTRADE Logo" width={220} priority />
       </header>
       </Link> */}
-      <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md">
+      <div  className="sticky top-0 z-50 w-[100%] bg-black lg:bg-transparent backdrop-blur-0 lg:backdrop-blur-md border-b border-[#222] lg:mb-4 mb-0 pb-2" style={{ borderBottomWidth: '1px' }}>
         <Header />
         <NavigationBar
           menuItems={navigationItems}
@@ -219,7 +220,7 @@ export default function Home() {
       </main>
 
       {/* Features Section */}
-      <section className="py-20 bg-black">
+      <section className="py-10 bg-black">
         <div className="max-w-6xl mx-auto px-4">
           {FEATURES.map((feature, index) => (
             <FeatureItem
@@ -231,6 +232,7 @@ export default function Home() {
         </div>
       </section>
       <Footer />
+      <HeaderFixed />
     </div>
   );
 }
