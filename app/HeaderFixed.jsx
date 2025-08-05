@@ -186,15 +186,10 @@ export default function HeaderFixed() {
           <span className="text-xs font-normal">Home</span>
         </Link>
         <button
-<<<<<<< HEAD
           className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-=======
-          className="w-10 h-10 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
-          onClick={() => {
->>>>>>> 10f44ce3b85a8a637c93d48ba756c4481e7b481c
             setActiveMenu("search");
             setIsSearchOpen(true);
             setIsOpen(false);
