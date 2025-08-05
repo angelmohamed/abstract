@@ -22,6 +22,7 @@ export default function HeaderFixed() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { signedIn } = useSelector((state) => state?.auth?.session);
+  const user = useSelector((state) => state?.auth?.user);
   const walletData = useSelector((state) => state?.wallet?.data);
   const navigateToPortfolioPage = () => router.push("/portfolio");
 
@@ -202,7 +203,7 @@ export default function HeaderFixed() {
           <span className="text-xs font-normal">Search</span>
         </button>
         <Link
-          href="/profile"
+          href={"/profile-new/@" + user.uniqueId}
           className={cn(
             "w-10 h-10 flex flex-col items-center gap-1",
             activeMenu === "profile" ? "text-white" : "text-zinc-600"

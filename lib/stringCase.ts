@@ -28,3 +28,10 @@ export const queryString = (s: any) => {
 	let n: any = new URLSearchParams(s);
 	return "?".concat(n);
 };
+
+export const firstLetter = (s: any) => {
+	if (isEmpty(s)) {
+		return "";
+	}
+	return s.charAt(0).toUpperCase()
+}

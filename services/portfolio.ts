@@ -14,6 +14,18 @@ export const getPositionHistory = async (data: any) => {
     }
 };
 
+export const getPositionsById = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/position-history/user/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
 export const getOpenOrders = async (data: any) => {
     try {
       let respData = await axios({

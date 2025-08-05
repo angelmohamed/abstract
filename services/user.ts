@@ -19,6 +19,31 @@ export const getUserData = async (dispatch:any) => {
     }
 };
 
+export const getUserById = async (id: string) => {
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/get-user/id/${id.replace("@", "")}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    console.log(error, "error");
+    return handleResp(error, "error");
+  }
+};
+export const getTradeOverviewById = async (id: string) => {
+
+  try {
+    let respData = await axios({
+      url: `${config.backendURL}/api/v1/user/user-trade-overview/id/${id}`,
+      method: "get",
+    });
+    return handleResp(respData, "success");
+  } catch (error: any) {
+    return handleResp(error, "error");
+  }
+};
+
 export const getTradeOverview = async () => {
 
   try {

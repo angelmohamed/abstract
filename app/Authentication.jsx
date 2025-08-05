@@ -817,7 +817,7 @@ export default function Authentication() {
                   </div>
                   <DropdownMenu.Separator className="DropdownMenuSeparator" />
                   <DropdownMenu.Item className="DropdownMenuItem">
-                    <Link href="/profile">Profile</Link>
+                    <Link href={"/profile-new/@" + data?.uniqueId}>Profile</Link>
                   </DropdownMenu.Item>
                   <DropdownMenu.Item className="DropdownMenuItem">
                     <Link href="/settings">Settings</Link>

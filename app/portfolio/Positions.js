@@ -9,7 +9,7 @@ import {
   Cross2Icon,
   CopyIcon,
 } from "@radix-ui/react-icons";
-import { getPositionHistory } from '@/services/portfolio'
+import { getPositionsById } from '@/services/portfolio'
 import { toFixedDown } from '../helper/roundOf'
 import { capitalize } from '../helper/string'
 import { useRouter } from 'next/navigation'
@@ -24,7 +24,7 @@ import { toastAlert } from '@/lib/toast'
 import html2canvas from "html2canvas";
 import { copyImageToClipboard } from "copy-image-clipboard";
 
-const Positions = () => {
+const Positions = (props) => {
   const [positionHistory, setPositionHistory] = useState([])
   const [tradeHistory, setTradeHistory] = useState([])
   const [tradeOpen, setTradeOpen] = useState(false)
@@ -40,7 +40,7 @@ const Positions = () => {
   const getUserPositionHistory = async () => {
     try {
       setLoading(true)
-      const res = await getPositionHistory({})
+      const res = await getPositionsById(props.uniqueId);
       if (res.success) {
         setPositionHistory(res.result)
       }
@@ -97,7 +97,6 @@ const Positions = () => {
   }
 
   const handleTradeOpen = async (id, outcomes) => {
-    console.log(id, outcomes, "handleTradeOpen")
     setSelectedMarketOutcome(outcomes)
     await getTradeHistory(id)
     setTradeOpen(true)
@@ -304,7 +303,7 @@ const Positions = () => {
                         <td>
                           <div className='flex justify-start items-center gap-2'>
 
-                            {data.claim && (
+                            {props.isPrivate && data.claim && (
                               <Button size="sm" className="bg-[#37ce37] text-[#fff] hover:text-[#000]" onClick={() => marketPositionClaim(data.marketId)}>
                                 Claim
                               </Button>
