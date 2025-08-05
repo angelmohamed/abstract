@@ -285,7 +285,7 @@ const Positions = () => {
                       <tr key={index}>
                         <td>
                           <div className="z-10 text-sm font-medium">
-                            {data.marketGroupTitle} <span style={{ color: data.userSide == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action} {data.userSide == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span>
+                            {data.marketGroupTitle} <span style={{ color: data.side == 'yes' ? "rgba(125, 253, 254, 1)" : "rgba(236, 72, 153, 1)", textTransform: "capitalize" }}>{data.action}{data.side == "yes" ? (data?.outcomes?.[0]?.title || "yes") : (data?.outcomes?.[1]?.title || "no")}</span>
                           </div>
                         </td>
                         <td>{toFixedDown(data?.quantity, 0)}</td>
