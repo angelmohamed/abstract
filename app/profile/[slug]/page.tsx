@@ -1,9 +1,12 @@
+export const runtime = 'edge';
+
 import { getUserById } from "@/services/user";
 import ProfilePage from "./Profile";
 import { getCategories } from "@/services/market";
 
-export default async function Page({ params }: { params: { slug: string } }) {
-  const slug = decodeURIComponent(params.slug);
+export default async function Page(props: { params: Promise<{ slug: string; }> }) {
+	const params = await props.params;
+  let slug = decodeURIComponent(params.slug);
 
   const [userResult, categories] = await Promise.all([
     fetchUser(slug),

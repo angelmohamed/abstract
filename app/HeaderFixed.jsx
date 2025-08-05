@@ -203,7 +203,7 @@ export default function HeaderFixed() {
           <span className="text-xs font-normal">Search</span>
         </button>
         <Link
-          href={"/profile-new/@" + user.uniqueId}
+          href={"/profile/@" + user.uniqueId}
           className={cn(
             "w-10 h-10 flex flex-col items-center gap-1",
             activeMenu === "profile" ? "text-white" : "text-zinc-600"

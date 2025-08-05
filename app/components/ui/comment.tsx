@@ -89,7 +89,7 @@ export function Comment({
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
-        <Link href={`/profile-new/@${comment?.userId?.uniqueId}`}>
+        <Link href={`/profile/@${comment?.userId?.uniqueId}`}>
           <Avatar>
             {comment?.userId?.profileImg ? (
               <AvatarImage
@@ -113,7 +113,7 @@ export function Comment({
         {/* Username and time */}
         <div className="flex items-center mb-1 flex-wrap gap-2">
           <span className="font-medium text-white truncate">
-            <Link href={`/profile-new/@${comment?.userId?.uniqueId}`}>
+            <Link href={`/profile/@${comment?.userId?.uniqueId}`}>
               {comment?.userId?.userName || "Unknown user"}
             </Link>
           </span>

@@ -6,7 +6,7 @@ import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
 import { Dialog, Separator } from "radix-ui";
 import { Cross2Icon, CopyIcon } from "@radix-ui/react-icons";
-import { getPositionHistory } from "@/services/portfolio";
+import { getPositionsById } from "@/services/portfolio";
 import { toFixedDown } from "../helper/roundOf";
 import { capitalize } from "../helper/string";
 import { useRouter } from "next/navigation";
@@ -70,7 +70,6 @@ const Positions = (props) => {
       const dataUrl = canvas.toDataURL("image/png");
 
       await copyImageToClipboard(dataUrl);
-      alert("Image copied to clipboard!");
     } catch (err) {
       console.error("Failed to copy image", err);
     }
@@ -299,17 +298,21 @@ const Positions = (props) => {
                           </Link>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button
-                            className="text-gray-400 hover:text-white transition-colors duration-300"
-                            onClick={() =>
-                              handleTradeOpen(
-                                item?.positions[0]?.marketId,
-                                item?.positions[0]?.outcomes
-                              )
-                            }
-                          >
-                            <HistoryIcon className="w-5 h-5" />
-                          </button>
+                          {
+                            item?.positions.length == 1 && (
+                              <button
+                                className="text-gray-400 hover:text-white transition-colors duration-300"
+                                onClick={() =>
+                                  handleTradeOpen(
+                                    item?.positions[0]?.marketId,
+                                    item?.positions[0]?.outcomes
+                                  )
+                                }
+                              >
+                                <HistoryIcon className="w-5 h-5" />
+                              </button>
+                            )
+                          }
                           <button
                             className="text-gray-400 hover:text-white transition-colors duration-300"
                             onClick={() => handleShareOpen(item)}
@@ -395,17 +398,18 @@ const Positions = (props) => {
                               Claim
                             </Button>
                           )}
-                          <button
-                            className="text-gray-400 hover:text-white transition-colors duration-300"
-                            onClick={() =>
-                              handleTradeOpen(
-                                item?.positions[0]?.marketId,
-                                item?.positions[0]?.outcomes
-                              )
-                            }
-                          >
-                            <HistoryIcon className="w-5 h-5" />
-                          </button>
+                          {
+                            item?.positions.length > 1 && (
+                              <button
+                                className="text-gray-400 hover:text-white transition-colors duration-300"
+                                onClick={() =>
+                                  handleTradeOpen(data?.marketId, data?.outcomes)
+                                }
+                              >
+                                <HistoryIcon className="w-5 h-5" />
+                              </button>
+                            )
+                          }
                         </div>
                       </td>                     
                     </tr>

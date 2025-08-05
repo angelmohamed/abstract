@@ -5,10 +5,10 @@ import { Fragment, useEffect, useState } from 'react';
 import { formatNumber, shortText, isFirstLetterCaps } from "@/app/helper/custommath";
 import { useSelector } from 'react-redux';
 import { transactionHistory } from '@/services/user';
-import PaginationComp from '../components/customComponents/PaginationComp';
+import PaginationComp from '../../components/customComponents/PaginationComp';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import config from "../../config/config"
+import config from "../../../config/config"
 import { Loader } from 'lucide-react';
 
 interface Deposit {
