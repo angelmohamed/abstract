@@ -57,9 +57,17 @@ export function Comment({
 
   // Format time, e.g. "3 hours ago"
   let timeAgo = comment.createdAt
-    ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })
+    ? formatDistanceToNow(new Date(comment.createdAt), { addSuffix: false })
     : "";
-  timeAgo = timeAgo.replace(/hours?/g, "hr").replace(/minutes?/g, "min");
+  // Remove 'ago', abbreviate units, and convert month/year to days/years
+  timeAgo = timeAgo
+    .replace(/about /g, "")
+    .replace(/ago/g, "")
+    .replace(/(\d+)\s*days?/g, "$1d")
+    .replace(/(\d+)\s*hours?/g, "$1h")
+    .replace(/(\d+)\s*minutes?/g, "$1min")
+    .replace(/(\d+)\s*months?/g, (_, num) => `${parseInt(num, 10) * 30}d`)
+    .replace(/(\d+)\s*years?/g, "$1y");
 
   // Check if the current user is the author of this comment
   const isAuthor =
@@ -84,7 +92,7 @@ export function Comment({
 
   return (
     <div
-      className={cn("w-full pt-4 pb-4 flex items-start space-x-3", className)}
+      className={cn("w-full pt-2 pb-2 sm:pt-4 sm:pb-4 flex items-start space-x-3", className)}
       {...props}
     >
       {/* Avatar */}
@@ -112,7 +120,7 @@ export function Comment({
       <div className="flex-1 min-w-0">
         {/* Username and time */}
         <div className="flex items-center mb-1 flex-wrap gap-2">
-          <span className="font-medium text-white truncate">
+          <span className="font-bold text-[13px] sm:text-base text-white truncate">
             <Link href={`/profile/@${comment?.userId?.uniqueId}`}>
               {comment?.userId?.userName || "Unknown user"}
             </Link>
@@ -121,7 +129,7 @@ export function Comment({
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
               <button
-                className="flex items-center gap-1 px-2 py-0.5 text-[12px] font-normal rounded"
+                className="flex items-center gap-1 px-1 py-0 text-[12px] font-normal rounded"
                 aria-label="Customise options"
                 style={{ background: "#152632", color: "#7DFDFE" }}
               >
@@ -150,22 +158,21 @@ export function Comment({
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
-          <span className="text-xs text-gray-400">{timeAgo}</span>
+          <span className="text-[12px] text-gray-400">{timeAgo}</span>
         </div>
 
         {/* Comment content */}
-        <p className="text-sm text-white whitespace-pre-wrap break-words">
+        <p className="text-[12px] sm:text-sm text-white whitespace-pre-wrap break-words">
           {comment.content}
         </p>
 
         {/* Comment actions */}
-        <div className="flex mt-2 space-x-2">
+        <div className="flex mt-1 space-x-2 w-auto pl-0">
           {onReply && signedIn && !comment.parentId && (
             <button
               onClick={() => onReply(comment._id)}
-              className="flex items-center text-xs text-gray-400 hover:text-white"
+              className="text-xs text-gray-400 hover:text-white font-normal"
             >
-              <Reply size={14} className="mr-1" />
               {comment.reply_count ? `Reply (${comment.reply_count})` : "Reply"}
             </button>
           )}
@@ -337,7 +344,7 @@ export function ReplyForm({
       <form
         ref={formRef}
         onSubmit={handleSubmit}
-        className="mt-2 mb-3 ml-10 transition-all duration-300 ease-in-out transform origin-top"
+        className="mt-1 mb-3 ml-10 transition-all duration-300 ease-in-out transform origin-top"
       >
         <div className="relative w-full flex items-center">
           <input
@@ -345,15 +352,15 @@ export function ReplyForm({
             type="text"
             value={reply}
             onChange={(e) => setReply(e.target.value)}
-            placeholder="Add comment..."
-            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 !pr-16 lg:pr-32 transition-all duration-200"
+            placeholder="Add reply..."
+            className="flex-1 px-2 sm:px-4 py-2 sm:py-3 bg-[#0f0f0f] border border-input rounded-md sm:rounded-xl text-white focus:border-input focus:outline-none text-xs sm:text-sm min-w-0 !pr-16 lg:pr-32 transition-all duration-200 placeholder:text-xs sm:placeholder:text-sm"
             disabled={isSubmitting}
             maxLength={300}
           />
           <Button
             type="submit"
             disabled={isSubmitting || !reply.trim()}
-            className="absolute right-2 top-2 bottom-2 h-auto px-4 bg-transparent border-none text-white hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md"
+            className="absolute right-2 top-2 bottom-2 h-auto px-2 sm:px-4 bg-transparent border-none text-white hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md flex justify-end"
           >
             {isSubmitting ? "Posting..." : "Reply"}
           </Button>
@@ -514,8 +521,8 @@ export function CommentSection({ eventId }: CommentSectionProps) {
   }, [socketContext?.socket]);
 
   return (
-    <div className="mt-6">
-      <h2 className="text-xl font-bold mb-4">
+    <div className="mt-4">
+      <h2 className="text-[15px] sm:text-xl font-bold mb-4">
         Comments ({totalCommentsCount})
       </h2>
       <CommentForm eventId={eventId} onCommentAdded={handleCommentAdded} />

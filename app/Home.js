@@ -190,11 +190,19 @@ export default function Home({ infoCardCms, categories, tags }) {
 
             {/* Discord Community Section */}
             <div className="w-full max-w-7xl mx-auto mt-5 mb-5 flex justify-center">
-              <div className="bg-black rounded-md px-6 py-8 flex flex-col items-center w-full max-w-xl border border-[#222] shadow-sm gap-2" style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}>
-                <h3 className="text-xl font-bold mb-1 text-white">Join our Discord community</h3>
-                <p className="text-gray-300 mb-2 text-center text-sm">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
-                <a href="https://discord.com/invite/sonotrade" target="_blank" rel="noopener noreferrer" className="bg-[#5865F2] hover:bg-[#4752c4] text-white font-semibold px-2 py-2 rounded-md transition-colors duration-200 text-sm flex items-center gap-1">
-                  <Image src={DiscordLogo} alt="Discord" width={20} height={20} className="mr-1" />
+              <div
+                className="bg-black rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-[#222] shadow-sm gap-2"
+                style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
+              >
+                <h3 className="text-base sm:text-xl font-bold mb-1 text-white">Join our Discord community</h3>
+                <p className="text-xs sm:text-sm text-gray-300 mb-2 text-center">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
+                <a
+                  href="https://discord.com/invite/sonotrade"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-[#5865F2] hover:bg-[#4752c4] text-white font-semibold px-2 py-2 rounded-md transition-colors duration-200 text-xs sm:text-sm flex items-center gap-1"
+                >
+                  <Image src={DiscordLogo} alt="Discord" width={16} height={16} className="mr-1" />
                   Join Discord
                 </a>
               </div>

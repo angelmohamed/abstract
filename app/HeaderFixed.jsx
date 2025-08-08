@@ -171,19 +171,17 @@ export default function HeaderFixed() {
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <div 
-        className="bottom-nav-fixed h-16 flex justify-between items-center lg:hidden fixed bottom-0 left-0 right-0 w-full bg-black border-t border-[#1E1E1E] z-[9999] px-8 md:px-20"
-      >
+      {/* Bottom Nav - Restored for mobile */}
+      <div className="bottom-nav-fixed h-14 flex justify-between items-center lg:hidden fixed bottom-0 left-0 right-0 w-full bg-black border-t border-[#1E1E1E] z-[9999] px-8 md:px-20">
         <Link
           href="/"
           className={cn(
-            "w-10 h-10 flex flex-col items-center gap-1",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "home" ? "text-white" : "text-gray-500"
           )}
           onClick={() => setActiveMenu("home")}
         >
-          <HomeIcon className="w-8 h-8" />
+          <HomeIcon className="w-6 h-6" />
           <span className="text-xs font-normal">Home</span>
         </Link>
         <button
@@ -199,18 +197,18 @@ export default function HeaderFixed() {
             e.stopPropagation();
           }}
         >
-          <MagnifyingGlassIcon className="w-8 h-8" />
+          <MagnifyingGlassIcon className="w-10 h-10" />
           <span className="text-xs font-normal">Search</span>
         </button>
         <Link
           href={"/profile/@" + user.uniqueId}
           className={cn(
-            "w-10 h-10 flex flex-col items-center gap-1",
+            "w-9 h-9 flex flex-col items-center gap-1",
             activeMenu === "profile" ? "text-white" : "text-zinc-600"
           )}
           onClick={() => setActiveMenu("profile")}
         >
-          <PersonIcon className="w-8 h-8" />
+          <PersonIcon className="w-6 h-6" />
           <span className="text-xs font-normal">Profile</span>
         </Link>
         <button
@@ -219,12 +217,12 @@ export default function HeaderFixed() {
             setIsOpen(!isOpen);
             setIsSearchOpen(false);
           }}
-          className="w-10 h-10 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
+          className="w-9 h-9 flex flex-col items-center gap-1 text-gray-500 hover:text-white focus:text-white"
         >
           {!isOpen ? (
-            <HamburgerMenuIcon className="w-8 h-8" />
+            <HamburgerMenuIcon className="w-6 h-6" />
           ) : (
-            <Cross1Icon className="w-8 h-8" />
+            <Cross1Icon className="w-6 h-6" />
           )}
           <span className="text-xs font-normal">More</span>
         </button>

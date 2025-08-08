@@ -56,6 +56,15 @@ let initialValue = {
 };
 
 export default function Authentication() {
+  // Responsive style for auth buttons
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const style = document.createElement('style');
+      style.innerHTML = `@media (max-width: 640px) { .sono-auth-btn { font-size: 12px !important; padding: 0.25rem 0.75rem !important; height: 1.75rem !important; min-height: 1.75rem !important; border-radius: 0.375rem !important; } }`;
+      document.head.appendChild(style);
+      return () => { document.head.removeChild(style); };
+    }
+  }, []);
   const router = useRouter();
   const dispatch = useDispatch();
   const previousWalletRef = useRef(null);
@@ -446,7 +455,7 @@ export default function Authentication() {
         {!signedIn && (
           <>
             <Dialog.Trigger asChild>
-              <Button variant="outline" size="sm" onClick={() => {
+              <Button variant="outline" size="sm" className="sono-auth-btn" onClick={() => {
                 setOpen(true)
                 setUserData({ email: "" })
                 setExpireTime(0)
@@ -460,7 +469,7 @@ export default function Authentication() {
               <Button
                 variant="outline"
                 size="sm"
-                className="bg-[#eeeef0] text-[#131418]"
+                className="bg-[#eeeef0] text-[#131418] sono-auth-btn"
                 onClick={() => {
                   setOpen(true)
                   setUserData({ email: "" })

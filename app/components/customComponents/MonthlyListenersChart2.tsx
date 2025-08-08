@@ -302,31 +302,6 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
 
   return (
     <>
-      {/* Navigation bar restored to original position for mobile */}
-      <div className="block sm:hidden w-full z-20 sticky top-0 bg-black/90 border-b border-neutral-800 backdrop-blur-md">
-        <div className="flex items-center px-4 py-3">
-          <div
-            style={{
-              width: "40px",
-              height: "40px",
-              overflow: "hidden",
-              borderRadius: "10px",
-              flexShrink: 0,
-            }}
-          >
-            <Image
-              src="/images/logo_icon.png"
-              alt="Event"
-              width={40}
-              height={40}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-          </div>
-          <div className="text-[18px] font-semibold pl-3 truncate">
-            {title || ""}
-          </div>
-        </div>
-      </div>
 
       <Card
         className="h-auto"
@@ -390,6 +365,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                     {displayChance !== undefined && displayChance !== null ? displayChance.toFixed(1) : '0.0'}M
                   </span>
                   <span className="text-lg font-light ml-2" style={{ color: chanceColor }}>forecast</span>
+
                 </div>
               </div>
             )}
@@ -469,16 +445,10 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                       shared={true}
                       cursor={false}
                     />
-                    <Legend
-                      height={36}
-                      iconType="rect"
-                      wrapperStyle={{ top: "-30px", paddingBottom: 32 }}
-                      iconSize={8}
-                    />
+                    {/* Legend and forecast label removed */}
                     <Line
                       type="stepAfter"
                       dataKey="asset1"
-                      name={chartConfig.asset1.label}
                       stroke="#7DFDFE"
                       strokeWidth={1}
                       dot={<CustomDot />}

@@ -239,7 +239,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
           >
             <div
               className={cn(
-                "px-3 py-1 rounded-md transition-colors text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
+                "px-3 py-1 rounded-md transition-colors text-xs sm:text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
                 "text-[#666] hover:text-gray-400",
                 selectedCategory === "all" && "text-white"
               )}
@@ -255,7 +255,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                 <div
                   key={item.title}
                   className={cn(
-                    "px-3 py-1 rounded-md transition-colors text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
+                    "px-3 py-1 rounded-md transition-colors text-xs sm:text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
                     "text-[#666] hover:text-gray-400",
                     selectedCategory === item.slug && "text-white"
                   )}

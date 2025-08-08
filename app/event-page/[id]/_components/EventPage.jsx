@@ -92,6 +92,17 @@ export default function EventPage({ categories }) {
     return yesPrice;
   };
 
+    const getHighestBidPrice = (marketId) => {
+    const orderBook = books?.find(book => book.marketId === marketId);
+    if (!orderBook) return null;
+
+    // Get Yes bid price (100 - highest yes bid)
+    const yesBid = orderBook?.bids?.[0]?.sort(descending)?.[0];
+    const yesPrice = yesBid?.length > 0 ? toFixedDown(100 - yesBid[0], 2) : null;
+
+    return yesPrice;
+  };
+
   useEffect(() => {
     const eventId = events?._id;
     if (!isEmpty(eventId)) {
@@ -344,7 +355,7 @@ export default function EventPage({ categories }) {
                         endDate={events.endDate}
                         interval={interval}
                       /> */}
-                    <div className="flex justify-center items-center mb-4 md:mb-8 -mt-8 md:mt-0">
+                    <div className="flex justify-center items-center mt-2 sm:mt-0 mb-4 sm:mb-8 md:mb-8 text-xs sm:text-base" style={{ marginTop: '0.5rem', marginBottom: '1rem', transform: 'scale(0.85)', maxWidth: '90vw' }}>
                       <ChartIntervals
                         interval={interval}
                         setInterval={setInterval}
@@ -550,11 +561,11 @@ export default function EventPage({ categories }) {
                           </Link>
                         </p> 
                       </ExpandableTextView> */}
-                      <h3 className="sm:text-[22px] text-[18px] font-bold sm:mt-6 sm:mb-4 sm:mr-4 mt-2">
+                      <h3 className="sm:text-[22px] text-[15px] font-bold sm:mt-6 sm:mb-2 sm:mr-4 mt-4 mb-1">
                         Rules
                       </h3>
-                      <SelectSeparator className="my-4" />
-                      <div className="sm:text-base pb-0 text-[14px]">
+                      <SelectSeparator className="my-2" />
+                      <div className="sm:text-base pb-0 text-[12px] text-gray-400">
                         {events?.description?.length > 250 ? (
                           <div className="space-y-0">
                             <div
@@ -571,7 +582,7 @@ export default function EventPage({ categories }) {
                               <Button
                                 variant="link"
                                 onClick={() => setShowFullText(!showFullText)}
-                                className="text-sm text-primary px-0 mt-1 !no-underline"
+                                className="text-[12px] sm:text-sm text-gray-400 font-bold px-0 mt-0.5 !no-underline"
                               >
                                 {showFullText ? "Show Less" : "Show More"}
                               </Button>
@@ -597,8 +608,27 @@ export default function EventPage({ categories }) {
                     </div>
 
                     {/* 评论区 Comment Section */}
-                    <div className="mt-6">
+                    <div className="mt-4">
                       <CommentSection eventId={events?._id} />
+                    </div>
+                    {/* Discord Community Section - Web only, under comments */}
+                    <div className="hidden sm:flex w-full max-w-7xl mx-auto mt-5 mb-5 justify-center">
+                      <div
+                        className="bg-black rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-[#222] shadow-sm gap-2"
+                        style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
+                      >
+                        <h3 className="text-base sm:text-xl font-bold mb-1 text-white">Join our Discord community</h3>
+                        <p className="text-xs sm:text-sm text-gray-300 mb-2 text-center">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
+                        <a
+                          href="https://discord.com/invite/sonotrade"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[#5865F2] hover:bg-[#4752c4] text-white font-semibold px-2 py-2 rounded-md transition-colors duration-200 text-xs sm:text-sm flex items-center gap-1"
+                        >
+                          <img src="/images/discordnew.png" alt="Discord" width={16} height={16} className="mr-1" />
+                          Join Discord
+                        </a>
+                      </div>
                     </div>
                   </div>
 
@@ -654,7 +684,7 @@ export default function EventPage({ categories }) {
               </div>
 
               {/* Trading Card Drawer for Mobile */}
-              <div className="lg:hidden justify-center pt-5 pb-10 items-center mt-0 fixed bottom-[24px] left-0 w-full z-50">
+              <div className="lg:hidden justify-center pt-5 pb-8 items-center mt-0 fixed bottom-[24px] left-0 w-full z-50">
                 {isDrawerOpen && (
                   <div
                     className="fixed inset-0 bg-black bg-opacity-50 z-40"
@@ -668,13 +698,23 @@ export default function EventPage({ categories }) {
                     {/* Only show drawer trigger for single markets */}
                     {markets?.length <= 1 && (
                       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                        <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg">
-                          <div className="flex items-center justify-between gap-2.5 w-full px-4">
-                            <div className="flex-1 !bg-[#0D1A26] rounded-lg h-12 text-[#7DFDFE] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                        <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg mt-10">
+                          <div className="flex items-center justify-between gap-2.5 w-full px-4 mt-0">
+                            <div className="flex-1 !bg-[#0D1A26] rounded-lg h-10 text-[#7DFDFE] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                               Yes
+                              {markets?.length === 1 && (
+                                <span className="ml-0 pl-0 text-xl text-[#7DFDFE] font-semibold">
+                               {getLowestAskPrice(markets[0]?._id) !== null && getLowestAskPrice(markets[0]?._id) !== undefined ? `${getLowestAskPrice(markets[0]?._id)}¢` : '--'}
+                                </span>
+                              )}
                             </div>
-                            <div className="flex-1 !bg-[#210D1A] rounded-lg h-12 text-[#EC4899] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                            <div className="flex-1 !bg-[#210D1A] rounded-lg h-10 text-[#EC4899] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                               No
+                              {markets?.length === 1 && (
+                                <span className="ml-0 pl-0 text-xl text-[#EC4899] font-semibold">
+                               {getHighestBidPrice(markets[0]?._id) !== null && getHighestBidPrice(markets[0]?._id) !== undefined ? `${getHighestBidPrice(markets[0]?._id)}¢` : '--'}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </DrawerTrigger>
@@ -760,6 +800,25 @@ export default function EventPage({ categories }) {
             setOpenOrderDialog={setOpenOrderDialog}
             openOrderData={openOrders}
           />
+        </div>
+      </div>
+      {/* Discord Community Section - Mobile only at bottom */}
+      <div className="flex sm:hidden w-full max-w-7xl mx-auto mt-5 mb-5 justify-center">
+        <div
+          className="bg-black rounded-md px-4 py-5 flex flex-col items-center w-full max-w-xs border border-[#222] shadow-sm gap-2"
+          style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
+        >
+          <h3 className="text-base font-bold mb-1 text-white">Join our Discord community</h3>
+          <p className="text-xs text-gray-300 mb-2 text-center">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
+          <a
+            href="https://discord.com/invite/sonotrade"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-[#5865F2] hover:bg-[#4752c4] text-white font-semibold px-2 py-2 rounded-md transition-colors duration-200 text-xs flex items-center gap-1"
+          >
+            <img src="/images/discordnew.png" alt="Discord" width={16} height={16} className="mr-1" />
+            Join Discord
+          </a>
         </div>
       </div>
       <Footer />

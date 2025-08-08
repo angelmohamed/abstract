@@ -196,7 +196,7 @@ const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContent
     (<div
       ref={ref}
       className={cn(
-        "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        "grid min-w-[8rem] items-start gap-0 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
         className
       )}>
       {!nestLabel ? tooltipLabel : null}
@@ -210,7 +210,7 @@ const ChartTooltipContent = React.forwardRef<HTMLDivElement, ChartTooltipContent
             (<div
               key={item.dataKey}
               className={cn(
-                "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                "flex w-full flex-wrap pt-0 y-0 pb-0 items-stretch min-h-0 gap-1 sm:gap-3 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
                 indicator === "dot" && "items-center"
               )}>
               {formatter && item?.value !== undefined && item.name ? (
@@ -298,13 +298,13 @@ const ChartLegendContent = React.forwardRef<HTMLDivElement, ChartLegendContentPr
           (<div
             key={item.value}
             className={cn(
-              "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground"
+              "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground h-7 sm:h-9 px-2 sm:px-3"
             )}>
             {itemConfig?.icon && !hideIcon ? (
               <itemConfig.icon />
             ) : (
               <div
-                className="h-2 w-2 shrink-0 rounded-[2px]"
+                className="h-1.5 w-1.5 shrink-0 rounded-[2px]"
                 style={{
                   backgroundColor: item.color,
                 }} />

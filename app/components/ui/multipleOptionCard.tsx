@@ -96,7 +96,7 @@ export function MultipleOptionCard({
         boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
       }}
     >
-      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 pb-0">
+      <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-3 pb-0">
         <CardTitle style={{ lineHeight: "1.5" }}>
           <div style={{ display: "flex", alignItems: "center" }}>
             <div
@@ -124,10 +124,10 @@ export function MultipleOptionCard({
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-2 pr-2 pt-2 sm:pt-3">
+      <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-2 sm:pt-3">
         <div className="relative group">
           <ScrollArea className="sm:h-[75px] h-[70px] group-hover:h-[78px] overflow-hidden top-0 ease-in-out absolute bottom-full left-0 w-full border bg-[#0f0f0f] pb-0 transition-all z-10 duration-200 rounded-sm">
-            <div className="space-y-1 top-0 pr-2">
+            <div className="space-y-1 top-0 pr-2 flex flex-col items-center justify-center px-2 w-full">
               {options?.map((option, index) => {
                 const question =
                   option.groupItemTitle ||
@@ -167,17 +167,16 @@ export function MultipleOptionCard({
                         {/* Yes Button */}
                         {/* Yes Button */}
                         <div
-                          className="text-[8px]"
+                          className="text-[8px] w-[80%] sm:w-[45%]"
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            width: "45%", // increased from 31%
                           }}
                         >
                           <Button
                             onClick={() => handleYesClick(option)}
-                            className="w-full h-[12px] py-[13px] mb-1 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#7DFDFE] hover:border-[1.5px] capitalize"
+                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#7DFDFE] hover:border-[1.5px] capitalize"
                           >
                             {(option.outcome && option.outcome?.[0]?.title) ||
                               "Yes"}
@@ -186,17 +185,16 @@ export function MultipleOptionCard({
 
                         {/* No Button */}
                         <div
-                          className="text-[8px]"
+                          className="text-[8px] w-[80%] sm:w-[45%]"
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             alignItems: "center",
-                            width: "45%", // same width for symmetry
                           }}
                         >
                           <Button
                             onClick={() => handleNoClick(option)}
-                            className="w-full h-[12px] py-[13px] mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#ec4899] hover:border-[1.5px] capitalize"
+                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#ec4899] hover:border-[1.5px] capitalize"
                           >
                             {(option.outcome && option.outcome?.[1]?.title) ||
                               "No"}
@@ -213,7 +211,7 @@ export function MultipleOptionCard({
           </ScrollArea>
         </div>
       </CardContent>
-      <CardFooter className="relative z-0 sm:pl-3 pl-2 sm:pr-3 pr-2 pb-2 px-2 overflow-hidden">
+      <CardFooter className="relative z-0 sm:pl-3 pl-3 sm:pr-3 pr-3 pb-3 sm:pb-2 overflow-hidden">
         <div
           className="pt-2 sm:pt-2 pb-0 w-full"
           style={{

@@ -63,8 +63,8 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
 
   if (!signedIn) {
     return (
-      <div className="text-center my-4 min-h-12">
-        <p className="text-sm text-gray-300 mb-2">
+      <div className="text-center my-2 sm:my-4 min-h-8 sm:min-h-12">
+        <p className="text-[11px] sm:text-[14px] text-gray-300 mb-1 sm:mb-2">
           You need to be logged in to comment.
         </p>
       </div>
@@ -134,7 +134,7 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
             value={newComment}
             onChange={onchangeComment}
             placeholder="Add comment..."
-            className="flex-1 px-4 py-3 bg-[#0f0f0f] border border-input rounded-xl text-white focus:border-input focus:outline-none text-base min-w-0 !pr-16 lg:pr-32"
+            className="flex-1 px-2 sm:px-4 py-2 sm:py-3 bg-[#0f0f0f] border border-input rounded-md sm:rounded-xl text-white focus:border-input focus:outline-none text-xs sm:text-base min-w-0 !pr-16 lg:pr-32 placeholder:text-xs sm:placeholder:text-base"
             disabled={isSubmitting}
             maxLength={300}
           />
