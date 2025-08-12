@@ -65,7 +65,7 @@ const OrderbookAccordionItem = React.forwardRef<
   <AccordionPrimitive.Item
     ref={ref}
     className={cn(
-      "border border-muted rounded-xl mb-2 duration-300 ease-in-out hover:bg-[#0a0a0a]",
+      "border border-[#d9d9d9] shadow-[0_3px_14px_0_rgba(0,0,0,0.12)] rounded-xl mb-2 duration-300 ease-in-out hover:bg-[#f7f7f7] text-black",
       className
     )}
     {...props}
@@ -81,16 +81,16 @@ const OrderbookAccordionTrigger = React.forwardRef<
   // If the children is the string 'Orderbook', change it to 'Order Book'
   const displayChildren = typeof children === 'string' && children.trim().toLowerCase() === 'orderbook' ? 'Order Book' : children;
   return (
-    <AccordionPrimitive.Header className="sm:text-[16px] text-[14px] flex items-center justify-between w-full">
+    <AccordionPrimitive.Header className="hover:bg-[#f7f7f7] sm:text-[16px] text-[14px] flex items-center justify-between w-full text-black">
       <AccordionPrimitive.Trigger
         ref={ref}
         className={cn(
-          "h-[56px] sm:h-[70px] sm:text-[16px] text-[14px] w-full pr-3 pl-3 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-3 py-2 font-medium transition-all cursor-pointer",
+          "h-[56px] sm:h-[70px] hover:bg-[#f7f7f7] sm:text-[16px] text-[14px] w-full pr-3 pl-3 sm:pr-3 sm:pl-4 flex flex-1 items-center justify-between sm:py-3 py-2 font-medium transition-all cursor-pointer bg-transparent rounded-xl border border-transparent",
           className
         )}
         {...props}
       >
-        <span className="text-[14px] sm:text-[16px] flex max-w-auto">
+        <span className="text-[14px] sm:text-[16px] flex max-w-auto text-black">
           {displayChildren}
         </span>
         <div className="flex-1" />
@@ -380,7 +380,7 @@ const OrderbookAccordionContent = React.forwardRef<
         className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
         {...props}
       >
-        <div className={cn("pb-4 pt-0", className)} onClick={onClickOrderBook}>
+        <div className={cn("pb-4 pt-0 text-black", className)} onClick={onClickOrderBook}>
           <Tabs
             defaultValue="Yes"
             value={forecastGraph ? "Graph" : activeView}
@@ -397,13 +397,13 @@ const OrderbookAccordionContent = React.forwardRef<
             <TabsList className="flex justify-start w-1/4 min-w-[150px]">
               <TabsTrigger
                 value="Yes"
-                className="flex-1 px-2 py-2 text-[12px] sm:text-base transition-all duration-300 border-b-2 border-transparent"
+                className="flex-1 px-2 py-2 text-[12px] sm:text-base transition-all duration-300 border-b-2 border-gray-300 shadow-sm data-[state=active]:border-black data-[state=inactive]:border-gray-300 data-[state=active]:text-black data-[state=inactive]:text-gray-400"
               >
                 Trade {capitalize(selectedMarket?.outcome?.[0]?.title || "Yes")}
               </TabsTrigger>
               <TabsTrigger
                 value="No"
-                className="flex-1 px-2 py-2 text-[12px] sm:text-base transition-all duration-300 border-b-2 border-transparent"
+                className="flex-1 px-2 py-2 text-[12px] sm:text-base transition-all duration-300 border-b-2 border-gray-300 shadow-sm data-[state=active]:border-black data-[state=inactive]:border-gray-300 data-[state=active]:text-black data-[state=inactive]:text-gray-400"
               >
                 Trade {capitalize(selectedMarket?.outcome?.[1]?.title || "No")}
               </TabsTrigger>
@@ -421,7 +421,7 @@ const OrderbookAccordionContent = React.forwardRef<
               </TabsTrigger>
               }
             </TabsList>
-            <hr className="border-t border-[#222] m-0" />
+            <hr className="border-t border-[#adadad] m-0" />
              {
               !forecastGraph ? (
                 <div className="">
@@ -462,7 +462,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                   return (
                                     <div
                                       key={index}
-                                      className="flex items-center text-[12px] sm:text-base h-[35px] w-full justify-between duration-300 ease-in-out bg-black text-white hover:bg-[#240000] z-20 relative cursor-pointer"
+                                      className="flex items-center text-[12px] sm:text-base h-[35px] w-full justify-between duration-300 ease-in-out bg-white text-black hover:bg-[#ffd9d9] z-20 relative cursor-pointer"
                                       onClick={() => setSelectedOrder({ 
                                         side: activeView, 
                                         row, 
@@ -515,14 +515,14 @@ const OrderbookAccordionContent = React.forwardRef<
                               {/* Asks badge */}
                               {asks.length > 0 && (
                                 <div className="flex w-full">
-                                  <Badge className="w-[50px] text-xs text-white bg-[#ff0000] mb-1 absolute bottom-0 left-5 z-30 flex items-center justify-center px-3">
+                                  <Badge className="w-[50px] text-xs text-[#ff1212] bg-[#ff0000] mb-1 absolute bottom-0 left-5 z-30 flex items-center justify-center px-3">
                                     Asks
                                   </Badge>
                                 </div>
                               )}{" "}
                             </div>
     
-                            <div className="flex text-[12px] sm:text-base items-center h-[35px] w-full p-3">
+                            <div className="flex text-[12px] sm:text-base bg-[#f5f5f5] items-center h-[35px] w-full p-3">
                               <div className="w-[30%]">Last: 
                                 {selectedMarket?.last ? (
                                   activeView == "Yes" ? selectedMarket?.last || 0 : 100 - (selectedMarket?.last || 0)
@@ -541,7 +541,7 @@ const OrderbookAccordionContent = React.forwardRef<
                             <div className="relative w-full">
                               {bids.length > 0 && (
                                 <div className="flex w-full">
-                                  <Badge className="w-[50px] text-xs text-white bg-[#00c735] mt-1 mb-1 absolute top-0 left-5 z-30 flex items-center justify-center px-3">
+                                  <Badge className="w-[50px] text-xs text-white bg-[#05ff0d] mt-1 mb-1 absolute top-0 left-5 z-30 flex items-center justify-center px-3">
                                     Bids
                                   </Badge>
                                 </div>
@@ -555,7 +555,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                   return (
                                     <div
                                       key={index}
-                                      className="flex items-center text-[12px] sm:text-base h-[35px] w-full justify-between bg-black text-white duration-300 ease-in-out hover:bg-[#001202] z-20 relative cursor-pointer"
+                                      className="flex items-center text-[12px] sm:text-base h-[35px] w-full justify-between bg-white text-black duration-300 ease-in-out hover:bg-[#b5ffab] z-20 relative cursor-pointer"
                                       onClick={() => setSelectedOrder({ 
                                         side: activeView, 
                                         row, 
@@ -578,7 +578,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                               bidBookHighest) *
                                             100
                                           }
-                                          className="hover:bg-[#0a0a0a]"
+                                          className="w-full"
                                         />
                                       </div>
                                       <div className="w-[20%] text-center">

@@ -232,7 +232,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
         ? chartData[chartData.length - 1]?.asset1
         : undefined;
 
-  const chanceColor = '#7DFDFE';
+  const chanceColor = '#00ff1aff';
 
   const CustomDot = (props: any) => {
     const { cx, cy, payload, index } = props;
@@ -240,7 +240,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
     
     if (!isLastPoint) return null;
     
-    const dotColor = "#7DFDFE";
+    const dotColor = "#00ff0dff";
     
     return (
       <g>
@@ -309,7 +309,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
       >
         <div>
           <CardHeader className="p-0">
-            <CardTitle style={{ lineHeight: "1.5" }} className="pt-3 sm:pb-1 pb-2 sm:pt-0">
+            <CardTitle style={{ lineHeight: "1.5" }} className="pt-3 sm:pb-1 pb-2 sm:pt-0 text-black">
               <div style={{ display: "flex", alignItems: "center" }}>
                 <div
                   style={{
@@ -394,7 +394,7 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                       }
                     }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#262626" />
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
                     <XAxis
                       dataKey="rawTimestamp"
                       type="number"
@@ -449,10 +449,10 @@ const MultiListenersChart2: React.FC<MultiListenersChart2Props> = ({
                     <Line
                       type="stepAfter"
                       dataKey="asset1"
-                      stroke="#7DFDFE"
+                      stroke="#0cff3dff"
                       strokeWidth={1}
                       dot={<CustomDot />}
-                      activeDot={{ r: 4, fill: "#7DFDFE", stroke: "#fff", strokeWidth: 2 }}
+                      activeDot={{ r: 4, fill: "#00ff26ff", stroke: "#fff", strokeWidth: 2 }}
                       label={false}
                       connectNulls
                       isAnimationActive={false}

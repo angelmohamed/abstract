@@ -98,20 +98,21 @@ export default function SearchComponent() {
 
     return (
         <div
-                className={`relative w-full`}
-                tabIndex={-1}
-                onFocus={() => setIsSearchActive(true)}
-                onBlur={() => setIsSearchActive(false)}
-            >
+            className="relative w-full"
+            tabIndex={-1}
+            onFocus={() => setIsSearchActive(true)}
+            onBlur={() => setIsSearchActive(false)}
+        >
+            <div className={`w-full ${isSearchActive ? 'ring-2 ring-green-400 rounded-lg' : ''}`}>
                 <SearchBar
-                    placeholder="Search markets or artists"
+                    placeholder="Search cryptocurrencies"
                     onChange={handleInputChange}
-                    className={`w-full transition-all duration-150 outline-none ${isSearchActive ? "rounded-t-lg rounded-b-none" : "rounded-lg"
-                        }`}
+                    className={`w-full transition-all duration-150 outline-none ${isSearchActive ? "rounded-t-lg rounded-b-none" : "rounded-lg"}`}
                 />
-                {isSearchActive && (
-                    <div className="absolute left-0 right-0 bg-[#070707] z-[156] rounded-b-lg border border-[#262626] border-t-0">
-                        <div className="flex flex-col gap-2 p-3">
+            </div>
+            {isSearchActive && (
+                <div className="absolute left-0 right-0 bg-white z-[156] rounded-b-lg border border-gray-200 border-t-0">
+                    <div className="flex flex-col gap-2 p-3">
                             <div className="flex flex-col pb-2 gap-2">
                                 <p className="text-sm font-medium ">Browse</p>
                                 <div className="flex gap-2 flex-wrap">
@@ -119,7 +120,7 @@ export default function SearchComponent() {
                                         categoryList.map(({ slug, title, _id }) => (
                                             <p
                                                 key={_id}
-                                                className="border cursor-pointer rounded-md px-2 text-sm"
+                                                className="border border-gray-200 bg-white text-black cursor-pointer rounded-md px-2 text-sm"
                                                 onClick={() => router.push(`/?category=${slug}`)}
                                             >
                                                 {title}
@@ -140,7 +141,7 @@ export default function SearchComponent() {
                                             recentActivity.map((event: any, index: number) => (
                                                 <div
                                                     key={index}
-                                                    className="py-2 rounded-lg border flex items-center justify-between gap-2 hover:bg-[#262626] pl-2 pr-3 cursor-pointer"
+                                                    className="py-2 rounded-lg border border-gray-200 bg-white text-black flex items-center justify-between gap-2 hover:bg-gray-100 pl-2 pr-3 cursor-pointer"
                                                     onClick={() =>
                                                         router.push(`/event-page/${event.slug}`)
                                                     }
@@ -155,25 +156,18 @@ export default function SearchComponent() {
                                                                 className="rounded"
                                                             />
                                                         ) : (
-                                                            <div className="w-[30px] h-[30px] bg-gray-700 rounded" />
+                                                            <div className="w-[30px] h-[30px] bg-gray-200 rounded" />
                                                         )}
                                                         <span className="text-sm">
                                                             {event.title || "Untitled Event"}
                                                         </span>
                                                     </div>
-                                                    {/* <button
-                                aria-label="Close"
-                                onClick={() =>ClearRecentActivity(event)}
-                              >
-                                <Cross2Icon className="h-4 w-4" />
-                              </button> */}
                                                 </div>
                                             ))
                                         )}
                                     </div>
                                 </div>
                             )}
-
                             {!isRecentActivity && (
                                 <div className="flex flex-col pb-2 gap-2">
                                     <p className="text-sm font-medium ">Events</p>
@@ -188,7 +182,7 @@ export default function SearchComponent() {
                                             filterEvent.map((event: any, index: number) => (
                                                 <div
                                                     key={index}
-                                                    className="py-2 rounded-lg border flex items-center justify-between gap-2 hover:bg-[#262626] pl-2 pr-3 cursor-pointer"
+                                                    className="py-2 rounded-lg border border-gray-200 bg-white text-black flex items-center justify-between gap-2 hover:bg-gray-100 pl-2 pr-3 cursor-pointer"
                                                     onClick={() => clickEvent(event)}
                                                 >
                                                     <div className="flex items-center gap-2">
@@ -201,7 +195,7 @@ export default function SearchComponent() {
                                                                 className="rounded"
                                                             />
                                                         ) : (
-                                                            <div className="w-[30px] h-[30px] bg-gray-700 rounded" />
+                                                            <div className="w-[30px] h-[30px] bg-gray-200 rounded" />
                                                         )}
                                                         <span className="text-sm">
                                                             {event.title || "Untitled Event"}

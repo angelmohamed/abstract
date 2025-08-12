@@ -255,7 +255,7 @@ export function TradingCard({
               >
                 <OptionsList className="grid w-full grid-cols-2 gap-2">
                   <OptionsTrigger
-                    className="rounded-md border-transparent hover:bg-[#0d1a26] hover:text-[#7dfdfe] data-[state=active]:bg-[#0d1a26] data-[state=active]:text-[#7dfdfe] data-[state=active]:border-[#0d1a26] relative group"
+                    className="rounded-md border-transparent hover:bg-[#003d0a] hover:text-[#00cc1b] data-[state=active]:bg-[#001f05] data-[state=active]:text-[#00cc1b] data-[state=active]:border-[#001f05] relative group"
                     value="Yes"
                   >
                     {firstLetterCase(market?.outcome?.[0]?.title) || "Yes"}{" "}
@@ -264,32 +264,10 @@ export function TradingCard({
                         `${toFixedDown(100 - buyYes?.[0], 2)}¢`
                       : sellYes?.length > 0 &&
                         `${toFixedDown(sellYes?.[0], 2)}¢`}
-                    {/* Tron blue border animation - hover and active states */}
-                    <div className="absolute -inset-0.5 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
-                      <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
-                      <div className="absolute inset-0 rounded-md">
-                        {/* Flowing lines */}
-                        <div
-                          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                        <div
-                          className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
-                          style={{ animationDelay: "0.7s" }}
-                        ></div>
-                        <div
-                          className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
-                          style={{ animationDelay: "1.2s" }}
-                        ></div>
-                        <div
-                          className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
-                          style={{ animationDelay: "1.7s" }}
-                        ></div>
-                      </div>
-                    </div>
+
                   </OptionsTrigger>
                   <OptionsTrigger
-                    className="rounded-md hover:bg-[#210d1a] hover:text-[#ec4899] data-[state=active]:bg-[#210d1a] data-[state=active]:text-[#ec4899] data-[state=active]:border-[#210d1a] relative group"
+                    className="rounded-md hover:bg-[#450000] hover:text-[#ff2121] data-[state=active]:bg-[#2b0006] data-[state=active]:text-[#ff2121] data-[state=active]:border-[#2b0006] relative group"
                     value="No"
                   >
                     {firstLetterCase(market?.outcome?.[1]?.title) || "No"}{" "}
@@ -297,29 +275,7 @@ export function TradingCard({
                       ? buyNo?.length > 0 &&
                         `${toFixedDown(100 - buyNo?.[0], 2)}¢`
                       : sellNo?.length > 0 && `${toFixedDown(sellNo?.[0], 2)}¢`}
-                    {/* Pink border animation - hover and active states */}
-                    <div className="absolute -inset-0.5 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 group-data-[state=active]:opacity-100 transition-opacity duration-300">
-                      <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
-                      <div className="absolute inset-0 rounded-md">
-                        {/* Flowing lines */}
-                        <div
-                          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
-                          style={{ animationDelay: "0.2s" }}
-                        ></div>
-                        <div
-                          className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
-                          style={{ animationDelay: "0.7s" }}
-                        ></div>
-                        <div
-                          className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
-                          style={{ animationDelay: "1.2s" }}
-                        ></div>
-                        <div
-                          className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
-                          style={{ animationDelay: "1.7s" }}
-                        ></div>
-                      </div>
-                    </div>
+
                   </OptionsTrigger>
                 </OptionsList>
 

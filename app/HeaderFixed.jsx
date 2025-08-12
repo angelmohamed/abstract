@@ -99,7 +99,7 @@ export default function HeaderFixed() {
               onClick={() => navigateToPortfolioPage()}
             >
               <div className="text-xs text-grey">Portfolio</div>
-              <div className="text-lg text-[#33ff4c]">
+              <div className="text-lg text-[#23a300]">
                 {PnLFormatted(
                   formatNumber(walletData?.balance + walletData?.position, 2)
                 )}

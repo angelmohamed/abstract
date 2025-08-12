@@ -355,7 +355,7 @@ const Chart: React.FC<ChartProps> = ({
                                     ? market?.[0]?.outcome?.[0]?.title || "yes"
                                     : market?.[0]?.outcome?.[1]?.title || "no"
                             ),
-                            color: selectedYes ? "#7dfdfe" : "#ec4899",
+                            color: selectedYes ? "#00ff15ff" : "#ff0000ff",
                             asset: "asset1",
                         },
                     ]);
@@ -476,7 +476,7 @@ const Chart: React.FC<ChartProps> = ({
                         ? 100 - chance
                         : undefined;
 
-    const chanceColor = selectedYes ? "#7dfdfe" : "#ec4899";
+    const chanceColor = selectedYes ? "#00ff00ff" : "#ff0000ff";
     const [activeDate, setActiveDate] = useState("Jun 18");
     const [multiDisplayChance, setMultiDisplayChance] = useState<any>([]);
     useEffect(() => {
@@ -574,7 +574,7 @@ const Chart: React.FC<ChartProps> = ({
             <div>
                 <CardHeader className="space-y-0 p-0">
                     {/* 先显示标题 */}
-                    <CardTitle style={{ lineHeight: "1.5" }} className="pt-3 sm:pb-1 pb-2 sm:pt-0">
+                    <CardTitle style={{ lineHeight: "1.5" }} className="pt-3 text-black sm:pb-1 pb-2 sm:pt-0">
                         <div style={{ display: "flex", alignItems: "center" }}>
                             <div
                                 style={{
@@ -778,7 +778,7 @@ const Chart: React.FC<ChartProps> = ({
                                         }
                                     }}
                                 >
-                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#1f1f1f" />
+                                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e5e7eb" />
                                     <XAxis
                                         dataKey="rawTimestamp"
                                         type="number"

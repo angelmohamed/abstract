@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Authentication from "./Authentication.jsx";
-import SONOTRADE from "@/public/images/logo.png";
+import SPECULATION from "@/public/images/logospec.png";
 
 import { useSelector } from "@/store";
 import { availableBalance } from "@/lib/utils";
@@ -25,29 +25,19 @@ export default function Header() {
       {/* Logo and Mobile Auth */}
       <div className="flex items-center justify-between lg:ml-4 w-full lg:w-auto">
         <div className="flex items-center">
-          <Link href="/">
+          <Link href="/" className="flex items-center">
             <Image
-              src={SONOTRADE}
-              alt="SONOTRADE Logo"
-              width={160}
-              className="w-28 md:w-36"
+              src={SPECULATION}
+              alt="SPECULATION Logo"
+              width={25}
+              className="w-30 md:w-30"
               priority
             />
+            <span className="font-bold text-xl pl-2">Speculation</span>
           </Link>
         </div>
 
         <div className="flex lg:hidden items-center gap-2">
-          {/* {signedIn && (
-            <button
-              className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
-              onClick={navigateToPortfolioPage}
-            >
-              <div className="text-l text-[#33ff4c]">
-                ${availableBalance(walletData)}
-              </div>
-              <div className="text-xs text-grey">Cash</div>
-            </button>
-          )} */}
           <Authentication />
         </div>
       </div>
@@ -57,9 +47,9 @@ export default function Header() {
           href="https://sonotrade.gitbook.io/sonotrade-docs/#overview"
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-4 text-white text-sm font-semibold px-3 py-1 rounded hover:text-gray-400 transition-colors whitespace-nowrap"
+          className="ml-4 text-black hover:text-grey-400 text-sm font-semibold px-3 py-1 rounded hover:text-gray-400 transition-colors whitespace-nowrap"
         >
-          Beginner’s Guide
+          BUY $SPEC
         </Link>
       </div>
 
@@ -70,7 +60,7 @@ export default function Header() {
             className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors"
             onClick={navigateToPortfolioPage}
           >
-            <div className="text-l text-[#33ff4c]">
+            <div className="text-l text-[#2fd900]">
               ${availableBalance(walletData)}
             </div>
             <div className="text-xs text-grey">Cash</div>

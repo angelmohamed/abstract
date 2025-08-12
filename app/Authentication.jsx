@@ -447,7 +447,7 @@ export default function Authentication() {
           className="px-3 py-2 hover:bg-gray-800 rounded-md transition-colors hidden lg:block"
           onClick={() => navigateToPortfolioPage()}
         >
-          <div className="text-l text-[#33ff4c]">{PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2))}</div>
+          <div className="text-l text-[#2fd900]">{PnLFormatted(formatNumber(walletData?.balance + walletData?.position, 2))}</div>
           <div className="text-xs text-grey">Portfolio</div>
         </button>
       )}
@@ -455,7 +455,7 @@ export default function Authentication() {
         {!signedIn && (
           <>
             <Dialog.Trigger asChild>
-              <Button variant="outline" size="sm" className="sono-auth-btn" onClick={() => {
+              <Button  size="sm" className="border border-black bg-white text-black sono-auth-btn" onClick={() => {
                 setOpen(true)
                 setUserData({ email: "" })
                 setExpireTime(0)
@@ -467,9 +467,8 @@ export default function Authentication() {
             </Dialog.Trigger>
             <Dialog.Trigger asChild>
               <Button
-                variant="outline"
                 size="sm"
-                className="bg-[#eeeef0] text-[#131418] sono-auth-btn"
+                className="bg-gray-200 text-black sono-auth-btn"
                 onClick={() => {
                   setOpen(true)
                   setUserData({ email: "" })

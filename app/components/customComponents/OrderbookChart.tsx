@@ -82,7 +82,7 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
   const [chartConfig, setChartConfig] = useState<UIChartConfig>({
     asset1: {
       label: "Yes",
-      color: "#7DFDFE",
+      color: "#00ff22ff",
     },
   });
   const socketContext = useContext(SocketContext);
@@ -186,10 +186,10 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
   useEffect(() => {
     if (selectedYes) {
       setChartData(chartDataYes);
-      setChartConfig({ asset1: { label: "Yes", color: "#7DFDFE" } });
+      setChartConfig({ asset1: { label: "Yes", color: "#00ff3cff" } });
     } else {
       setChartData(chartDataNo);
-      setChartConfig({ asset1: { label: "No", color: "#EC4899" } });
+      setChartConfig({ asset1: { label: "No", color: "#ff0000ff" } });
     }
   }, [selectedYes, chartDataYes, chartDataNo]);
 
@@ -205,14 +205,14 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
                     : title !== undefined
                         ? 100 - title
                         : undefined;
-  const chanceColor = selectedYes ? "#7DFDFE" : "#EC4899";
+  const chanceColor = selectedYes ? "#1eff00ff" : "#ff0000ff";
 
   // Custom dot component that only shows on the last data point
   const CustomDot = (props: any) => {
     const { cx, cy, index } = props;
     const isLastPoint = index === chartData.length - 1;
     if (!isLastPoint) return null;
-    const dotColor = selectedYes ? "#7DFDFE" : "#EC4899";
+    const dotColor = selectedYes ? "#00ff00ff" : "#ff0000ff";
     return (
       <g>
         {/* Animated pulsing ring */}
@@ -332,10 +332,10 @@ const OrderbookChart: React.FC<OrderbookChartProps> = ({
                     type="stepAfter"
                     dataKey="asset1"
                     name={chartConfig.asset1.label}
-                    stroke={selectedYes ? "#7DFDFE" : "#EC4899"}
+                    stroke={selectedYes ? "#51ff00ff" : "#ff0000ff"}
                     strokeWidth={1}
                     dot={<CustomDot />}
-                    activeDot={{ r: 4, fill: selectedYes ? "#7DFDFE" : "#EC4899", stroke: "#fff", strokeWidth: 2 }}
+                    activeDot={{ r: 4, fill: selectedYes ? "#3cff00ff" : "#ff0000ff", stroke: "#fff", strokeWidth: 2 }}
                     label={false}
                     connectNulls={false}
                     isAnimationActive={false}

@@ -88,12 +88,14 @@ export function MultipleOptionCard({
 
   return (
     <Card
-      className="flex flex-col w-full h-[180px] justify-between lg:rounded-lg rounded-[11.5px]"
+      className="flex flex-col w-full h-[180px] justify-between lg:rounded-lg rounded-[11.5px] bg-white text-black shadow-[0_2px_6px_0_rgba(0,0,0,0.15)] border-2 border-[#e5e7eb]"
       style={{
-        backgroundColor: "#000000",
+        backgroundColor: "#ffffffff",
+        color: "#000",
         position: "relative",
         zIndex: 1001,
-        boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
+        boxShadow: "0 2px 6px 0 rgba(0,0,0,0.15)",
+        borderColor: "#e5e7eb"
       }}
     >
       <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-3 pb-0">
@@ -117,7 +119,7 @@ export function MultipleOptionCard({
               />
             </div>
 
-            <div className="pl-2 text-[13px]" style={{ marginRight: "8px" }}>
+            <div className="pl-2 text-[13px] text-black" style={{ marginRight: "8px", color: "#000" }}>
               {question}
             </div>
           </div>
@@ -126,7 +128,7 @@ export function MultipleOptionCard({
 
       <CardContent className="pb-0 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-2 sm:pt-3">
         <div className="relative group">
-          <ScrollArea className="sm:h-[75px] h-[70px] group-hover:h-[78px] overflow-hidden top-0 ease-in-out absolute bottom-full left-0 w-full border bg-[#0f0f0f] pb-0 transition-all z-10 duration-200 rounded-sm">
+          <ScrollArea className="sm:h-[75px] h-[70px] group-hover:h-[78px] overflow-hidden top-0 ease-in-out absolute bottom-full left-0 w-full border border border-gray-300 bg-[#f3f4f6] pb-0 transition-all z-10 duration-200 rounded-sm">
             <div className="space-y-1 top-0 pr-2 flex flex-col items-center justify-center px-2 w-full">
               {options?.map((option, index) => {
                 const question =
@@ -176,7 +178,7 @@ export function MultipleOptionCard({
                         >
                           <Button
                             onClick={() => handleYesClick(option)}
-                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#7DFDFE] hover:border-[1.5px] capitalize"
+                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#96ffa9] text-[#00ad4e] hover:bg-[#b5ffc2] text-[10px] transition-colors duration-300 rounded-md border border-transparent capitalize"
                           >
                             {(option.outcome && option.outcome?.[0]?.title) ||
                               "Yes"}
@@ -194,7 +196,7 @@ export function MultipleOptionCard({
                         >
                           <Button
                             onClick={() => handleNoClick(option)}
-                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] text-[10px] transition-colors duration-300 rounded-md border border-transparent hover:border-[#ec4899] hover:border-[1.5px] capitalize"
+                            className="w-full h-[12px] py-[13px] px-6 sm:px-4 mb-1 bg-[#ffb8b8] text-[#bd0000] hover:bg-[#f7c6c6] text-[10px] transition-colors duration-300 rounded-md border border-transparent capitalize"
                           >
                             {(option.outcome && option.outcome?.[1]?.title) ||
                               "No"}
@@ -242,26 +244,6 @@ export function MultipleOptionCard({
               </CardDescription>
             )}
           </span>
-          <div className="flex gap-2 items-center justify-end">
-            {forecast && (
-              <div className="">
-                <Image
-                  src={SpotifyLogo}
-                  alt="Spotify"
-                  width={20}
-                  height={20}
-                  className="opacity-70 hover:opacity-100 transition-opacity duration-200"
-                />
-              </div>
-            )}
-            {/* <Button
-              className="p-1 h-6 w-6  z-10 rounded"
-              variant="ghost"
-              onClick={handleBookmarkClick}
-            >
-              {bookmarked ? <BookmarkFilledIcon /> : <BookmarkIcon />}
-            </Button> */}
-          </div>
         </div>
       </CardFooter>
     </Card>

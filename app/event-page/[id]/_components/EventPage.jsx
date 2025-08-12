@@ -262,9 +262,8 @@ export default function EventPage({ categories }) {
 
   return (
     <>
-      {/* <div className="overflow-hidden text-white bg-black sm:pr-10 sm:pl-10 pr-0 pl-0 justify-center h-auto items-center justify-items-center m-0"> */}
-      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-black/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+      <div className="text-black bg-white h-auto items-center justify-items-center p-0 m-0">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-white/90 border-b border-gray-200 lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <div className="hidden lg:block">
             <NavigationBar
@@ -367,7 +366,7 @@ export default function EventPage({ categories }) {
                       {markets?.length < 2 &&
                       books &&
                       events?.status != "resolved" ? (
-                        <OrderbookAccordion
+                        <OrderbookAccordion 
                           type="single"
                           value={openItem}
                           onValueChange={setOpenItem}
@@ -411,7 +410,7 @@ export default function EventPage({ categories }) {
                       ) : (
                         <>
                           <Accordion type="single" collapsible>
-                            <div className="flex items-center w-full sm:py-2 py-0.5 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider border-t-2 border-b border-[#222] bg-black">
+                            <div className="flex items-center w-full sm:py-2 py-0.5 text-[10px] sm:text-xs font-semibold text-gray-400 uppercase tracking-wider border-t-2 border-b border-[#222] bg-white">
                               <div className="flex items-center pr-6" style={{ width: 320 }}>
                                 Outcome
                               </div>
@@ -542,25 +541,6 @@ export default function EventPage({ categories }) {
                           </div>
                         ))}
 
-                      {/* <ExpandableTextView>
-                        <h3 className="sm:text-[18px] text-[16px] font-bold sm:m-4 m-4">
-                          Rules
-                        </h3>
-                        <SelectSeparator className="my-4" />
-                        <p className="sm:text-base pl-4 sm:pr-0 pr-4 pb-0 sm:pl-0 text-[14px]">
-                          {events?.description}
-                        </p>
-                         <p className="pl-4 sm:pl-0 pr-4 sm:pr-4 text-[14px] sm:text-base">
-                          Resolver:{" "}
-                          <Link
-                            href={`https://polygonscan.com/address/${markets?.[selectedIndex]?.resolvedBy}`}
-                            target="_blank"
-                            className="text-blue-500"
-                          >
-                            {markets?.[selectedIndex]?.resolvedBy}
-                          </Link>
-                        </p> 
-                      </ExpandableTextView> */}
                       <h3 className="sm:text-[22px] text-[15px] font-bold sm:mt-6 sm:mb-2 sm:mr-4 mt-4 mb-1">
                         Rules
                       </h3>
@@ -569,7 +549,7 @@ export default function EventPage({ categories }) {
                         {events?.description?.length > 250 ? (
                           <div className="space-y-0">
                             <div
-                              className={`line-clamp-5 transition-all duration-300 ${
+                              className={`w-full line-clamp-5 transition-all duration-300 ${
                                 showFullText ? "line-clamp-none" : ""
                               }`}
                               style={{ whiteSpace: "pre-line" }}
@@ -582,7 +562,7 @@ export default function EventPage({ categories }) {
                               <Button
                                 variant="link"
                                 onClick={() => setShowFullText(!showFullText)}
-                                className="text-[12px] sm:text-sm text-gray-400 font-bold px-0 mt-0.5 !no-underline"
+                                className="text-[12px] sm:text-sm text-gray-400 font-bold px-0 sm:mt-0.2 mt-0.5 !no-underline"
                               >
                                 {showFullText ? "Show Less" : "Show More"}
                               </Button>
@@ -614,7 +594,7 @@ export default function EventPage({ categories }) {
                     {/* Discord Community Section - Web only, under comments */}
                     <div className="hidden sm:flex w-full max-w-7xl mx-auto mt-5 mb-5 justify-center">
                       <div
-                        className="bg-black rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-[#222] shadow-sm gap-2"
+                        className="bg-white rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-[#222] shadow-sm gap-2"
                         style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
                       >
                         <h3 className="text-base sm:text-xl font-bold mb-1 text-white">Join our Discord community</h3>
@@ -687,7 +667,7 @@ export default function EventPage({ categories }) {
               <div className="lg:hidden justify-center pt-5 pb-8 items-center mt-0 fixed bottom-[24px] left-0 w-full z-50">
                 {isDrawerOpen && (
                   <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    className="fixed inset-0 bg-white bg-opacity-50 z-40"
                     onClick={() => setIsDrawerOpen(false)}
                   ></div>
                 )}
@@ -698,7 +678,7 @@ export default function EventPage({ categories }) {
                     {/* Only show drawer trigger for single markets */}
                     {markets?.length <= 1 && (
                       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-                        <DrawerTrigger className="w-full py-2 font-semibold bg-black border-t border-[#1E1E1E] text-black rounded-lg mt-10">
+                        <DrawerTrigger className="w-full py-2 font-semibold bg-white border-t border-[#1E1E1E] text-black rounded-lg mt-10">
                           <div className="flex items-center justify-between gap-2.5 w-full px-4 mt-0">
                             <div className="flex-1 !bg-[#0D1A26] rounded-lg h-10 text-[#7DFDFE] text-base font-medium leading-tight inline-flex items-center justify-center gap-2 whitespace-nowrap ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
                               Yes
@@ -805,7 +785,7 @@ export default function EventPage({ categories }) {
       {/* Discord Community Section - Mobile only at bottom */}
       <div className="flex sm:hidden w-full max-w-7xl mx-auto mt-5 mb-5 justify-center">
         <div
-          className="bg-black rounded-md px-4 py-5 flex flex-col items-center w-full max-w-xs border border-[#222] shadow-sm gap-2"
+          className="bg-white rounded-md px-4 py-5 flex flex-col items-center w-full max-w-xs border border-[#222] shadow-sm gap-2"
           style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
         >
           <h3 className="text-base font-bold mb-1 text-white">Join our Discord community</h3>
