@@ -134,14 +134,14 @@ const CommentForm = ({ eventId, onCommentAdded }: CommentFormProps) => {
             value={newComment}
             onChange={onchangeComment}
             placeholder="Add comment..."
-            className="flex-1 px-2 sm:px-4 py-2 sm:py-3 bg-[#0f0f0f] border border-input rounded-md sm:rounded-xl text-white focus:border-input focus:outline-none text-xs sm:text-base min-w-0 !pr-16 lg:pr-32 placeholder:text-xs sm:placeholder:text-base"
+            className="flex-1 px-2 sm:px-4 py-2 sm:py-3 bg-white border border-gray-400 border-input rounded-md sm:rounded-xl text-black focus:border-input focus:outline-none text-xs sm:text-base min-w-0 !pr-16 lg:pr-32 placeholder:text-xs sm:placeholder:text-base"
             disabled={isSubmitting}
             maxLength={300}
           />
           <Button
             type="submit"
             disabled={isSubmitting || !newComment.trim()}
-            className="absolute right-2 top-2 bottom-2 h-auto px-4 bg-transparent border-none text-white hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md"
+            className="absolute right-2 top-2 bottom-2 h-auto px-4 bg-transparent border-none text-black hover:bg-[#232326] hover:text-white transition-colors duration-300 rounded-md"
           >
             {isSubmitting ? "Posting..." : "Post"}
           </Button>

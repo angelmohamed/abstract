@@ -822,8 +822,8 @@ export default function PortfolioPage({ categories }) {
 
   return (
     <>
-      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-black/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+      <div className="text-black bg-white h-auto items-center justify-items-center p-0 m-0">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-white/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
           <Header />
           <NavigationBar
             menuItems={categories}
@@ -840,18 +840,17 @@ export default function PortfolioPage({ categories }) {
                 <Button onClick={() => disconnect()}>Disconnect</Button>
               </>
             ) : (
-              <Button onClick={() => setOpen(true)}>Connect Wallet</Button>
+              <Button className="bg-gray-200 text-black"onClick={() => setOpen(true)}>Connect Wallet</Button>
             )}
           </div>
-          {/* <p>Your Wallet Address : {shortValue(data?.walletAddress)}</p> */}
           <br></br>
           {/* 2. Key metrics card area */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
             <div
-              className="flex-1 bg-black rounded-lg p-4 border relative"
+              className="flex-1 bg-white rounded-lg p-4 border relative"
               style={{ boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)" }}
             >
-              <div className="absolute top-4 right-4 bg-[#051505] text-green-400 text-xs px-2 py-1 rounded-md border border-green-400 flex items-center">
+              <div className="absolute top-4 right-4 text-green-600 text-xs px-2 py-1 rounded-md border bg-[#e5ffe5] border-[#23eb00] flex items-center">
                 <Image
                   src="/images/cash.png"
                   alt="cash"
@@ -986,7 +985,7 @@ export default function PortfolioPage({ categories }) {
                                   >
                                     Wallet {shortText(address)}
                                     {copied && (
-                                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-white bg-black px-2 py-0.5 rounded shadow">
+                                      <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 text-xs text-black bg-white px-2 py-0.5 rounded shadow">
                                         Copied!
                                       </span>
                                     )}
@@ -1346,32 +1345,11 @@ export default function PortfolioPage({ categories }) {
                                       </span>
                                     </div>
 
-                                    {/* <div className="flex gap-2 items-center justify-between py-1 border-b border-[#302f2f]">
-                                      <span className="text-[13px] text-gray-400">
-                                        LP cost
-                                      </span>
-                                      <span className="text-[13px] text-gray-200">
-                                        $0.01
-                                      </span>
-                                    </div> */}
+    
                                   </Accordion.Content>
                                 </Accordion.Item>
                               </Accordion.Root>
-                              {/* {showallowance ? (
-                                <Button
-                                  className="mt-4 w-full"
-                                  disabled={loader}
-                                  onClick={() => approve()}
-                                >
-                                  Approve{" "}
-                                  {loader && (
-                                    <i
-                                      className="fas fa-spinner fa-spin ml-2"
-                                      style={{ color: "black" }}
-                                    ></i>
-                                  )}
-                                </Button>
-                              ) : ( */}
+  
                               <Button
                                 className="mt-4 w-full"
                                 disabled={loader}
@@ -1404,8 +1382,8 @@ export default function PortfolioPage({ categories }) {
 
                 <Dialog.Root open={txopen} onOpenChange={setTxOpen}>
                   <Dialog.Portal>
-                    <Dialog.Overlay className="DialogOverlay fixed inset-0 bg-black/50 z-40" />
-                    <Dialog.Content className="DialogContent fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-white p-6 rounded-2xl shadow-lg">
+                    <Dialog.Overlay className="DialogOverlay fixed inset-0 bg-white/50 z-40" />
+                    <Dialog.Content className="DialogContent fixed z-50 top-1/2 left-1/2 w-[90vw] max-w-md transform -translate-x-1/2 -translate-y-1/2 bg-gray-900 text-black p-6 rounded-2xl shadow-lg">
                       <Dialog.Title className="DialogTitle text-xl font-semibold text-center mb-4">
                         Transaction Completed
                       </Dialog.Title>
@@ -1440,9 +1418,6 @@ export default function PortfolioPage({ categories }) {
                           />
                         </svg>
 
-                        {/* <div className="text-light mt-4 text-lg">
-                          You will receive: <strong>{currency == "USDC" ? `${depsoitAmt} USDC` : `${tokenAmt} USDC`}</strong>
-                        </div> */}
 
                         {transactionHash && (
                           <a
@@ -1459,7 +1434,7 @@ export default function PortfolioPage({ categories }) {
 
                       <Dialog.Close asChild>
                         <button
-                          className="modal_close_btn absolute top-4 right-4 text-white hover:text-gray-400"
+                          className="modal_close_btn absolute top-4 right-4 text-black hover:text-gray-400"
                           aria-label="Close"
                         >
                           <Cross2Icon />
@@ -1473,7 +1448,7 @@ export default function PortfolioPage({ categories }) {
               </div>
             </div>
             <div
-              className="flex-1 bg-black rounded-lg p-4 flex flex-col justify-between border relative"
+              className="flex-1 bg-white rounded-lg p-4 flex flex-col justify-between border relative"
               style={{ boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)" }}
             >
               <div className="flex items-start justify-between flex-wrap">
@@ -1510,8 +1485,7 @@ export default function PortfolioPage({ categories }) {
             </div>
           </div>
 
-          {/* 3. Tab 与筛选区 */}
-          {/* 3. Tab and filter area */}
+
           <Tabs
             defaultValue="positions"
             value={currentTab}
@@ -1526,387 +1500,14 @@ export default function PortfolioPage({ categories }) {
               </TabsList>
             </div>
             <TabsContent value="positions">
-              {/* <div className="flex space-x-4 mb-3">
-                <SearchBar placeholder="Search" />
-                <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
-                  <option>Current value</option>
-                  <option>Initial value</option>
-                  <option>Return ($)</option>
-                  <option>Return %</option>
-                </select>
-                <select className="border border-[#262626] bg-black rounded p-1 text-sm">
-                  <option>All</option>
-                  <option>Live</option>
-                  <option>Ended</option>
-                </select>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left custom_table">
-                  <thead>
-                    <tr>
-                      <th>Market</th>
-                      <th>Latest</th>
-                      <th>Bet</th>
-                      <th>Current</th>
-                      <th>To Win</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl">
-                            <Image
-                              src="/images/album.png"
-                              alt="Icon"
-                              width={42}
-                              height={42}
-                            />
-                          </span>
-                          <div className="flex flex-col gap-1">
-                            <Link className="text-sm font-normal" href="/">
-                              Stars vs Jets
-                            </Link>
-                            <div className="flex items-center gap-2">
-                              <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                                Stars
-                              </Badge>
-                              <span className="text-xs font-normal">
-                                4 Shares
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>51¢</td>
-                      <td>$2.00</td>
-                      <td>
-                        $1.93 <span className="text-red-500">(-3.22%)</span>
-                      </td>
-                      <td>$3.83</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <Button className="bg-[#ec4899] text-[#fff] hover:text-[#000] w-[80px]">
-                            Sell
-                          </Button>
-                          <Button className="w-[80px]">Share</Button>
-                        </div>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl">
-                            <Image
-                              src="/images/album.png"
-                              alt="Icon"
-                              width={42}
-                              height={42}
-                            />
-                          </span>
-                          <div className="flex flex-col gap-1">
-                            <Link className="text-sm font-normal" href="/">
-                              Stars vs Jets
-                            </Link>
-                            <div className="flex items-center gap-2">
-                              <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                                Stars
-                              </Badge>
-                              <span className="text-xs font-normal">
-                                4 Shares
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>51¢</td>
-                      <td>$2.00</td>
-                      <td>
-                        $1.93 <span className="text-red-500">(-3.22%)</span>
-                      </td>
-                      <td>$3.83</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <Dialog.Root>
-                            <Dialog.Trigger asChild>
-                              <Button className="bg-[#37ce37] text-[#fff] hover:text-[#000] w-[80px]">
-                                Claim
-                              </Button>
-                            </Dialog.Trigger>
-                            <Dialog.Portal>
-                              <Dialog.Overlay className="DialogOverlay" />
-                              <Dialog.Content className="DialogContent">
-                                <div className="flex justify-center mb-4 flex-col items-center">
-                                  <Image
-                                    src="/images/ipl_logo.png"
-                                    alt="Icon"
-                                    width={100}
-                                    height={61}
-                                    className="mb-2"
-                                  />
-                                  <h4 className="font-semibold">
-                                    Redeem Chennai super kings
-                                  </h4>
-                                  <h6 className="text-sm text-gray-400">
-                                    Chennai Super Kings vs. Rajasthan Royals
-                                  </h6>
-                                  <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full flex justify-center items-center flex-col">
-                                    <h5 className="font-semibold text-gray-300 mb-3">
-                                      Receive
-                                    </h5>
-                                    <div className="flex items-center space-x-2">
-                                      <Image
-                                        src="/images/money-bag.png"
-                                        alt="Icon"
-                                        width={32}
-                                        height={32}
-                                      />
-                                      <p className="font-semibold text-[#7dfdfe] mb-0 text-[24px]">
-                                        $0.00
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <Button className="bg-[#37ce37] text-[#fff] hover:text-[#000] w-full mt-5 text-[14px] font-medium">
-                                    Claim
-                                  </Button>
-                                </div>
-                                <Dialog.Close asChild>
-                                  <button
-                                    className="modal_close_brn"
-                                    aria-label="Close"
-                                  >
-                                    <Cross2Icon />
-                                  </button>
-                                </Dialog.Close>
-                              </Dialog.Content>
-                            </Dialog.Portal>
-                          </Dialog.Root>
-
-                          <Dialog.Root>
-                            <Dialog.Trigger asChild>
-                              <Button className="w-[80px]">Share</Button>
-                            </Dialog.Trigger>
-                            <Dialog.Portal>
-                              <Dialog.Overlay className="DialogOverlay" />
-                              <Dialog.Content className="DialogContent">
-                                <Dialog.Title className="DialogTitle">
-                                  Shill Your Bag
-                                </Dialog.Title>
-                                <div className="bg-[#0e1c14] p-4 rounded-lg mt-4 w-full">
-                                  <div className="flex gap-3 mb-4 items-center">
-                                    <Image
-                                      src="/images/ipl_logo.png"
-                                      alt="Icon"
-                                      width={60}
-                                      height={21}
-                                      className="mb-2"
-                                    />
-                                    <h4 className="font-semibold">
-                                      Chennai Super Kings vs. Rajasthan Royals
-                                    </h4>
-                                  </div>
-                                  <div className="flex items-center justify-between mb-4">
-                                    <Badge className="z-10 text-[16px] text-[#7dfdfe] bg-[#152632] font-normal rounded">
-                                      56x Chennai Super Kings
-                                    </Badge>
-                                    <span>Avg 52¢</span>
-                                  </div>
-
-                                  <Separator.Root
-                                    className="SeparatorRoot"
-                                    style={{ margin: "20px 0 15px" }}
-                                  />
-
-                                  <div className="flex items-center justify-between">
-                                    <div>
-                                      <h5 className="text-gray-400">Trade</h5>
-                                      <p className="text-[#fff] mb-0 font-medium">
-                                        $2.00
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <h5 className="text-gray-400">To win</h5>
-                                      <p className="text-[#7dfdfe] mb-0 font-semibold">
-                                        $3.83
-                                      </p>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="flex justify-between items-center mt-4 gap-3">
-                                  <Button className="w-full bg-[transparent] border border-[#2d2d2d] text-[#fff] hover:text-[#000]">
-                                    <CopyIcon className="h-4 w-4" />
-                                    <span>Copy Image</span>
-                                  </Button>
-                                  <Button className="w-full">Share</Button>
-                                </div>
-                                <Dialog.Close asChild>
-                                  <button
-                                    className="modal_close_brn"
-                                    aria-label="Close"
-                                  >
-                                    <Cross2Icon />
-                                  </button>
-                                </Dialog.Close>
-                              </Dialog.Content>
-                            </Dialog.Portal>
-                          </Dialog.Root>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div> */}
               <Positions uniqueId={data?.uniqueId} />
             </TabsContent>
             <TabsContent value="openorders">
-              {/* <div className="flex space-x-4 mb-3">
-                <SearchBar placeholder="Search" />
-                <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
-                  <option>Market</option>
-                  <option>Filled Quantity</option>
-                  <option>Total Quantity</option>
-                  <option>Order Date</option>
-                </select>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left custom_table">
-                  <thead>
-                    <tr>
-                      <th>Market</th>
-                      <th>Side</th>
-                      <th>Outcome</th>
-                      <th>Price</th>
-                      <th>Filled</th>
-                      <th>Total</th>
-                      <th>Expiration</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td colSpan={7}>
-                        <p className="text-center">No open orders found.</p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div> */}
+
               <OpenOrders />
             </TabsContent>
             <TabsContent value="history">
-              {/* <div className="flex space-x-4 mb-3">
-                <SearchBar placeholder="Search" />
-                <DatePicker
-                  placeholderText="Select date"
-                  selectsRange={true}
-                  startDate={startDate}
-                  endDate={endDate}
-                  onChange={(update) => {
-                    setDateRange(update);
-                  }}
-                  className="custom_datepicker"
-                />
-                <select className="border border-[#262626] bg-black rounded p-1 text-sm">
-                  <option>All</option>
-                  <option>All Trades</option>
-                  <option>Buy</option>
-                  <option>Sell</option>
-                  <option>Reward</option>
-                </select>
-                <select className="border bg-[#131212] border-[#262626] bg-black rounded p-1 text-sm">
-                  <option>Newest</option>
-                  <option>Oldest</option>
-                  <option>Value</option>
-                  <option>Shares</option>
-                </select>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left custom_table">
-                  <thead>
-                    <tr>
-                      <th>Type</th>
-                      <th>Market</th>
-                      <th>Outcome</th>
-                      <th>Price</th>
-                      <th>Shares</th>
-                      <th>Values</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Sell</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl">
-                            <Image
-                              src="/images/album.png"
-                              alt="Icon"
-                              width={42}
-                              height={42}
-                            />
-                          </span>
-                          <Link className="text-sm font-normal" href="/">
-                            Stars vs Jets
-                          </Link>
-                        </div>
-                      </td>
-                      <td>
-                        <Badge className="z-10 text-xs text-[#7dfdfe] bg-[#152632] font-normal">
-                          Stars
-                        </Badge>
-                      </td>
-                      <td>$57</td>
-                      <td>2</td>
-                      <td>$0.98</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-normal">1 day ago</span>
-                          <a href="#" target="_blank">
-                            <IconWindowMaximize className="h-[32px] w-[32px]" />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
 
-                    <tr>
-                      <td>Buy</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl">
-                            <Image
-                              src="/images/album.png"
-                              alt="Icon"
-                              width={42}
-                              height={42}
-                            />
-                          </span>
-                          <Link className="text-sm font-normal" href="/">
-                            Stars vs Jets
-                          </Link>
-                        </div>
-                      </td>
-                      <td>
-                        <Badge className="z-10 text-xs text-[#ec4899] bg-[#321b29] font-normal">
-                          Stars
-                        </Badge>
-                      </td>
-                      <td>$57</td>
-                      <td>2</td>
-                      <td>$0.98</td>
-                      <td>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-sm font-normal">5 days ago</span>
-                          <a href="#" target="_blank">
-                            <IconWindowMaximize className="h-[32px] w-[32px]" />
-                          </a>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div> */}
               <History />
             </TabsContent>
           </Tabs>

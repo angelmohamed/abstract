@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Logo from "@/public/images/logospec.png"; // Adjust the path as necessary
+import Image from "next/image";
+
 
 export const Footer: React.FC = () => {
   // Dynamic Year
@@ -14,18 +17,25 @@ export const Footer: React.FC = () => {
   }, []);
 
   return (
-    // Footer with black background and white text
-    <div className="w-full py-10 lg:py-20 bg-black text-white">
+    // Footer with white background and black/grey text
+    <div className="w-full py-10 border-t border-gray-200 lg:py-20 bg-white text-black">
       <div className="mx-auto px-4">
         {/* Main Footer Content */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
           {/* Brand and Description */}
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <h2 className="text-2xl md:text-4xl tracking-tighter font-regular">
-                Sonotrade
-              </h2>
-              <p className="text-base md:text-lg leading-relaxed tracking-tight text-white/75">
+              <div className="flex items-center gap-2">
+                  <Image
+                    src={Logo}
+                    alt="SPECULATION Logo"
+                    width={30}
+                    className="w-30 md:w-30"
+                    priority
+                  />  
+                <h2 className="font-bold text-xl md:text-3xl tracking-tighter">Speculation</h2>
+              </div>
+              <p className="text-base md:text-lg leading-relaxed tracking-tight text-gray-700">
                 The future of music
               </p>
             </div>
@@ -37,11 +47,13 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Divider Line */}
-        <div className="mt-10 border-t border-gray-800"></div>
+        <div className="mt-10 border-t border-gray-200"></div>
 
         {/* Bottom Section */}
-        <div className="mt-6 pt-6 flex flex-col md:flex-row items-center justify-between text-sm text-white/75">
-          <span>© {currentYear} Sonotrade</span>
+        <div className="mt-6 pt-6 flex flex-col md:flex-row items-center justify-between text-sm text-gray-700">
+          <span className="flex items-center gap-2">
+            © {currentYear} Speculation
+          </span>
           <div className="flex flex-wrap items-center gap-2 mt-4 md:mt-0">
             <Link href="/about" className="hover:underline">
               About

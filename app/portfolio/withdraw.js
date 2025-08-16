@@ -147,7 +147,7 @@ export default function Withdraw() {
         >
             <Dialog.Root open={open} onOpenChange={setOpen}>
                 <Dialog.Trigger asChild>
-                    <Button className="w-full flex-1 h-10 px-4 py-2 rounded-md border border-white bg-transparent text-white hover:bg-[#1a0000] hover:border-red-500 hover:text-red-500 transition-colors duration-300 text-sm font-medium flex items-center justify-center"
+                    <Button className="w-full flex-1 h-10 px-4 py-2 rounded-md border border-white bg-transparent text-black hover:bg-[#1a0000] hover:border-red-500 hover:text-red-500 transition-colors duration-300 text-sm font-medium flex items-center justify-center"
                         onClick={async () => {
                             setWithdraw(initialValue)
                             setError({})

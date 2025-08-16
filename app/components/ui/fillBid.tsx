@@ -15,10 +15,10 @@ const FillBid = React.forwardRef<
 >(({ className, value, ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
-    className={cn("relative h-10 w-full overflow-hidden bg-transparent", className)}
+    className={cn("relative h-[35px] w-full overflow-hidden bg-transparent", className)}
     {...props}>
     <ProgressPrimitive.Indicator
-      className="h-full w-full flex-1 bg-[#001202] transition-all"
+      className="h-full w-full flex-1 bg-[#b5ffab] transition-all"
       style={{ transform: `translateX(-${100 - (value ? Number(value) : 0)}%)` }} />
   </ProgressPrimitive.Root>
 ))

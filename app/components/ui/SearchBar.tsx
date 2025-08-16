@@ -17,7 +17,7 @@ const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
           <input
             type={type}
             className={cn(
-              "flex h-10 w-full rounded-md border border-input bg-[#0f0f0f] pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:border-white focus:border disabled:cursor-not-allowed disabled:opacity-50 md:text-sm relative z-10"
+              "flex h-10 w-full rounded-md border border-input bg-white pl-10 pr-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:border-black focus:border disabled:cursor-not-allowed disabled:opacity-50 md:text-sm relative z-10"
             )}
             ref={ref}
             {...props}

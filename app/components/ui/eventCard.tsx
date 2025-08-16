@@ -83,10 +83,12 @@ const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <Card
-      className="flex flex-col justify-between w-full h-[180px] hover:bg-[#0a0a0a] transition-colors duration-300"
+      className="flex flex-col justify-between w-full h-[180px] bg-white text-black hover:bg-[#f5f5f5] transition-colors duration-300 shadow-[0_2px_6px_0_rgba(0,0,0,0.15)] border-2 border-[#e5e7eb]"
       style={{
-        backgroundColor: "#000000ff",
-        boxShadow: "0 2px 6px 0 rgba(220,220,255,0.13)",
+        backgroundColor: "#ffffffff",
+        color: "#000",
+        boxShadow: "0 2px 6px 0 rgba(0,0,0,0.15)",
+        borderColor: "#e5e7eb"
       }}
     >
       <CardHeader className="sm:pt-3 sm:pl-3 sm:pr-3 pl-3 pr-3 pt-3 pb-0">
@@ -111,7 +113,7 @@ const EventCard: React.FC<EventCardProps> = ({
             </div>
 
             <div
-              className="pl-1 text-[14px] sm:text-[13px] line-clamp-2"
+              className="pl-1 text-[14px] sm:text-[13px] line-clamp-2 text-black"
               style={{
                 paddingLeft: "8px",
                 marginRight: "8px",
@@ -123,6 +125,7 @@ const EventCard: React.FC<EventCardProps> = ({
                 WebkitBoxOrient: "vertical",
                 textOverflow: "ellipsis",
                 whiteSpace: "normal",
+                color: "#000",
               }}
             >
               {question}
@@ -197,33 +200,10 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleYesClick}
-                    className="w-full h-11 sm:h-10 bg-[#0d1a26] text-[#7dfdfe] hover:bg-[#0d1a26] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-11 sm:h-10 bg-[#96ffa9] text-[#00ad4e] hover:bg-[#b5ffc2] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {yesButtonLabel}
                   </Button>
-                  {/* Tron blue border animation - hover only */}
-                  <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute inset-0 rounded-md border border-[#00d4ff] animate-border-glow"></div>
-                    <div className="absolute inset-0 rounded-md">
-                      {/* Flowing lines */}
-                      <div
-                        className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                      <div
-                        className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
-                        style={{ animationDelay: "0.7s" }}
-                      ></div>
-                      <div
-                        className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#00d4ff] to-transparent animate-line-flow"
-                        style={{ animationDelay: "1.2s" }}
-                      ></div>
-                      <div
-                        className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#00d4ff] to-transparent animate-line-flow-vertical"
-                        style={{ animationDelay: "1.7s" }}
-                      ></div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -240,33 +220,10 @@ const EventCard: React.FC<EventCardProps> = ({
                 <div className="relative w-full mb-1 group">
                   <Button
                     onClick={handleNoClick}
-                    className="w-full h-11 sm:h-10 bg-[#210d1a] text-[#ec4899] hover:bg-[#210d1a] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
+                    className="w-full h-11 sm:h-10 bg-[#ffb8b8] text-[#bd0000] hover:bg-[#f7c6c6] transition-colors duration-300 rounded-md border border-transparent relative z-10 capitalize"
                   >
                     {noButtonLabel}
                   </Button>
-                  {/* Pink border animation - hover only */}
-                  <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="absolute inset-0 rounded-md border border-[#ec4899] animate-border-glow"></div>
-                    <div className="absolute inset-0 rounded-md">
-                      {/* Flowing lines */}
-                      <div
-                        className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
-                        style={{ animationDelay: "0.2s" }}
-                      ></div>
-                      <div
-                        className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
-                        style={{ animationDelay: "0.7s" }}
-                      ></div>
-                      <div
-                        className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#ec4899] to-transparent animate-line-flow"
-                        style={{ animationDelay: "1.2s" }}
-                      ></div>
-                      <div
-                        className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#ec4899] to-transparent animate-line-flow-vertical"
-                        style={{ animationDelay: "1.7s" }}
-                      ></div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -277,7 +234,7 @@ const EventCard: React.FC<EventCardProps> = ({
               <p>Outcome</p>
               <p
                 className={
-                  outcome == "YES" ? "text-[#7dfdfe]" : "text-[#ec4899]"
+                  outcome == "YES" ? "text-white" : "text-white"
                 }
               >
                 {outcome}

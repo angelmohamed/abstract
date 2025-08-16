@@ -301,7 +301,7 @@ const Positions = (props) => {
                           {
                             item?.positions.length == 1 && (
                               <button
-                                className="text-gray-400 hover:text-white transition-colors duration-300"
+                                className="text-gray-400 hover:text-black transition-colors duration-300"
                                 onClick={() =>
                                   handleTradeOpen(
                                     item?.positions[0]?.marketId,
@@ -314,7 +314,7 @@ const Positions = (props) => {
                             )
                           }
                           <button
-                            className="text-gray-400 hover:text-white transition-colors duration-300"
+                            className="text-gray-400 hover:text-black transition-colors duration-300"
                             onClick={() => handleShareOpen(item)}
                           >
                             <ShareIcon className="w-5 h-5" />
@@ -401,7 +401,7 @@ const Positions = (props) => {
                           {
                             item?.positions.length > 1 && (
                               <button
-                                className="text-gray-400 hover:text-white transition-colors duration-300"
+                                className="text-gray-400 hover:text-black transition-colors duration-300"
                                 onClick={() =>
                                   handleTradeOpen(data?.marketId, data?.outcomes)
                                 }

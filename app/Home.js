@@ -16,8 +16,6 @@ import {
   CarouselPrevious,
 } from "@/app/components/ui/carousel";
 import EventLinting from "@/app/components/customComponents/EventLinting";
-import SlideshowLinting from "@/app/components/customComponents/SlideshowLinting";
-// import { infoCards } from "@/app/components/constants";
 import { getCategories, getTagsByCategory } from "@/services/market";
 import { getInfoCards } from "@/services/user";
 import { Footer } from "./components/customComponents/Footer";
@@ -25,15 +23,16 @@ import { ScrollArea } from "radix-ui";
 import { useSearchParams } from "next/navigation";
 import { isEmpty } from "@/lib/isEmpty";
 import DiscordLogo from "@/public/images/discordnew.png";
+import Token from "@/public/images/token.png";
+import Transfer from "@/public/images/spec.png";
 
 const InfoCards = ({ infoCardCms }) => {
 
-  const renderInfoCard = (emoji, title, footer) => {
+  const renderInfoCard = (title, footer) => {
     return (
-      <div className="h-28 p-3 rounded-md" style={{ backgroundColor: '#00111a', height: '7rem' }}>
+      <div className="h-25 p-3 rounded-md" style={{ backgroundColor: '#c2ffbdff', height: '6rem' }}>
         <div className="flex items-center">
-          <h3 className="text-xl font-semibold mb-1">{emoji}</h3>
-          <p className="text-xs font-bold pl-2 leading-tight">{title}</p>
+          <p className="text-xs font-bold pl-0 leading-tight">{title}</p>
         </div>
         <div>
           <p
@@ -47,15 +46,101 @@ const InfoCards = ({ infoCardCms }) => {
 
   return (
     <div className="-mt-4 lg:block hidden">
-      <div className="justify-center mb-4 mt-2 pt-0 w-full flex">
+      <div className="justify-center mb-5 mt-2 pb-4 pt-0 w-full flex">
         <div className="w-full flex flex-col items-center justify-center">
-          {/* Desktop view */}
+
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 pb-3 pt-3 mb-3">
+  {/* First box - Buy backs */}
+  <div style={{ backgroundColor: '#d3ffd0ff'}} className="relative rounded-md w-full h-60 bg-transparent flex items-center justify-center p-4 text-center overflow-hidden">
+    {/* The glowing spinning border overlay */}
+    <div className="absolute inset-0 rounded-md z-20 pointer-events-none opacity-100">
+      <div className="absolute inset-0 rounded-md border border-[#0fdd00ff] animate-border-glow"></div>
+      <div className="absolute inset-0 rounded-md animate-spin-slow">
+        {/* Flowing lines */}
+        <div
+          className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#0fdd00ff] to-transparent animate-line-flow"
+          style={{ animationDelay: "0.2s" }}
+        ></div>
+        <div
+          className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#0fdd00ff] to-transparent animate-line-flow-vertical"
+          style={{ animationDelay: "0.7s" }}
+        ></div>
+        <div
+          className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#0fdd00ff] to-transparent animate-line-flow"
+          style={{ animationDelay: "1.2s" }}
+        ></div>
+        <div
+          className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#0fdd00ff] to-transparent animate-line-flow-vertical"
+          style={{ animationDelay: "1.7s" }}
+        ></div>
+      </div>
+    </div>
+
+    <div className="relative z-30 flex items-center space-x-4 max-w-full">
+        {/* Text */}
+        <div>
+          <h3 className="text-lg font-semibold text-black mb-2">The First-Ever Prediction Market that Pays its Community</h3>
+          <p className="text-sm text-black">
+           30% of platform transaction fees are allocated to strategic buybacks for token burns, reducing circulating supply to support the long-term value of the $SPEC ecosystem, creating value for those who actively participate and contribute insights.
+
+          </p>
+        </div>
+
+        {/* Token Image */}
+       <Image src={Token} alt="Token" width={150} height={150} className="mr-1" />
+      </div>
+    
+        </div>
+
+  {/* Second box - $SPEC token rewards */}
+        <div className="relative rounded-md w-full h-60 bg-transparent flex items-center justify-center p-4 text-center overflow-hidden">
+          {/* The glowing spinning border overlay */}
+          <div style={{ backgroundColor: '#d3ffd0ff'}} className="absolute inset-0 border-[#0fdd00ff] rounded-md z-20 pointer-events-none opacity-100">
+            <div className="absolute inset-0 rounded-md border border-[#00ff99] animate-border-glow"></div>
+            <div className="absolute inset-0 rounded-md animate-spin-slow">
+              {/* Flowing lines */}
+              <div
+                className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#0fdd00ff] to-transparent animate-line-flow"
+                style={{ animationDelay: "0.2s" }}
+                  ></div>
+                  <div
+                    className="absolute top-0 right-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#0fdd00ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "0.7s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 right-0 w-full h-0.5 bg-gradient-to-r from-transparent via-[#0fdd00ff] to-transparent animate-line-flow"
+                    style={{ animationDelay: "1.2s" }}
+                  ></div>
+                  <div
+                    className="absolute bottom-0 left-0 w-0.5 h-full bg-gradient-to-b from-transparent via-[#0fdd00ff] to-transparent animate-line-flow-vertical"
+                    style={{ animationDelay: "1.7s" }}
+                  ></div>
+                </div>
+              </div>
+
+             <div className="relative z-30 flex items-center space-x-4 max-w-full">
+        {/* Text */}
+        <div>
+          <h3 className="text-lg font-semibold text-black mb-2">Token-Level Rewards: Transfer Fee Redistribution to Holders</h3>
+          <p className="text-sm text-black">
+           50% of transfer fees are directly redistributed to $SPEC token holders as token-level rewards, fostering community loyalty and incentivizing sustained engagement within the ecosystem.
+          </p>
+        </div>
+
+        {/* Token Image */}
+       <Image src={Transfer} alt="Token" width={200} height={200} className="mr-1" />
+      </div>
+          
+          </div>
+        </div>
+
+
           <div className="hidden md:grid md:grid-cols-4 gap-4 justify-items-center items-center">
             {infoCardCms &&
               infoCardCms?.length > 0 &&
               infoCardCms?.map((card, index) => (
                 <div key={index}>
-                  {renderInfoCard(card.emoji, card.title, card?.content)}
+                  {renderInfoCard(card.title, card?.content)}
                 </div>
               ))}
           </div>
@@ -68,7 +153,7 @@ const InfoCards = ({ infoCardCms }) => {
                   infoCardCms?.length > 0 &&
                   infoCardCms?.map((card, index) => (
                     <CarouselItem key={index} className="pl-4">
-                      {renderInfoCard(card.emoji, card.title, card?.content)}
+                      {renderInfoCard(card.title, card?.content)}
                     </CarouselItem>
                   ))}
               </CarouselContent>
@@ -94,8 +179,8 @@ const SubcategoryBar = ({
           className={cn(
             "px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
             selectedSubcategory === "all"
-              ? "text-[#7dfdfe] bg-[#0d1a26] border-[#7dfdfe]"
-              : "text-muted-foreground border-[#222] bg-black hover:text-gray-300"
+              ? "bg-[#e5ffe5] border-[#23eb00] text-black"
+              : "border-[#e5e7eb] bg-white text-gray-700"
           )}
           onClick={() => setSelectedSubcategory("all")}
         >
@@ -104,10 +189,11 @@ const SubcategoryBar = ({
         {subcategories?.map((subcategory) => (
           <Button
             key={subcategory.slug}
-            className={cn("px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
+            className={cn(
+              "px-3 py-1 h-[30px] rounded-md transition-colors text-sm font-medium whitespace-nowrap border-[1px] hover:bg-transparent",
               selectedSubcategory === subcategory.slug
-                ? "text-[#7dfdfe] bg-[#0d1a26] border-[#7dfdfe]"
-                : "text-muted-foreground border-[#222] bg-black hover:text-gray-300"
+                ? "bg-[#e5ffe5] border-[#23eb00] text-black"
+                : "border-[#e5e7eb] bg-white text-gray-700"
             )}
             onClick={() => setSelectedSubcategory(subcategory.slug)}
           >
@@ -116,7 +202,7 @@ const SubcategoryBar = ({
         ))}
       </div>
       {/* Right fade overlay positioned at the edge of the scroll area */}
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-black to-transparent">
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent">
       </div>
     </div>
   </div>
@@ -149,8 +235,8 @@ export default function Home({ infoCardCms, categories, tags }) {
 
   return (
     <>
-      <div className="text-white bg-black h-auto items-center justify-items-center p-0 m-0">
-        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-black/90 border-b border-[#222] lg:mb-4 mb-0" style={{ borderBottomWidth: '1px' }}>
+      <div className="text-black bg-white h-auto items-center justify-items-center p-0 m-0">
+        <div className="sticky top-0 z-50 w-[100%] backdrop-blur-md bg-white/90 border-b border-grey lg:mb-4 mb-0 text-black" style={{ borderBottomWidth: '0.5px' }}>
           <Header />
           <NavigationBar
             menuItems={categories}
@@ -170,7 +256,6 @@ export default function Home({ infoCardCms, categories, tags }) {
             {
               isEmpty(categoryParam) && (
                 <>
-                  <SlideshowLinting />
                   {/* Info Cards Section */}
                   <InfoCards infoCardCms={infoCardCms} />
                 </>
@@ -191,11 +276,11 @@ export default function Home({ infoCardCms, categories, tags }) {
             {/* Discord Community Section */}
             <div className="w-full max-w-7xl mx-auto mt-5 mb-5 flex justify-center">
               <div
-                className="bg-black rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-[#222] shadow-sm gap-2"
+                className="bg-white rounded-md px-4 py-5 sm:px-6 sm:py-8 flex flex-col items-center w-full max-w-xs sm:max-w-xl border border-gray-200 shadow-sm gap-2"
                 style={{ boxShadow: '0 2px 6px 0 rgba(220,220,255,0.13)' }}
               >
-                <h3 className="text-base sm:text-xl font-bold mb-1 text-white">Join our Discord community</h3>
-                <p className="text-xs sm:text-sm text-gray-300 mb-2 text-center">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
+                <h3 className="text-base sm:text-xl font-bold mb-1 text-black">Join our Discord community</h3>
+                <p className="text-xs sm:text-sm text-gray-700 mb-2 text-center">Connect with other traders, get support, and stay up to date with the latest news and features.</p>
                 <a
                   href="https://discord.com/invite/sonotrade"
                   target="_blank"

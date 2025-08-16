@@ -240,12 +240,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
             <div
               className={cn(
                 "px-3 py-1 rounded-md transition-colors text-xs sm:text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
-                "text-[#666] hover:text-gray-400",
-                selectedCategory === "all" && "text-white"
+                selectedCategory === "all" ? "text-black" : "text-gray-400 hover:text-gray-500"
               )}
               onClick={() => handleCategoryClick("all")}
               style={{
-                textShadow: "0 2px 4px rgba(0,0,0,0.8)"
+                textShadow: selectedCategory === "all" ? "none" : "0 2px 4px rgba(0,0,0,0.08)"
               }}
             >
               Trending
@@ -256,12 +255,11 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
                   key={item.title}
                   className={cn(
                     "px-3 py-1 rounded-md transition-colors text-xs sm:text-sm font-medium whitespace-nowrap text-left pl-0 cursor-pointer",
-                    "text-[#666] hover:text-gray-400",
-                    selectedCategory === item.slug && "text-white"
+                    selectedCategory === item.slug ? "text-black" : "text-gray-400 hover:text-gray-500"
                   )}
                   onClick={() => router.push(`/?category=${item.slug}`)}
                   style={{
-                    textShadow: "0 2px 4px rgba(0,0,0,0.8)"
+                    textShadow: selectedCategory === item.slug ? "none" : "0 2px 4px rgba(0,0,0,0.08)"
                   }}
                 >
                   {item.title}
@@ -286,7 +284,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({
         </div>
       </div>
       {/* Right fade overlay positioned at the edge of the scroll area */}
-      <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-black to-transparent"></div>
+      <div className="pointer-events-none absolute right-0 top-0 h-full w-16 bg-gradient-to-l from-white to-transparent"></div>
     </div>
   );
 };
