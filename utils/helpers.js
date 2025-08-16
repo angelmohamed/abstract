@@ -92,26 +92,33 @@ export function buyFunction(data, amountInUSD) {
   };
 }
 
-export const getAccumalativeValue = (arr, length) => {
+export const getAccumulativeValue = (arr, length) => {
   if (!Array.isArray(arr)) {
     return 0;
   }
-  let arr2 = [...arr];
+  const arr2 = [...arr];
+  if (arr2.length < length + 1) {
+    return 0;
+  }
   let total = 0;
-  for (let i = 0; i < length + 1; i++) {
+  for (let i = 0; i < Math.min(length + 1, arr2.length); i++) {
     total += Number(arr2[i]?.[0]) * Number(arr2[i]?.[1]);
   }
   return total;
 };
 
-export const getAccumalativeValueReverse = (arr, length) => {
+export const getAccumulativeValueReverse = (arr, length) => {
   if (!Array.isArray(arr)) {
     return 0;
   }
   let arr2 = [...arr];
-  arr2 = arr2.reverse();
+  const arr2 = [...arr];
+  arr2.reverse();
+  if (arr2.length < length + 1) {
+    return 0;
+  }
   let total = 0;
-  for (let i = 0; i <= length; i++) {
+  for (let i = 0; i < Math.min(length + 1, arr2.length); i++) {
     total += Number(arr2[i]?.[0]) * Number(arr2[i]?.[1]);
   }
   return total;

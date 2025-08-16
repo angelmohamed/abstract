@@ -8,8 +8,8 @@ import { FillBid } from "@/app/components/ui/fillBid";
 import { Badge } from "@/app/components/ui/badge";
 import {
   decimalToPercentage,
-  getAccumalativeValue,
-  getAccumalativeValueReverse,
+  getAccumulativeValue,
+  getAccumulativeValueReverse,
   toTwoDecimal,
 } from "@/utils/helpers";
 import { useContext, useEffect, useState } from "react";
@@ -36,7 +36,7 @@ interface OrderBookData {
   [key: string]: any;
 }
 
-function getAccumalativeTotal(arr: OrderBookItem[] | undefined): number {
+function getAccumulativeTotal(arr: OrderBookItem[] | undefined): number {
   if (!Array.isArray(arr)) {
     return 0;
   }
@@ -214,25 +214,25 @@ const OrderbookAccordionContent = React.forwardRef<
       if (activeView === "Yes") {
         const sortedBids = (orderBook?.bids?.[0] || []).sort(descending);
         setBids(sortedBids);
-        setBidBookHighest(getAccumalativeTotal(sortedBids));
+        setBidBookHighest(getAccumulativeTotal(sortedBids));
         let asks =
           orderBook?.asks?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
         const sortedAsks = asks.sort(ascending);
         setAsks(sortedAsks ? sortedAsks.reverse(): []);
-        setAskBookHighest(getAccumalativeTotal(sortedAsks))
+        setAskBookHighest(getAccumulativeTotal(sortedAsks))
       } else if (activeView === "No") {
         const sortedBids = (orderBook?.asks?.[0] || []).sort(descending);
         setBids(sortedBids);
-        setBidBookHighest(getAccumalativeTotal(sortedBids))
+        setBidBookHighest(getAccumulativeTotal(sortedBids))
         let asks =
           orderBook?.bids?.[0]?.map((item: any) => {
             return [(100 - Number(item[0]))?.toString() || "0", item[1]];
           }) || [];
         const sortedAsks = asks.sort(ascending);
         setAsks(sortedAsks ? sortedAsks.reverse() : []);
-        setAskBookHighest(getAccumalativeTotal(sortedAsks))
+        setAskBookHighest(getAccumulativeTotal(sortedAsks))
       }
     }, [activeView, orderBook]);
 
@@ -468,7 +468,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                         row, 
                                         bidOrAsk: "ask", 
                                         ordCost: Number(
-                                          getAccumalativeValueReverse(
+                                          getAccumulativeValueReverse(
                                             asks || [],
                                             orderBookLength - (index + 1)
                                           ) / 100
@@ -478,7 +478,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       <div className="w-[30%]">
                                         <FillAsk
                                           value={
-                                            (getAccumalativeValueReverse(
+                                            (getAccumulativeValueReverse(
                                               asks || [],
                                               orderBookLength - (index + 1)
                                             ) /
@@ -503,7 +503,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       <div className="w-[25%] text-center">
                                         {"$" +
                                           Number(
-                                            getAccumalativeValueReverse(
+                                            getAccumulativeValueReverse(
                                               asks || [],
                                               orderBookLength - (index + 1)
                                             ) / 100
@@ -561,7 +561,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                         row, 
                                         bidOrAsk: "bid", 
                                         ordCost: Number(
-                                          getAccumalativeValue(
+                                          getAccumulativeValue(
                                             asks || [],
                                             orderBookLength - (index + 1)
                                           ) / 100
@@ -571,7 +571,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       <div className="w-[30%]">
                                         <FillBid
                                           value={
-                                            (getAccumalativeValue(
+                                            (getAccumulativeValue(
                                               bids || [],
                                               index
                                             ) /
@@ -596,7 +596,7 @@ const OrderbookAccordionContent = React.forwardRef<
                                       <div className="w-[25%] text-center">
                                         {"$" +
                                           Number(
-                                            getAccumalativeValue(
+                                            getAccumulativeValue(
                                               bids || [],
                                               index
                                             ) / 100
