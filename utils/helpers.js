@@ -112,7 +112,8 @@ export const getAccumulativeValueReverse = (arr, length) => {
     return 0;
   }
   let arr2 = [...arr];
-  arr2 = arr2.reverse();
+  const arr2 = [...arr];
+  arr2.reverse();
   if (arr2.length < length + 1) {
     return 0;
   }
