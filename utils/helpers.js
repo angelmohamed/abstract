@@ -92,7 +92,7 @@ export function buyFunction(data, amountInUSD) {
   };
 }
 
-export const getAccumalativeValue = (arr, length) => {
+export const getAccumulativeValue = (arr, length) => {
   if (!Array.isArray(arr)) {
     return 0;
   }
@@ -104,7 +104,7 @@ export const getAccumalativeValue = (arr, length) => {
   return total;
 };
 
-export const getAccumalativeValueReverse = (arr, length) => {
+export const getAccumulativeValueReverse = (arr, length) => {
   if (!Array.isArray(arr)) {
     return 0;
   }
